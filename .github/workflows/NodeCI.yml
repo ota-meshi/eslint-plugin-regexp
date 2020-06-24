@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 14
+    - name: Install Packages
+      run: npm install
+    - name: Lint
+      run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.13.x, 12.x, 13.x, 14.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install Packages
+      run: npm install
+    - name: Test
+      run: npm test
+  test-with-eslint6:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 8.10.x
+    - name: Install Target Packages
+      run: |+
+        npm i -D eslint@6.0.0
+        npx rimraf node_modules
+        npm install
+    - name: Test
+      run: npm test
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+    - name: Install Packages
+      run: npm install
+    - name: Test
+      run: npm run test:nyc
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.0.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

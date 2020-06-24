@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitAny": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["typings/*"]
+    },
+    "esModuleInterop": true
+  },
+  "include": ["lib/**/*", "tests/**/*", "tools/**/*", "typings/**/*"]
+}

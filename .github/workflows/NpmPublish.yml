@@ -1,0 +1,26 @@
+name: publish
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  release:
+    name: check version, and release
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v1
+    - name: setup Node
+      uses: actions/setup-node@v1
+      with:
+        registry-url: 'https://registry.npmjs.org'
+    - name: Install Packages
+      run: npm install
+    - name: test
+      run: npm run test
+    - name: check can npm-publish
+      run: npx can-npm-publish
+    - name: release
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

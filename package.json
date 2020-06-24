@@ -1,0 +1,76 @@
+{
+  "name": "eslint-plugin-regexp",
+  "version": "0.0.0",
+  "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "npm run -s clean",
+    "build": "tsc --project ./tsconfig.build.json",
+    "clean": "rimraf .nyc_output dist coverage",
+    "lint": "eslint \"tests\" \"lib\" \"docs/.vuepress\" --ext .js,.vue,.ts",
+    "eslint-fix": "eslint \"tests\" \"lib\" \"docs/.vuepress\" --ext .js,.vue,.ts --fix",
+    "pretest": "npm run build",
+    "test:base": "mocha --require ts-node/register \"tests/**/*.ts\" --reporter dot --timeout 60000",
+    "test": "npm run test:nyc",
+    "test:nyc": "nyc --reporter=lcov npm run test:base",
+    "test:debug": "mocha --require ts-node/register --inspect-brk \"tests/**/*.ts\" --reporter dot",
+    "test:watch": "npm run test:base -- --watch",
+    "update": "ts-node ./tools/update.ts && npm run eslint-fix && npm run test:nyc",
+    "new": "ts-node ./tools/new-rule.ts",
+    "docs:watch": "vuepress dev --debug docs",
+    "docs:build": "npm run build && vuepress build docs --no-cache",
+    "docs-deploysetup": "npm run docs:build && npm run docs-deploysetup:clean && npm run docs-deploysetup:copy",
+    "docs-deploysetup:clean": "rimraf assets",
+    "docs-deploysetup:copy": "npx cpx \"docs/\\.vuepress/dist/**\" . -u",
+    "preversion": "npm test && npm run update && git add .",
+    "version": "npm run eslint-fix && git add ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ota-meshi/eslint-plugin-regexp.git"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "regexp",
+    "regex"
+  ],
+  "author": "Yosuke Ota",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ota-meshi/eslint-plugin-regexp/issues"
+  },
+  "homepage": "https://github.com/ota-meshi/eslint-plugin-regexp#readme",
+  "peerDependencies": {
+    "eslint": ">=6.0.0"
+  },
+  "devDependencies": {
+    "@mysticatea/eslint-plugin": "^13.0.0",
+    "@types/eslint": "^7.2.0",
+    "@types/estree": "0.0.44",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.13",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.3.0",
+    "eslint4b": "^7.3.1",
+    "mocha": "^7.0.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.0.5",
+    "raw-loader": "^4.0.1",
+    "stylelint": "^13.6.1",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-plugin-stylus": "^0.9.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5",
+    "vue-eslint-editor": "^1.1.0",
+    "vuepress": "^1.5.2"
+  },
+  "dependencies": {
+    "eslint-utils": "^2.1.0",
+    "regexpp": "^3.1.0"
+  }
+}

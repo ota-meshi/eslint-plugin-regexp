@@ -1,0 +1,34 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "vue",
+    "typescript"
+  ],
+  "typescript.validate.enable": true,
+  "javascript.validate.enable": false,
+  "eslint.workingDirectories": [
+    "./", "./docs/.vuepress"
+  ],
+  "vetur.validation.script": false,
+  "vetur.validation.style": false,
+  "css.validate": false,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true,
+  },
+  "stylelint.customSyntax": "stylelint-plugin-stylus/custom-syntax",
+  "stylelint.validate": [
+    "css",
+    "html",
+    "less",
+    "postcss",
+    "sass",
+    "scss",
+    "vue",
+    "vue-html",
+    "vue-postcss",
+    "stylus"
+  ]
+}
