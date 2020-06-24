@@ -1,0 +1,6 @@
+/.nyc_output
+/coverage
+/node_modules
+/assets
+/dist
+/docs/.vuepress/dist
