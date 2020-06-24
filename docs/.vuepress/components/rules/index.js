@@ -2,7 +2,6 @@ import * as coreRules from "../../../../node_modules/eslint4b/dist/core-rules"
 import plugin from "../../../../"
 
 const CATEGORY_TITLES = {
-    base: "Base Rules",
     recommended: "Recommended",
     uncategorized: "Uncategorized",
     "eslint-core-rules@Possible Errors": "ESLint core rules(Possible Errors)",
@@ -15,7 +14,6 @@ const CATEGORY_TITLES = {
     "eslint-core-rules@ECMAScript 6": "ESLint core rules(ECMAScript 6)",
 }
 const CATEGORY_INDEX = {
-    base: 0,
     recommended: 2,
     uncategorized: 4,
     "eslint-plugin-vue": 5,
@@ -37,7 +35,9 @@ const allRules = []
 
 for (const k of Object.keys(plugin.rules)) {
     const rule = plugin.rules[k]
-    rule.meta.docs.category = rule.meta.docs.category || "uncategorized"
+    rule.meta.docs.category = rule.meta.docs.recommended
+        ? "recommended"
+        : "uncategorized"
     allRules.push({
         classes: "eslint-plugin-regexp__rule",
         category: rule.meta.docs.category,

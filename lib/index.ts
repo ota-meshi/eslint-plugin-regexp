@@ -2,9 +2,7 @@ import type { RuleModule } from "./types"
 import { rules as ruleList } from "./utils/rules"
 
 const configs = {
-    base: require("./configs/base"),
     recommended: require("./configs/recommended"),
-    all: require("./configs/all"),
 }
 
 const rules = ruleList.reduce((obj, r) => {

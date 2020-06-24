@@ -1,26 +1,8 @@
 const { rules } = require("../../dist/utils/rules")
-const categories = require("./categories")
-// const webpack = require("webpack")
 
-const uncategorizedRules = rules.filter(
-    (rule) => !rule.meta.docs.category && !rule.meta.deprecated
-)
 const deprecatedRules = rules.filter((rule) => rule.meta.deprecated)
 
 const extraCategories = []
-if (uncategorizedRules.length > 0) {
-    extraCategories.push({
-        title: "Uncategorized",
-        collapsable: false,
-        children: uncategorizedRules.map(
-            ({
-                meta: {
-                    docs: { ruleId, ruleName },
-                },
-            }) => [`/rules/${ruleName}`, ruleId]
-        ),
-    })
-}
 if (deprecatedRules.length > 0) {
     extraCategories.push({
         title: "Deprecated",
@@ -71,21 +53,17 @@ module.exports = {
         sidebar: {
             "/rules/": [
                 "/rules/",
-
-                // Rules in each category.
-                ...categories
-                    .map(({ title, rules: catRules }) => ({
-                        title: title.replace(/ \(.+?\)/u, ""),
-                        collapsable: false,
-                        children: catRules.map(
-                            ({
-                                meta: {
-                                    docs: { ruleId, ruleName },
-                                },
-                            }) => [`/rules/${ruleName}`, ruleId]
-                        ),
-                    }))
-                    .filter((menu) => Boolean(menu.children.length)),
+                {
+                    title: "Rules",
+                    collapsable: false,
+                    children: rules.map(
+                        ({
+                            meta: {
+                                docs: { ruleId, ruleName },
+                            },
+                        }) => [`/rules/${ruleName}`, ruleId]
+                    ),
+                },
 
                 // Rules in no category.
                 ...extraCategories,

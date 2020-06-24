@@ -53,7 +53,7 @@ import SnsBar from "./components/SnsBar.vue"
 import { deserializeState, serializeState } from "./state"
 import { DEFAULT_RULES_CONFIG } from "./rules"
 
-const DEFAULT_CODE = require("!!raw-loader!./demo/demo-code.vue").default
+const DEFAULT_CODE = require("!!raw-loader!./demo/demo-code.js").default
 
 const ruleURLs = {}
 for (const k of Object.keys(plugin.rules)) {

@@ -6,7 +6,6 @@ import fs from "fs"
  * @returns {Array} The all rules
  */
 function readRules() {
-    // const rulesDistRoot = path.resolve(__dirname, "../../dist/rules")
     const rulesLibRoot = path.resolve(__dirname, "../../lib/rules")
     const result = fs.readdirSync(rulesLibRoot)
     const rules = []

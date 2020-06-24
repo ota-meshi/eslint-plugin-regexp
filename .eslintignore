@@ -4,3 +4,4 @@
 /assets
 /dist
 /docs/.vuepress/dist
+/docs/.vuepress/components/demo/demo-code.js

@@ -26,6 +26,7 @@ module.exports = {
                 "@mysticatea/ts/no-var-requires": "off",
                 "@mysticatea/node/no-missing-import": "off",
                 "no-implicit-globals": "off",
+                "@mysticatea/node/no-extraneous-import": "off",
             },
             parserOptions: {
                 sourceType: "module",
@@ -62,7 +63,7 @@ module.exports = {
             files: ["docs/.vuepress/**"],
             parserOptions: {
                 sourceType: "module",
-                ecmaVersion: 2019,
+                ecmaVersion: 2020,
                 parser: "babel-eslint",
             },
             globals: {

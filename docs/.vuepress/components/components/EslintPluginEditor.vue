@@ -83,18 +83,17 @@ export default {
                     SharedArrayBuffer: false,
                 },
                 rules: this.rules,
-                parser: "vue-eslint-parser",
                 parserOptions: {
                     sourceType: "module",
-                    ecmaVersion: 2019,
+                    ecmaVersion: 2020,
                 },
             }
         },
         fileName() {
-            return "a.vue"
+            return "a.js"
         },
         language() {
-            return "html"
+            return "javascript"
         },
         linter() {
             if (!this.eslint4b) {

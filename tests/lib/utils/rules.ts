@@ -2,7 +2,7 @@ import assert from "assert"
 import path from "path"
 import fs from "fs"
 
-import { collectRules, rules as allRules } from "../../../lib/utils/rules"
+import { rules as allRules } from "../../../lib/utils/rules"
 
 /**
  * @returns {Array} Get the list of rules placed in the directory.
@@ -25,12 +25,11 @@ const dirRules = getDirRules()
 
 describe("Check if the struct of all rules is correct", () => {
     it("rule count equals (collectRules)", () => {
-        const collect = collectRules()
         assert.ok(
-            Object.keys(collect).length === Object.keys(dirRules).length,
+            allRules.length === Object.keys(dirRules).length,
             `Did not equal the number of rules. expect:${
                 Object.keys(dirRules).length
-            } actual:${Object.keys(collect).length}`,
+            } actual:${allRules.length}`,
         )
     })
     it("rule count equals (rules)", () => {
