@@ -1,42 +1,38 @@
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-dupe-characters-character-class"
-description: "disallow duplicate characters in the RegExp character class"
----
-# regexp/no-dupe-characters-character-class
+# disallow duplicate characters in the RegExp character class (regexp/no-dupe-characters-character-class)
 
-> disallow duplicate characters in the RegExp character class
+- :gear: This rule is included in `"plugin:regexp/all"`.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+Because multiple same character classes in regular expressions only one is useful, they might be typing mistakes.
 
-This rule reports `@keyframes` is not used in Scoped CSS.
-
-<eslint-code-block :rules="{'regexp/no-unused-keyframes': ['error']}">
-
-```vue
-<style scoped>
-.item {
-    animation-name: slidein;
-}
-
-/* ✗ BAD */
-@keyframes unused-animation {
-}
-
-/* ✓ GOOD */
-@keyframes slidein {
-}
-</style>
+```js
+var foo = /\\(\\)/
 ```
 
-</eslint-code-block>
+## Rule Details
 
-## :books: Further reading
+This rule disallows duplicate characters in the RegExp character class.
 
-- None
+Examples of **incorrect** code for this rule:
 
-## Implementation
+```js
+/*eslint regexp/no-dupe-characters-character-class: "error"*/
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-dupe-characters-character-class.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-dupe-characters-character-class.js)
+var foo = /[\\(\\)]/
+//          ^^ ^^        "\\" are duplicated
+var foo = /[a-z\\s]/
+//          ^^^  ^       "s" are duplicated
+var foo = /[\w0-9]/
+//          ^^^^^        "0-9" are duplicated
+```
+
+Examples of **correct** code for this rule:
+
+```js
+/*eslint regexp/no-dupe-characters-character-class: "error"*/
+
+var foo = /[\(\)]/
+
+var foo = /[a-z\s]/
+
+var foo = /[\w]/
+```
