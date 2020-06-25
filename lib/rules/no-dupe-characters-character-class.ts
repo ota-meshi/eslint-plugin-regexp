@@ -323,7 +323,7 @@ function groupingElements(elements: CharacterClassElement[]) {
     }
 }
 
-module.exports = createRule("no-dupe-characters-character-class", {
+export = createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
         docs: {
@@ -352,6 +352,22 @@ module.exports = createRule("no-dupe-characters-character-class", {
             node: Expression,
             element: CharacterClassElement,
         ): AST.SourceLocation {
+            if (node.type !== "Literal") {
+                return node.loc!
+            }
+            if (!(node.value instanceof RegExp)) {
+                if (typeof node.value !== "string") {
+                    return node.loc!
+                }
+                if (
+                    sourceCode.text.slice(
+                        node.range![0] + 1,
+                        node.range![1] - 1,
+                    ) !== node.value
+                ) {
+                    return node.loc!
+                }
+            }
             const nodeStart = node.range![0] + 1
             return {
                 start: sourceCode.getLocFromIndex(nodeStart + element.start),

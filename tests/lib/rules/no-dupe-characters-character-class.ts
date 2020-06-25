@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-const rule = require("../../../lib/rules/no-dupe-characters-character-class")
+import rule = require("../../../lib/rules/no-dupe-characters-character-class")
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("no-dupe-characters-character-class", rule, {
+tester.run("no-dupe-characters-character-class", rule as any, {
     valid: [
         "var re = /[a-zA-Z0-9\\s]/",
         "/[abc]/",

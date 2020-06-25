@@ -126,9 +126,11 @@ export default {
     font-size: 14px;
     font-weight: bold;
 }
+
 .rules {
     padding-left: 0;
 }
+
 .rule {
     font-size: 12px;
     line-height: 24px;
@@ -136,15 +138,19 @@ export default {
     list-style-type: none;
     display: flex;
 }
+
 .rule a {
     margin-left: auto;
 }
+
 a {
     text-decoration: none;
 }
+
 .category {
     color: #fff;
 }
+
 .eslint-plugin-regexp__category {
     color: #f8c555;
 }
