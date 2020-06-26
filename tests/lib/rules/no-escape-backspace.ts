@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("no-escape-backspace", rule as any, {
-    valid: ["/\\b/", "/\\u0008/"],
+    valid: ["/\\b/", "/\\u0008/", "/\\ch/", "/\\cH/"],
     invalid: [
         {
             code: "/[\\b]/",

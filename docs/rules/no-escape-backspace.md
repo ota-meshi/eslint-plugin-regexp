@@ -23,6 +23,8 @@ The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishab
 /* ✓ GOOD */
 var foo = /\b/
 var foo = /\u0008/
+var foo = /\cH/
+var foo = /\x08/
 
 /* ✗ BAD */
 var foo = /[\b]/
