@@ -1,20 +1,11 @@
 const { rules } = require("../../dist/utils/rules")
 
-const deprecatedRules = rules.filter((rule) => rule.meta.deprecated)
-
-const extraCategories = []
-if (deprecatedRules.length > 0) {
-    extraCategories.push({
-        title: "Deprecated",
-        collapsable: false,
-        children: deprecatedRules.map(
-            ({
-                meta: {
-                    docs: { ruleId, ruleName },
-                },
-            }) => [`/rules/${ruleName}`, ruleId]
-        ),
-    })
+function ruleToLink({
+    meta: {
+        docs: { ruleId, ruleName },
+    },
+}) {
+    return [`/rules/${ruleName}`, ruleId]
 }
 
 module.exports = {
@@ -56,17 +47,23 @@ module.exports = {
                 {
                     title: "Rules",
                     collapsable: false,
-                    children: rules.map(
-                        ({
-                            meta: {
-                                docs: { ruleId, ruleName },
-                            },
-                        }) => [`/rules/${ruleName}`, ruleId]
-                    ),
+                    children: rules
+                        .filter((rule) => !rule.meta.deprecated)
+                        .map(ruleToLink),
                 },
 
                 // Rules in no category.
-                ...extraCategories,
+                ...(rules.some((rule) => rule.meta.deprecated)
+                    ? [
+                          {
+                              title: "Deprecated",
+                              collapsable: false,
+                              children: rules
+                                  .filter((rule) => rule.meta.deprecated)
+                                  .map(ruleToLink),
+                          },
+                      ]
+                    : []),
             ],
             "/": ["/", "/user-guide/", "/rules/", "/playground/"],
         },

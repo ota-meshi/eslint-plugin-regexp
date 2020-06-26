@@ -16,17 +16,23 @@ Because multiple same character classes in regular expressions only one is usefu
 var foo = /\\(\\)/
 ```
 
-## Rule Details
+## :book: Rule Details
 
 This rule disallows duplicate characters in the RegExp character class.
 
-Examples of **incorrect** code for this rule:
-
-<eslint-code-block>
+<eslint-code-block >
 
 ```js
 /* eslint regexp/no-dupe-characters-character-class: "error" */
 
+/* ✓ GOOD */
+var foo = /[\(\)]/
+
+var foo = /[a-z\s]/
+
+var foo = /[\w]/
+
+/* ✗ BAD */
 var foo = /[\\(\\)]/
 //          ^^ ^^        "\\" are duplicated
 var foo = /[a-z\\s]/
@@ -37,21 +43,9 @@ var foo = /[\w0-9]/
 
 </eslint-code-block>
 
-Examples of **correct** code for this rule:
+## :wrench: Options
 
-<eslint-code-block>
-
-```js
-/* eslint regexp/no-dupe-characters-character-class: "error" */
-
-var foo = /[\(\)]/
-
-var foo = /[a-z\s]/
-
-var foo = /[\w]/
-```
-
-</eslint-code-block>
+Nothing.
 
 ## Implementation
 

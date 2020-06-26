@@ -1,6 +1,6 @@
 import { recommendedConfig } from "../utils/rules"
 
-export = {
+export default {
     plugins: ["regexp"],
     rules: {
         "no-control-regex": "error",

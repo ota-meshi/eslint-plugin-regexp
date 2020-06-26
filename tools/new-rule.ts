@@ -22,68 +22,41 @@ const logger = console
     fs.writeFileSync(
         ruleFile,
         `
-import type { RuleContext } from "../types"
+import type { Expression } from "estree"
+import type { RegExpVisitor } from "regexpp/visitor"
+import type { CharacterClass } from "regexpp/ast"
+import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 
-module.exports = {
+module.exports = createRule("${ruleId}", {
     meta: {
         docs: {
             description: "",
-            category: undefined,
-            default: "warn",
-            url: "",
+            recommended: false,
         },
-        fixable: null,
         schema: [],
-        messages: {
-        },
+        messages: {},
         type: "suggestion", // "problem",
     },
-    create(context: RuleContext) {
-        const styles = getStyleContexts(context).filter(
-            style => !style.invalid && style.scoped,
-        )
-        if (!styles.length) {
-            return {}
-        }
-        const reporter = getCommentDirectivesReporter(context)
-
+    create(context) {
+        const sourceCode = context.getSourceCode()
 
         /**
-         * Reports the given node
-         * @param {ASTNode} node node to report
+         * Create visitor
+         * @param node
          */
-        function report(node: VCSSSelectorNode) {
-            reporter.report({
-                node,
-                loc: node.loc,
-                messageId: "???",
-                data: {}
-            })
+        function createVisitor(node: Expression): RegExpVisitor.Handlers {
         }
-
-
-        return {
-            "Program:exit"() {
-                // const queryContext = createQueryContext(
-                //     context,
-                //     context.options[0] || {},
-                // )
-                //
-                // for (const style of styles) {
-                //     for (const scopedSelector of getScopedSelectors(style)) {
-                //         verifySelector(queryContext, scopedSelector)
-                //     }
-                // }
-            },
-        }
+        return defineRegexpVisitor(context, {
+            createVisitor,
+        })
     },
-}
+})
 `,
     )
     fs.writeFileSync(
         testFile,
         `import { RuleTester } from "eslint"
-const rule = require("../../../lib/rules/${ruleId}")
+import rule from "../../../lib/rules/${ruleId}"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -92,30 +65,20 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("${ruleId}", rule, {
+tester.run("${ruleId}", rule as any, {
     valid: [
         \`
-        <template>
-            <div class="item">sample</div>
-        </template>
-        <style scoped>
-        .item {}
-        </style>
+        /regexp/
         \`
     ],
     invalid: [
         {
             code: \`
-            <template>
-                <div class="item">sample</div>
-            </template>
-            <style scoped>
-            .item {}
-            </style>
+            /regexp/
             \`,
             errors: [
                 {
-                    messageId: "unused",
+                    messageId: "",
                     data: {},
                     line: 1,
                     column: 1,
@@ -132,23 +95,22 @@ tester.run("${ruleId}", rule, {
         docFile,
         `#  (regexp/${ruleId})
 
+> description
+
 ## :book: Rule Details
 
 This rule reports ??? as errors.
 
-<eslint-code-block :rules="{'regexp/${ruleId}': ['error']}">
+<eslint-code-block>
 
-\`\`\`vue
-<template>
-  <div class="item"></div>
-</template>
-<style scoped>
-/* ✗ BAD */
-.item {}
+\`\`\`js
+/* eslint regexp/${ruleId}: "error" */
 
 /* ✓ GOOD */
-.item {}
-</style>
+
+
+/* ✗ BAD */
+
 \`\`\`
 
 </eslint-code-block>
@@ -167,7 +129,7 @@ This rule reports ??? as errors.
 
 ## :books: Further reading
 
-- None
+- 
 
 `,
     )

@@ -1,6 +1,7 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
+import type { Node as RegExpNode } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import {
     CALL,
@@ -8,7 +9,7 @@ import {
     ReferenceTracker,
     getStringIfConstant,
 } from "eslint-utils"
-import { Rule } from "eslint"
+import type { Rule, AST, SourceCode } from "eslint"
 
 /**
  * Define the rule.
@@ -38,14 +39,26 @@ export function createRule(
  */
 export function defineRegexpVisitor(
     context: Rule.RuleContext,
-    rule: {
-        createLiteralVisitor?: (
-            node: ESTree.RegExpLiteral,
-        ) => RegExpVisitor.Handlers
-        createSourceVisitor?: (
-            node: ESTree.Expression,
-        ) => RegExpVisitor.Handlers
-    },
+    rule:
+        | {
+              createLiteralVisitor?: (
+                  node: ESTree.RegExpLiteral,
+                  pattern: string,
+                  flags: string,
+              ) => RegExpVisitor.Handlers
+              createSourceVisitor?: (
+                  node: ESTree.Expression,
+                  pattern: string,
+                  flags: string,
+              ) => RegExpVisitor.Handlers
+          }
+        | {
+              createVisitor?: (
+                  node: ESTree.Expression,
+                  pattern: string,
+                  flags: string,
+              ) => RegExpVisitor.Handlers
+          },
 ): RuleListener {
     const parser = new RegExpParser()
 
@@ -59,7 +72,11 @@ export function defineRegexpVisitor(
         node: T,
         pattern: string,
         flags: string,
-        createVisitor: (node: T) => RegExpVisitor.Handlers,
+        createVisitor: (
+            node: T,
+            pattern: string,
+            flags: string,
+        ) => RegExpVisitor.Handlers,
     ) {
         let patternNode
 
@@ -75,11 +92,21 @@ export function defineRegexpVisitor(
             return
         }
 
-        visitRegExpAST(patternNode, createVisitor(node))
+        visitRegExpAST(patternNode, createVisitor(node, pattern, flags))
     }
 
-    const createLiteralVisitor = rule.createLiteralVisitor
-    const createSourceVisitor = rule.createSourceVisitor
+    const createLiteralVisitor =
+        "createVisitor" in rule
+            ? rule.createVisitor
+            : "createLiteralVisitor" in rule
+            ? rule.createLiteralVisitor
+            : null
+    const createSourceVisitor =
+        "createVisitor" in rule
+            ? rule.createVisitor
+            : "createSourceVisitor" in rule
+            ? rule.createSourceVisitor
+            : null
 
     return {
         ...(createLiteralVisitor
@@ -136,3 +163,86 @@ export function defineRegexpVisitor(
             : null),
     }
 }
+
+/**
+ * Creates source range from the given regexp node
+ * @param sourceCode The ESLint source code instance.
+ * @param node The node to report.
+ * @param regexpNode The regexp node to report.
+ * @returns The SourceLocation
+ */
+export function getRegexpRange(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+    regexpNode: RegExpNode,
+): AST.Range | null {
+    if (!availableRegexpLocation(sourceCode, node)) {
+        return null
+    }
+    const nodeStart = node.range![0] + 1
+    return [nodeStart + regexpNode.start, nodeStart + regexpNode.end]
+}
+
+/**
+ * Creates SourceLocation from the given regexp node
+ * @param sourceCode The ESLint source code instance.
+ * @param node The node to report.
+ * @param regexpNode The regexp node to report.
+ * @returns The SourceLocation
+ */
+export function getRegexpLocation(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+    regexpNode: RegExpNode,
+): AST.SourceLocation {
+    const range = getRegexpRange(sourceCode, node, regexpNode)
+    if (range == null) {
+        return node.loc!
+    }
+    return {
+        start: sourceCode.getLocFromIndex(range[0]),
+        end: sourceCode.getLocFromIndex(range[1]),
+    }
+}
+
+/**
+ * Check if the location of the regular expression node is available.
+ * @param sourceCode The ESLint source code instance.
+ * @param node The node to check.
+ * @returns `true` if the location of the regular expression node is available.
+ */
+export function availableRegexpLocation(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+): boolean {
+    if (node.type !== "Literal") {
+        return false
+    }
+    if (!(node.value instanceof RegExp)) {
+        if (typeof node.value !== "string") {
+            return false
+        }
+        if (
+            sourceCode.text.slice(node.range![0] + 1, node.range![1] - 1) !==
+            node.value
+        ) {
+            return false
+        }
+    }
+    return true
+}
+
+export const FLAG_GLOBAL = "g"
+export const FLAG_DOTALL = "s"
+export const FLAG_IGNORECASE = "i"
+export const FLAG_MULTILINE = "m"
+export const FLAG_STICKY = "y"
+export const FLAG_UNICODE = "u"
+
+export const CP_DIGIT_ZERO = "0".codePointAt(0)!
+export const CP_DIGIT_NINE = "9".codePointAt(0)!
+export const CP_SMALL_A = "a".codePointAt(0)!
+export const CP_SMALL_Z = "z".codePointAt(0)!
+export const CP_CAPITAL_A = "A".codePointAt(0)!
+export const CP_CAPITAL_Z = "Z".codePointAt(0)!
+export const CP_LOW_LINE = "_".codePointAt(0)!

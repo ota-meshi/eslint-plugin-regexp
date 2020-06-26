@@ -22,8 +22,8 @@ module.exports = {
         {
             files: ["*.ts"],
             rules: {
-                "@mysticatea/ts/no-require-imports": "off",
-                "@mysticatea/ts/no-var-requires": "off",
+                // "@mysticatea/ts/no-require-imports": "off",
+                // "@mysticatea/ts/no-var-requires": "off",
                 "@mysticatea/node/no-missing-import": "off",
                 "no-implicit-globals": "off",
                 "@mysticatea/node/no-extraneous-import": "off",

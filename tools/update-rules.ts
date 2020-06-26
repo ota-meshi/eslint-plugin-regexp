@@ -5,13 +5,26 @@ import os from "os"
 import { rules } from "./lib/load-rules"
 const isWin = os.platform().startsWith("win")
 
+/**
+ * Convert text to camelCase
+ */
+function camelCase(str: string) {
+    return str.replace(/[-_](\w)/gu, (_, c) => (c ? c.toUpperCase() : ""))
+}
+
 let content = `
 import type { RuleModule } from "../types"
+${rules
+    .map(
+        (rule) =>
+            `import ${camelCase(rule.meta.docs.ruleName)} from "../rules/${
+                rule.meta.docs.ruleName
+            }"`,
+    )
+    .join("\n")}
 
 export const rules = [
-    ${rules
-        .map((rule) => `require("../rules/${rule.meta.docs.ruleName}"),`)
-        .join("")}
+    ${rules.map((rule) => camelCase(rule.meta.docs.ruleName)).join(",")}
 ] as RuleModule[]
 
 /**
@@ -19,7 +32,7 @@ export const rules = [
  */
 export function recommendedConfig(): { [key: string]: "error" | "warn" } {
     return rules.reduce((obj, rule) => {
-        if (!rule.meta.deprecated) {
+        if (rule.meta.docs.recommended && !rule.meta.deprecated) {
             obj[rule.meta.docs.ruleId] = rule.meta.docs.default || "error"
         }
         return obj

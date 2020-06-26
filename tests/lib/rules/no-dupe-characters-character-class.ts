@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule = require("../../../lib/rules/no-dupe-characters-character-class")
+import rule from "../../../lib/rules/no-dupe-characters-character-class"
 
 const tester = new RuleTester({
     parserOptions: {

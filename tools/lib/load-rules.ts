@@ -12,7 +12,8 @@ function readRules() {
     for (const name of result) {
         const ruleName = name.replace(/\.ts$/u, "")
         const ruleId = `regexp/${ruleName}`
-        const rule = require(path.join(rulesLibRoot, name))
+        // eslint-disable-next-line @mysticatea/ts/no-require-imports
+        const rule = require(path.join(rulesLibRoot, name)).default
 
         rule.meta.docs.ruleName = ruleName
         rule.meta.docs.ruleId = ruleId

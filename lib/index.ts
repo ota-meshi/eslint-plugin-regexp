@@ -1,8 +1,9 @@
 import type { RuleModule } from "./types"
 import { rules as ruleList } from "./utils/rules"
+import recommended from "./configs/recommended"
 
 const configs = {
-    recommended: require("./configs/recommended"),
+    recommended,
 }
 
 const rules = ruleList.reduce((obj, r) => {

@@ -85,7 +85,7 @@ export default {
                 rules: this.rules,
                 parserOptions: {
                     sourceType: "module",
-                    ecmaVersion: 2020,
+                    ecmaVersion: 2019,
                 },
             }
         },

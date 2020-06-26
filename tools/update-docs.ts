@@ -16,7 +16,7 @@ function formatItems(items: string[]) {
 //eslint-disable-next-line require-jsdoc
 function yamlValue(val: any) {
     if (typeof val === "string") {
-        return `"${val.replace(/"/gu, '\\"')}"`
+        return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
     }
     return val
 }
@@ -80,6 +80,7 @@ class DocFile {
         }
 
         const headerPattern = /#.+\n+[^\n]*\n+(?:- .+\n+)*\n*/u
+
         const header = `${title}\n\n${notes.join("\n")}`
         if (headerPattern.test(this.content)) {
             this.content = this.content.replace(headerPattern, header)
@@ -111,8 +112,8 @@ class DocFile {
         const { meta } = this.rule
 
         this.content = this.content.replace(
-            /<eslint-code-block\s(:?fix[^\s]*)?\s*/gu,
-            `<eslint-code-block ${meta.fixable ? "fix " : ""}`,
+            /<eslint-code-block(?:[\s\S]*?)>/gu,
+            `<eslint-code-block ${meta.fixable ? "fix" : ""}>`,
         )
         return this
     }

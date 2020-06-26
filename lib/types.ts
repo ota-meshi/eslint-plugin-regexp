@@ -1,5 +1,5 @@
 import type { JSONSchema4 } from "json-schema"
-import { Rule } from "eslint"
+import type { Rule } from "eslint"
 export interface RuleListener {
     [key: string]: (node: never) => void
 }

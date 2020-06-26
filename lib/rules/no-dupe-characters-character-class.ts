@@ -1,4 +1,5 @@
 import type { Expression } from "estree"
+import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -7,16 +8,19 @@ import type {
     UnicodePropertyCharacterSet,
     CharacterClassRange,
 } from "regexpp/ast"
-import type { AST } from "eslint"
-import { createRule, defineRegexpVisitor } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    getRegexpLocation,
+    CP_DIGIT_ZERO,
+    CP_DIGIT_NINE,
+    CP_SMALL_A,
+    CP_SMALL_Z,
+    CP_CAPITAL_A,
+    CP_CAPITAL_Z,
+    CP_LOW_LINE,
+} from "../utils"
 
-const CP_DIGIT_ZERO = "0".codePointAt(0)!
-const CP_DIGIT_NINE = "9".codePointAt(0)!
-const CP_SMALL_A = "a".codePointAt(0)!
-const CP_SMALL_Z = "z".codePointAt(0)!
-const CP_CAPITAL_A = "A".codePointAt(0)!
-const CP_CAPITAL_Z = "Z".codePointAt(0)!
-const CP_LOW_LINE = "_".codePointAt(0)!
 const CP_SPACE = " ".codePointAt(0)!
 const CPS_SINGLE_SPACES = new Set<number>(
     Array.from(
@@ -73,7 +77,7 @@ function isSpace(codePoint: number) {
 
 /**
  * Checks if the given code point is word.
- * @param scodePoint The code point to check
+ * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is word.
  */
 function isWord(codePoint: number) {
@@ -234,8 +238,7 @@ function getCharacterClassRangeAndCharacterSetIntersections(
         return intersection ? [...result, intersection] : result
     }
     if (set.kind === "word") {
-        /** @type { [number, number][] } */
-        const intersections = []
+        const intersections: [number, number][] = []
         for (const wordRange of CP_RANGES_WORDS) {
             const intersection = getIntersectionAndNotSeparate(wordRange)
             if (intersection) {
@@ -323,7 +326,7 @@ function groupingElements(elements: CharacterClassElement[]) {
     }
 }
 
-export = createRule("no-dupe-characters-character-class", {
+export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
         docs: {
@@ -343,39 +346,6 @@ export = createRule("no-dupe-characters-character-class", {
         const sourceCode = context.getSourceCode()
 
         /**
-         * Creates SourceLocation from the given character class element
-         * @param node The node to report.
-         * @param element The element
-         * @returns The SourceLocation
-         */
-        function buildElementLoc(
-            node: Expression,
-            element: CharacterClassElement,
-        ): AST.SourceLocation {
-            if (node.type !== "Literal") {
-                return node.loc!
-            }
-            if (!(node.value instanceof RegExp)) {
-                if (typeof node.value !== "string") {
-                    return node.loc!
-                }
-                if (
-                    sourceCode.text.slice(
-                        node.range![0] + 1,
-                        node.range![1] - 1,
-                    ) !== node.value
-                ) {
-                    return node.loc!
-                }
-            }
-            const nodeStart = node.range![0] + 1
-            return {
-                start: sourceCode.getLocFromIndex(nodeStart + element.start),
-                end: sourceCode.getLocFromIndex(nodeStart + element.end),
-            }
-        }
-
-        /**
          * Report duplicate elements.
          * @param node The node to report.
          * @param elements The elements to report
@@ -387,7 +357,7 @@ export = createRule("no-dupe-characters-character-class", {
             for (const element of elements) {
                 context.report({
                     node,
-                    loc: buildElementLoc(node, element),
+                    loc: getRegexpLocation(sourceCode, node, element),
                     messageId: "duplicates",
                     data: {
                         element: element.raw,
@@ -410,7 +380,7 @@ export = createRule("no-dupe-characters-character-class", {
             for (const char of characters) {
                 context.report({
                     node,
-                    loc: buildElementLoc(node, char),
+                    loc: getRegexpLocation(sourceCode, node, char),
                     messageId: "charIsIncluded",
                     data: {
                         char: char.raw,
@@ -444,7 +414,7 @@ export = createRule("no-dupe-characters-character-class", {
             for (const element of elements) {
                 context.report({
                     node,
-                    loc: buildElementLoc(node, element),
+                    loc: getRegexpLocation(sourceCode, node, element),
                     messageId: "intersect",
                     data: {
                         elementA: element.raw,
@@ -459,7 +429,7 @@ export = createRule("no-dupe-characters-character-class", {
          * Create visitor
          * @param node
          */
-        function createVisitor(node: Expression) {
+        function createVisitor(node: Expression): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const {
@@ -547,8 +517,7 @@ export = createRule("no-dupe-characters-character-class", {
         }
 
         return defineRegexpVisitor(context, {
-            createLiteralVisitor: createVisitor,
-            createSourceVisitor: createVisitor,
+            createVisitor,
         })
     },
 })
