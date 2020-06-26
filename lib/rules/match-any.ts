@@ -42,7 +42,7 @@ export default createRule("match-any", {
     meta: {
         docs: {
             description: "enforce match any character style",
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [

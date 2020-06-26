@@ -45,12 +45,34 @@ module.exports = {
             "/rules/": [
                 "/rules/",
                 {
-                    title: "Rules",
+                    title: "Recommended",
                     collapsable: false,
                     children: rules
-                        .filter((rule) => !rule.meta.deprecated)
+                        .filter(
+                            (rule) =>
+                                rule.meta.docs.recommended &&
+                                !rule.meta.deprecated
+                        )
                         .map(ruleToLink),
                 },
+                ...(rules.some(
+                    (rule) =>
+                        !rule.meta.docs.recommended && !rule.meta.deprecated
+                )
+                    ? [
+                          {
+                              title: "Uncategorized",
+                              collapsable: false,
+                              children: rules
+                                  .filter(
+                                      (rule) =>
+                                          !rule.meta.docs.recommended &&
+                                          !rule.meta.deprecated
+                                  )
+                                  .map(ruleToLink),
+                          },
+                      ]
+                    : []),
 
                 // Rules in no category.
                 ...(rules.some((rule) => rule.meta.deprecated)

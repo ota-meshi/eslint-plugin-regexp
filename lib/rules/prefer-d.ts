@@ -14,7 +14,7 @@ export default createRule("prefer-d", {
     meta: {
         docs: {
             description: "enforce using `\\d`",
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

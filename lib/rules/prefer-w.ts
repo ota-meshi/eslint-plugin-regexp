@@ -66,7 +66,7 @@ export default createRule("prefer-w", {
     meta: {
         docs: {
             description: "enforce using `\\w`",
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

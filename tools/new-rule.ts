@@ -31,7 +31,7 @@ module.exports = createRule("${ruleId}", {
     meta: {
         docs: {
             description: "",
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {},
