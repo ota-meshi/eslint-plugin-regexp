@@ -27,7 +27,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { CharacterClass } from "regexpp/ast"
 import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 
-module.exports = createRule("${ruleId}", {
+export default createRule("${ruleId}", {
     meta: {
         docs: {
             description: "",
@@ -67,15 +67,11 @@ const tester = new RuleTester({
 
 tester.run("${ruleId}", rule as any, {
     valid: [
-        \`
-        /regexp/
-        \`
+        \`/regexp/\`
     ],
     invalid: [
         {
-            code: \`
-            /regexp/
-            \`,
+            code: \`/regexp/\`,
             errors: [
                 {
                     messageId: "",

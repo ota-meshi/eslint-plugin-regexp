@@ -13,5 +13,8 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 |:--------|:------------|:---|
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star: |
+| [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
+| [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
+| [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
