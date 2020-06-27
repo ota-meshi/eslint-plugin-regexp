@@ -12,7 +12,7 @@ description: "disallow escape backspace (`[\\b]`)"
 
 ## :book: Rule Details
 
-This rule reports `[\b]` as errors.
+This rule reports `[\b]`.  
 The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishable at a glance. This rule does not allow backspace (`[\b]`). Use unicode escapes (`\u0008`) instead.
 
 <eslint-code-block >

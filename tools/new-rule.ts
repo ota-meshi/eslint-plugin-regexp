@@ -95,7 +95,7 @@ tester.run("${ruleId}", rule as any, {
 
 ## :book: Rule Details
 
-This rule reports ??? as errors.
+This rule reports ???.
 
 <eslint-code-block>
 

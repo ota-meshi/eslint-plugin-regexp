@@ -21,10 +21,10 @@ This rule is aimed at using `\t` in regular expressions.
 /* eslint regexp/prefer-t: "error" */
 
 /* ✓ GOOD */
-var foo = `\t`
+var foo = /\t/
 
 /* ✗ BAD */
-var foo = `\u0009`
+var foo = /\u0009/
 ```
 
 </eslint-code-block>

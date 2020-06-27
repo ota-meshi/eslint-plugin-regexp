@@ -3,7 +3,11 @@ import matchAny from "../rules/match-any"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noOctal from "../rules/no-octal"
+import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import preferD from "../rules/prefer-d"
+import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
+import preferQuestionQuantifier from "../rules/prefer-question-quantifier"
+import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferW from "../rules/prefer-w"
 
@@ -12,7 +16,11 @@ export const rules = [
     noDupeCharactersCharacterClass,
     noEscapeBackspace,
     noOctal,
+    noUselessExactlyQuantifier,
     preferD,
+    preferPlusQuantifier,
+    preferQuestionQuantifier,
+    preferStarQuantifier,
     preferT,
     preferW,
 ] as RuleModule[]

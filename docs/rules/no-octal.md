@@ -12,7 +12,7 @@ description: "disallow octal escape sequence"
 
 ## :book: Rule Details
 
-This rule reports octal escape as errors.
+This rule reports octal escape.
 
 `\0` is matches a `NUL` character. Do not follow this with another digit, because a 0 followed by a number is an octal escape sequence.
 

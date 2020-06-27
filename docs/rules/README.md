@@ -15,6 +15,10 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
+| [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
+| [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
+| [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
+| [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
 | [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |

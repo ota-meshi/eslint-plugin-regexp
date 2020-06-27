@@ -1,7 +1,7 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Node as RegExpNode } from "regexpp/ast"
+import type { Node as RegExpNode, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import {
     CALL,
@@ -10,6 +10,21 @@ import {
     getStringIfConstant,
 } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
+
+export const FLAG_GLOBAL = "g"
+export const FLAG_DOTALL = "s"
+export const FLAG_IGNORECASE = "i"
+export const FLAG_MULTILINE = "m"
+export const FLAG_STICKY = "y"
+export const FLAG_UNICODE = "u"
+
+export const CP_DIGIT_ZERO = "0".codePointAt(0)!
+export const CP_DIGIT_NINE = "9".codePointAt(0)!
+export const CP_SMALL_A = "a".codePointAt(0)!
+export const CP_SMALL_Z = "z".codePointAt(0)!
+export const CP_CAPITAL_A = "A".codePointAt(0)!
+export const CP_CAPITAL_Z = "Z".codePointAt(0)!
+export const CP_LOW_LINE = "_".codePointAt(0)!
 
 /**
  * Define the rule.
@@ -188,16 +203,24 @@ export function getRegexpRange(
  * @param sourceCode The ESLint source code instance.
  * @param node The node to report.
  * @param regexpNode The regexp node to report.
+ * @param offsets The report location offsets.
  * @returns The SourceLocation
  */
 export function getRegexpLocation(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: RegExpNode,
+    offsets?: [number, number],
 ): AST.SourceLocation {
     const range = getRegexpRange(sourceCode, node, regexpNode)
     if (range == null) {
         return node.loc!
+    }
+    if (offsets) {
+        return {
+            start: sourceCode.getLocFromIndex(range[0] + offsets[0]),
+            end: sourceCode.getLocFromIndex(range[0] + offsets[1]),
+        }
     }
     return {
         start: sourceCode.getLocFromIndex(range[0]),
@@ -232,17 +255,11 @@ export function availableRegexpLocation(
     return true
 }
 
-export const FLAG_GLOBAL = "g"
-export const FLAG_DOTALL = "s"
-export const FLAG_IGNORECASE = "i"
-export const FLAG_MULTILINE = "m"
-export const FLAG_STICKY = "y"
-export const FLAG_UNICODE = "u"
-
-export const CP_DIGIT_ZERO = "0".codePointAt(0)!
-export const CP_DIGIT_NINE = "9".codePointAt(0)!
-export const CP_SMALL_A = "a".codePointAt(0)!
-export const CP_SMALL_Z = "z".codePointAt(0)!
-export const CP_CAPITAL_A = "A".codePointAt(0)!
-export const CP_CAPITAL_Z = "Z".codePointAt(0)!
-export const CP_LOW_LINE = "_".codePointAt(0)!
+/**
+ * Get the offsets of the given quantifier
+ */
+export function getQuantifierOffsets(qNode: Quantifier) {
+    const startOffset = qNode.element.end - qNode.start
+    const endOffset = qNode.raw.length - (qNode.greedy ? 0 : 1)
+    return [startOffset, endOffset] as const
+}
