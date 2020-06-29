@@ -55,5 +55,13 @@ tester.run("prefer-plus-quantifier", rule as any, {
                 },
             ],
         },
+        {
+            code: `
+            const s = "a{1,}"
+            new RegExp(s)
+            `,
+            output: null,
+            errors: ['Unexpected quantifier "{1,}". Use "+" instead.'],
+        },
     ],
 })

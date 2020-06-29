@@ -18,6 +18,8 @@ export default createRule("prefer-question-quantifier", {
         schema: [],
         messages: {
             unexpected: 'Unexpected quantifier "{{expr}}". Use "?" instead.',
+            unexpectedGroup:
+                'Unexpected group "{{expr}}". Use "{{instead}}" instead.',
         },
         type: "suggestion", // "problem",
     },
@@ -68,6 +70,42 @@ export default createRule("prefer-question-quantifier", {
                                 },
                             })
                         }
+                    }
+                },
+                onGroupEnter(gNode) {
+                    const nonEmpties = []
+                    const empties = []
+                    for (const alt of gNode.alternatives) {
+                        if (alt.elements.length === 0) {
+                            empties.push(alt)
+                        } else {
+                            nonEmpties.push(alt)
+                        }
+                    }
+                    if (empties.length && nonEmpties.length) {
+                        const instead = `(?:${nonEmpties
+                            .map((ne) => ne.raw)
+                            .join("|")})?`
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(sourceCode, node, gNode),
+                            messageId: "unexpectedGroup",
+                            data: {
+                                expr: gNode.raw,
+                                instead,
+                            },
+                            fix(fixer) {
+                                const range = getRegexpRange(
+                                    sourceCode,
+                                    node,
+                                    gNode,
+                                )
+                                if (range == null) {
+                                    return null
+                                }
+                                return fixer.replaceTextRange(range, instead)
+                            },
+                        })
                     }
                 },
             }

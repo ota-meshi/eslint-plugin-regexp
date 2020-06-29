@@ -9,7 +9,15 @@ const tester = new RuleTester({
 })
 
 tester.run("prefer-question-quantifier", rule as any, {
-    valid: ["/a?/", "/a??/", "/(a?)/", "/(a??)/", "/[a{0,1}]/", "/[a{0,}]/"],
+    valid: [
+        "/a?/",
+        "/a??/",
+        "/(a?)/",
+        "/(a??)/",
+        "/[a{0,1}]/",
+        "/a{0,}/",
+        "/(?:a|b)/",
+    ],
     invalid: [
         {
             code: "/a{0,1}/",
@@ -53,6 +61,48 @@ tester.run("prefer-question-quantifier", rule as any, {
                     column: 5,
                     endColumn: 10,
                 },
+            ],
+        },
+        {
+            code: "/(?:abc|)/",
+            output: "/(?:abc)?/",
+            errors: [
+                {
+                    message:
+                        'Unexpected group "(?:abc|)". Use "(?:abc)?" instead.',
+                    column: 2,
+                    endColumn: 10,
+                },
+            ],
+        },
+        {
+            code: "/(?:abc||def)/",
+            output: "/(?:abc|def)?/",
+            errors: [
+                {
+                    message:
+                        'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
+                    column: 2,
+                    endColumn: 14,
+                },
+            ],
+        },
+        {
+            code: `
+            const s = "a{0,1}"
+            new RegExp(s)
+            `,
+            output: null,
+            errors: ['Unexpected quantifier "{0,1}". Use "?" instead.'],
+        },
+        {
+            code: `
+            const s = "(?:abc||def)"
+            new RegExp(s)
+            `,
+            output: null,
+            errors: [
+                'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
             ],
         },
     ],

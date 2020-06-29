@@ -1,6 +1,9 @@
 import type { RuleModule } from "../types"
 import matchAny from "../rules/match-any"
+import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
+import noEmptyGroup from "../rules/no-empty-group"
+import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noOctal from "../rules/no-octal"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
@@ -13,7 +16,10 @@ import preferW from "../rules/prefer-w"
 
 export const rules = [
     matchAny,
+    noAssertionCapturingGroup,
     noDupeCharactersCharacterClass,
+    noEmptyGroup,
+    noEmptyLookaroundsAssertion,
     noEscapeBackspace,
     noOctal,
     noUselessExactlyQuantifier,
