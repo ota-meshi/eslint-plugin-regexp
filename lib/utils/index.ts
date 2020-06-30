@@ -241,7 +241,7 @@ export function availableRegexpLocation(
     if (node.type !== "Literal") {
         return false
     }
-    if (!(node.value instanceof RegExp)) {
+    if (!(node as ESTree.RegExpLiteral).regex) {
         if (typeof node.value !== "string") {
             return false
         }
