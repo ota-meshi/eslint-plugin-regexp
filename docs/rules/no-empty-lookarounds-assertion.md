@@ -20,29 +20,23 @@ This rule reports empty lookahead assertion or empty lookbehind assertion.
 /* eslint regexp/no-empty-lookarounds-assertion: "error" */
 
 /* ✓ GOOD */
-
+var foo = /x(?=y)/
+var foo = /x(?!y)/
+var foo = /(?<=y)x/
+var foo = /(?<!y)x/
 
 /* ✗ BAD */
-
+var foo = /x(?=)/
+var foo = /x(?!)/
+var foo = /(?<=)x/
+var foo = /(?<!)x/
 ```
 
 </eslint-code-block>
 
 ## :wrench: Options
 
-```json
-{
-  "regexp/no-empty-lookarounds-assertion": ["error", {
-   
-  }]
-}
-```
-
-- 
-
-## :books: Further reading
-
--
+Nothing.
 
 ## Implementation
 
