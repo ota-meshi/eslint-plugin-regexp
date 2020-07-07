@@ -10,18 +10,23 @@ const coreRules = [
     "no-invalid-regexp",
     "no-misleading-character-class",
     "no-regex-spaces",
-    "no-useless-backreference",
     "prefer-regex-literals",
     // "prefer-named-capture-group", // modern
     // "require-unicode-regexp", // modern
 ]
 
 let content = `
-export default {
+import eslint from "eslint"
+
+export = {
     plugins: ["regexp"],
     rules: {
         // ESLint core rules
         ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n")},
+        // If ESLint is 7 or higher, use core rule. If it is 6 or less, use the copied rule.
+        [parseInt(eslint.Linter.version[0], 10) >= 7
+            ? "no-useless-backreference"
+            : "regexp/no-useless-backreference"]: "error",
 
         // eslint-plugin-regexp rules
         ${rules

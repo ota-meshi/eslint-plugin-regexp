@@ -7,6 +7,7 @@ import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noOctal from "../rules/no-octal"
+import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import preferD from "../rules/prefer-d"
@@ -25,6 +26,7 @@ export const rules = [
     noEscapeBackspace,
     noInvisibleCharacter,
     noOctal,
+    noUselessBackreference,
     noUselessExactlyQuantifier,
     noUselessTwoNumsQuantifier,
     preferD,
