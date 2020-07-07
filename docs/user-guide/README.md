@@ -35,6 +35,7 @@ module.exports = {
 
 This plugin provides one config:
 
-- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.
+- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.  
+  See [lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for details.
 
 See [the rule list](../rules/README.md) to get the `rules` that this plugin provides.

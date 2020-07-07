@@ -17,8 +17,10 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
+| [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
+| [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |

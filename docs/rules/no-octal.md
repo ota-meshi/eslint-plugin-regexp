@@ -22,11 +22,11 @@ This rule reports octal escape.
 /* eslint regexp/no-octal: "error" */
 
 /* ✓ GOOD */
-var foo = /\0/
-var foo = /=/
+var foo = /\0/;
+var foo = /=/;
 
 /* ✗ BAD */
-var foo = /\075/
+var foo = /\075/;
 ```
 
 </eslint-code-block>

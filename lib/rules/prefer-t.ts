@@ -5,6 +5,7 @@ import {
     defineRegexpVisitor,
     getRegexpLocation,
     getRegexpRange,
+    CP_TAB,
 } from "../utils"
 
 export default createRule("prefer-t", {
@@ -27,10 +28,17 @@ export default createRule("prefer-t", {
          * Create visitor
          * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            node: Expression,
+            arrows: string[],
+        ): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
-                    if (cNode.value === 9 && cNode.raw !== "\\t") {
+                    if (
+                        cNode.value === CP_TAB &&
+                        cNode.raw !== "\\t" &&
+                        !arrows.includes(cNode.raw)
+                    ) {
                         context.report({
                             node,
                             loc: getRegexpLocation(sourceCode, node, cNode),
@@ -56,7 +64,12 @@ export default createRule("prefer-t", {
         }
 
         return defineRegexpVisitor(context, {
-            createVisitor,
+            createLiteralVisitor(node) {
+                return createVisitor(node, [])
+            },
+            createSourceVisitor(node) {
+                return createVisitor(node, ["\t"])
+            },
         })
     },
 })

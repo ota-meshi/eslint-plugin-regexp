@@ -8,6 +8,7 @@ import {
     CP_DIGIT_NINE,
     getRegexpLocation,
     getRegexpRange,
+    fixerApplyEscape,
 } from "../utils"
 
 export default createRule("prefer-d", {
@@ -69,7 +70,10 @@ export default createRule("prefer-d", {
                                 if (range == null) {
                                     return null
                                 }
-                                return fixer.replaceTextRange(range, instead)
+                                return fixer.replaceTextRange(
+                                    range,
+                                    fixerApplyEscape(instead, node),
+                                )
                             },
                         })
                     }

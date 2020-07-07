@@ -21,13 +21,13 @@ This rule is aimed at using `\d` instead of `[0-9]` in regular expressions.
 /* eslint regexp/prefer-w: "error" */
 
 /* ✓ GOOD */
-var foo = /\w/
-var foo = /\W/
+var foo = /\w/;
+var foo = /\W/;
 
 /* ✗ BAD */
-var foo = /[0-9a-zA-Z_]/
-var foo = /[^0-9a-zA-Z_]/
-var foo = /[0-9a-z_]/i
+var foo = /[0-9a-zA-Z_]/;
+var foo = /[^0-9a-zA-Z_]/;
+var foo = /[0-9a-z_]/i;
 ```
 
 </eslint-code-block>

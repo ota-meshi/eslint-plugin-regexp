@@ -60,6 +60,17 @@ tester.run("prefer-star-quantifier", rule as any, {
             const s = "a{0,}"
             new RegExp(s)
             `,
+            output: `
+            const s = "a*"
+            new RegExp(s)
+            `,
+            errors: ['Unexpected quantifier "{0,}". Use "*" instead.'],
+        },
+        {
+            code: `
+            const s = "a{0"+",}"
+            new RegExp(s)
+            `,
             output: null,
             errors: ['Unexpected quantifier "{0,}". Use "*" instead.'],
         },

@@ -20,15 +20,15 @@ This rule reports capturing group that captures assertions.
 /* eslint regexp/no-assertion-capturing-group: "error" */
 
 /* ✓ GOOD */
-var foo = /(a)/
-var foo = /a(?:\b)/
-var foo = /a(?:$)/
-var foo = /(?:^)a/
+var foo = /(a)/;
+var foo = /a(?:\b)/;
+var foo = /a(?:$)/;
+var foo = /(?:^)a/;
 
 /* ✗ BAD */
-var foo = /a(\b)/
-var foo = /a($)/
-var foo = /(^)a/
+var foo = /a(\b)/;
+var foo = /a($)/;
+var foo = /(^)a/;
 ```
 
 </eslint-code-block>

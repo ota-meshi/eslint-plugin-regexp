@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("prefer-t", rule as any, {
-    valid: ["/\\t/"],
+    valid: ["/\\t/", "new RegExp('\t')"],
     invalid: [
         {
             code: "/\\u0009/",
@@ -36,11 +36,11 @@ tester.run("prefer-t", rule as any, {
         },
         {
             code: `
-            const s = "\t"
+            const s = "\\\\u0009"
             new RegExp(s)
             `,
             output: null,
-            errors: ['Unexpected character "\t". Use "\\t" instead.'],
+            errors: ['Unexpected character "\\u0009". Use "\\t" instead.'],
         },
     ],
 })

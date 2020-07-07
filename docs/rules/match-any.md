@@ -22,14 +22,14 @@ e.g. `[\s\S]`, `[^]`, `/./s` (dotAll) and more.
 /* eslint regexp/match-any: "error" */
 
 /* ✓ GOOD */
-var foo = /[\s\S]/
-var foo = /./s
+var foo = /[\s\S]/;
+var foo = /./s;
 
 /* ✗ BAD */
-var foo = /[\S\s]/
-var foo = /[^]/
-var foo = /[\d\D]/
-var foo = /[\w\W]/
+var foo = /[\S\s]/;
+var foo = /[^]/;
+var foo = /[\d\D]/;
+var foo = /[\w\W]/;
 ```
 
 </eslint-code-block>
@@ -55,14 +55,14 @@ var foo = /[\w\W]/
 /* eslint regexp/match-any: ["error", { "allows": ["[^]"] }] */
 
 /* ✓ GOOD */
-var foo = /[^]/
+var foo = /[^]/;
 
 /* ✗ BAD */
-var foo = /[\s\S]/
-var foo = /[\S\s]/
-var foo = /./s
-var foo = /[\d\D]/
-var foo = /[\w\W]/
+var foo = /[\s\S]/;
+var foo = /[\S\s]/;
+var foo = /./s;
+var foo = /[\d\D]/;
+var foo = /[\w\W]/;
 ```
 
 </eslint-code-block>

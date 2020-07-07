@@ -26,18 +26,6 @@ ${rules
 export const rules = [
     ${rules.map((rule) => camelCase(rule.meta.docs.ruleName)).join(",")}
 ] as RuleModule[]
-
-/**
- * Get recommended config
- */
-export function recommendedConfig(): { [key: string]: "error" | "warn" } {
-    return rules.reduce((obj, rule) => {
-        if (rule.meta.docs.recommended && !rule.meta.deprecated) {
-            obj[rule.meta.docs.ruleId] = rule.meta.docs.default || "error"
-        }
-        return obj
-    }, {} as { [key: string]: "error" | "warn" })
-}
 `
 
 const filePath = path.resolve(__dirname, "../lib/utils/rules.ts")

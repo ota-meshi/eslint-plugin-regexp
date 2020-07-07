@@ -92,12 +92,36 @@ tester.run("prefer-question-quantifier", rule as any, {
             const s = "a{0,1}"
             new RegExp(s)
             `,
+            output: `
+            const s = "a?"
+            new RegExp(s)
+            `,
+            errors: ['Unexpected quantifier "{0,1}". Use "?" instead.'],
+        },
+        {
+            code: `
+            const s = "a{0,"+"1}"
+            new RegExp(s)
+            `,
             output: null,
             errors: ['Unexpected quantifier "{0,1}". Use "?" instead.'],
         },
         {
             code: `
             const s = "(?:abc||def)"
+            new RegExp(s)
+            `,
+            output: `
+            const s = "(?:abc|def)?"
+            new RegExp(s)
+            `,
+            errors: [
+                'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
+            ],
+        },
+        {
+            code: `
+            const s = "(?:abc|"+"|def)"
             new RegExp(s)
             `,
             output: null,

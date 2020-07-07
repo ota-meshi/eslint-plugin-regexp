@@ -21,10 +21,10 @@ This rule is aimed at using `?` quantifier instead of `{0,1}` in regular express
 /* eslint regexp/prefer-question-quantifier: "error" */
 
 /* ✓ GOOD */
-var foo = /a?/
+var foo = /a?/;
 
 /* ✗ BAD */
-var foo = /a{0,1}/
+var foo = /a{0,1}/;
 ```
 
 </eslint-code-block>

@@ -5,8 +5,10 @@ import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-characte
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
+import noInvisibleCharacter from "../rules/no-invisible-character"
 import noOctal from "../rules/no-octal"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
+import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import preferD from "../rules/prefer-d"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
 import preferQuestionQuantifier from "../rules/prefer-question-quantifier"
@@ -21,8 +23,10 @@ export const rules = [
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
+    noInvisibleCharacter,
     noOctal,
     noUselessExactlyQuantifier,
+    noUselessTwoNumsQuantifier,
     preferD,
     preferPlusQuantifier,
     preferQuestionQuantifier,
@@ -30,15 +34,3 @@ export const rules = [
     preferT,
     preferW,
 ] as RuleModule[]
-
-/**
- * Get recommended config
- */
-export function recommendedConfig(): { [key: string]: "error" | "warn" } {
-    return rules.reduce((obj, rule) => {
-        if (rule.meta.docs.recommended && !rule.meta.deprecated) {
-            obj[rule.meta.docs.ruleId] = rule.meta.docs.default || "error"
-        }
-        return obj
-    }, {} as { [key: string]: "error" | "warn" })
-}
