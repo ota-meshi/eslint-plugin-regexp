@@ -24,7 +24,7 @@ This rule is aimed at using `*` quantifier instead of `{0,}` in regular expressi
 var foo = /a*/
 
 /* ✗ BAD */
-var foo = /a{0,}/
+var foo = /a{0,}/;
 ```
 
 </eslint-code-block>

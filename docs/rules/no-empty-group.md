@@ -20,16 +20,16 @@ This rule reports empty groups.
 /* eslint regexp/no-empty-group: "error" */
 
 /* ✓ GOOD */
-var foo = /(a)/
-var foo = /(?:a)/
+var foo = /(a)/;
+var foo = /(?:a)/;
 
 /* ✗ BAD */
 // capturing group
-var foo = /()/
-var foo = /(|)/
+var foo = /()/;
+var foo = /(|)/;
 // non-capturing group
-var foo = /(?:)/
-var foo = /(?:|)/
+var foo = /(?:)/;
+var foo = /(?:|)/;
 ```
 
 </eslint-code-block>

@@ -61,6 +61,19 @@ tester.run("prefer-w", rule as any, {
             const s = "[0-9A-Z_]"
             new RegExp(s, 'i')
             `,
+            output: `
+            const s = "\\\\w"
+            new RegExp(s, 'i')
+            `,
+            errors: [
+                'Unexpected character set "[0-9A-Z_]". Use "\\w" instead.',
+            ],
+        },
+        {
+            code: `
+            const s = "[0-9"+"A-Z_]"
+            new RegExp(s, 'i')
+            `,
             output: null,
             errors: [
                 'Unexpected character set "[0-9A-Z_]". Use "\\w" instead.',
@@ -69,6 +82,19 @@ tester.run("prefer-w", rule as any, {
         {
             code: `
             const s = "[0-9A-Z_c]"
+            new RegExp(s, 'i')
+            `,
+            output: `
+            const s = "[\\\\wc]"
+            new RegExp(s, 'i')
+            `,
+            errors: [
+                'Unexpected character set "[0-9A-Z_]". Use "\\w" instead.',
+            ],
+        },
+        {
+            code: `
+            const s = "[0-9"+"A-Z_c]"
             new RegExp(s, 'i')
             `,
             output: null,

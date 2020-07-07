@@ -14,6 +14,7 @@ import {
     FLAG_DOTALL,
     getRegexpLocation,
     getRegexpRange,
+    fixerApplyEscape,
 } from "../utils"
 
 const OPTION_SS1 = "[\\s\\S]" as const
@@ -110,11 +111,11 @@ export default createRule("match-any", {
             ) {
                 return fixer.replaceTextRange(
                     [range[0] + 1, range[1] - 1],
-                    prefer.slice(1, -1),
+                    fixerApplyEscape(prefer.slice(1, -1), node),
                 )
             }
 
-            return fixer.replaceTextRange(range, prefer)
+            return fixer.replaceTextRange(range, fixerApplyEscape(prefer, node))
         }
 
         /**

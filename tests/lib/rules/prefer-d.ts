@@ -52,6 +52,17 @@ tester.run("prefer-d", rule as any, {
             const s = "[0-9]"
             new RegExp(s)
             `,
+            output: `
+            const s = "\\\\d"
+            new RegExp(s)
+            `,
+            errors: ['Unexpected character set "[0-9]". Use "\\d" instead.'],
+        },
+        {
+            code: `
+            const s = "[0-"+"9]"
+            new RegExp(s)
+            `,
             output: null,
             errors: ['Unexpected character set "[0-9]". Use "\\d" instead.'],
         },

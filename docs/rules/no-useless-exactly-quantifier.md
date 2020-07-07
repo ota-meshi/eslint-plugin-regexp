@@ -20,11 +20,11 @@ This rule reports `{0}` or `{1}` quantifiers.
 /* eslint regexp/no-useless-exactly-quantifier: "error" */
 
 /* ✓ GOOD */
-var foo = /a/
+var foo = /a/;
 
 /* ✗ BAD */
-var foo = /a{1}/
-var foo = /a{0}/
+var foo = /a{1}/;
+var foo = /a{0}/;
 ```
 
 </eslint-code-block>

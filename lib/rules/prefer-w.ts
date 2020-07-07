@@ -15,6 +15,7 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
     FLAG_IGNORECASE,
+    fixerApplyEscape,
 } from "../utils"
 
 /**
@@ -155,7 +156,7 @@ export default createRule("prefer-w", {
                                     }
                                     return fixer.replaceTextRange(
                                         range,
-                                        instead,
+                                        fixerApplyEscape(instead, node),
                                     )
                                 },
                             })
@@ -189,7 +190,7 @@ export default createRule("prefer-w", {
                                             node,
                                             unexpectedElements.shift()!,
                                         )!,
-                                        "\\w",
+                                        fixerApplyEscape("\\w", node),
                                     )
                                     for (const element of unexpectedElements) {
                                         yield fixer.removeRange(

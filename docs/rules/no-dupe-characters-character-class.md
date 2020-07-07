@@ -13,7 +13,7 @@ description: "disallow duplicate characters in the RegExp character class"
 Because multiple same character classes in regular expressions only one is useful, they might be typing mistakes.
 
 ```js
-var foo = /\\(\\)/
+var foo = /\\(\\)/;
 ```
 
 ## :book: Rule Details
@@ -26,18 +26,18 @@ This rule disallows duplicate characters in the RegExp character class.
 /* eslint regexp/no-dupe-characters-character-class: "error" */
 
 /* ✓ GOOD */
-var foo = /[\(\)]/
+var foo = /[\(\)]/;
 
-var foo = /[a-z\s]/
+var foo = /[a-z\s]/;
 
-var foo = /[\w]/
+var foo = /[\w]/;
 
 /* ✗ BAD */
-var foo = /[\\(\\)]/
+var foo = /[\\(\\)]/;
 //          ^^ ^^        "\\" are duplicated
-var foo = /[a-z\\s]/
+var foo = /[a-z\\s]/;
 //          ^^^  ^       "s" are duplicated
-var foo = /[\w0-9]/
+var foo = /[\w0-9]/;
 //          ^^^^^        "0-9" are duplicated
 ```
 

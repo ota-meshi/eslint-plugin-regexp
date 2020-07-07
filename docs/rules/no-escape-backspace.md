@@ -21,13 +21,13 @@ The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishab
 /* eslint regexp/no-escape-backspace: "error" */
 
 /* ✓ GOOD */
-var foo = /\b/
-var foo = /\u0008/
-var foo = /\cH/
-var foo = /\x08/
+var foo = /\b/;
+var foo = /\u0008/;
+var foo = /\cH/;
+var foo = /\x08/;
 
 /* ✗ BAD */
-var foo = /[\b]/
+var foo = /[\b]/;
 ```
 
 </eslint-code-block>

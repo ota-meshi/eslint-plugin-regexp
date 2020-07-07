@@ -12,95 +12,16 @@ import {
     createRule,
     defineRegexpVisitor,
     getRegexpLocation,
-    CP_DIGIT_ZERO,
-    CP_DIGIT_NINE,
-    CP_SMALL_A,
-    CP_SMALL_Z,
-    CP_CAPITAL_A,
-    CP_CAPITAL_Z,
     CP_LOW_LINE,
-} from "../utils"
-
-const CP_SPACE = " ".codePointAt(0)!
-const CPS_SINGLE_SPACES = new Set<number>(
-    Array.from(
-        " \f\n\r\t\v\u00a0\u1680\u180e\u2028\u2029\u202f\u205f\u3000\ufeff",
-    ).map((s) => s.codePointAt(0)!),
-)
-const CP_EN_QUAD = "\u2000".codePointAt(0)!
-const CP_HAIR_SPACE = "\u200a".codePointAt(0)!
-
-const CP_RANGE_DIGIT = [CP_DIGIT_ZERO, CP_DIGIT_NINE] as const
-const CP_RANGE_SMALL_LETTER = [CP_SMALL_A, CP_SMALL_Z] as const
-const CP_RANGE_CAPITAL_LETTER = [CP_CAPITAL_A, CP_CAPITAL_Z] as const
-const CP_RANGE_SPACES = [CP_EN_QUAD, CP_HAIR_SPACE] as const
-
-const CP_RANGES_WORDS = [
-    CP_RANGE_SMALL_LETTER,
-    CP_RANGE_CAPITAL_LETTER,
     CP_RANGE_DIGIT,
-]
-
-/**
- * Checks if the given code point is within the code point range.
- * @param codePoint The code point to check.
- * @param range The range of code points of the range.
- * @returns {boolean} `true` if the given character is within the character class range.
- */
-function isCodePointInRange(
-    codePoint: number,
-    [start, end]: readonly [number, number],
-) {
-    return start <= codePoint && codePoint <= end
-}
-
-/**
- * Checks if the given code point is digit.
- * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is digit.
- */
-function isDigit(codePoint: number) {
-    return isCodePointInRange(codePoint, CP_RANGE_DIGIT)
-}
-
-/**
- * Checks if the given code point is space.
- * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is space.
- */
-function isSpace(codePoint: number) {
-    return (
-        CPS_SINGLE_SPACES.has(codePoint) ||
-        isCodePointInRange(codePoint, CP_RANGE_SPACES)
-    )
-}
-
-/**
- * Checks if the given code point is word.
- * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is word.
- */
-function isWord(codePoint: number) {
-    return (
-        CP_RANGES_WORDS.some((range) => isCodePointInRange(codePoint, range)) ||
-        CP_LOW_LINE === codePoint
-    )
-}
-
-/**
- * Code point to display string.
- * @param codePoint The code point to convert.
- * @returns {string} the string.
- */
-function codePointToDispString(codePoint: number) {
-    if (isSpace(codePoint)) {
-        if (codePoint === CP_SPACE) {
-            return " "
-        }
-        return `\\u${codePoint.toString(16).padStart(4, "0")}`
-    }
-    return String.fromCodePoint(codePoint)
-}
+    CP_RANGE_SPACES,
+    CPS_SINGLE_SPACES,
+    CP_RANGES_WORDS,
+    isDigit,
+    isSpace,
+    isWord,
+    invisibleEscape,
+} from "../utils"
 
 /**
  * Checks if the given character is within the character class range.
@@ -405,12 +326,12 @@ export default createRule("no-dupe-characters-character-class", {
         ) {
             const intersectionText =
                 typeof intersection === "number"
-                    ? codePointToDispString(intersection)
+                    ? invisibleEscape(intersection)
                     : intersection[0] === intersection[1]
-                    ? codePointToDispString(intersection[0])
-                    : `${codePointToDispString(
-                          intersection[0],
-                      )}-${codePointToDispString(intersection[1])}`
+                    ? invisibleEscape(intersection[0])
+                    : `${invisibleEscape(intersection[0])}-${invisibleEscape(
+                          intersection[1],
+                      )}`
             for (const element of elements) {
                 context.report({
                     node,

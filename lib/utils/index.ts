@@ -8,8 +8,10 @@ import {
     CONSTRUCT,
     ReferenceTracker,
     getStringIfConstant,
+    findVariable,
 } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
+export * from "./unicode"
 
 export const FLAG_GLOBAL = "g"
 export const FLAG_DOTALL = "s"
@@ -17,14 +19,6 @@ export const FLAG_IGNORECASE = "i"
 export const FLAG_MULTILINE = "m"
 export const FLAG_STICKY = "y"
 export const FLAG_UNICODE = "u"
-
-export const CP_DIGIT_ZERO = "0".codePointAt(0)!
-export const CP_DIGIT_NINE = "9".codePointAt(0)!
-export const CP_SMALL_A = "a".codePointAt(0)!
-export const CP_SMALL_Z = "z".codePointAt(0)!
-export const CP_CAPITAL_A = "A".codePointAt(0)!
-export const CP_CAPITAL_Z = "Z".codePointAt(0)!
-export const CP_LOW_LINE = "_".codePointAt(0)!
 
 /**
  * Define the rule.
@@ -107,7 +101,12 @@ export function defineRegexpVisitor(
             return
         }
 
-        visitRegExpAST(patternNode, createVisitor(node, pattern, flags))
+        const visitor = createVisitor(node, pattern, flags)
+        if (Object.keys(visitor).length === 0) {
+            return
+        }
+
+        visitRegExpAST(patternNode, visitor)
     }
 
     const createLiteralVisitor =
@@ -165,8 +164,26 @@ export function defineRegexpVisitor(
                           const flags = getStringIfConstant(flagsNode, scope)
 
                           if (typeof pattern === "string") {
+                              let verifyPatternNode = patternNode
+                              if (patternNode.type === "Identifier") {
+                                  const variable = findVariable(
+                                      context.getScope(),
+                                      patternNode,
+                                  )
+                                  if (variable && variable.defs.length === 1) {
+                                      const def = variable.defs[0]
+                                      if (
+                                          def.type === "Variable" &&
+                                          def.parent.kind === "const" &&
+                                          def.node.init &&
+                                          def.node.init.type === "Literal"
+                                      ) {
+                                          verifyPatternNode = def.node.init
+                                      }
+                                  }
+                              }
                               verify(
-                                  patternNode,
+                                  verifyPatternNode,
                                   pattern,
                                   flags || "",
                                   createSourceVisitor,
@@ -179,6 +196,16 @@ export function defineRegexpVisitor(
     }
 }
 
+export function getRegexpRange(
+    sourceCode: SourceCode,
+    node: ESTree.RegExpLiteral,
+    regexpNode: RegExpNode,
+): AST.Range
+export function getRegexpRange(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+    regexpNode: RegExpNode,
+): AST.Range | null
 /**
  * Creates source range from the given regexp node
  * @param sourceCode The ESLint source code instance.
@@ -253,6 +280,22 @@ export function availableRegexpLocation(
         }
     }
     return true
+}
+
+/**
+ * Escape depending on which node the string applied to fixer is applied.
+ */
+export function fixerApplyEscape(
+    text: string,
+    node: ESTree.Expression,
+): string {
+    if (node.type !== "Literal") {
+        throw new Error(`illegal node type:${node.type}`)
+    }
+    if (!(node as ESTree.RegExpLiteral).regex) {
+        return text.replace(/\\/gu, "\\\\")
+    }
+    return text
 }
 
 /**

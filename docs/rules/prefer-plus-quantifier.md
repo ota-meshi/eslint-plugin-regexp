@@ -21,10 +21,10 @@ This rule is aimed at using `+` quantifier instead of `{1,}` in regular expressi
 /* eslint regexp/prefer-plus-quantifier: "error" */
 
 /* ✓ GOOD */
-var foo = /a+/
+var foo = /a+/;
 
 /* ✗ BAD */
-var foo = /a{1,}/
+var foo = /a{1,}/;
 ```
 
 </eslint-code-block>
