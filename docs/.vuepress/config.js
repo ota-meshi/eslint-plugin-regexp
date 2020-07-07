@@ -16,7 +16,13 @@ module.exports = {
     serviceWorker: true,
     evergreen: true,
     configureWebpack(_config, _isServer) {
-        return {}
+        return {
+            resolve: {
+                alias: {
+                    eslint: require.resolve("eslint4b"),
+                },
+            },
+        }
     },
 
     head: [

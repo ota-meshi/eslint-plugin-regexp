@@ -24,7 +24,7 @@ export = {
         // ESLint core rules
         ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n")},
         // If ESLint is 7 or higher, use core rule. If it is 6 or less, use the copied rule.
-        [parseInt(eslint.Linter.version[0], 10) >= 7
+        [parseInt(eslint.Linter?.version?.[0] ?? "6", 10) >= 7
             ? "no-useless-backreference"
             : "regexp/no-useless-backreference"]: "error",
 
