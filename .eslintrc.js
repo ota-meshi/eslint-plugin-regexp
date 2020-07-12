@@ -11,6 +11,8 @@ module.exports = {
         "plugin:@mysticatea/es2015",
         "plugin:@mysticatea/+node",
         "plugin:@mysticatea/+eslint-plugin",
+        'plugin:jsonc/recommended-with-jsonc',
+        'plugin:jsonc/auto-config'
     ],
     rules: {
         "require-jsdoc": "error",
