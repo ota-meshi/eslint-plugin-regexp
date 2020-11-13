@@ -23,9 +23,6 @@
     "new": "ts-node ./tools/new-rule.ts",
     "docs:watch": "vuepress dev --debug docs",
     "docs:build": "npm run build && vuepress build docs --no-cache",
-    "docs-deploysetup": "npm run docs:build && npm run docs-deploysetup:clean && npm run docs-deploysetup:copy",
-    "docs-deploysetup:clean": "rimraf assets",
-    "docs-deploysetup:copy": "npx cpx \"docs/\\.vuepress/dist/**\" . -u",
     "preversion": "npm test && npm run update && git add .",
     "version": "npm run eslint-fix && git add ."
   },
