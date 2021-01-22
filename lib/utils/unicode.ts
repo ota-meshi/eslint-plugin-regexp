@@ -77,7 +77,7 @@ function isCodePointInRange(
  * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is digit.
  */
-export function isDigit(codePoint: number) {
+export function isDigit(codePoint: number): boolean {
     return isCodePointInRange(codePoint, CP_RANGE_DIGIT)
 }
 
@@ -86,7 +86,7 @@ export function isDigit(codePoint: number) {
  * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is space.
  */
-export function isSpace(codePoint: number) {
+export function isSpace(codePoint: number): boolean {
     return (
         CPS_SINGLE_SPACES.has(codePoint) ||
         isCodePointInRange(codePoint, CP_RANGE_SPACES)
@@ -98,7 +98,7 @@ export function isSpace(codePoint: number) {
  * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is word.
  */
-export function isWord(codePoint: number) {
+export function isWord(codePoint: number): boolean {
     return (
         CP_RANGES_WORDS.some((range) => isCodePointInRange(codePoint, range)) ||
         CP_LOW_LINE === codePoint

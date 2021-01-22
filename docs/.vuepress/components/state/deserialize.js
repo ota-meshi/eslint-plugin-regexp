@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair -- demo
+/* eslint-disable node/no-unsupported-features/es-syntax -- demo */
 import pako from "../../../../node_modules/pako"
 
 /**
@@ -36,6 +38,7 @@ export function deserializeState(serializedString) {
             }
         }
     } catch (error) {
+        //eslint-disable-next-line no-console -- demo
         console.error(error)
     }
 

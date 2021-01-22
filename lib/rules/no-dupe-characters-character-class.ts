@@ -243,7 +243,7 @@ function groupingElements(elements: CharacterClassElement[]) {
                     : characterSet.key
             }`}}`
         }
-        return Symbol("unknown CharacterSet") as any
+        return Symbol("unknown CharacterSet") as never
     }
 }
 

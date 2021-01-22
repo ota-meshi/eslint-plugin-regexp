@@ -5,7 +5,6 @@ module.exports = {
         indentation: null,
         "selector-max-empty-lines": null,
         "selector-type-no-unknown": null,
-        "block-no-empty": null
+        "block-no-empty": null,
     },
 }
-

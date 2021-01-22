@@ -39,8 +39,7 @@ export default createRule("prefer-d", {
                         ccrNode.min.value === CP_DIGIT_ZERO &&
                         ccrNode.max.value === CP_DIGIT_NINE
                     ) {
-                        let reportNode: RegExpNode
-                        let instead: string
+                        let reportNode: RegExpNode, instead: string
                         const ccNode = ccrNode.parent
                         if (ccNode.elements.length === 1) {
                             reportNode = ccNode

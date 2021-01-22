@@ -28,7 +28,7 @@ export interface RuleMetaData {
 
 export interface PartialRuleModule {
     meta: PartialRuleMetaData
-    create(context: Rule.RuleContext): RuleListener
+    create: (context: Rule.RuleContext) => RuleListener
 }
 
 export interface PartialRuleMetaData {

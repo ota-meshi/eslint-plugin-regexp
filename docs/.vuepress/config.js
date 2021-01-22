@@ -57,13 +57,13 @@ module.exports = {
                         .filter(
                             (rule) =>
                                 rule.meta.docs.recommended &&
-                                !rule.meta.deprecated
+                                !rule.meta.deprecated,
                         )
                         .map(ruleToLink),
                 },
                 ...(rules.some(
                     (rule) =>
-                        !rule.meta.docs.recommended && !rule.meta.deprecated
+                        !rule.meta.docs.recommended && !rule.meta.deprecated,
                 )
                     ? [
                           {
@@ -73,7 +73,7 @@ module.exports = {
                                   .filter(
                                       (rule) =>
                                           !rule.meta.docs.recommended &&
-                                          !rule.meta.deprecated
+                                          !rule.meta.deprecated,
                                   )
                                   .map(ruleToLink),
                           },

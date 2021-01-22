@@ -39,7 +39,7 @@ export function createRule(
                 ruleName,
             },
         },
-        create: rule.create as any,
+        create: rule.create as never,
     }
 }
 
@@ -82,8 +82,11 @@ export function defineRegexpVisitor(
         pattern: string,
         flags: string,
         createVisitor: (
+            // eslint-disable-next-line no-shadow -- ignore
             node: T,
+            // eslint-disable-next-line no-shadow -- ignore
             pattern: string,
+            // eslint-disable-next-line no-shadow -- ignore
             flags: string,
         ) => RegExpVisitor.Handlers,
     ) {
@@ -301,8 +304,8 @@ export function fixerApplyEscape(
 /**
  * Get the offsets of the given quantifier
  */
-export function getQuantifierOffsets(qNode: Quantifier) {
+export function getQuantifierOffsets(qNode: Quantifier): [number, number] {
     const startOffset = qNode.element.end - qNode.start
     const endOffset = qNode.raw.length - (qNode.greedy ? 0 : 1)
-    return [startOffset, endOffset] as const
+    return [startOffset, endOffset]
 }

@@ -82,9 +82,9 @@ export default createRule("no-useless-backreference", {
         function createVisitor(node: Expression): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(bref) {
-                    const group = bref.resolved,
-                        brefPath = getPathToRoot(bref),
-                        groupPath = getPathToRoot(group)
+                    const group = bref.resolved
+                    const brefPath = getPathToRoot(bref)
+                    const groupPath = getPathToRoot(group)
                     let messageId = null
 
                     if (brefPath.includes(group)) {
@@ -92,28 +92,28 @@ export default createRule("no-useless-backreference", {
                         messageId = "nested"
                     } else {
                         // Start from the root to find the lowest common ancestor.
-                        let i = brefPath.length - 1,
-                            j = groupPath.length - 1
+                        let i = brefPath.length - 1
+                        let j = groupPath.length - 1
 
                         do {
                             i--
                             j--
                         } while (brefPath[i] === groupPath[j])
 
-                        const indexOfLowestCommonAncestor = j + 1,
-                            groupCut = groupPath.slice(
-                                0,
-                                indexOfLowestCommonAncestor,
-                            ),
-                            commonPath = groupPath.slice(
-                                indexOfLowestCommonAncestor,
-                            ),
-                            lowestCommonLookaround = commonPath.find(
-                                isLookaround,
-                            ),
-                            isMatchingBackward =
-                                lowestCommonLookaround &&
-                                lowestCommonLookaround.kind === "lookbehind"
+                        const indexOfLowestCommonAncestor = j + 1
+                        const groupCut = groupPath.slice(
+                            0,
+                            indexOfLowestCommonAncestor,
+                        )
+                        const commonPath = groupPath.slice(
+                            indexOfLowestCommonAncestor,
+                        )
+                        const lowestCommonLookaround = commonPath.find(
+                            isLookaround,
+                        )
+                        const isMatchingBackward =
+                            lowestCommonLookaround &&
+                            lowestCommonLookaround.kind === "lookbehind"
 
                         if (!isMatchingBackward && bref.end <= group.start) {
                             // bref is left, group is right ('forward reference') => group hasn't matched yet when bref starts to match.

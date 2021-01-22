@@ -12,16 +12,16 @@
                         <input
                             :checked="
                                 category.rules.every((rule) =>
-                                    isErrorState(rule.ruleId)
+                                    isErrorState(rule.ruleId),
                                 )
                             "
                             type="checkbox"
                             :indeterminate.prop="
                                 !category.rules.every((rule) =>
-                                    isErrorState(rule.ruleId)
+                                    isErrorState(rule.ruleId),
                                 ) &&
                                 !category.rules.every(
-                                    (rule) => !isErrorState(rule.ruleId)
+                                    (rule) => !isErrorState(rule.ruleId),
                                 )
                             "
                             @input="onAllClick(category, $event)"

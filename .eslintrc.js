@@ -8,41 +8,67 @@ module.exports = {
         ecmaVersion: 2020,
     },
     extends: [
-        "plugin:@mysticatea/es2015",
-        "plugin:@mysticatea/+node",
-        "plugin:@mysticatea/+eslint-plugin",
-        'plugin:jsonc/recommended-with-jsonc',
-        'plugin:jsonc/auto-config'
+        "plugin:@ota-meshi/recommended",
+        "plugin:@ota-meshi/+node",
+        "plugin:@ota-meshi/+typescript",
+        "plugin:@ota-meshi/+eslint-plugin",
+        "plugin:@ota-meshi/+json",
+        "plugin:@ota-meshi/+yaml",
+        // "plugin:@ota-meshi/+md",
+        "plugin:@ota-meshi/+prettier",
     ],
     rules: {
         "require-jsdoc": "error",
         "no-warning-comments": "warn",
         "no-lonely-if": "off",
-        "@mysticatea/ts/ban-ts-ignore": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [
         {
             files: ["*.ts"],
-            rules: {
-                // "@mysticatea/ts/no-require-imports": "off",
-                // "@mysticatea/ts/no-var-requires": "off",
-                "@mysticatea/node/no-missing-import": "off",
-                "no-implicit-globals": "off",
-                "@mysticatea/node/no-extraneous-import": "off",
-            },
+            parser: "@typescript-eslint/parser",
             parserOptions: {
                 sourceType: "module",
                 project: "./tsconfig.json",
+            },
+            rules: {
+                "no-implicit-globals": "off",
+                "@typescript-eslint/naming-convention": [
+                    "error",
+                    {
+                        selector: "default",
+                        format: ["camelCase"],
+                        leadingUnderscore: "allow",
+                        trailingUnderscore: "allow",
+                    },
+                    {
+                        selector: "variable",
+                        format: ["camelCase", "UPPER_CASE"],
+                        leadingUnderscore: "allow",
+                        trailingUnderscore: "allow",
+                    },
+                    {
+                        selector: "typeLike",
+                        format: ["PascalCase"],
+                    },
+                    {
+                        selector: "property",
+                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
+                    },
+                    {
+                        selector: "method",
+                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
+                    },
+                ],
             },
         },
         {
             files: ["lib/rules/**"],
             rules: {
-                "@mysticatea/eslint-plugin/report-message-format": [
+                "eslint-plugin/report-message-format": [
                     "error",
                     "[^a-z].*\\.$",
                 ],
-                "@mysticatea/eslint-plugin/require-meta-docs-url": "off",
             },
         },
         {
@@ -54,6 +80,7 @@ module.exports = {
         },
         {
             files: ["*.vue"],
+            extends: ["plugin:@ota-meshi/+vue2", "plugin:@ota-meshi/+prettier"],
             parserOptions: {
                 sourceType: "module",
             },
@@ -66,21 +93,12 @@ module.exports = {
             parserOptions: {
                 sourceType: "module",
                 ecmaVersion: 2020,
-                parser: "babel-eslint",
             },
             globals: {
                 window: true,
             },
             rules: {
                 "require-jsdoc": "off",
-                "@mysticatea/vue/html-closing-bracket-newline": "off",
-                "@mysticatea/vue/max-attributes-per-line": "off",
-                "@mysticatea/vue/comma-dangle": "off",
-                "@mysticatea/vue/html-indent": "off",
-                "@mysticatea/vue/html-self-closing": "off",
-                "@mysticatea/node/no-unsupported-features/es-syntax": "off",
-                "@mysticatea/node/no-missing-import": "off",
-                "@mysticatea/node/no-missing-require": "off",
             },
         },
     ],

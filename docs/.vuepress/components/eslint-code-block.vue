@@ -50,7 +50,7 @@ export default {
             return nodes
                 .map(
                     (node) =>
-                        node.text || this.computeCodeFromSlot(node.children)
+                        node.text || this.computeCodeFromSlot(node.children),
                 )
                 .join("")
         },

@@ -16,7 +16,7 @@ function getDirRules() {
         const ruleName = name.replace(/\.ts$/u, "")
         const ruleId = `regexp/${ruleName}`
 
-        // eslint-disable-next-line @mysticatea/ts/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- test
         const rule = require(path.join(rulesRoot, name)).default
         rules[ruleId] = rule
     }
