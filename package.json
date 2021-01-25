@@ -74,7 +74,7 @@
         "stylelint-config-standard": "^20.0.0",
         "stylelint-plugin-stylus": "^0.9.0",
         "ts-node": "^9.0.0",
-        "typescript": "^3.9.5",
+        "typescript": "^4.0.0",
         "vue-eslint-editor": "^1.1.0",
         "vue-eslint-parser": "^7.4.1",
         "vuepress": "^1.5.2"
