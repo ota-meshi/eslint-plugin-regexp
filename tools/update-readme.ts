@@ -5,7 +5,7 @@ import renderRulesTableContent from "./render-rules"
 const isWin = os.platform().startsWith("win")
 
 let insertText = `\n${renderRulesTableContent(
-    name =>
+    (name) =>
         `https://ota-meshi.github.io/eslint-plugin-regexp/rules/${name}.html`,
 )}\n`
 if (isWin) {
