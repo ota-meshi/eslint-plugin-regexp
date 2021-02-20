@@ -3,7 +3,7 @@ import fs from "fs"
 import { rules } from "../lib/utils/rules"
 import type { RuleModule } from "../lib/types"
 
-//eslint-disable-next-line require-jsdoc
+//eslint-disable-next-line require-jsdoc -- ignore
 function formatItems(items: string[]) {
     if (items.length <= 2) {
         return items.join(" and ")
@@ -13,8 +13,8 @@ function formatItems(items: string[]) {
     }`
 }
 
-//eslint-disable-next-line require-jsdoc
-function yamlValue(val: any) {
+//eslint-disable-next-line require-jsdoc -- ignore
+function yamlValue(val: unknown) {
     if (typeof val === "string") {
         return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
     }
@@ -24,9 +24,12 @@ function yamlValue(val: any) {
 const ROOT = path.resolve(__dirname, "../docs/rules")
 
 class DocFile {
-    private rule: RuleModule
-    private filePath: string
+    private readonly rule: RuleModule
+
+    private readonly filePath: string
+
     private content: string
+
     public constructor(rule: RuleModule) {
         this.rule = rule
         this.filePath = path.join(ROOT, `${rule.meta.docs.ruleName}.md`)
@@ -141,6 +144,7 @@ class DocFile {
             description,
         }
         const computed = `---\n${Object.keys(fileIntro)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
             .map((key) => `${key}: ${yamlValue((fileIntro as any)[key])}`)
             .join("\n")}\n---\n`
 
@@ -156,6 +160,7 @@ class DocFile {
     }
 
     public write() {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
         const isWin = require("os").platform().startsWith("win")
 
         this.content = this.content.replace(/\r?\n/gu, isWin ? "\r\n" : "\n")

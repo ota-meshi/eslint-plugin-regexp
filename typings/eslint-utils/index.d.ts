@@ -1,5 +1,5 @@
 import type * as ESTree from "estree"
-import eslint from "eslint"
+import type eslint from "eslint"
 
 export function findVariable(
     initialScope: eslint.Scope.Scope,
@@ -21,6 +21,11 @@ export function getStringIfConstant(
     initialScope: eslint.Scope.Scope,
 ): string | null
 
+export const READ: unique symbol,
+    CALL: unique symbol,
+    CONSTRUCT: unique symbol,
+    ESM: unique symbol
+
 export namespace TYPES {
     type TraceKind = {
         [READ]?: boolean
@@ -29,6 +34,7 @@ export namespace TYPES {
         [ESM]?: boolean
     }
     type TraceMap = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- :(
         [key: string]: TraceKind & TraceMap
     }
 }
@@ -48,27 +54,24 @@ export class ReferenceTracker {
         node: ESTree.Node
         path: string[]
         type: symbol
-        info: any
+        info: unknown
     }>
+
     public iterateCjsReferences(
         traceMap: TYPES.TraceMap,
     ): IterableIterator<{
         node: ESTree.Node
         path: string[]
         type: symbol
-        info: any
+        info: unknown
     }>
+
     public iterateEsmReferences(
         traceMap: TYPES.TraceMap,
     ): IterableIterator<{
         node: ESTree.Node
         path: string[]
         type: symbol
-        info: any
+        info: unknown
     }>
 }
-
-export const READ: unique symbol
-export const CALL: unique symbol
-export const CONSTRUCT: unique symbol
-export const ESM: unique symbol

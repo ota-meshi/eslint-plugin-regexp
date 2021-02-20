@@ -1,16 +1,16 @@
 import type { RuleModule } from "../lib/types"
 import { rules } from "../lib/utils/rules"
 
-//eslint-disable-next-line require-jsdoc
+//eslint-disable-next-line require-jsdoc -- ignore
 export default function renderRulesTableContent(
     buildRulePath = (ruleName: string) => `./${ruleName}.md`,
-) {
+): string {
     const activeRules = rules.filter((rule) => !rule.meta.deprecated)
     const deprecatedRules = rules.filter((rule) => rule.meta.deprecated)
 
     // -----------------------------------------------------------------------------
 
-    //eslint-disable-next-line require-jsdoc
+    //eslint-disable-next-line require-jsdoc -- ignore
     function toRuleRow(rule: RuleModule) {
         const mark = `${rule.meta.docs.recommended ? ":star:" : ""}${
             rule.meta.fixable ? ":wrench:" : ""
@@ -23,7 +23,7 @@ export default function renderRulesTableContent(
         return `| ${link} | ${description} | ${mark} |`
     }
 
-    //eslint-disable-next-line require-jsdoc
+    //eslint-disable-next-line require-jsdoc -- ignore
     function toDeprecatedRuleRow(rule: RuleModule) {
         const link = `[${rule.meta.docs.ruleId}](${buildRulePath(
             rule.meta.docs.ruleName || "",
