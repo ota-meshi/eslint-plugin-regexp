@@ -58,7 +58,7 @@
         "eslint-config-prettier": "^7.2.0",
         "eslint-plugin-eslint-comments": "^3.2.0",
         "eslint-plugin-eslint-plugin": "^2.3.0",
-        "eslint-plugin-json-schema-validator": "^0.2.1",
+        "eslint-plugin-json-schema-validator": "^0.2.0",
         "eslint-plugin-jsonc": "^0.9.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prettier": "^3.3.1",
