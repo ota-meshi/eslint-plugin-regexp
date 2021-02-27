@@ -9,7 +9,15 @@ const tester = new RuleTester({
 })
 
 tester.run("prefer-quantifier", rule as any, {
-    valid: [`/regexp/`, `/\\d_\\d/`, `/Google/`, `/2000/`],
+    valid: [
+        `/regexp/`,
+        `/\\d_\\d/`,
+        `/Google/`,
+        `/2000/`,
+        `/<!--/`,
+        `/\`\`\`/`,
+        `/---/`,
+    ],
     invalid: [
         {
             code: `/\\d\\d/`,
@@ -25,8 +33,8 @@ tester.run("prefer-quantifier", rule as any, {
             ],
         },
         {
-            code: `/__/`,
-            output: `/_{2}/`,
+            code: `/  /`,
+            output: `/ {2}/`,
             errors: [
                 {
                     message:
@@ -73,10 +81,10 @@ tester.run("prefer-quantifier", rule as any, {
             ],
         },
         {
-            code: String.raw`/__..\s\s\S\S\p{ASCII}\p{ASCII}/u`,
-            output: String.raw`/_{2}..\s{2}\S\S\p{ASCII}{2}/u`,
+            code: String.raw`/aaa..\s\s\S\S\p{ASCII}\p{ASCII}/u`,
+            output: String.raw`/a{3}..\s{2}\S\S\p{ASCII}{2}/u`,
             errors: [
-                'Unexpected consecutive same characters. Use "{2}" instead.',
+                'Unexpected consecutive same characters. Use "{3}" instead.',
                 'Unexpected consecutive same character sets. Use "{2}" instead.',
                 'Unexpected consecutive same character sets. Use "{2}" instead.',
                 'Unexpected consecutive same character sets. Use "{2}" instead.',

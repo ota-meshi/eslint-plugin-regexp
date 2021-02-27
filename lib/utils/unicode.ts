@@ -4,6 +4,14 @@ export const CP_VT = 11
 export const CP_FF = 12
 export const CP_CR = 13
 export const CP_SPACE = " ".codePointAt(0)!
+export const CP_BAN = "!".codePointAt(0)!
+export const CP_SLASH = "/".codePointAt(0)!
+export const CP_COLON = ":".codePointAt(0)!
+export const CP_AT = "@".codePointAt(0)!
+export const CP_OPENING_BRACE = "[".codePointAt(0)!
+export const CP_BACKTICK = "`".codePointAt(0)!
+export const CP_OPENING_BRACKET = "{".codePointAt(0)!
+export const CP_TILDE = "~".codePointAt(0)!
 export const CP_NEL = "\u0085".codePointAt(0)!
 export const CP_NBSP = "\u00a0".codePointAt(0)!
 export const CP_OGHAM_SPACE_MARK = "\u1680".codePointAt(0)!
@@ -89,6 +97,19 @@ export function isLetter(codePoint: number): boolean {
     return (
         isCodePointInRange(codePoint, CP_RANGE_SMALL_LETTER) ||
         isCodePointInRange(codePoint, CP_RANGE_CAPITAL_LETTER)
+    )
+}
+/**
+ * Checks if the given code point is symbol.
+ * @param codePoint The code point to check
+ * @returns {boolean} `true` if the given code point is symbol.
+ */
+export function isSymbol(codePoint: number): boolean {
+    return (
+        isCodePointInRange(codePoint, [CP_BAN, CP_SLASH]) ||
+        isCodePointInRange(codePoint, [CP_COLON, CP_AT]) ||
+        isCodePointInRange(codePoint, [CP_OPENING_BRACE, CP_BACKTICK]) ||
+        isCodePointInRange(codePoint, [CP_OPENING_BRACKET, CP_TILDE])
     )
 }
 
