@@ -12,6 +12,7 @@ import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import preferD from "../rules/prefer-d"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
+import preferQuantifier from "../rules/prefer-quantifier"
 import preferQuestionQuantifier from "../rules/prefer-question-quantifier"
 import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
@@ -31,6 +32,7 @@ export const rules = [
     noUselessTwoNumsQuantifier,
     preferD,
     preferPlusQuantifier,
+    preferQuantifier,
     preferQuestionQuantifier,
     preferStarQuantifier,
     preferT,

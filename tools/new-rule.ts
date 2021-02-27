@@ -1,5 +1,6 @@
 import path from "path"
 import fs from "fs"
+import cp from "child_process"
 const logger = console
 
 // main
@@ -129,4 +130,8 @@ This rule reports ???.
 
 `,
     )
+
+    cp.execSync(`code "${ruleFile}"`)
+    cp.execSync(`code "${testFile}"`)
+    cp.execSync(`code "${docFile}"`)
 })(process.argv[2])
