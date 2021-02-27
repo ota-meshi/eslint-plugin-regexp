@@ -1,7 +1,13 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character, CharacterSet, Quantifier } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpRange } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    getRegexpRange,
+    isDigit,
+    isLetter,
+} from "../utils"
 
 class CharBuffer {
     public target: CharacterSet | Character
@@ -61,6 +67,37 @@ class CharBuffer {
             this.min += 1
             this.max += 1
         }
+    }
+
+    public isValid(): boolean {
+        if (this.elements.length < 2) {
+            return true
+        }
+        let charKind: "digit" | "letter" | null = null
+        for (const element of this.elements) {
+            if (element.type === "Character") {
+                if (charKind == null) {
+                    if (isDigit(element.value)) {
+                        charKind = "digit"
+                    } else if (isLetter(element.value)) {
+                        charKind = "letter"
+                    } else {
+                        return false
+                    }
+                }
+            } else {
+                return false
+            }
+        }
+        if (
+            // It is valid when the same numbers are consecutive.
+            charKind === "digit" ||
+            // It is valid when the same letter character continues twice.
+            (charKind === "letter" && this.elements.length <= 2)
+        ) {
+            return true
+        }
+        return false
     }
 
     public getQuantifier(): string {
@@ -150,7 +187,7 @@ export default createRule("prefer-quantifier", {
                      * Validate
                      */
                     function validateBuffer(buffer: CharBuffer) {
-                        if (buffer.elements.length < 2) {
+                        if (buffer.isValid()) {
                             return
                         }
                         const firstRange = getRegexpRange(
