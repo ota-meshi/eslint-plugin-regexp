@@ -46,5 +46,5 @@ fs.writeFileSync(
             /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp/gu,
             "(.",
         )
-        .replace(/\n\n\n+/gu, "\n\n"),
+        .replace(/\n{3,}/gu, "\n\n"),
 )
