@@ -7,6 +7,7 @@ import {
     getRegexpRange,
     isDigit,
     isLetter,
+    isSymbol,
 } from "../utils"
 
 class CharBuffer {
@@ -73,7 +74,7 @@ class CharBuffer {
         if (this.elements.length < 2) {
             return true
         }
-        let charKind: "digit" | "letter" | null = null
+        let charKind: "digit" | "letter" | "symbol" | null = null
         for (const element of this.elements) {
             if (element.type === "Character") {
                 if (charKind == null) {
@@ -81,6 +82,8 @@ class CharBuffer {
                         charKind = "digit"
                     } else if (isLetter(element.value)) {
                         charKind = "letter"
+                    } else if (isSymbol(element.value)) {
+                        charKind = "symbol"
                     } else {
                         return false
                     }
@@ -93,7 +96,9 @@ class CharBuffer {
             // It is valid when the same numbers are consecutive.
             charKind === "digit" ||
             // It is valid when the same letter character continues twice.
-            (charKind === "letter" && this.elements.length <= 2)
+            (charKind === "letter" && this.elements.length <= 2) ||
+            // It is valid when the same symbol character continues three times.
+            (charKind === "symbol" && this.elements.length <= 3)
         ) {
             return true
         }
