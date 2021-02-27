@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/match-any"
 description: "enforce match any character style"
+since: "v0.1.0"
 ---
 # regexp/match-any
 
@@ -67,7 +68,11 @@ var foo = /[\w\W]/;
 
 </eslint-code-block>
 
-## Implementation
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
+
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/match-any.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/match-any.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/match-any.ts)

@@ -5,3 +5,6 @@
 /docs/.vuepress/components/demo/demo-code.js
 /node_modules
 /assets
+!/docs/.vuepress
+!/.vscode
+!/.github
