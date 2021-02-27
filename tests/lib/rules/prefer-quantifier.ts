@@ -72,5 +72,62 @@ tester.run("prefer-quantifier", rule as any, {
                 'Unexpected consecutive same character sets. Use "{2}" instead.',
             ],
         },
+        {
+            code: String.raw`/aa..\s\s\S\S\p{ASCII}\p{ASCII}/u`,
+            output: String.raw`/a{2}..\s{2}\S\S\p{ASCII}{2}/u`,
+            errors: [
+                'Unexpected consecutive same characters. Use "{2}" instead.',
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+            ],
+        },
+        {
+            code: `/aaaa(aaa)/u`,
+            output: `/a{4}(a{3})/u`,
+            errors: [
+                'Unexpected consecutive same characters. Use "{4}" instead.',
+                'Unexpected consecutive same characters. Use "{3}" instead.',
+            ],
+        },
+        {
+            code: `/(b)?aaaa(b)?/u`,
+            output: `/(b)?a{4}(b)?/u`,
+            errors: [
+                'Unexpected consecutive same characters. Use "{4}" instead.',
+            ],
+        },
+        {
+            code: `
+            const s = "\\\\d\\\\d"
+            new RegExp(s)
+            `,
+            output: null,
+            errors: [
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+            ],
+        },
+        {
+            code: `/aa*/`,
+            output: `/a+/`,
+            errors: [
+                'Unexpected consecutive same characters. Use "+" instead.',
+            ],
+        },
+        {
+            code: `/a*a*/`,
+            output: `/a*/`,
+            errors: [
+                'Unexpected consecutive same characters. Use "*" instead.',
+            ],
+        },
+        {
+            code: `/a?a?a?/`,
+            output: `/a{0,3}/`,
+            errors: [
+                'Unexpected consecutive same characters. Use "{0,3}" instead.',
+            ],
+        },
     ],
 })
