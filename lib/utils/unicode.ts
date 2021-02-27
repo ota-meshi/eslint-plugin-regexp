@@ -80,6 +80,17 @@ function isCodePointInRange(
 export function isDigit(codePoint: number): boolean {
     return isCodePointInRange(codePoint, CP_RANGE_DIGIT)
 }
+/**
+ * Checks if the given code point is letter.
+ * @param codePoint The code point to check
+ * @returns {boolean} `true` if the given code point is letter.
+ */
+export function isLetter(codePoint: number): boolean {
+    return (
+        isCodePointInRange(codePoint, CP_RANGE_SMALL_LETTER) ||
+        isCodePointInRange(codePoint, CP_RANGE_CAPITAL_LETTER)
+    )
+}
 
 /**
  * Checks if the given code point is space.

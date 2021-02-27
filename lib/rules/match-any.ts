@@ -65,6 +65,7 @@ export default createRule("match-any", {
                         minItems: 1,
                     },
                 },
+                additionalProperties: false,
             },
         ],
         messages: {
