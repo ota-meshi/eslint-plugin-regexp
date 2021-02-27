@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-assertion-capturing-group"
 description: "disallow capturing group that captures assertions."
+since: "v0.1.0"
 ---
 # regexp/no-assertion-capturing-group
 
@@ -14,7 +15,7 @@ description: "disallow capturing group that captures assertions."
 
 This rule reports capturing group that captures assertions.
 
-<eslint-code-block >
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-assertion-capturing-group: "error" */
@@ -37,7 +38,11 @@ var foo = /(^)a/;
 
 Nothing.
 
-## Implementation
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
+
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-assertion-capturing-group.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-assertion-capturing-group.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-assertion-capturing-group.ts)

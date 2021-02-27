@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-dupe-characters-character-class"
 description: "disallow duplicate characters in the RegExp character class"
+since: "v0.1.0"
 ---
 # regexp/no-dupe-characters-character-class
 
@@ -20,7 +21,7 @@ var foo = /\\(\\)/;
 
 This rule disallows duplicate characters in the RegExp character class.
 
-<eslint-code-block >
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-dupe-characters-character-class: "error" */
@@ -47,7 +48,11 @@ var foo = /[\w0-9]/;
 
 Nothing.
 
-## Implementation
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
+
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-dupe-characters-character-class.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-dupe-characters-character-class.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-dupe-characters-character-class.ts)

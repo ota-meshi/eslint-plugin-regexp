@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-escape-backspace"
 description: "disallow escape backspace (`[\\b]`)"
+since: "v0.1.0"
 ---
 # regexp/no-escape-backspace
 
@@ -15,7 +16,7 @@ description: "disallow escape backspace (`[\\b]`)"
 This rule reports `[\b]`.  
 The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishable at a glance. This rule does not allow backspace (`[\b]`). Use unicode escapes (`\u0008`) instead.
 
-<eslint-code-block >
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-escape-backspace: "error" */
@@ -36,7 +37,11 @@ var foo = /[\b]/;
 
 Nothing.
 
-## Implementation
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
+
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-escape-backspace.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-escape-backspace.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-escape-backspace.ts)

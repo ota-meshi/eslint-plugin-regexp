@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-backreference"
 description: "disallow useless backreferences in regular expressions"
+since: "v0.1.0"
 ---
 # regexp/no-useless-backreference
 
@@ -24,7 +25,11 @@ See [no-useless-backreference] document.
 
 [no-useless-backreference]: https://eslint.org/docs/rules/no-useless-backreference
 
-## Implementation
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
+
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-useless-backreference.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-useless-backreference.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-useless-backreference.ts)

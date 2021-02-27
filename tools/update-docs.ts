@@ -3,7 +3,7 @@ import fs from "fs"
 import { rules } from "../lib/utils/rules"
 import type { RuleModule } from "../lib/types"
 
-//eslint-disable-next-line require-jsdoc -- ignore
+//eslint-disable-next-line require-jsdoc -- tools
 function formatItems(items: string[]) {
     if (items.length <= 2) {
         return items.join(" and ")
@@ -13,7 +13,7 @@ function formatItems(items: string[]) {
     }`
 }
 
-//eslint-disable-next-line require-jsdoc -- ignore
+//eslint-disable-next-line require-jsdoc -- tools
 function yamlValue(val: unknown) {
     if (typeof val === "string") {
         return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
@@ -23,6 +23,23 @@ function yamlValue(val: unknown) {
 
 const ROOT = path.resolve(__dirname, "../docs/rules")
 
+//eslint-disable-next-line require-jsdoc -- tools
+function pickSince(content: string): string | null {
+    const fileIntro = /^---\n(.*\n)+---\n*/g.exec(content)
+    if (fileIntro) {
+        const since = /since: "?(v\d+\.\d+\.\d+)"?/.exec(fileIntro[0])
+        if (since) {
+            return since[1]
+        }
+    }
+    // eslint-disable-next-line no-process-env -- ignore
+    if (process.env.IN_VERSION_SCRIPT) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
+        return `v${require("../package.json").version}`
+    }
+    return null
+}
+
 class DocFile {
     private readonly rule: RuleModule
 
@@ -30,10 +47,13 @@ class DocFile {
 
     private content: string
 
+    private readonly since: string | null
+
     public constructor(rule: RuleModule) {
         this.rule = rule
         this.filePath = path.join(ROOT, `${rule.meta.docs.ruleName}.md`)
         this.content = fs.readFileSync(this.filePath, "utf8")
+        this.since = pickSince(this.content)
     }
 
     public static read(rule: RuleModule) {
@@ -76,6 +96,11 @@ class DocFile {
                 "- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.",
             )
         }
+        if (!this.since) {
+            notes.unshift(
+                `- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>`,
+            )
+        }
 
         // Add an empty line after notes.
         if (notes.length >= 1) {
@@ -96,11 +121,19 @@ class DocFile {
 
     public updateFooter() {
         const { ruleName } = this.rule.meta.docs
-        const footerPattern = /## Implementation[\s\S]+$/u
-        const footer = `## Implementation
+        const footerPattern = /## (?:(?::mag:)? ?Implementation|:rocket: Version).+$/s
+        const footer = `${
+            this.since
+                ? `## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp ${this.since}
+
+`
+                : ""
+        }## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/${ruleName}.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/${ruleName}.js)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/${ruleName}.ts)
 `
         if (footerPattern.test(this.content)) {
             this.content = this.content.replace(footerPattern, footer)
@@ -115,8 +148,18 @@ class DocFile {
         const { meta } = this.rule
 
         this.content = this.content.replace(
-            /<eslint-code-block(?:[\s\S]*?)>/gu,
-            `<eslint-code-block ${meta.fixable ? "fix" : ""}>`,
+            /<eslint-code-block(.*?)>/gu,
+            (_t, str) => {
+                const ps = str
+                    .split(/\s+/u)
+                    .map((s: string) => s.trim())
+                    .filter((s: string) => s && s !== "fix")
+                if (meta.fixable) {
+                    ps.unshift("fix")
+                }
+                ps.unshift("<eslint-code-block")
+                return `${ps.join(" ")}>`
+            },
         )
         return this
     }
@@ -142,13 +185,14 @@ class DocFile {
             sidebarDepth: 0,
             title: ruleId,
             description,
+            ...(this.since ? { since: this.since } : {}),
         }
         const computed = `---\n${Object.keys(fileIntro)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tool
             .map((key) => `${key}: ${yamlValue((fileIntro as any)[key])}`)
             .join("\n")}\n---\n`
 
-        const fileIntroPattern = /^---\n(.*\n)+---\n*/gu
+        const fileIntroPattern = /^---\n(.*\n)+?---\n*/gu
 
         if (fileIntroPattern.test(this.content)) {
             this.content = this.content.replace(fileIntroPattern, computed)
@@ -160,7 +204,7 @@ class DocFile {
     }
 
     public write() {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires -- tools
         const isWin = require("os").platform().startsWith("win")
 
         this.content = this.content.replace(/\r?\n/gu, isWin ? "\r\n" : "\n")
