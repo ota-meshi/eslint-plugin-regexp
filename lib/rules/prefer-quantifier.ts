@@ -125,7 +125,6 @@ export default createRule("prefer-quantifier", {
     meta: {
         docs: {
             description: "enforce using quantifier",
-            // TODO In the major version, it will be changed to "recommended".
             recommended: false,
         },
         fixable: "code",
