@@ -13,6 +13,20 @@ import {
 import type { Rule, AST, SourceCode } from "eslint"
 export * from "./unicode"
 
+type RegexpRule = {
+    createLiteralVisitor?: (
+        node: ESTree.RegExpLiteral,
+        pattern: string,
+        flags: string,
+    ) => RegExpVisitor.Handlers
+    createSourceVisitor?: (
+        node: ESTree.Expression,
+        pattern: string,
+        flags: string,
+    ) => RegExpVisitor.Handlers
+}
+const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
+
 export const FLAG_GLOBAL = "g"
 export const FLAG_DOTALL = "s"
 export const FLAG_IGNORECASE = "i"
@@ -49,18 +63,7 @@ export function createRule(
 export function defineRegexpVisitor(
     context: Rule.RuleContext,
     rule:
-        | {
-              createLiteralVisitor?: (
-                  node: ESTree.RegExpLiteral,
-                  pattern: string,
-                  flags: string,
-              ) => RegExpVisitor.Handlers
-              createSourceVisitor?: (
-                  node: ESTree.Expression,
-                  pattern: string,
-                  flags: string,
-              ) => RegExpVisitor.Handlers
-          }
+        | RegexpRule
         | {
               createVisitor?: (
                   node: ESTree.Expression,
@@ -69,26 +72,50 @@ export function defineRegexpVisitor(
               ) => RegExpVisitor.Handlers
           },
 ): RuleListener {
+    let visitor: RuleListener
+    let rules = regexpRules.get(context.getSourceCode().ast)
+    if (!rules) {
+        rules = []
+        visitor = buildRegexpVisitor(context, rules)
+        regexpRules.set(context.getSourceCode().ast, rules)
+    } else {
+        visitor = {}
+    }
+
+    const createLiteralVisitor =
+        "createVisitor" in rule
+            ? rule.createVisitor
+            : "createLiteralVisitor" in rule
+            ? rule.createLiteralVisitor
+            : undefined
+    const createSourceVisitor =
+        "createVisitor" in rule
+            ? rule.createVisitor
+            : "createSourceVisitor" in rule
+            ? rule.createSourceVisitor
+            : undefined
+
+    rules.push({ createLiteralVisitor, createSourceVisitor })
+
+    return visitor
+}
+
+/** Build RegExp visitor */
+function buildRegexpVisitor(
+    context: Rule.RuleContext,
+    rules: RegexpRule[],
+): RuleListener {
     const parser = new RegExpParser()
 
     /**
      * Verify a given regular expression.
-     * @param node The node to report.
      * @param pattern The regular expression pattern to verify.
      * @param flags The flags of the regular expression.
      */
-    function verify<T extends ESTree.Expression>(
-        node: T,
+    function verify(
         pattern: string,
         flags: string,
-        createVisitor: (
-            // eslint-disable-next-line no-shadow -- ignore
-            node: T,
-            // eslint-disable-next-line no-shadow -- ignore
-            pattern: string,
-            // eslint-disable-next-line no-shadow -- ignore
-            flags: string,
-        ) => RegExpVisitor.Handlers,
+        createVisitors: () => IterableIterator<RegExpVisitor.Handlers>,
     ) {
         let patternNode
 
@@ -104,98 +131,104 @@ export function defineRegexpVisitor(
             return
         }
 
-        const visitor = createVisitor(node, pattern, flags)
-        if (Object.keys(visitor).length === 0) {
+        const handler: RegExpVisitor.Handlers = {}
+        for (const visitor of createVisitors()) {
+            for (const [key, fn] of Object.entries(visitor) as [
+                keyof RegExpVisitor.Handlers,
+                RegExpVisitor.Handlers[keyof RegExpVisitor.Handlers],
+            ][]) {
+                const orig = handler[key]
+                if (orig) {
+                    handler[key] = (
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+                        node: any,
+                    ) => {
+                        orig(node)
+                        fn!(node)
+                    }
+                } else {
+                    // @ts-expect-error -- ignore
+                    handler[key] = fn
+                }
+            }
+        }
+        if (Object.keys(handler).length === 0) {
             return
         }
 
-        visitRegExpAST(patternNode, visitor)
+        visitRegExpAST(patternNode, handler)
     }
 
-    const createLiteralVisitor =
-        "createVisitor" in rule
-            ? rule.createVisitor
-            : "createLiteralVisitor" in rule
-            ? rule.createLiteralVisitor
-            : null
-    const createSourceVisitor =
-        "createVisitor" in rule
-            ? rule.createVisitor
-            : "createSourceVisitor" in rule
-            ? rule.createSourceVisitor
-            : null
-
     return {
-        ...(createLiteralVisitor
-            ? {
-                  "Literal[regex]"(node: ESTree.RegExpLiteral) {
-                      verify(
-                          node,
-                          node.regex.pattern,
-                          node.regex.flags,
-                          createLiteralVisitor,
-                      )
-                  },
-              }
-            : null),
-        ...(createSourceVisitor
-            ? {
-                  Program() {
-                      const scope = context.getScope()
-                      const tracker = new ReferenceTracker(scope)
+        "Program:exit"() {
+            regexpRules.delete(context.getSourceCode().ast)
+        },
+        "Literal[regex]"(node: ESTree.RegExpLiteral) {
+            verify(node.regex.pattern, node.regex.flags, function* () {
+                for (const rule of rules) {
+                    if (rule.createLiteralVisitor) {
+                        yield rule.createLiteralVisitor(
+                            node,
+                            node.regex.pattern,
+                            node.regex.flags,
+                        )
+                    }
+                }
+            })
+        },
+        Program() {
+            const scope = context.getScope()
+            const tracker = new ReferenceTracker(scope)
 
-                      // Iterate calls of RegExp.
-                      // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
-                      //       `const {RegExp: a} = window; new a()`, etc...
-                      for (const { node } of tracker.iterateGlobalReferences({
-                          RegExp: { [CALL]: true, [CONSTRUCT]: true },
-                      })) {
-                          const newOrCall = node as
-                              | ESTree.NewExpression
-                              | ESTree.CallExpression
-                          const [patternNode, flagsNode] = newOrCall.arguments
-                          if (
-                              !patternNode ||
-                              patternNode.type === "SpreadElement"
-                          ) {
-                              continue
-                          }
-                          const pattern = getStringIfConstant(
-                              patternNode,
-                              scope,
-                          )
-                          const flags = getStringIfConstant(flagsNode, scope)
+            // Iterate calls of RegExp.
+            // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
+            //       `const {RegExp: a} = window; new a()`, etc...
+            for (const { node } of tracker.iterateGlobalReferences({
+                RegExp: { [CALL]: true, [CONSTRUCT]: true },
+            })) {
+                const newOrCall = node as
+                    | ESTree.NewExpression
+                    | ESTree.CallExpression
+                const [patternNode, flagsNode] = newOrCall.arguments
+                if (!patternNode || patternNode.type === "SpreadElement") {
+                    continue
+                }
+                const pattern = getStringIfConstant(patternNode, scope)
+                const flags = getStringIfConstant(flagsNode, scope)
 
-                          if (typeof pattern === "string") {
-                              let verifyPatternNode = patternNode
-                              if (patternNode.type === "Identifier") {
-                                  const variable = findVariable(
-                                      context.getScope(),
-                                      patternNode,
-                                  )
-                                  if (variable && variable.defs.length === 1) {
-                                      const def = variable.defs[0]
-                                      if (
-                                          def.type === "Variable" &&
-                                          def.parent.kind === "const" &&
-                                          def.node.init &&
-                                          def.node.init.type === "Literal"
-                                      ) {
-                                          verifyPatternNode = def.node.init
-                                      }
-                                  }
-                              }
-                              verify(
-                                  verifyPatternNode,
-                                  pattern,
-                                  flags || "",
-                                  createSourceVisitor,
-                              )
-                          }
-                      }
-                  },
-              }
-            : null),
+                if (typeof pattern === "string") {
+                    let verifyPatternNode = patternNode
+                    if (patternNode.type === "Identifier") {
+                        const variable = findVariable(
+                            context.getScope(),
+                            patternNode,
+                        )
+                        if (variable && variable.defs.length === 1) {
+                            const def = variable.defs[0]
+                            if (
+                                def.type === "Variable" &&
+                                def.parent.kind === "const" &&
+                                def.node.init &&
+                                def.node.init.type === "Literal"
+                            ) {
+                                verifyPatternNode = def.node.init
+                            }
+                        }
+                    }
+                    verify(pattern, flags || "", function* () {
+                        for (const rule of rules) {
+                            if (rule.createSourceVisitor) {
+                                yield rule.createSourceVisitor(
+                                    verifyPatternNode,
+                                    pattern,
+                                    flags || "",
+                                )
+                            }
+                        }
+                    })
+                }
+            }
+        },
     }
 }
 
