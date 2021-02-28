@@ -21,6 +21,8 @@ class CharBuffer {
 
     public equalChar: (element: CharacterSet | Character) => boolean
 
+    public greedy: boolean | null = null
+
     public constructor(
         element: CharacterSet | Character | Quantifier,
         target: CharacterSet | Character,
@@ -31,6 +33,9 @@ class CharBuffer {
         if (element.type === "Quantifier") {
             this.min = element.min
             this.max = element.max
+            if (element.min < element.max) {
+                this.greedy = element.greedy
+            }
         } else {
             this.min = 1
             this.max = 1
@@ -64,6 +69,9 @@ class CharBuffer {
         if (element.type === "Quantifier") {
             this.min += element.min
             this.max += element.max
+            if (element.min < element.max) {
+                this.greedy ||= element.greedy
+            }
         } else {
             this.min += 1
             this.max += 1
@@ -106,18 +114,19 @@ class CharBuffer {
     }
 
     public getQuantifier(): string {
+        const greedy = this.greedy === false ? "?" : ""
         if (this.min === 0 && this.max === Number.POSITIVE_INFINITY) {
-            return "*"
+            return `*${greedy}`
         } else if (this.min === 1 && this.max === Number.POSITIVE_INFINITY) {
-            return "+"
+            return `+${greedy}`
         } else if (this.min === 0 && this.max === 1) {
-            return "?"
+            return `?${greedy}`
         } else if (this.min === this.max) {
             return `{${this.min}}`
         } else if (this.max === Number.POSITIVE_INFINITY) {
-            return `{${this.min},}`
+            return `{${this.min},}${greedy}`
         }
-        return `{${this.min},${this.max}}`
+        return `{${this.min},${this.max}}${greedy}`
     }
 }
 
@@ -156,17 +165,25 @@ export default createRule("prefer-quantifier", {
                             target = element
                         } else if (element.type === "Quantifier") {
                             if (
-                                element.element.type === "CharacterSet" ||
-                                element.element.type === "Character"
+                                element.element.type !== "CharacterSet" &&
+                                element.element.type !== "Character"
                             ) {
-                                target = element.element
-                            } else {
                                 if (charBuffer) {
                                     validateBuffer(charBuffer)
                                     charBuffer = null
                                 }
                                 continue
                             }
+                            if (
+                                charBuffer &&
+                                charBuffer.greedy != null &&
+                                charBuffer.greedy !== element.greedy
+                            ) {
+                                // greedy flags do not match.
+                                validateBuffer(charBuffer)
+                                charBuffer = null
+                            }
+                            target = element.element
                         } else {
                             if (charBuffer) {
                                 validateBuffer(charBuffer)
