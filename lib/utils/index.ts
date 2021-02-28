@@ -72,12 +72,16 @@ export function defineRegexpVisitor(
               ) => RegExpVisitor.Handlers
           },
 ): RuleListener {
+    const programNode = context.getSourceCode().ast
+
     let visitor: RuleListener
-    let rules = regexpRules.get(context.getSourceCode().ast)
+    let rules = regexpRules.get(programNode)
     if (!rules) {
         rules = []
-        visitor = buildRegexpVisitor(context, rules)
-        regexpRules.set(context.getSourceCode().ast, rules)
+        regexpRules.set(programNode, rules)
+        visitor = buildRegexpVisitor(context, rules, () => {
+            regexpRules.delete(programNode)
+        })
     } else {
         visitor = {}
     }
@@ -104,6 +108,7 @@ export function defineRegexpVisitor(
 function buildRegexpVisitor(
     context: Rule.RuleContext,
     rules: RegexpRule[],
+    programExit: (node: ESTree.Program) => void,
 ): RuleListener {
     const parser = new RegExpParser()
 
@@ -160,9 +165,7 @@ function buildRegexpVisitor(
     }
 
     return {
-        "Program:exit"() {
-            regexpRules.delete(context.getSourceCode().ast)
-        },
+        "Program:exit": programExit,
         "Literal[regex]"(node: ESTree.RegExpLiteral) {
             verify(node.regex.pattern, node.regex.flags, function* () {
                 for (const rule of rules) {
