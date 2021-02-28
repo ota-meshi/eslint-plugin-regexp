@@ -3,6 +3,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
     defineRegexpVisitor,
+    fixerApplyEscape,
     getRegexpLocation,
     getRegexpRange,
 } from "../utils"
@@ -118,7 +119,7 @@ export default createRule("no-useless-character-class", {
                                     return [
                                         fixer.replaceTextRange(
                                             [range[0], range[0] + 1],
-                                            "\\",
+                                            fixerApplyEscape("\\", node),
                                         ),
                                         fixer.removeRange([
                                             range[1] - 1,

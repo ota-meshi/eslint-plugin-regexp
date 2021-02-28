@@ -97,5 +97,17 @@ tester.run("no-useless-character-class", rule as any, {
             options: [{ ignores: [] }],
             errors: 18,
         },
+        {
+            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
+            output: null,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
+            code: String.raw`new RegExp("[.] [*] [+] [?] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [/]")`,
+            output: String.raw`new RegExp("\\. \\* \\+ \\? = ! : \\$ \\{ } \\( \\) \\| \\[ \\/")`,
+            options: [{ ignores: [] }],
+            errors: 15,
+        },
     ],
 })
