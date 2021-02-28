@@ -17,6 +17,8 @@ tester.run("prefer-quantifier", rule as any, {
         `/<!--/`,
         `/\`\`\`/`,
         `/---/`,
+        `/a.{1,3}?.{2,4}c/`,
+        `/a.{1,3}.{2,4}?c/`,
     ],
     invalid: [
         {
@@ -135,6 +137,20 @@ tester.run("prefer-quantifier", rule as any, {
             output: `/a{0,3}/`,
             errors: [
                 'Unexpected consecutive same characters. Use "{0,3}" instead.',
+            ],
+        },
+        {
+            code: `/a.{1,3}?.{2,4}?c/`,
+            output: `/a.{3,7}?c/`,
+            errors: [
+                'Unexpected consecutive same character sets. Use "{3,7}?" instead.',
+            ],
+        },
+        {
+            code: `/a.{1,3}.{2,4}c/`,
+            output: `/a.{3,7}c/`,
+            errors: [
+                'Unexpected consecutive same character sets. Use "{3,7}" instead.',
             ],
         },
     ],
