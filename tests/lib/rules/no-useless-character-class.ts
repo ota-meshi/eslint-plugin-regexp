@@ -12,17 +12,23 @@ tester.run("no-useless-character-class", rule as any, {
     valid: [
         `/regexp/`,
         `/[^a]/`,
-        `/[^\\d]/`,
-        `/[\\s\\S]/`,
+        String.raw`/[^\d]/`,
+        String.raw`/[\s\S]/`,
+        `/[a-z]/`,
         `/[=]/ // ignore`,
         {
             code: `/[a]/`,
             options: [{ ignores: ["a"] }],
         },
         {
-            code: `/[\\d]/`,
+            code: String.raw`/[\d]/`,
             options: [{ ignores: ["\\d"] }],
         },
+        String.raw`/[\b]/ // backspace`,
+        String.raw`/(,)[\1]/ // back reference escape`,
+        String.raw`/(,)(,)(,)(,)(,) (,)(,)(,)(,)(,) (,)[\7]/ // back reference escape`,
+        String.raw`/(,)(,)(,)(,)(,) (,)(,)(,)(,)(,) (,)[\11]/ // back reference escape`,
+        String.raw`/\0/`,
     ],
     invalid: [
         {
@@ -38,8 +44,8 @@ tester.run("no-useless-character-class", rule as any, {
             ],
         },
         {
-            code: `/[\\d]/`,
-            output: `/\\d/`,
+            code: String.raw`/[\d]/`,
+            output: String.raw`/\d/`,
             errors: [
                 {
                     message:
@@ -58,12 +64,38 @@ tester.run("no-useless-character-class", rule as any, {
             ],
         },
         {
-            code: `/[\\D]/`,
-            output: `/\\D/`,
+            code: String.raw`/[\D]/`,
+            output: String.raw`/\D/`,
             options: [{ ignores: ["\\d"] }],
             errors: [
                 "Unexpected character class with one character set. Can remove brackets.",
             ],
+        },
+        {
+            code: String.raw`/(,)[\0]/`,
+            output: String.raw`/(,)\0/`,
+            errors: [
+                "Unexpected character class with one character. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/(,)[\01]/`,
+            output: String.raw`/(,)\01/`,
+            errors: [
+                "Unexpected character class with one character. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\]] [/] [\\]/`,
+            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ } \( \) \| \[ \] \/ \\/`,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
+            code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\]] [/] [\\]/u`,
+            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/u`,
+            options: [{ ignores: [] }],
+            errors: 18,
         },
     ],
 })

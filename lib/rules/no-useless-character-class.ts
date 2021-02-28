@@ -46,7 +46,11 @@ export default createRule("no-useless-character-class", {
          * Create visitor
          * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            node: Expression,
+            _pattern: string,
+            flags: string,
+        ): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
                     if (ccNode.elements.length !== 1) {
@@ -57,6 +61,17 @@ export default createRule("no-useless-character-class", {
                     }
                     const element = ccNode.elements[0]
                     if (element.type === "Character") {
+                        if (element.raw === "\\b") {
+                            // Backspace escape
+                            return
+                        }
+                        if (
+                            /^\\\d+$/.test(element.raw) &&
+                            !element.raw.startsWith("\\0")
+                        ) {
+                            // Avoid back reference
+                            return
+                        }
                         if (
                             ignores.length > 0 &&
                             ignores.includes(
@@ -94,6 +109,23 @@ export default createRule("no-useless-character-class", {
                             )
                             if (range == null) {
                                 return null
+                            }
+                            if (element.type === "Character") {
+                                if (
+                                    /^[.*+?${()|[/]$/u.test(element.raw) ||
+                                    (flags.includes("u") && element.raw === "}")
+                                ) {
+                                    return [
+                                        fixer.replaceTextRange(
+                                            [range[0], range[0] + 1],
+                                            "\\",
+                                        ),
+                                        fixer.removeRange([
+                                            range[1] - 1,
+                                            range[1],
+                                        ]),
+                                    ]
+                                }
                             }
                             return [
                                 fixer.removeRange([range[0], range[0] + 1]),

@@ -1,3 +1,4 @@
+export const CP_BACKSPACE = 8
 export const CP_TAB = 9
 export const CP_LF = 10
 export const CP_VT = 11
