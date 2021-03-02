@@ -21,6 +21,14 @@ export function getStringIfConstant(
     initialScope: eslint.Scope.Scope,
 ): string | null
 
+export function getStaticValue(
+    node: ESTree.Node,
+    initialScope: eslint.Scope.Scope,
+): { value: unknown } | { value: undefined; optional?: true } | null
+export function getPropertyName(
+    node: ESTree.Property | ESTree.MemberExpression | ESTree.MethodDefinition,
+    initialScope: eslint.Scope.Scope,
+): string | null
 export const READ: unique symbol,
     CALL: unique symbol,
     CONSTRUCT: unique symbol,
