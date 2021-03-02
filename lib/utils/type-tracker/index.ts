@@ -33,15 +33,23 @@ const ts: typeof import("typescript") = (() => {
     }
 })()
 
+type TypeTracker = {
+    isString: (node: ES.Expression) => boolean
+    getTypes: (node: ES.Expression) => string[]
+}
+
+const cacheTypeTracker = new WeakMap<ES.Program, TypeTracker>()
+
 /**
  * Create Type tracker
  */
-export function createTypeTracker(
-    context: Rule.RuleContext,
-): {
-    isString: (node: ES.Expression) => boolean
-    getTypes: (node: ES.Expression) => string[]
-} {
+export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
+    const programNode = context.getSourceCode().ast
+    const cache = cacheTypeTracker.get(programNode)
+    if (cache) {
+        return cache
+    }
+
     const tsNodeMap: ReadonlyMap<unknown, TS.Node> =
         context.parserServices.esTreeNodeToTSNodeMap
     const checker: TS.TypeChecker =
@@ -49,10 +57,14 @@ export function createTypeTracker(
         context.parserServices.program.getTypeChecker()
     const availableTS = Boolean(ts && tsNodeMap && checker)
 
-    return {
+    const cacheTypeInfo = new WeakMap<ES.Expression, TypeInfo | null>()
+
+    const tracker: TypeTracker = {
         isString,
         getTypes,
     }
+    cacheTypeTracker.set(programNode, tracker)
+    return tracker
 
     /**
      * Checks if the given node is string.
@@ -78,11 +90,23 @@ export function createTypeTracker(
         return result.typeNames()
     }
 
+    /**
+     * Get the type name from given node.
+     */
+    function getType(node: ES.Expression): TypeInfo | null {
+        if (cacheTypeInfo.has(node)) {
+            return cacheTypeInfo.get(node) ?? null
+        }
+        const type = getTypeWithoutCache(node)
+        cacheTypeInfo.set(node, type)
+        return type
+    }
+
     /* eslint-disable complexity -- ignore */
     /**
      * Get the type name from given node.
      */
-    function getType(
+    function getTypeWithoutCache(
         /* eslint-enable complexity -- ignore */
         node: ES.Expression,
     ): TypeInfo | null {
@@ -111,16 +135,19 @@ export function createTypeTracker(
             }
         } else if (node.type === "TemplateLiteral") {
             return "String"
-        } else if (
+        }
+
+        if (availableTS) {
+            return getTypeByTs(node)
+        }
+
+        if (
             node.type === "ArrowFunctionExpression" ||
             node.type === "FunctionExpression"
         ) {
             return UNKNOWN_FUNCTION
         }
 
-        if (availableTS) {
-            return getTypeByTs(node)
-        }
         if (node.type === "ArrayExpression") {
             return new TypeArray(function* () {
                 for (const element of node.elements) {
