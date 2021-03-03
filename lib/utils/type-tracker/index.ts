@@ -109,12 +109,12 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
     }
 
-    /* eslint-disable complexity -- ignore */
+    /* eslint-disable complexity -- X( */
     /**
      * Get the type name from given node.
      */
     function getTypeWithoutCache(
-        /* eslint-enable complexity -- ignore */
+        /* eslint-enable complexity -- X( */
         node: ES.Expression,
     ): TypeInfo | null {
         if (node.type === "Literal") {
@@ -456,10 +456,14 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         return tsType && getTypeFromTsType(tsType)
     }
 
+    /* eslint-disable complexity -- X( */
     /**
      * Check if the name of the given type is expected or not.
      */
-    function getTypeFromTsType(tsType: TS.Type): TypeInfo | null {
+    function getTypeFromTsType(
+        /* eslint-enable complexity -- X( */
+        tsType: TS.Type,
+    ): TypeInfo | null {
         if ((tsType.flags & ts.TypeFlags.StringLike) !== 0) {
             return "String"
         }
@@ -505,8 +509,8 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
         if (isClassOrInterface(tsType)) {
             const name = tsType.symbol.escapedName
-            return (/^Readonly(.*)/.exec(name as string)?.[1] ??
-                name) as TypeInfo
+            const typeName = /^Readonly(.*)/.exec(name as string)?.[1] ?? name
+            return typeName === "Array" ? UNKNOWN_ARRAY : (typeName as TypeInfo)
         }
         if (isObject(tsType)) {
             return UNKNOWN_OBJECT

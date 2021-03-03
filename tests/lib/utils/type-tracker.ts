@@ -1,8 +1,13 @@
 import assert from "assert"
 import { Linter } from "eslint"
+import path from "path"
 import type { Expression } from "estree"
 import { createTypeTracker } from "../../../lib/utils/type-tracker"
 import * as tsParser from "@typescript-eslint/parser"
+
+const tsconfigRootDir = path.resolve(__dirname, "../../..")
+const project = "tsconfig.json"
+const filename = path.join(tsconfigRootDir, "./tests/lib/utils/type-tracker.ts")
 
 type TestCase = {
     code: string
@@ -344,6 +349,33 @@ const TESTCASES: TestCase[] = [
         type: [],
         parser: "@typescript-eslint/parser",
     },
+    {
+        code: `
+        const b = [1,2,3]
+        const c = b;
+        c
+        `,
+        type: "Array",
+        parser: "@typescript-eslint/parser",
+    },
+    {
+        code: `
+        const b = [1,2,3] as const
+        const c = b;
+        c
+        `,
+        type: "Array",
+        parser: "@typescript-eslint/parser",
+    },
+    {
+        code: `
+        const b: ReadonlyArray<String> = a
+        const c = b;
+        c
+        `,
+        type: "Array",
+        parser: "@typescript-eslint/parser",
+    },
 
     {
         code: `
@@ -501,11 +533,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     lastExpr = node
                 },
                 "Program:exit"() {
-                    // if (
-                    //     context
-                    //         .getSourceCode()
-                    //         .text.includes("/** @type {string[]} */(a)")
-                    // ) {
+                    // if (context.getSourceCode().text.includes("as const")) {
                     //     debugger
                     // }
                     types = createTypeTracker(context).getTypes(lastExpr!)
@@ -514,16 +542,22 @@ function getTypesWithLinter(testCase: TestCase): string[] {
         },
     })
     linter.defineParser("@typescript-eslint/parser", tsParser as never)
-    const r = linter.verify(testCase.code, {
-        parser: testCase.parser,
-        parserOptions: {
-            ecmaVersion: 2020,
-            ...(testCase.parserOptions ?? {}),
+    const r = linter.verify(
+        testCase.code,
+        {
+            parser: testCase.parser,
+            parserOptions: {
+                ecmaVersion: 2020,
+                ...(testCase.parserOptions ?? {}),
+                tsconfigRootDir,
+                project,
+            },
+            rules: {
+                test: "error",
+            },
         },
-        rules: {
-            test: "error",
-        },
-    })
+        filename,
+    )
     if (r.length) {
         assert.deepStrictEqual(r, [])
     }
