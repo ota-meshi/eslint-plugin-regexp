@@ -1,7 +1,7 @@
 import type { Rule } from "eslint"
 import type * as TS from "typescript"
 import type * as ES from "estree"
-import { findVariable, getPropertyName } from "./utils"
+import { findVariable, getPropertyName, isParenthesized } from "./utils"
 import type { TypeInfo, NamedType, OtherTypeName } from "./type-data"
 import {
     UNKNOWN_ARRAY,
@@ -19,6 +19,8 @@ import {
     TypeUnionOrIntersection,
     isTypeClass,
 } from "./type-data"
+import { getJSDoc, parseTypeText } from "./jsdoc"
+import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
 const ts: typeof import("typescript") = (() => {
@@ -97,9 +99,14 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (cacheTypeInfo.has(node)) {
             return cacheTypeInfo.get(node) ?? null
         }
-        const type = getTypeWithoutCache(node)
-        cacheTypeInfo.set(node, type)
-        return type
+        try {
+            const type = getTypeWithoutCache(node)
+            cacheTypeInfo.set(node, type)
+            return type
+        } catch {
+            // ignore
+            return null
+        }
     }
 
     /* eslint-disable complexity -- ignore */
@@ -141,10 +148,36 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             return getTypeByTs(node)
         }
 
+        const jsdoc = getJSDoc(node, context)
+        if (jsdoc) {
+            if (isParenthesized(context, node)) {
+                const typeText = jsdoc.getTag("type")?.type
+                if (typeText) {
+                    const type = jsDocTypeNodeToTypeInfo(
+                        parseTypeText(typeText),
+                    )
+                    if (type) {
+                        return type
+                    }
+                }
+            }
+        }
+
         if (
             node.type === "ArrowFunctionExpression" ||
             node.type === "FunctionExpression"
         ) {
+            if (jsdoc) {
+                const typeText = (
+                    jsdoc.getTag("returns") ?? jsdoc.getTag("return")
+                )?.type
+                if (typeText) {
+                    const type = jsDocTypeNodeToTypeInfo(
+                        parseTypeText(typeText),
+                    )
+                    return () => type
+                }
+            }
             return UNKNOWN_FUNCTION
         }
 
@@ -239,14 +272,48 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             if (variable) {
                 if (variable.defs.length === 1) {
                     const def = variable.defs[0]
-                    if (
-                        def.type === "Variable" &&
-                        def.parent.kind === "const" &&
-                        def.node.init
-                    ) {
-                        const type = getType(def.node.init)
-                        if (type) {
-                            return type
+                    if (def.type === "Variable") {
+                        const idJsdoc = getJSDoc(def.node, context)
+                        if (idJsdoc) {
+                            const typeText = idJsdoc.getTag("type")?.type
+                            if (typeText) {
+                                const type = jsDocTypeNodeToTypeInfo(
+                                    parseTypeText(typeText),
+                                )
+                                if (type) {
+                                    return type
+                                }
+                            }
+
+                            // TODO callback
+                        }
+                        if (def.parent.kind === "const" && def.node.init) {
+                            const type = getType(def.node.init)
+                            if (type) {
+                                return type
+                            }
+                        }
+                    } else if (def.type === "Parameter") {
+                        const fnJsdoc = getJSDoc(def.node, context)
+                        if (fnJsdoc) {
+                            const jsdocParams = fnJsdoc.parseParams()
+                            if (!jsdocParams.isEmpty()) {
+                                const typeText = jsdocParams.get(
+                                    getParamPath(
+                                        def.name.name,
+                                        def.name,
+                                        context,
+                                    ),
+                                )?.type
+                                if (typeText) {
+                                    const type = jsDocTypeNodeToTypeInfo(
+                                        parseTypeText(typeText),
+                                    )
+                                    if (type) {
+                                        return type
+                                    }
+                                }
+                            }
                         }
                     }
                 } else if (variable.defs.length === 0) {
@@ -381,22 +448,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
     }
 
     /**
-     * Checks if the result has the given type.
-     */
-    function hasType(result: TypeInfo | null, type: NamedType | OtherTypeName) {
-        if (result == null) {
-            return false
-        }
-        if (typeof result === "string") {
-            return result === type
-        }
-        if (typeof result === "function" || typeof result === "symbol") {
-            return type === "Function"
-        }
-        return result.has(type)
-    }
-
-    /**
      * Get type from given node by ts types.
      */
     function getTypeByTs(node: ES.Expression): TypeInfo | null {
@@ -481,6 +532,22 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 }
 
 /**
+ * Checks if the result has the given type.
+ */
+function hasType(result: TypeInfo | null, type: NamedType | OtherTypeName) {
+    if (result == null) {
+        return false
+    }
+    if (typeof result === "string") {
+        return result === type
+    }
+    if (typeof result === "function" || typeof result === "symbol") {
+        return type === "Function"
+    }
+    return result.has(type)
+}
+
+/**
  * Check if a given type is an array-like type or not.
  */
 function isArrayLikeObject(tsType: TS.Type) {
@@ -528,4 +595,177 @@ function isUnionOrIntersection(
     tsType: TS.Type,
 ): tsType is TS.UnionOrIntersectionType {
     return (tsType.flags & ts.TypeFlags.UnionOrIntersection) !== 0
+}
+
+/* eslint-disable complexity -- X-( */
+/** Get type from JSDocTypeNode */
+function jsDocTypeNodeToTypeInfo(
+    /* eslint-enable complexity -- X-( */
+    node: JSDocTypeNode | null,
+): TypeInfo | null {
+    if (node == null) {
+        return null
+    }
+    if (node.type === "NAME") {
+        return typeNameToTypeInfo(node.name)
+    }
+    if (node.type === "STRING_VALUE") {
+        return "String"
+    }
+    if (node.type === "NUMBER_VALUE") {
+        return "Number"
+    }
+    if (
+        node.type === "OPTIONAL" ||
+        node.type === "NULLABLE" ||
+        node.type === "NOT_NULLABLE" ||
+        node.type === "PARENTHESIS"
+    ) {
+        return jsDocTypeNodeToTypeInfo(node.value)
+    }
+    if (node.type === "VARIADIC") {
+        return new TypeArray(function* () {
+            if (node.value) {
+                const t = jsDocTypeNodeToTypeInfo(node.value)
+                if (t) {
+                    yield t
+                }
+            }
+        })
+    }
+    if (node.type === "UNION" || node.type === "INTERSECTION") {
+        return new TypeUnionOrIntersection(function* () {
+            const left = jsDocTypeNodeToTypeInfo(node.left)
+            if (left) {
+                yield left
+            }
+            const right = jsDocTypeNodeToTypeInfo(node.right)
+            if (right) {
+                yield right
+            }
+        })
+    }
+    if (node.type === "GENERIC") {
+        if (node.subject.type === "NAME" && node.subject.name === "Record") {
+            return new TypeObject()
+        }
+
+        const subject = jsDocTypeNodeToTypeInfo(node.subject)
+        if (hasType(subject, "Array")) {
+            return new TypeArray(function* () {
+                const param = node.objects[0]
+                if (!param) {
+                    return
+                }
+                const paramType = jsDocTypeNodeToTypeInfo(param)
+                if (paramType) {
+                    yield paramType
+                }
+            })
+        }
+        return subject
+    }
+    if (node.type === "RECORD") {
+        return new TypeObject(function* () {
+            for (const entry of node.entries) {
+                yield [entry.key, () => jsDocTypeNodeToTypeInfo(entry.value)]
+            }
+        })
+    }
+    if (node.type === "ANY" || node.type === "UNKNOWN") {
+        return null
+    }
+    if (
+        node.type === "MEMBER" ||
+        node.type === "INNER_MEMBER" ||
+        node.type === "INSTANCE_MEMBER" ||
+        node.type === "EXTERNAL" ||
+        node.type === "FILE_PATH" ||
+        node.type === "MODULE"
+    ) {
+        return null
+    }
+
+    return null
+}
+
+/** Get type from type name */
+function typeNameToTypeInfo(name: string): TypeInfo | null {
+    if (name === "String" || name === "string") {
+        return "String"
+    }
+    if (name === "Number" || name === "number") {
+        return "Number"
+    }
+    if (name === "Boolean" || name === "boolean") {
+        return "Boolean"
+    }
+    if (name === "BigInt" || name === "bigint") {
+        return "BigInt"
+    }
+    if (name === "RegExp") {
+        return "RegExp"
+    }
+    if (name === "Array") {
+        return UNKNOWN_ARRAY
+    }
+    if (name === "Function" || name === "function") {
+        return UNKNOWN_FUNCTION
+    }
+    if (name === "Object" || name === "object") {
+        return UNKNOWN_OBJECT
+    }
+    return null
+}
+
+/**
+ * Get function param path for param node
+ */
+function getParamPath(
+    name: string | null,
+    node:
+        | ES.Identifier
+        | ES.AssignmentPattern
+        | ES.ArrayPattern
+        | ES.ObjectPattern
+        | ES.RestElement,
+    context: Rule.RuleContext,
+): { name: string | null; index: number | null }[] {
+    const parent: ES.Pattern | ES.AssignmentProperty | ES.Function =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+        (node as any).parent
+    if (!parent) {
+        return [{ name, index: null }]
+    }
+    if (
+        parent.type === "FunctionDeclaration" ||
+        parent.type === "ArrowFunctionExpression" ||
+        parent.type === "FunctionExpression"
+    ) {
+        return [{ name, index: parent.params.indexOf(node) }]
+    }
+    if (parent.type === "AssignmentPattern") {
+        return getParamPath(name, parent, context)
+    }
+    if (parent.type === "ArrayPattern") {
+        const path = {
+            name,
+            index: parent.elements.indexOf(node),
+        }
+        return getParamPath(null, parent, context).concat([path])
+    }
+    if (parent.type === "Property") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+        const object: ES.ObjectPattern = (parent as any).parent
+
+        const path = {
+            name: getPropertyName(context, parent),
+            index: object.properties.indexOf(parent),
+        }
+        return getParamPath(null, object, context).concat([path])
+    }
+    if (parent.type === "RestElement") {
+        return getParamPath(name, parent, context)
+    }
+    return [{ name, index: null }]
 }

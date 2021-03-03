@@ -325,6 +325,72 @@ const TESTCASES: TestCase[] = [
         type: "Object",
         parser: "@typescript-eslint/parser",
     },
+
+    {
+        code: `
+        /** @type { { foo: number } } */
+        const r = a
+        r.foo
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /** @type {string[]} */
+        const r = a
+        r[123]
+        `,
+        type: "String",
+    },
+    {
+        code: `
+        /** 
+         * @param {number} a
+         * @param {string} b
+         */
+        function fn(a, b) {
+            b[3]
+        }
+        `,
+        type: "String",
+    },
+    {
+        code: `
+        /** 
+         * @param {string} b
+         * @param {number} a
+         */
+        function fn(a, b) {
+            b[3]
+        }
+        `,
+        type: "String",
+    },
+    {
+        code: `
+        /** 
+         * @param {string}
+         * @param {number}
+         */
+        function fn(a, b) {
+            b
+        }
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /** 
+         * @param {object} arg
+         * @param {string} arg.b
+         * @param {number} arg.a
+         */
+        function fn({a, b}) {
+            b
+        }
+        `,
+        type: "String",
+    },
 ]
 describe("type track", () => {
     for (const testCase of TESTCASES) {
@@ -354,7 +420,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     // if (
                     //     context
                     //         .getSourceCode()
-                    //         .text.includes("{[key:string]:string} = {foo:'s'}")
+                    //         .text.includes("@param {number} arg.a")
                     // ) {
                     //     debugger
                     // }

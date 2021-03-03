@@ -29,6 +29,11 @@ export function getPropertyName(
     node: ESTree.Property | ESTree.MemberExpression | ESTree.MethodDefinition,
     initialScope: eslint.Scope.Scope,
 ): string | null
+
+export function isCommentToken(
+    token: eslint.AST.Token | ESTree.Comment,
+): token is ESTree.Comment
+
 export const READ: unique symbol,
     CALL: unique symbol,
     CONSTRUCT: unique symbol,

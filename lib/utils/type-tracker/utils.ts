@@ -23,6 +23,15 @@ export function getPropertyName(
 ): string | null {
     return eslintUtils.getPropertyName(node, getScope(context, node))
 }
+/**
+ *  Check whether a given node is parenthesized or not.
+ */
+export function isParenthesized(
+    context: Rule.RuleContext,
+    node: ES.Node,
+): boolean {
+    return eslintUtils.isParenthesized(node, context.getSourceCode())
+}
 
 /**
  * Gets the scope for the current node
