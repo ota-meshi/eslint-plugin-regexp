@@ -37,7 +37,7 @@ export class TypeNumber implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeNumber
+        return o.type === "Number"
     }
 }
 export const NUMBER = new TypeNumber()

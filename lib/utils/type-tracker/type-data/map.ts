@@ -10,6 +10,7 @@ import { RETURN_BOOLEAN } from "./boolean"
 import {
     cache,
     createObject,
+    getTypeName,
     isEquals,
     isTypeClass,
     RETURN_VOID,
@@ -110,7 +111,7 @@ export class TypeMap implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        if (!(o instanceof TypeMap)) {
+        if (o.type !== "Map") {
             return false
         }
         return (
@@ -136,9 +137,9 @@ function mapConstructor(
         return null
     }
     const arg = argTypes[0]?.()
-    if (arg && arg instanceof TypeArray) {
+    if (isTypeClass(arg) && arg.type === "Array") {
         const iterateType = arg.iterateType()
-        if (iterateType && iterateType instanceof TypeArray) {
+        if (isTypeClass(iterateType) && iterateType.type === "Array") {
             return new TypeMap(
                 () => iterateType.at(0),
                 () => iterateType.at(1),
@@ -175,20 +176,4 @@ function returnSelf(
     selfType: Parameters<FunctionType>[0],
 ): ReturnType<FunctionType> {
     return selfType?.() ?? null
-}
-
-/**
- * Get the type name from given type.
- */
-function getTypeName(type: TypeInfo | null): string | null {
-    if (type == null) {
-        return null
-    }
-    if (typeof type === "string") {
-        return type
-    }
-    if (typeof type === "function" || typeof type === "symbol") {
-        return "Function"
-    }
-    return type.typeNames().join("|")
 }

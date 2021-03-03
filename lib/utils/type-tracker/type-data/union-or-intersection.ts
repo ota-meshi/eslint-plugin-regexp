@@ -27,29 +27,47 @@ export class TypeUnionOrIntersection implements ITypeClass {
     }
 
     public propertyType(name: string): TypeInfo | null {
-        for (const type of this.collection.all()) {
-            const propType = isTypeClass(type)
-                ? type.propertyType(name)
-                : typeof type === "function"
-                ? getFunctionPrototypes()[name as never]
-                : null
-            if (propType) {
-                return propType
+        const baseCollection = this.collection
+        const collection = new TypeCollection(function* () {
+            for (const type of baseCollection.all()) {
+                const propType = isTypeClass(type)
+                    ? type.propertyType(name)
+                    : typeof type === "function"
+                    ? getFunctionPrototypes()[name as never]
+                    : null
+                if (propType) {
+                    yield propType
+                }
             }
+        })
+        if (collection.isOneType()) {
+            for (const t of collection.all()) {
+                return t
+            }
+            return null
         }
-        return null
+        return new TypeUnionOrIntersection(() => collection.all())
     }
 
     public iterateType(): TypeInfo | null {
-        for (const type of this.collection.all()) {
-            if (isTypeClass(type)) {
-                const itrType = type.iterateType()
-                if (itrType) {
-                    return itrType
+        const baseCollection = this.collection
+        const collection = new TypeCollection(function* () {
+            for (const type of baseCollection.all()) {
+                if (isTypeClass(type)) {
+                    const itrType = type.iterateType()
+                    if (itrType) {
+                        yield itrType
+                    }
                 }
             }
+        })
+        if (collection.isOneType()) {
+            for (const t of collection.all()) {
+                return t
+            }
+            return null
         }
-        return null
+        return new TypeUnionOrIntersection(() => collection.all())
     }
 
     public typeNames(): string[] {
@@ -58,7 +76,7 @@ export class TypeUnionOrIntersection implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        if (!(o instanceof TypeUnionOrIntersection)) {
+        if (o.type !== "TypeUnionOrIntersection") {
             return false
         }
         const itr1 = this.collection.all()

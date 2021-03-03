@@ -58,7 +58,7 @@ export class TypeString implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeString
+        return o.type === "String"
     }
 }
 export const STRING = new TypeString()

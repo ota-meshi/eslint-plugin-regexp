@@ -46,7 +46,7 @@ export class TypeBoolean implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeBoolean
+        return o.type === "Boolean"
     }
 }
 export const BOOLEAN = new TypeBoolean()

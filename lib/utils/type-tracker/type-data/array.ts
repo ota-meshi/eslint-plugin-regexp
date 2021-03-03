@@ -9,6 +9,7 @@ import { RETURN_BOOLEAN } from "./boolean"
 import {
     cache,
     createObject,
+    getTypeName,
     isEquals,
     isTypeClass,
     RETURN_VOID,
@@ -107,10 +108,13 @@ export class TypeArray implements ITypeClass {
         return type === "Array"
     }
 
-    public paramType(index: number): TypeUnionOrIntersection | null {
+    public paramType(index: number): TypeInfo | null {
         if (index === 0) {
             if (this.collection.isOneType()) {
-                return this.collection.all().next().value || null
+                for (const t of this.collection.all()) {
+                    return t
+                }
+                return null
             }
             return new TypeUnionOrIntersection(() => this.collection.all())
         }
@@ -143,12 +147,12 @@ export class TypeArray implements ITypeClass {
     }
 
     public typeNames(): string[] {
-        const param = this.paramType(0)?.typeNames().join("|")
-        return [`Array${param ? `<${param}>` : ""}`]
+        const param0 = getTypeName(this.paramType(0))
+        return [`Array${param0 ? `<${param0}>` : ""}`]
     }
 
     public equals(o: TypeClass): boolean {
-        if (!(o instanceof TypeArray)) {
+        if (o.type !== "Array") {
             return false
         }
         return isEquals(this.paramType(0), o.paramType(0))

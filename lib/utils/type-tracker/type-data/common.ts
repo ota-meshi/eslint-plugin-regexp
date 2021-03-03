@@ -47,40 +47,30 @@ export function cache<T>(fn: () => T): () => T {
 }
 
 export class TypeCollection {
-    private readonly types: TypeInfo[] = []
-
-    public readonly iterator: IterableIterator<TypeInfo>
+    public readonly generator: () => IterableIterator<TypeInfo>
 
     private unknownIndex: number | null = null
 
     public constructor(generator?: () => IterableIterator<TypeInfo | null>) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias -- ignore
         const that = this
-        this.iterator = (function* () {
-            let index = 0
-            for (const t of generator?.() ?? [][Symbol.iterator]()) {
-                if (t != null) {
-                    yield t
-                } else {
-                    that.unknownIndex ??= index
-                }
-                index++
-            }
-        })()
-    }
-
-    private *itrAll(): IterableIterator<TypeInfo> {
-        yield* this.types
-        let e = this.iterator.next()
-        while (!e.done) {
-            this.types.push(e.value)
-            yield e.value
-            e = this.iterator.next()
-        }
+        this.generator = generator
+            ? function* () {
+                  let index = 0
+                  for (const t of generator()) {
+                      if (t != null) {
+                          yield t
+                      } else {
+                          that.unknownIndex ??= index
+                      }
+                      index++
+                  }
+              }
+            : () => [][Symbol.iterator]()
     }
 
     public has(type: NamedType | OtherTypeName): boolean {
-        for (const t of this.itrAll()) {
+        for (const t of this.generator()) {
             if (typeof t === "string") {
                 if (t === type) return true
             } else if (typeof t === "function" || typeof t === "symbol") {
@@ -108,7 +98,7 @@ export class TypeCollection {
 
     public *tuple(): IterableIterator<TypeInfo> {
         let index = 0
-        for (const t of this.itrAll()) {
+        for (const t of this.generator()) {
             if (this.unknownIndex != null && index < this.unknownIndex) {
                 return
             }
@@ -119,7 +109,7 @@ export class TypeCollection {
 
     public *all(): IterableIterator<TypeInfo> {
         const set = new Set()
-        for (const t of this.itrAll()) {
+        for (const t of this.generator()) {
             if (!set.has(t)) {
                 set.add(t)
                 yield t
@@ -152,4 +142,20 @@ export class TypeCollection {
             }
         }
     }
+}
+
+/**
+ * Get the type name from given type.
+ */
+export function getTypeName(type: TypeInfo | null): string | null {
+    if (type == null) {
+        return null
+    }
+    if (typeof type === "string") {
+        return type
+    }
+    if (typeof type === "function" || typeof type === "symbol") {
+        return "Function"
+    }
+    return type.typeNames().join("|")
 }

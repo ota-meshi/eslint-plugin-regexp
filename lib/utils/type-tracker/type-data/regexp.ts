@@ -39,7 +39,7 @@ export class TypeRegExp implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeRegExp
+        return o.type === "RegExp"
     }
 }
 export const REGEXP = new TypeRegExp()

@@ -8,7 +8,7 @@ import type {
 import { isTypeClass } from "."
 import { RETURN_STRING_ARRAY, RETURN_UNKNOWN_ARRAY } from "./array"
 import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject } from "./common"
+import { cache, createObject, isEquals } from "./common"
 import type { FunctionType } from "./function"
 import { UNKNOWN_FUNCTION } from "./function"
 import { RETURN_STRING } from "./string"
@@ -76,11 +76,7 @@ export const getObjectPrototypes: () => {
 export class TypeObject implements ITypeClass {
     public type = "Object" as const
 
-    private properties: Record<string, () => TypeInfo | null> = Object.create(
-        null,
-    )
-
-    private readonly propertiesIterator: IterableIterator<
+    private readonly propertiesGenerator: () => IterableIterator<
         [string, () => TypeInfo | null]
     >
 
@@ -89,25 +85,22 @@ export class TypeObject implements ITypeClass {
             [string, () => TypeInfo | null]
         >,
     ) {
-        this.propertiesIterator =
-            propertiesGenerator?.() ?? [][Symbol.iterator]()
-    }
-
-    private *iter(): IterableIterator<[string, () => TypeInfo | null]> {
-        let e = this.propertiesIterator.next()
-        while (!e.done) {
-            const data = e.value
-            if (!this.properties[data[0]]) {
-                this.properties[data[0]] = data[1]
-                yield data
-            }
-            e = this.propertiesIterator.next()
-        }
+        this.propertiesGenerator =
+            propertiesGenerator ??
+            (() => {
+                return [][Symbol.iterator]()
+            })
     }
 
     public *allProperties(): IterableIterator<[string, () => TypeInfo | null]> {
-        yield* Object.entries(this.properties)
-        yield* this.iter()
+        const set = new Set()
+        for (const t of this.propertiesGenerator()) {
+            if (set.has(t[0])) {
+                continue
+            }
+            set.add(t[0])
+            yield t
+        }
     }
 
     public has(type: NamedType | OtherTypeName): boolean {
@@ -119,11 +112,7 @@ export class TypeObject implements ITypeClass {
     }
 
     public propertyType(name: string): TypeInfo | null {
-        const getType = this.properties[name]
-        if (getType) {
-            return getType()
-        }
-        for (const [key, getValue] of this.iter()) {
+        for (const [key, getValue] of this.allProperties()) {
             if (key === name) {
                 return getValue()
             }
@@ -140,7 +129,37 @@ export class TypeObject implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeObject
+        if (o.type !== "Object") {
+            return false
+        }
+
+        const itr2 = o.allProperties()
+        const props2 = new Map<string, () => TypeInfo | null>()
+        for (const [key1, get1] of this.allProperties()) {
+            const get2 = props2.get(key1)
+            if (get2) {
+                if (!isEquals(get1(), get2())) {
+                    return false
+                }
+            } else {
+                let e2 = itr2.next()
+                while (!e2.done) {
+                    const [key2, get] = e2.value
+                    props2.set(key2, get)
+                    if (key1 === key2) {
+                        if (!isEquals(get1(), get())) {
+                            return false
+                        }
+                        break
+                    }
+                    e2 = itr2.next()
+                }
+                if (!e2.done) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 }
 

@@ -7,7 +7,13 @@ import type {
 } from "."
 import { isTypeClass } from "."
 import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject, isEquals, RETURN_VOID } from "./common"
+import {
+    cache,
+    createObject,
+    getTypeName,
+    isEquals,
+    RETURN_VOID,
+} from "./common"
 import type { FunctionType } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
@@ -84,7 +90,7 @@ export class TypeSet implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        if (!(o instanceof TypeSet)) {
+        if (o.type !== "Set") {
             return false
         }
         return isEquals(this.paramType(0), o.paramType(0))
@@ -124,20 +130,4 @@ function returnSelf(
     selfType: Parameters<FunctionType>[0],
 ): ReturnType<FunctionType> {
     return selfType?.() ?? null
-}
-
-/**
- * Get the type name from given type.
- */
-function getTypeName(type: TypeInfo | null): string | null {
-    if (type == null) {
-        return null
-    }
-    if (typeof type === "string") {
-        return type
-    }
-    if (typeof type === "function" || typeof type === "symbol") {
-        return "Function"
-    }
-    return type.typeNames().join("|")
 }

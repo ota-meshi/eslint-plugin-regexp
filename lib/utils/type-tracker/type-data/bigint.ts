@@ -49,7 +49,7 @@ export class TypeBigInt implements ITypeClass {
     }
 
     public equals(o: TypeClass): boolean {
-        return o instanceof TypeBigInt
+        return o.type === "BigInt"
     }
 }
 export const BIGINT = new TypeBigInt()

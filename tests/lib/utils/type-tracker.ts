@@ -224,6 +224,15 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
+        const a = [1,2,3,4,true,false,'',123n,/a/]
+        for (const e of a) {
+            e
+        }
+        `,
+        type: ["BigInt", "Boolean", "Number", "RegExp", "String"],
+    },
+    {
+        code: `
         const is = [1,2,3,4]
         const ss = 'a,b,c'.split(/,/g)
         const a = [...is, ...ss]
@@ -350,6 +359,19 @@ const TESTCASES: TestCase[] = [
         a.get(1)
         `,
         type: ["String"],
+    },
+    {
+        code: `
+        BigInt.asIntN(64, v)
+        `,
+        type: ["BigInt"],
+    },
+    {
+        code: `
+        const a = [{a: 's'}, {a: 42}, new Map()]
+        a[1].a
+        `,
+        type: ["Number", "String"],
     },
     {
         code: `
@@ -599,7 +621,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     // if (
                     //     context
                     //         .getSourceCode()
-                    //         .text.includes("[1,2,3,4,true,false,'',123n,/a/]")
+                    //         .text.includes("[{a: 's'},{a: 42}]")
                     // ) {
                     //     debugger
                     // }
@@ -615,6 +637,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
             globals: {
                 Set: "readonly",
                 Map: "readonly",
+                BigInt: "readonly",
             },
             parser: testCase.parser,
             parserOptions: {
