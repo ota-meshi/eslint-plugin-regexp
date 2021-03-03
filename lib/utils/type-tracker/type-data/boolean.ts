@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { cache, createObject } from "./common"
 import { getObjectPrototypes } from "./object"
 
@@ -37,6 +43,10 @@ export class TypeBoolean implements ITypeClass {
 
     public typeNames(): string[] {
         return ["Boolean"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeBoolean
     }
 }
 export const BOOLEAN = new TypeBoolean()

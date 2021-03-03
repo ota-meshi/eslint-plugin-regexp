@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { RETURN_STRING_ARRAY } from "./array"
 import { BOOLEAN, RETURN_BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
@@ -30,6 +36,10 @@ export class TypeRegExp implements ITypeClass {
 
     public typeNames(): string[] {
         return ["RegExp"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeRegExp
     }
 }
 export const REGEXP = new TypeRegExp()

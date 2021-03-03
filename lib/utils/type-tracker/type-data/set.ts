@@ -1,7 +1,13 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { isTypeClass } from "."
 import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject, RETURN_VOID } from "./common"
+import { cache, createObject, isEquals, RETURN_VOID } from "./common"
 import type { FunctionType } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
@@ -75,6 +81,13 @@ export class TypeSet implements ITypeClass {
     public typeNames(): string[] {
         const param0 = getTypeName(this.paramType(0))
         return [`Set${param0 != null ? `<${param0}>` : ""}`]
+    }
+
+    public equals(o: TypeClass): boolean {
+        if (!(o instanceof TypeSet)) {
+            return false
+        }
+        return isEquals(this.paramType(0), o.paramType(0))
     }
 }
 

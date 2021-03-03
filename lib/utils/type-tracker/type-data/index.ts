@@ -111,6 +111,7 @@ export interface ITypeClass {
     iterateType(): TypeInfo | null
     propertyType(name: string): TypeInfo | null
     typeNames(): string[]
+    equals(o: TypeClass): boolean
 }
 
 export const GLOBAL_FACTORIES: { [key: string]: GlobalType } = createObject({
@@ -188,16 +189,16 @@ export const PROTO_TYPES: [
     NamedType | OtherTypeName,
     { [key: string]: TypeInfo | null } | null,
 ][] = [
-    ["String", null],
-    ["Array", null],
-    ["Number", null],
-    ["Boolean", null],
-    ["RegExp", null],
-    ["BigInt", null],
+    // ["String", null],
+    // ["Array", null],
+    // ["Number", null],
+    // ["Boolean", null],
+    // ["RegExp", null],
+    // ["BigInt", null],
     ["Function", getFunctionPrototypes()],
-    ["Object", null],
-    ["undefined", null],
-    ["null", null],
+    // ["Object", null],
+    // ["undefined", null],
+    // ["null", null],
 ]
 export const BI_OPERATOR_TYPES: {
     [key in ES.BinaryExpression["operator"]]: TypeInfo | null

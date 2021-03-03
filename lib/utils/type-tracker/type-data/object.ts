@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { isTypeClass } from "."
 import { RETURN_STRING_ARRAY, RETURN_UNKNOWN_ARRAY } from "./array"
 import { RETURN_BOOLEAN } from "./boolean"
@@ -88,12 +94,14 @@ export class TypeObject implements ITypeClass {
     }
 
     private *iter(): IterableIterator<[string, () => TypeInfo | null]> {
-        for (const data of this.propertiesIterator) {
-            if (this.properties[data[0]]) {
-                continue
+        let e = this.propertiesIterator.next()
+        while (!e.done) {
+            const data = e.value
+            if (!this.properties[data[0]]) {
+                this.properties[data[0]] = data[1]
+                yield data
             }
-            this.properties[data[0]] = data[1]
-            yield data
+            e = this.propertiesIterator.next()
         }
     }
 
@@ -129,6 +137,10 @@ export class TypeObject implements ITypeClass {
 
     public typeNames(): string[] {
         return ["Object"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeObject
     }
 }
 

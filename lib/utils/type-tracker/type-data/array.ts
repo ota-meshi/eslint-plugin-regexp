@@ -1,6 +1,19 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject, isTypeClass, RETURN_VOID } from "./common"
+import {
+    cache,
+    createObject,
+    isEquals,
+    isTypeClass,
+    RETURN_VOID,
+    TypeCollection,
+} from "./common"
 import type { FunctionType } from "./function"
 import { RETURN_NUMBER, NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
@@ -78,10 +91,16 @@ const getPrototypes = cache(() =>
 export class TypeArray implements ITypeClass {
     public type = "Array" as const
 
-    private readonly param0: TypeUnionOrIntersection
+    private readonly collection: TypeCollection
 
-    public constructor(generator?: () => IterableIterator<TypeInfo>) {
-        this.param0 = new TypeUnionOrIntersection(generator)
+    private readonly maybeTuple: boolean
+
+    public constructor(
+        generator?: () => IterableIterator<TypeInfo | null>,
+        maybeTuple?: boolean,
+    ) {
+        this.collection = new TypeCollection(generator)
+        this.maybeTuple = maybeTuple ?? false
     }
 
     public has(type: NamedType | OtherTypeName): boolean {
@@ -90,7 +109,24 @@ export class TypeArray implements ITypeClass {
 
     public paramType(index: number): TypeUnionOrIntersection | null {
         if (index === 0) {
-            return this.param0
+            if (this.collection.isOneType()) {
+                return this.collection.all().next().value || null
+            }
+            return new TypeUnionOrIntersection(() => this.collection.all())
+        }
+        return null
+    }
+
+    public at(index: number): TypeInfo | null {
+        if (!this.maybeTuple) {
+            return null
+        }
+        let i = 0
+        for (const t of this.collection.tuple()) {
+            if (i === index) {
+                return t
+            }
+            i++
         }
         return null
     }
@@ -109,6 +145,13 @@ export class TypeArray implements ITypeClass {
     public typeNames(): string[] {
         const param = this.paramType(0)?.typeNames().join("|")
         return [`Array${param ? `<${param}>` : ""}`]
+    }
+
+    public equals(o: TypeClass): boolean {
+        if (!(o instanceof TypeArray)) {
+            return false
+        }
+        return isEquals(this.paramType(0), o.paramType(0))
     }
 }
 export const UNKNOWN_ARRAY = new TypeArray()
@@ -160,11 +203,10 @@ function returnConcat(
     return new TypeArray(function* () {
         for (const getType of [selfType, ...argTypes]) {
             const s = getType?.()
-            if (isTypeClass(s) && s.type === "Array") {
-                const e = s.paramType(0)
-                if (e) {
-                    yield e
-                }
+            if (isTypeClass(s)) {
+                yield s.iterateType()
+            } else {
+                yield null
             }
         }
     })

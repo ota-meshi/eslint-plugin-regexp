@@ -339,6 +339,20 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
+        const a = new Map([['a',1], ['b',2]])
+        a.get('a')
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        const a = new Map([[1,'a'], [2,'b']])
+        a.get(1)
+        `,
+        type: ["String"],
+    },
+    {
+        code: `
         const s: 'a' | 'b' | false = a
         s
         `,
@@ -585,7 +599,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     // if (
                     //     context
                     //         .getSourceCode()
-                    //         .text.includes("'abc'.split(',')[0]")
+                    //         .text.includes("[1,2,3,4,true,false,'',123n,/a/]")
                     // ) {
                     //     debugger
                     // }

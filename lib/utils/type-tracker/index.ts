@@ -187,27 +187,25 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
 
         if (node.type === "ArrayExpression") {
-            return new TypeArray(function* () {
-                for (const element of node.elements) {
-                    if (!element) {
-                        continue
-                    }
-                    if (element.type !== "SpreadElement") {
-                        const type = getType(element)
-                        if (type) {
-                            yield type
-                        }
-                    } else {
-                        const argType = getType(element.argument)
-                        if (isTypeClass(argType) && argType.type === "Array") {
-                            const type = argType.paramType(0)
-                            if (type) {
-                                yield type
+            return new TypeArray(
+                function* () {
+                    for (const element of node.elements) {
+                        if (!element) {
+                            yield null
+                        } else if (element.type !== "SpreadElement") {
+                            yield getType(element)
+                        } else {
+                            const argType = getType(element.argument)
+                            if (isTypeClass(argType)) {
+                                yield argType.iterateType()
+                            } else {
+                                yield null
                             }
                         }
                     }
-                }
-            })
+                },
+                node.elements.every((e) => e && e.type !== "SpreadElement"),
+            )
         } else if (node.type === "ObjectExpression") {
             return new TypeObject(function* (): IterableIterator<
                 [string, () => TypeInfo | null]
@@ -702,10 +700,9 @@ function jsDocTypeNodeToTypeInfo(
     if (node.type === "VARIADIC") {
         return new TypeArray(function* () {
             if (node.value) {
-                const t = jsDocTypeNodeToTypeInfo(node.value)
-                if (t) {
-                    yield t
-                }
+                yield jsDocTypeNodeToTypeInfo(node.value)
+            } else {
+                yield null
             }
         })
     }
@@ -725,10 +722,7 @@ function jsDocTypeNodeToTypeInfo(
         const subject = jsDocTypeNodeToTypeInfo(node.subject)
         if (hasType(subject, "Array")) {
             return new TypeArray(function* () {
-                const paramType = jsDocTypeNodeToTypeInfo(node.objects[0])
-                if (paramType) {
-                    yield paramType
-                }
+                yield jsDocTypeNodeToTypeInfo(node.objects[0])
             })
         }
         if (hasType(subject, "Map")) {

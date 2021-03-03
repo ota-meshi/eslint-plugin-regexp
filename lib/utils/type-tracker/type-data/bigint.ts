@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { cache, createObject } from "./common"
 import { getObjectPrototypes } from "./object"
 import { RETURN_STRING } from "./string"
@@ -40,6 +46,10 @@ export class TypeBigInt implements ITypeClass {
 
     public typeNames(): string[] {
         return ["BigInt"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeBigInt
     }
 }
 export const BIGINT = new TypeBigInt()

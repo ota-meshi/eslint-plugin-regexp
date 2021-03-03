@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { RETURN_STRING_ARRAY } from "./array"
 import { RETURN_BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
@@ -49,6 +55,10 @@ export class TypeString implements ITypeClass {
 
     public typeNames(): string[] {
         return ["String"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeString
     }
 }
 export const STRING = new TypeString()

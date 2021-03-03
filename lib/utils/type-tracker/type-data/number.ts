@@ -1,4 +1,10 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { RETURN_BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
 import { getObjectPrototypes } from "./object"
@@ -28,6 +34,10 @@ export class TypeNumber implements ITypeClass {
 
     public typeNames(): string[] {
         return ["Number"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o instanceof TypeNumber
     }
 }
 export const NUMBER = new TypeNumber()

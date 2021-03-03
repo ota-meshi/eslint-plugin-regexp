@@ -1,7 +1,19 @@
-import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 import { TypeArray } from "./array"
 import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject, isTypeClass, RETURN_VOID } from "./common"
+import {
+    cache,
+    createObject,
+    isEquals,
+    isTypeClass,
+    RETURN_VOID,
+} from "./common"
 import type { FunctionType } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
@@ -82,14 +94,8 @@ export class TypeMap implements ITypeClass {
         // eslint-disable-next-line @typescript-eslint/no-this-alias -- ignore
         const map = this
         return new TypeArray(function* () {
-            const param0 = map.paramType(0)
-            if (param0) {
-                yield param0
-            }
-            const param1 = map.paramType(1)
-            if (param1) {
-                yield param1
-            }
+            yield map.paramType(0)
+            yield map.paramType(1)
         })
     }
 
@@ -101,6 +107,16 @@ export class TypeMap implements ITypeClass {
                 param0 != null && param1 != null ? `<${param0},${param1}>` : ""
             }`,
         ]
+    }
+
+    public equals(o: TypeClass): boolean {
+        if (!(o instanceof TypeMap)) {
+            return false
+        }
+        return (
+            isEquals(this.paramType(0), o.paramType(0)) &&
+            isEquals(this.paramType(1), o.paramType(1))
+        )
     }
 }
 
@@ -114,20 +130,21 @@ export const MAP_CONSTRUCTOR = mapConstructor
  * Map constructor type
  */
 function mapConstructor(
-    ...[thisType, _argTypes]: Parameters<FunctionType>
+    ...[thisType, argTypes]: Parameters<FunctionType>
 ): TypeInfo | null {
     if (thisType == null) {
         return null
     }
-    // const arg = argTypes[0]?.()
-    // if (arg && arg instanceof TypeArray) {
-    //     const iterateType = arg.iterateType()
-    //     if (iterateType && iterateType instanceof TypeArray) {
-    //         return new TypeMap(
-    //             ...
-    //         )
-    //     }
-    // }
+    const arg = argTypes[0]?.()
+    if (arg && arg instanceof TypeArray) {
+        const iterateType = arg.iterateType()
+        if (iterateType && iterateType instanceof TypeArray) {
+            return new TypeMap(
+                () => iterateType.at(0),
+                () => iterateType.at(1),
+            )
+        }
+    }
     return UNKNOWN_MAP
 }
 
