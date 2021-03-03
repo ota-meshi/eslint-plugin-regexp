@@ -35,6 +35,25 @@ export function isEquals(
     return false
 }
 
+/**
+ * Checks if the result has the given type.
+ */
+export function hasType(
+    result: TypeInfo | null,
+    type: NamedType | OtherTypeName,
+): boolean {
+    if (result == null) {
+        return false
+    }
+    if (typeof result === "string") {
+        return result === type
+    }
+    if (typeof result === "function" || typeof result === "symbol") {
+        return type === "Function"
+    }
+    return result.has(type)
+}
+
 /** Create object */
 export function createObject<T>(t: T): T {
     return Object.assign(Object.create(null), t)

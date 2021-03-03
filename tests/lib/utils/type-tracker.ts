@@ -368,10 +368,29 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
-        const a = [{a: 's'}, {a: 42}, new Map()]
+        const a = [{a: 's'}, {a: 42}, new Map(), 123n]
         a[1].a
         `,
         type: ["Number", "String"],
+    },
+    {
+        code: `
+        1n + 2n
+        `,
+        type: ["BigInt"],
+    },
+    {
+        code: `
+        1n * 2n
+        `,
+        type: ["BigInt"],
+    },
+    {
+        code: `
+        const a = 2n;
+        -a
+        `,
+        type: ["BigInt"],
     },
     {
         code: `

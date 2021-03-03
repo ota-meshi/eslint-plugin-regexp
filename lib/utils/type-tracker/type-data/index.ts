@@ -9,7 +9,13 @@ import type { TypeBigInt } from "./bigint"
 import { BIGINT, BIGINT_TYPES, RETURN_BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
 import { RETURN_BOOLEAN, BOOLEAN, BOOLEAN_TYPES } from "./boolean"
-import { isTypeClass, createObject, cache } from "./common"
+import {
+    isTypeClass,
+    createObject,
+    cache,
+    hasType,
+    RETURN_VOID,
+} from "./common"
 import type { FunctionType } from "./function"
 import {
     getFunctionPrototypes,
@@ -28,6 +34,7 @@ import { RETURN_STRING, STRING_TYPES, STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
 
 export {
+    hasType,
     TypeArray,
     TypeObject,
     UNKNOWN_ARRAY,
@@ -200,40 +207,75 @@ export const PROTO_TYPES: [
     // ["undefined", null],
     // ["null", null],
 ]
+
+/** Get BinaryExpression calc type */
+function binaryNumOp(getTypes: () => [TypeInfo | null, TypeInfo | null]) {
+    const [t1, t2] = getTypes()
+    if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
+        return BIGINT
+    }
+    return NUMBER
+}
+
 export const BI_OPERATOR_TYPES: {
-    [key in ES.BinaryExpression["operator"]]: TypeInfo | null
+    [key in ES.BinaryExpression["operator"]]: (
+        getTypes: () => [TypeInfo | null, TypeInfo | null],
+    ) => TypeInfo | null
 } = createObject({
-    "==": BOOLEAN,
-    "!=": BOOLEAN,
-    "===": BOOLEAN,
-    "!==": BOOLEAN,
-    "<": BOOLEAN,
-    "<=": BOOLEAN,
-    ">": BOOLEAN,
-    ">=": BOOLEAN,
-    in: BOOLEAN,
-    instanceof: BOOLEAN,
-    "-": NUMBER,
-    "*": NUMBER,
-    "/": NUMBER,
-    "%": NUMBER,
-    "^": NUMBER,
-    "**": NUMBER,
-    "&": NUMBER,
-    "|": NUMBER,
-    "<<": NUMBER,
-    ">>": NUMBER,
-    ">>>": NUMBER,
-    "+": null,
+    "==": RETURN_BOOLEAN,
+    "!=": RETURN_BOOLEAN,
+    "===": RETURN_BOOLEAN,
+    "!==": RETURN_BOOLEAN,
+    "<": RETURN_BOOLEAN,
+    "<=": RETURN_BOOLEAN,
+    ">": RETURN_BOOLEAN,
+    ">=": RETURN_BOOLEAN,
+    in: RETURN_BOOLEAN,
+    instanceof: RETURN_BOOLEAN,
+    "-": binaryNumOp,
+    "*": binaryNumOp,
+    "/": binaryNumOp,
+    "%": binaryNumOp,
+    "^": binaryNumOp,
+    "**": binaryNumOp,
+    "&": binaryNumOp,
+    "|": binaryNumOp,
+    "<<": RETURN_NUMBER,
+    ">>": RETURN_NUMBER,
+    ">>>": RETURN_NUMBER,
+    "+": (getTypes) => {
+        const [t1, t2] = getTypes()
+        if (hasType(t1, "String") || hasType(t2, "String")) {
+            return STRING
+        }
+        if (hasType(t1, "Number") && hasType(t2, "Number")) {
+            return NUMBER
+        }
+        if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
+            return BIGINT
+        }
+        return null
+    },
 })
+
+/** Get UnaryExpression calc type */
+function unaryNumOp(getType: () => TypeInfo | null) {
+    if (hasType(getType(), "BigInt")) {
+        return BIGINT
+    }
+    return NUMBER
+}
+
 export const UN_OPERATOR_TYPES: {
-    [key in ES.UnaryExpression["operator"]]: TypeInfo | null
+    [key in ES.UnaryExpression["operator"]]: (
+        getType: () => TypeInfo | null,
+    ) => TypeInfo | null
 } = createObject({
-    "!": BOOLEAN,
-    delete: BOOLEAN,
-    "+": NUMBER,
-    "-": NUMBER,
-    "~": NUMBER,
-    void: "undefined",
-    typeof: STRING,
+    "!": RETURN_BOOLEAN,
+    delete: RETURN_BOOLEAN,
+    "+": unaryNumOp,
+    "-": unaryNumOp,
+    "~": unaryNumOp,
+    void: RETURN_VOID,
+    typeof: RETURN_STRING,
 })

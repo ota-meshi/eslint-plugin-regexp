@@ -7,7 +7,7 @@ import {
     getPropertyName,
     isParenthesized,
 } from "./utils"
-import type { TypeInfo, NamedType, OtherTypeName } from "./type-data"
+import type { TypeInfo } from "./type-data"
 import {
     UNKNOWN_ARRAY,
     UNKNOWN_OBJECT,
@@ -32,6 +32,7 @@ import {
     UNKNOWN_MAP,
     TypeSet,
     UNKNOWN_SET,
+    hasType,
 } from "./type-data"
 import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
@@ -242,25 +243,14 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 }
             })
         } else if (node.type === "BinaryExpression") {
-            if (node.operator === "+") {
-                const left = getType(node.left)
-                const right = getType(node.right)
-                if (hasType(left, "String") || hasType(right, "String")) {
-                    return STRING
-                }
-                if (hasType(left, "Number") && hasType(right, "Number")) {
-                    return NUMBER
-                }
-            } else {
-                const type = BI_OPERATOR_TYPES[node.operator]
-                if (type) {
-                    return type
-                }
+            const type = BI_OPERATOR_TYPES[node.operator]
+            if (type) {
+                return type(() => [getType(node.left), getType(node.right)])
             }
         } else if (node.type === "UnaryExpression") {
             const type = UN_OPERATOR_TYPES[node.operator]
             if (type) {
-                return type
+                return type(() => getType(node.argument))
             }
         } else if (node.type === "AssignmentExpression") {
             return getType(node.right)
@@ -595,22 +585,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
         return undefined
     }
-}
-
-/**
- * Checks if the result has the given type.
- */
-function hasType(result: TypeInfo | null, type: NamedType | OtherTypeName) {
-    if (result == null) {
-        return false
-    }
-    if (typeof result === "string") {
-        return result === type
-    }
-    if (typeof result === "function" || typeof result === "symbol") {
-        return type === "Function"
-    }
-    return result.has(type)
 }
 
 /**
