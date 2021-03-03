@@ -62,6 +62,12 @@ export class JSDocParam extends JSDocParams {
     }
 }
 
+const TAGS = {
+    param: ["param", "arg", "argument"],
+    returns: ["returns", "return"],
+    type: ["type"],
+}
+
 export class JSDoc {
     private readonly parsed: ParsedComment
 
@@ -71,7 +77,7 @@ export class JSDoc {
         this.parsed = parsed
     }
 
-    public getTag(name: string): Spec | null {
+    public getTag(name: keyof typeof TAGS): Spec | null {
         for (const tag of this.genTags(name)) {
             return tag
         }
@@ -90,9 +96,10 @@ export class JSDoc {
         return params
     }
 
-    private *genTags(name: string): IterableIterator<Spec> {
+    private *genTags(name: keyof typeof TAGS): IterableIterator<Spec> {
+        const names = TAGS[name]
         for (const tag of this.parsed.tags) {
-            if (tag.tag === name) {
+            if (names.includes(tag.tag)) {
                 yield tag
             }
         }
@@ -133,12 +140,21 @@ function findJSDocComment(node: ES.Node, sourceCode: SourceCode) {
         if (!tokenBefore) {
             return null
         }
-        if (tokenBefore.type === "Keyword") {
+        if (
+            tokenBefore.type === "Keyword" &&
+            target.type === "VariableDeclarator"
+        ) {
             if (
                 tokenBefore.value === "const" ||
                 tokenBefore.value === "let" ||
                 tokenBefore.value === "var"
             ) {
+                target = tokenBefore
+                continue
+            }
+        }
+        if (tokenBefore.type === "Punctuator") {
+            if (tokenBefore.value === "(") {
                 target = tokenBefore
                 continue
             }

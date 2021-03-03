@@ -325,6 +325,25 @@ const TESTCASES: TestCase[] = [
         type: "Object",
         parser: "@typescript-eslint/parser",
     },
+    {
+        code: `
+        type A = 42 | 'foo' | 42n
+        const r: A = a
+        r
+        `,
+        type: ["BigInt", "Number", "String"],
+        parser: "@typescript-eslint/parser",
+    },
+    {
+        code: `
+        type A = 42 | 'foo' | 42n
+        const r: A = a
+        const b = (r as any);
+        b;
+        `,
+        type: [],
+        parser: "@typescript-eslint/parser",
+    },
 
     {
         code: `
@@ -341,6 +360,20 @@ const TESTCASES: TestCase[] = [
         r[123]
         `,
         type: "String",
+    },
+    {
+        code: `
+        const r = /** @type {string[]} */(a)
+        r[123]
+        `,
+        type: "String",
+    },
+    {
+        code: `
+        const r = /** @type {string[]} */a
+        r[123]
+        `,
+        type: [],
     },
     {
         code: `
@@ -391,6 +424,57 @@ const TESTCASES: TestCase[] = [
         `,
         type: "String",
     },
+    {
+        code: `
+        /**
+         * @param {string} b
+         * @returns {number}
+         */
+        const a = function(b) {}
+        const c = a()
+        c
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /**
+         * @param {string} b
+         * @returns {number}
+         */
+        function a(b) {}
+        const c = a()
+        c
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        const a =
+            /**
+             * @returns {number}
+             */
+            () => foo
+        const c = a()
+        c
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        function a() { }
+        a
+        `,
+        type: "Function",
+    },
+    {
+        code: `
+        /** @type {'str' | 42} */
+        let a
+        a
+        `,
+        type: ["Number", "String"],
+    },
 ]
 describe("type track", () => {
     for (const testCase of TESTCASES) {
@@ -420,7 +504,7 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     // if (
                     //     context
                     //         .getSourceCode()
-                    //         .text.includes("@param {number} arg.a")
+                    //         .text.includes("/** @type {string[]} */(a)")
                     // ) {
                     //     debugger
                     // }

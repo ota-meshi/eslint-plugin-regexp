@@ -6,15 +6,17 @@ import type {
     TypeInfo,
 } from "."
 import { isTypeClass } from "."
+import { RETURN_STRING_ARRAY, RETURN_UNKNOWN_ARRAY } from "./array"
 import {
     createObject,
     RETURN_BOOLEAN,
-    RETURN_OBJECT,
     RETURN_STRING,
-    RETURN_STRING_ARRAY,
-    RETURN_UNKNOWN_ARRAY,
     UNKNOWN_FUNCTION,
 } from "./common"
+
+/* eslint-disable func-style, @typescript-eslint/no-use-before-define -- ignore */
+export const RETURN_OBJECT = (): TypeObject => UNKNOWN_OBJECT
+/* eslint-enable func-style, @typescript-eslint/no-use-before-define -- ignore */
 
 export const OBJECT_TYPES: {
     [key in keyof ObjectConstructor]: TypeInfo | null

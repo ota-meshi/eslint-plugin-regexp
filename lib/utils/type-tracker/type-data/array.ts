@@ -11,9 +11,13 @@ import {
     RETURN_BOOLEAN,
     RETURN_NUMBER,
     RETURN_STRING,
-    RETURN_UNKNOWN_ARRAY,
 } from "./common"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
+
+/* eslint-disable func-style, @typescript-eslint/no-use-before-define -- ignore */
+export const RETURN_UNKNOWN_ARRAY = (): TypeArray => UNKNOWN_ARRAY
+export const RETURN_STRING_ARRAY = (): TypeArray => STRING_ARRAY
+/* eslint-enable func-style, @typescript-eslint/no-use-before-define -- ignore */
 
 export const ARRAY_TYPES: {
     [key in keyof ArrayConstructor]: TypeInfo | null

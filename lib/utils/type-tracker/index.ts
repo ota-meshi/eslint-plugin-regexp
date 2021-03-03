@@ -151,14 +151,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         const jsdoc = getJSDoc(node, context)
         if (jsdoc) {
             if (isParenthesized(context, node)) {
-                const typeText = jsdoc.getTag("type")?.type
-                if (typeText) {
-                    const type = jsDocTypeNodeToTypeInfo(
-                        parseTypeText(typeText),
-                    )
-                    if (type) {
-                        return type
-                    }
+                const type = typeTextToTypeInfo(jsdoc.getTag("type")?.type)
+                if (type) {
+                    return type
                 }
             }
         }
@@ -168,13 +163,8 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             node.type === "FunctionExpression"
         ) {
             if (jsdoc) {
-                const typeText = (
-                    jsdoc.getTag("returns") ?? jsdoc.getTag("return")
-                )?.type
-                if (typeText) {
-                    const type = jsDocTypeNodeToTypeInfo(
-                        parseTypeText(typeText),
-                    )
+                const type = typeTextToTypeInfo(jsdoc.getTag("returns")?.type)
+                if (type) {
                     return () => type
                 }
             }
@@ -275,17 +265,19 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                     if (def.type === "Variable") {
                         const idJsdoc = getJSDoc(def.node, context)
                         if (idJsdoc) {
-                            const typeText = idJsdoc.getTag("type")?.type
-                            if (typeText) {
-                                const type = jsDocTypeNodeToTypeInfo(
-                                    parseTypeText(typeText),
-                                )
-                                if (type) {
-                                    return type
-                                }
+                            const type = typeTextToTypeInfo(
+                                idJsdoc.getTag("type")?.type,
+                            )
+                            if (type) {
+                                return type
                             }
 
-                            // TODO callback
+                            const returnType = typeTextToTypeInfo(
+                                idJsdoc.getTag("returns")?.type,
+                            )
+                            if (returnType) {
+                                return () => returnType
+                            }
                         }
                         if (def.parent.kind === "const" && def.node.init) {
                             const type = getType(def.node.init)
@@ -298,23 +290,31 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                         if (fnJsdoc) {
                             const jsdocParams = fnJsdoc.parseParams()
                             if (!jsdocParams.isEmpty()) {
-                                const typeText = jsdocParams.get(
-                                    getParamPath(
-                                        def.name.name,
-                                        def.name,
-                                        context,
-                                    ),
-                                )?.type
-                                if (typeText) {
-                                    const type = jsDocTypeNodeToTypeInfo(
-                                        parseTypeText(typeText),
-                                    )
-                                    if (type) {
-                                        return type
-                                    }
+                                const type = typeTextToTypeInfo(
+                                    jsdocParams.get(
+                                        getParamPath(
+                                            def.name.name,
+                                            def.name,
+                                            context,
+                                        ),
+                                    )?.type,
+                                )
+                                if (type) {
+                                    return type
                                 }
                             }
                         }
+                    } else if (def.type === "FunctionName") {
+                        const fnJsdoc = getJSDoc(def.node, context)
+                        if (fnJsdoc) {
+                            const type = typeTextToTypeInfo(
+                                fnJsdoc.getTag("returns")?.type,
+                            )
+                            if (type) {
+                                return () => type
+                            }
+                        }
+                        return UNKNOWN_FUNCTION
                     }
                 } else if (variable.defs.length === 0) {
                     // globals
@@ -597,6 +597,14 @@ function isUnionOrIntersection(
     return (tsType.flags & ts.TypeFlags.UnionOrIntersection) !== 0
 }
 
+/** Get type from jsdoc type text */
+function typeTextToTypeInfo(typeText?: string): TypeInfo | null {
+    if (typeText == null) {
+        return null
+    }
+    return jsDocTypeNodeToTypeInfo(parseTypeText(typeText))
+}
+
 /* eslint-disable complexity -- X-( */
 /** Get type from JSDocTypeNode */
 function jsDocTypeNodeToTypeInfo(
@@ -706,7 +714,7 @@ function typeNameToTypeInfo(name: string): TypeInfo | null {
     if (name === "RegExp") {
         return "RegExp"
     }
-    if (name === "Array") {
+    if (name === "Array" || name === "array") {
         return UNKNOWN_ARRAY
     }
     if (name === "Function" || name === "function") {

@@ -4,6 +4,8 @@ import {
     UNKNOWN_ARRAY,
     ARRAY_PROTO_TYPES,
     ARRAY_TYPES,
+    RETURN_STRING_ARRAY,
+    RETURN_UNKNOWN_ARRAY,
 } from "./array"
 import {
     RETURN_BIGINT,
@@ -12,8 +14,6 @@ import {
     RETURN_NUMBER,
     RETURN_REGEXP,
     RETURN_STRING,
-    RETURN_STRING_ARRAY,
-    RETURN_UNKNOWN_ARRAY,
     UNKNOWN_FUNCTION,
     isTypeClass,
     createObject,
@@ -311,10 +311,19 @@ const BIGINT_PROTO_TYPES: {
     valueOf: RETURN_BIGINT,
 })
 const FUNCTION_PROTO_TYPES: {
-    [key in keyof (() => void)]: TypeInfo | null
+    // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
+    [key in keyof Function]: TypeInfo | null
 } = createObject({
     ...OBJECT_PROTO_TYPES,
+    toString: RETURN_STRING,
     bind: RETURN_FUNCTION,
+    length: "Number",
+    name: "String",
+    apply: UNKNOWN_FUNCTION,
+    call: UNKNOWN_FUNCTION,
+    arguments: null,
+    caller: UNKNOWN_FUNCTION,
+    prototype: null,
 })
 
 export const PROTO_TYPES: [
