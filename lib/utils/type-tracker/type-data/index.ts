@@ -2,28 +2,29 @@ import type * as ES from "estree"
 import {
     TypeArray,
     UNKNOWN_ARRAY,
-    ARRAY_PROTO_TYPES,
     ARRAY_TYPES,
-    RETURN_STRING_ARRAY,
     RETURN_UNKNOWN_ARRAY,
 } from "./array"
+import type { TypeBigInt } from "./bigint"
+import { BIGINT, BIGINT_TYPES, RETURN_BIGINT } from "./bigint"
+import type { TypeBoolean } from "./boolean"
+import { RETURN_BOOLEAN, BOOLEAN, BOOLEAN_TYPES } from "./boolean"
+import { isTypeClass, createObject, cache } from "./common"
+import type { FunctionType } from "./function"
 import {
-    RETURN_BIGINT,
-    RETURN_BOOLEAN,
+    getFunctionPrototypes,
     RETURN_FUNCTION,
-    RETURN_NUMBER,
-    RETURN_REGEXP,
-    RETURN_STRING,
     UNKNOWN_FUNCTION,
-    isTypeClass,
-    createObject,
-} from "./common"
-import {
-    TypeObject,
-    OBJECT_PROTO_TYPES,
-    OBJECT_TYPES,
-    UNKNOWN_OBJECT,
-} from "./object"
+} from "./function"
+import { TypeMap, MAP_TYPES, MAP_CONSTRUCTOR, UNKNOWN_MAP } from "./map"
+import type { TypeNumber } from "./number"
+import { RETURN_NUMBER, NUMBER_TYPES, NUMBER } from "./number"
+import { TypeObject, OBJECT_TYPES, UNKNOWN_OBJECT } from "./object"
+import type { TypeRegExp } from "./regexp"
+import { REGEXP, REGEXP_TYPES, RETURN_REGEXP } from "./regexp"
+import { TypeSet, SET_CONSTRUCTOR, SET_TYPES, UNKNOWN_SET } from "./set"
+import type { TypeString } from "./string"
+import { RETURN_STRING, STRING_TYPES, STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
 
 export {
@@ -31,9 +32,19 @@ export {
     TypeObject,
     UNKNOWN_ARRAY,
     UNKNOWN_OBJECT,
-    TypeUnionOrIntersection,
     UNKNOWN_FUNCTION,
+    RETURN_FUNCTION,
+    STRING,
+    NUMBER,
+    BOOLEAN,
+    REGEXP,
+    BIGINT,
+    TypeUnionOrIntersection,
     isTypeClass,
+    TypeSet,
+    TypeMap,
+    UNKNOWN_MAP,
+    UNKNOWN_SET,
 }
 
 export const GLOBAL_STRING = Symbol("String")
@@ -44,16 +55,21 @@ export const GLOBAL_BIGINT = Symbol("BigInt")
 export const GLOBAL_ARRAY = Symbol("Array")
 export const GLOBAL_FUNCTION = Symbol("Function")
 export const GLOBAL_OBJECT = Symbol("Object")
+export const GLOBAL_MAP = Symbol("Map")
+export const GLOBAL_SET = Symbol("Map")
 
-export type NamedType =
+export type NamedType = "null" | "undefined"
+export type OtherTypeName =
+    | "Function"
+    | "Array"
+    | "Object"
     | "String"
     | "Number"
     | "Boolean"
     | "RegExp"
     | "BigInt"
-    | "null"
-    | "undefined"
-export type OtherTypeName = "Function" | "Array" | "Object"
+    | "Map"
+    | "Set"
 export type GlobalType =
     | typeof GLOBAL_STRING
     | typeof GLOBAL_NUMBER
@@ -63,19 +79,37 @@ export type GlobalType =
     | typeof GLOBAL_ARRAY
     | typeof GLOBAL_FUNCTION
     | typeof GLOBAL_OBJECT
-
-export type FunctionType = (
-    thisType: (() => TypeInfo | null) | null,
-    argTypes: ((() => TypeInfo | null) | null)[],
-) => TypeInfo | null
+    | typeof GLOBAL_MAP
+    | typeof GLOBAL_SET
 
 export type TypeInfo = NamedType | FunctionType | GlobalType | TypeClass
-export type TypeClass = TypeUnionOrIntersection | TypeArray | TypeObject
+export type TypeClass =
+    | TypeUnionOrIntersection
+    | TypeArray
+    | TypeObject
+    | TypeString
+    | TypeNumber
+    | TypeBoolean
+    | TypeRegExp
+    | TypeBigInt
+    | TypeMap
+    | TypeSet
 export interface ITypeClass {
-    type: "TypeUnionOrIntersection" | "Array" | "Object"
+    type:
+        | "TypeUnionOrIntersection"
+        | "Array"
+        | "Object"
+        | "String"
+        | "Number"
+        | "Boolean"
+        | "RegExp"
+        | "BigInt"
+        | "Map"
+        | "Set"
     has(type: NamedType | OtherTypeName): boolean
     paramType(index: number): TypeInfo | null
-    property(name: string): TypeInfo | null
+    iterateType(): TypeInfo | null
+    propertyType(name: string): TypeInfo | null
     typeNames(): string[]
 }
 
@@ -88,18 +122,22 @@ export const GLOBAL_FACTORIES: { [key: string]: GlobalType } = createObject({
     Array: GLOBAL_ARRAY,
     Function: GLOBAL_FUNCTION,
     Object: GLOBAL_OBJECT,
+    Map: GLOBAL_MAP,
+    Set: GLOBAL_SET,
 })
 export const GLOBAL_FACTORY_TYPES: {
-    [key in GlobalType]: TypeInfo
+    [key in GlobalType]: FunctionType
 } = {
-    [GLOBAL_STRING]: "String",
-    [GLOBAL_NUMBER]: "Number",
-    [GLOBAL_BOOLEAN]: "Boolean",
-    [GLOBAL_REGEXP]: "RegExp",
-    [GLOBAL_BIGINT]: "BigInt",
-    [GLOBAL_ARRAY]: UNKNOWN_ARRAY,
-    [GLOBAL_FUNCTION]: UNKNOWN_FUNCTION,
-    [GLOBAL_OBJECT]: UNKNOWN_OBJECT,
+    [GLOBAL_STRING]: () => STRING,
+    [GLOBAL_NUMBER]: () => NUMBER,
+    [GLOBAL_BOOLEAN]: () => BOOLEAN,
+    [GLOBAL_REGEXP]: () => REGEXP,
+    [GLOBAL_BIGINT]: () => BIGINT,
+    [GLOBAL_ARRAY]: () => UNKNOWN_ARRAY,
+    [GLOBAL_FUNCTION]: () => UNKNOWN_FUNCTION,
+    [GLOBAL_OBJECT]: () => UNKNOWN_OBJECT,
+    [GLOBAL_MAP]: MAP_CONSTRUCTOR,
+    [GLOBAL_SET]: SET_CONSTRUCTOR,
 }
 export const GLOBAL_FACTORY_FUNCTIONS: {
     [key: string]: TypeInfo
@@ -123,74 +161,16 @@ export const GLOBAL_FACTORY_FUNCTIONS: {
     unescape: RETURN_STRING,
 })
 
-const STRING_TYPES: {
-    [key in keyof StringConstructor]: TypeInfo | null
-} = createObject({
-    // ES5
-    fromCharCode: RETURN_STRING,
-    // ES2015
-    fromCodePoint: RETURN_STRING,
-    raw: RETURN_STRING,
-
-    prototype: null,
-})
-const NUMBER_TYPES: {
-    [key in keyof NumberConstructor]: TypeInfo | null
-} = createObject({
-    // ES5
-    MAX_VALUE: "Number", // prop
-    MIN_VALUE: "Number", // prop
-    NaN: "Number", // prop
-    NEGATIVE_INFINITY: "Number", // prop
-    POSITIVE_INFINITY: "Number", // prop
-    // ES2015
-    EPSILON: "Number", // prop
-    isFinite: RETURN_BOOLEAN,
-    isInteger: RETURN_BOOLEAN,
-    isNaN: RETURN_BOOLEAN,
-    isSafeInteger: RETURN_BOOLEAN,
-    MAX_SAFE_INTEGER: "Number", // prop
-    MIN_SAFE_INTEGER: "Number", // prop
-    parseFloat: RETURN_NUMBER,
-    parseInt: RETURN_NUMBER,
-
-    prototype: null,
-})
-const BOOLEAN_TYPES: {
-    [key in keyof BooleanConstructor]: TypeInfo | null
-} = createObject({
-    prototype: null,
-})
-const REGEXP_TYPES: {
-    [key in keyof RegExpConstructor]: TypeInfo | null
-} = createObject({
-    $1: "String",
-    $2: "String",
-    $3: "String",
-    $4: "String",
-    $5: "String",
-    $6: "String",
-    $7: "String",
-    $8: "String",
-    $9: "String",
-    lastMatch: "Number", // prop
-    prototype: null,
-})
-const BIGINT_TYPES: {
-    [key in keyof BigIntConstructor]: TypeInfo | null
-} = createObject({
-    asIntN: RETURN_BIGINT,
-    asUintN: RETURN_BIGINT,
-    prototype: null,
-})
-const FUNCTION_TYPES: {
+const FUNCTION_TYPES: () => {
     [key in keyof FunctionConstructor]: TypeInfo | null
-} = createObject({
-    prototype: null,
-})
+} = cache(() =>
+    createObject({
+        prototype: null,
+    }),
+)
 
 export const GLOBAL_OBJECTS_PROP_TYPES: {
-    [key in GlobalType]: { [key: string]: TypeInfo | null } | null
+    [key in GlobalType]: () => { [key: string]: TypeInfo | null }
 } = createObject({
     [GLOBAL_STRING]: STRING_TYPES,
     [GLOBAL_ARRAY]: ARRAY_TYPES,
@@ -200,182 +180,59 @@ export const GLOBAL_OBJECTS_PROP_TYPES: {
     [GLOBAL_BIGINT]: BIGINT_TYPES,
     [GLOBAL_FUNCTION]: FUNCTION_TYPES,
     [GLOBAL_OBJECT]: OBJECT_TYPES,
-})
-const STRING_PROTO_TYPES: {
-    [key in keyof string]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    // ES5
-    toString: RETURN_STRING,
-    charAt: RETURN_STRING,
-    charCodeAt: RETURN_NUMBER,
-    concat: RETURN_STRING,
-    indexOf: RETURN_NUMBER,
-    lastIndexOf: RETURN_NUMBER,
-    localeCompare: RETURN_NUMBER,
-    match: RETURN_STRING_ARRAY,
-    replace: RETURN_STRING,
-    search: RETURN_NUMBER,
-    slice: RETURN_STRING,
-    split: RETURN_STRING_ARRAY,
-    substring: RETURN_STRING,
-    toLowerCase: RETURN_STRING,
-    toLocaleLowerCase: RETURN_STRING,
-    toUpperCase: RETURN_STRING,
-    toLocaleUpperCase: RETURN_STRING,
-    trim: RETURN_STRING,
-    substr: RETURN_STRING,
-    valueOf: RETURN_STRING,
-    // ES2051
-    codePointAt: RETURN_NUMBER,
-    includes: RETURN_BOOLEAN,
-    endsWith: RETURN_BOOLEAN,
-    normalize: RETURN_STRING,
-    repeat: RETURN_STRING,
-    startsWith: RETURN_BOOLEAN,
-    // HTML
-    anchor: RETURN_STRING,
-    big: RETURN_STRING,
-    blink: RETURN_STRING,
-    bold: RETURN_STRING,
-    fixed: RETURN_STRING,
-    fontcolor: RETURN_STRING,
-    fontsize: RETURN_STRING,
-    italics: RETURN_STRING,
-    link: RETURN_STRING,
-    small: RETURN_STRING,
-    strike: RETURN_STRING,
-    sub: RETURN_STRING,
-    sup: RETURN_STRING,
-    // ES2017
-    padStart: RETURN_STRING,
-    padEnd: RETURN_STRING,
-    // ES2019
-    trimLeft: RETURN_STRING,
-    trimRight: RETURN_STRING,
-    trimStart: RETURN_STRING,
-    trimEnd: RETURN_STRING,
-    // ES2020
-    matchAll: null, // IterableIterator<RegExpMatchArray>
-
-    length: "Number",
-    0: "String", // string
-})
-
-const NUMBER_PROTO_TYPES: {
-    [key in keyof number]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    // ES5
-    toString: RETURN_STRING,
-    toFixed: RETURN_STRING,
-    toExponential: RETURN_STRING,
-    toPrecision: RETURN_STRING,
-    valueOf: RETURN_NUMBER,
-    toLocaleString: RETURN_STRING,
-})
-const BOOLEAN_PROTO_TYPES: {
-    [key in keyof boolean]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    // ES5
-    valueOf: RETURN_BOOLEAN,
-})
-const REGEXP_PROTO_TYPES: {
-    [key in keyof RegExp]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    // ES5
-    exec: RETURN_STRING_ARRAY,
-    test: RETURN_BOOLEAN,
-    source: "String", // prop
-    global: "Boolean", // prop
-    ignoreCase: "Boolean", // prop
-    multiline: "Boolean", // prop
-    lastIndex: "Number", // prop
-    compile: RETURN_REGEXP,
-    // ES2015
-    flags: "String", // prop
-    sticky: "Boolean", // prop
-    unicode: "Boolean", // prop
-    // ES2018
-    dotAll: "Boolean", // prop
-})
-
-const BIGINT_PROTO_TYPES: {
-    [key in keyof BigInt]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    toString: RETURN_STRING,
-    toLocaleString: RETURN_STRING,
-    valueOf: RETURN_BIGINT,
-})
-const FUNCTION_PROTO_TYPES: {
-    // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-    [key in keyof Function]: TypeInfo | null
-} = createObject({
-    ...OBJECT_PROTO_TYPES,
-    toString: RETURN_STRING,
-    bind: RETURN_FUNCTION,
-    length: "Number",
-    name: "String",
-    apply: UNKNOWN_FUNCTION,
-    call: UNKNOWN_FUNCTION,
-    arguments: null,
-    caller: UNKNOWN_FUNCTION,
-    prototype: null,
+    [GLOBAL_MAP]: MAP_TYPES,
+    [GLOBAL_SET]: SET_TYPES,
 })
 
 export const PROTO_TYPES: [
     NamedType | OtherTypeName,
     { [key: string]: TypeInfo | null } | null,
 ][] = [
-    ["String", STRING_PROTO_TYPES],
-    ["Array", ARRAY_PROTO_TYPES],
-    ["Number", NUMBER_PROTO_TYPES],
-    ["Boolean", BOOLEAN_PROTO_TYPES],
-    ["RegExp", REGEXP_PROTO_TYPES],
-    ["BigInt", BIGINT_PROTO_TYPES],
-    ["Function", FUNCTION_PROTO_TYPES],
-    ["Object", OBJECT_PROTO_TYPES],
+    ["String", null],
+    ["Array", null],
+    ["Number", null],
+    ["Boolean", null],
+    ["RegExp", null],
+    ["BigInt", null],
+    ["Function", getFunctionPrototypes()],
+    ["Object", null],
     ["undefined", null],
     ["null", null],
 ]
-
 export const BI_OPERATOR_TYPES: {
     [key in ES.BinaryExpression["operator"]]: TypeInfo | null
 } = createObject({
-    "==": "Boolean",
-    "!=": "Boolean",
-    "===": "Boolean",
-    "!==": "Boolean",
-    "<": "Boolean",
-    "<=": "Boolean",
-    ">": "Boolean",
-    ">=": "Boolean",
-    in: "Boolean",
-    instanceof: "Boolean",
-    "-": "Number",
-    "*": "Number",
-    "/": "Number",
-    "%": "Number",
-    "^": "Number",
-    "**": "Number",
-    "&": "Number",
-    "|": "Number",
-    "<<": "Number",
-    ">>": "Number",
-    ">>>": "Number",
+    "==": BOOLEAN,
+    "!=": BOOLEAN,
+    "===": BOOLEAN,
+    "!==": BOOLEAN,
+    "<": BOOLEAN,
+    "<=": BOOLEAN,
+    ">": BOOLEAN,
+    ">=": BOOLEAN,
+    in: BOOLEAN,
+    instanceof: BOOLEAN,
+    "-": NUMBER,
+    "*": NUMBER,
+    "/": NUMBER,
+    "%": NUMBER,
+    "^": NUMBER,
+    "**": NUMBER,
+    "&": NUMBER,
+    "|": NUMBER,
+    "<<": NUMBER,
+    ">>": NUMBER,
+    ">>>": NUMBER,
     "+": null,
 })
 export const UN_OPERATOR_TYPES: {
     [key in ES.UnaryExpression["operator"]]: TypeInfo | null
 } = createObject({
-    "!": "Boolean",
-    delete: "Boolean",
-    "+": "Number",
-    "-": "Number",
-    "~": "Number",
+    "!": BOOLEAN,
+    delete: BOOLEAN,
+    "+": NUMBER,
+    "-": NUMBER,
+    "~": NUMBER,
     void: "undefined",
-    typeof: "String",
+    typeof: STRING,
 })

@@ -1,78 +1,79 @@
-import type {
-    FunctionType,
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeInfo,
-} from "."
-import {
-    createObject,
-    isTypeClass,
-    RETURN_BOOLEAN,
-    RETURN_NUMBER,
-    RETURN_STRING,
-} from "./common"
+import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
+import { RETURN_BOOLEAN } from "./boolean"
+import { cache, createObject, isTypeClass, RETURN_VOID } from "./common"
+import type { FunctionType } from "./function"
+import { RETURN_NUMBER, NUMBER } from "./number"
+import { getObjectPrototypes } from "./object"
+import { RETURN_STRING, STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
 
-/* eslint-disable func-style, @typescript-eslint/no-use-before-define -- ignore */
-export const RETURN_UNKNOWN_ARRAY = (): TypeArray => UNKNOWN_ARRAY
-export const RETURN_STRING_ARRAY = (): TypeArray => STRING_ARRAY
-/* eslint-enable func-style, @typescript-eslint/no-use-before-define -- ignore */
+export const RETURN_UNKNOWN_ARRAY = returnUnknownArray
+export const RETURN_STRING_ARRAY = returnStringArray
 
-export const ARRAY_TYPES: {
+export const ARRAY_TYPES: () => {
     [key in keyof ArrayConstructor]: TypeInfo | null
-} = createObject({
-    // ES5
-    isArray: RETURN_BOOLEAN,
-    // ES2015
-    from: RETURN_UNKNOWN_ARRAY,
-    of: RETURN_UNKNOWN_ARRAY,
+} = cache(() =>
+    createObject<
+        {
+            [key in keyof ArrayConstructor]: TypeInfo | null
+        }
+    >({
+        // ES5
+        isArray: RETURN_BOOLEAN,
+        // ES2015
+        from: RETURN_UNKNOWN_ARRAY,
+        of: RETURN_UNKNOWN_ARRAY,
+        prototype: null,
+    }),
+)
 
-    prototype: null,
-})
+const getPrototypes = cache(() =>
+    createObject<
+        {
+            [key in keyof unknown[]]: TypeInfo | null
+        }
+    >({
+        ...getObjectPrototypes(),
+        // ES5
+        toString: RETURN_STRING,
+        toLocaleString: RETURN_STRING,
+        pop: returnArrayElement, // element
+        push: RETURN_NUMBER,
+        concat: returnConcat,
+        join: RETURN_STRING,
+        reverse: returnSelf,
+        shift: returnArrayElement, // element
+        slice: returnSelf,
+        sort: returnSelf,
+        splice: returnSelf,
+        unshift: RETURN_NUMBER,
+        indexOf: RETURN_NUMBER,
+        lastIndexOf: RETURN_NUMBER,
+        every: RETURN_BOOLEAN,
+        some: RETURN_BOOLEAN,
+        forEach: RETURN_VOID,
+        map: RETURN_UNKNOWN_ARRAY,
+        filter: returnSelf,
+        reduce: null, // unknown
+        reduceRight: null, // unknown
+        // ES2015
+        find: returnArrayElement, // element
+        findIndex: RETURN_NUMBER,
+        fill: RETURN_UNKNOWN_ARRAY,
+        copyWithin: returnSelf,
+        entries: null, // IterableIterator
+        keys: null, // IterableIterator
+        values: null, // IterableIterator
+        // ES2016
+        includes: RETURN_BOOLEAN,
+        // ES2019
+        flatMap: RETURN_UNKNOWN_ARRAY,
+        flat: RETURN_UNKNOWN_ARRAY,
 
-export const ARRAY_PROTO_TYPES: {
-    [key in keyof unknown[]]: TypeInfo | null
-} = createObject({
-    // ES5
-    toString: RETURN_STRING,
-    toLocaleString: RETURN_STRING,
-    pop: returnArrayElement, // element
-    push: RETURN_NUMBER,
-    concat: returnConcat,
-    join: RETURN_STRING,
-    reverse: returnSelf,
-    shift: returnArrayElement, // element
-    slice: returnSelf,
-    sort: returnSelf,
-    splice: returnSelf,
-    unshift: RETURN_NUMBER,
-    indexOf: RETURN_NUMBER,
-    lastIndexOf: RETURN_NUMBER,
-    every: RETURN_BOOLEAN,
-    some: RETURN_BOOLEAN,
-    forEach: () => "undefined" as const,
-    map: RETURN_UNKNOWN_ARRAY,
-    filter: returnSelf,
-    reduce: null, // unknown
-    reduceRight: null, // unknown
-    // ES2015
-    find: returnArrayElement, // element
-    findIndex: RETURN_NUMBER,
-    fill: RETURN_UNKNOWN_ARRAY,
-    copyWithin: returnSelf,
-    entries: null, // IterableIterator
-    keys: null, // IterableIterator
-    values: null, // IterableIterator
-    // ES2016
-    includes: RETURN_BOOLEAN,
-    // ES2019
-    flatMap: RETURN_UNKNOWN_ARRAY,
-    flat: RETURN_UNKNOWN_ARRAY,
-
-    length: "Number",
-    0: null, // element
-})
+        length: NUMBER,
+        0: null, // element
+    }),
+)
 
 export class TypeArray implements ITypeClass {
     public type = "Array" as const
@@ -94,11 +95,15 @@ export class TypeArray implements ITypeClass {
         return null
     }
 
-    public property(name: string): TypeInfo | null {
+    public propertyType(name: string): TypeInfo | null {
         if (name === "0") {
             return this.paramType(0)
         }
-        return ARRAY_PROTO_TYPES[name as never] || null
+        return getPrototypes()[name as never] || null
+    }
+
+    public iterateType(): TypeInfo | null {
+        return this.paramType(0)
     }
 
     public typeNames(): string[] {
@@ -107,9 +112,21 @@ export class TypeArray implements ITypeClass {
     }
 }
 export const UNKNOWN_ARRAY = new TypeArray()
-export const STRING_ARRAY = new TypeArray(() =>
-    ["String" as const][Symbol.iterator](),
-)
+export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
+
+/**
+ * Function Type that Return unknown array
+ */
+function returnUnknownArray(): TypeArray {
+    return UNKNOWN_ARRAY
+}
+
+/**
+ * Function Type that Return unknown array
+ */
+function returnStringArray(): TypeArray {
+    return STRING_ARRAY
+}
 
 /**
  * Function Type that Return array element

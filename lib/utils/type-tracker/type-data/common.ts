@@ -1,15 +1,11 @@
 import type { TypeClass, TypeInfo } from "."
 
-/* eslint-disable func-style -- ignore */
-export const UNKNOWN_FUNCTION = (): null => null
+export const RETURN_VOID = retVoid
 
-export const RETURN_STRING = () => "String" as const
-export const RETURN_NUMBER = () => "Number" as const
-export const RETURN_BOOLEAN = () => "Boolean" as const
-export const RETURN_REGEXP = () => "RegExp" as const
-export const RETURN_BIGINT = () => "BigInt" as const
-export const RETURN_FUNCTION = (): typeof UNKNOWN_FUNCTION => UNKNOWN_FUNCTION
-/* eslint-enable func-style -- ignore */
+/** Function Type that Return void */
+function retVoid(): "undefined" {
+    return "undefined"
+}
 
 /** Check whether given type is TypeClass */
 export function isTypeClass(
@@ -28,4 +24,10 @@ export function isTypeClass(
 /** Create object */
 export function createObject<T>(t: T): T {
     return Object.assign(Object.create(null), t)
+}
+
+/** Cache builder */
+export function cache<T>(fn: () => T): () => T {
+    let t: T | undefined
+    return () => t ?? (t = fn())
 }

@@ -308,6 +308,37 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
+        Number.MAX_VALUE
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        const a = [1,2,3]
+        for (const e of a) {
+            e
+        }
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        const a = new Set([1,2,3])
+        for (const e of a) {
+            e
+        }
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        const a = new Map([[1,2]])
+        a.size
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
         const s: 'a' | 'b' | false = a
         s
         `,
@@ -507,6 +538,24 @@ const TESTCASES: TestCase[] = [
         `,
         type: ["Number", "String"],
     },
+    {
+        code: `
+        /** @type {Map<string, number>}} */
+        let a
+        a.get('a')
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /** @type {Set<string>}} */
+        let a
+        for (const e of a) {
+            e
+        }
+        `,
+        type: "String",
+    },
 ]
 describe("type track", () => {
     for (const testCase of TESTCASES) {
@@ -533,7 +582,11 @@ function getTypesWithLinter(testCase: TestCase): string[] {
                     lastExpr = node
                 },
                 "Program:exit"() {
-                    // if (context.getSourceCode().text.includes("as const")) {
+                    // if (
+                    //     context
+                    //         .getSourceCode()
+                    //         .text.includes("'abc'.split(',')[0]")
+                    // ) {
                     //     debugger
                     // }
                     types = createTypeTracker(context).getTypes(lastExpr!)
@@ -545,6 +598,10 @@ function getTypesWithLinter(testCase: TestCase): string[] {
     const r = linter.verify(
         testCase.code,
         {
+            globals: {
+                Set: "readonly",
+                Map: "readonly",
+            },
             parser: testCase.parser,
             parserOptions: {
                 ecmaVersion: 2020,

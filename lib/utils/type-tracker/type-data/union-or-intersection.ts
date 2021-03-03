@@ -5,13 +5,15 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import { isTypeClass } from "."
+import { getFunctionPrototypes } from "./function"
 
 class TypeCollection {
     private readonly names: Set<
         NamedType | OtherTypeName | TypeClass
     > = new Set()
 
-    private readonly types: Set<TypeInfo> = new Set()
+    private readonly types: TypeInfo[] = []
 
     public readonly iterator: IterableIterator<TypeInfo>
 
@@ -21,7 +23,7 @@ class TypeCollection {
 
     private *iter(): IterableIterator<TypeInfo> {
         for (const t of this.iterator) {
-            this.types.add(t)
+            this.types.push(t)
             if (typeof t === "function" || typeof t === "symbol") {
                 this.names.add("Function")
                 yield t
@@ -30,6 +32,11 @@ class TypeCollection {
                 yield t
             }
         }
+    }
+
+    private *itrAll(): IterableIterator<TypeInfo> {
+        yield* this.types
+        yield* this.iter()
     }
 
     public has(type: NamedType | OtherTypeName): boolean {
@@ -48,13 +55,13 @@ class TypeCollection {
         return false
     }
 
+    // public list(): TypeInfo[] {
+    //     return [...this.itrAll()]
+    // }
+
     public *all(): IterableIterator<TypeInfo> {
         const set = new Set()
-        for (const t of this.types) {
-            set.add(t)
-            yield t
-        }
-        for (const t of this.iter()) {
+        for (const t of this.itrAll()) {
             if (!set.has(t)) {
                 set.add(t)
                 yield t
@@ -106,7 +113,29 @@ export class TypeUnionOrIntersection implements ITypeClass {
         return null
     }
 
-    public property(): null {
+    public propertyType(name: string): TypeInfo | null {
+        for (const type of this.collection.all()) {
+            const propType = isTypeClass(type)
+                ? type.propertyType(name)
+                : typeof type === "function"
+                ? getFunctionPrototypes()[name as never]
+                : null
+            if (propType) {
+                return propType
+            }
+        }
+        return null
+    }
+
+    public iterateType(): TypeInfo | null {
+        for (const type of this.collection.all()) {
+            if (isTypeClass(type)) {
+                const itrType = type.iterateType()
+                if (itrType) {
+                    return itrType
+                }
+            }
+        }
         return null
     }
 

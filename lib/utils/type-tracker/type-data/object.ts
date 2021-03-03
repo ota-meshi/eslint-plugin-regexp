@@ -1,67 +1,71 @@
-import type {
-    FunctionType,
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeInfo,
-} from "."
+import type { ITypeClass, NamedType, OtherTypeName, TypeInfo } from "."
 import { isTypeClass } from "."
 import { RETURN_STRING_ARRAY, RETURN_UNKNOWN_ARRAY } from "./array"
-import {
-    createObject,
-    RETURN_BOOLEAN,
-    RETURN_STRING,
-    UNKNOWN_FUNCTION,
-} from "./common"
+import { RETURN_BOOLEAN } from "./boolean"
+import { cache, createObject } from "./common"
+import type { FunctionType } from "./function"
+import { UNKNOWN_FUNCTION } from "./function"
+import { RETURN_STRING } from "./string"
 
-/* eslint-disable func-style, @typescript-eslint/no-use-before-define -- ignore */
-export const RETURN_OBJECT = (): TypeObject => UNKNOWN_OBJECT
-/* eslint-enable func-style, @typescript-eslint/no-use-before-define -- ignore */
+export const RETURN_OBJECT = returnObject
 
-export const OBJECT_TYPES: {
+export const OBJECT_TYPES: () => {
     [key in keyof ObjectConstructor]: TypeInfo | null
-} = createObject({
-    // ES5
-    getPrototypeOf: null,
-    getOwnPropertyDescriptor: null,
-    getOwnPropertyNames: RETURN_STRING_ARRAY,
-    create: null,
-    defineProperty: null,
-    defineProperties: null,
-    seal: returnArg,
-    freeze: returnArg,
-    preventExtensions: null,
-    isSealed: RETURN_BOOLEAN,
-    isFrozen: RETURN_BOOLEAN,
-    isExtensible: RETURN_BOOLEAN,
-    keys: RETURN_STRING_ARRAY,
-    // ES2015
-    assign: returnAssign,
-    getOwnPropertySymbols: RETURN_UNKNOWN_ARRAY,
-    is: RETURN_BOOLEAN,
-    setPrototypeOf: null,
-    // ES2017
-    values: RETURN_UNKNOWN_ARRAY,
-    entries: RETURN_UNKNOWN_ARRAY,
-    getOwnPropertyDescriptors: null,
-    // ES2019
-    fromEntries: null,
+} = cache(() =>
+    createObject<
+        {
+            [key in keyof ObjectConstructor]: TypeInfo | null
+        }
+    >({
+        // ES5
+        getPrototypeOf: null,
+        getOwnPropertyDescriptor: null,
+        getOwnPropertyNames: RETURN_STRING_ARRAY,
+        create: null,
+        defineProperty: null,
+        defineProperties: null,
+        seal: returnArg,
+        freeze: returnArg,
+        preventExtensions: null,
+        isSealed: RETURN_BOOLEAN,
+        isFrozen: RETURN_BOOLEAN,
+        isExtensible: RETURN_BOOLEAN,
+        keys: RETURN_STRING_ARRAY,
+        // ES2015
+        assign: returnAssign,
+        getOwnPropertySymbols: RETURN_UNKNOWN_ARRAY,
+        is: RETURN_BOOLEAN,
+        setPrototypeOf: null,
+        // ES2017
+        values: RETURN_UNKNOWN_ARRAY,
+        entries: RETURN_UNKNOWN_ARRAY,
+        getOwnPropertyDescriptors: null,
+        // ES2019
+        fromEntries: null,
 
-    prototype: null,
-})
-export const OBJECT_PROTO_TYPES: {
+        prototype: null,
+    }),
+)
+export const getObjectPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof object]: TypeInfo | null
-} = createObject({
-    // ES5
-    constructor: UNKNOWN_FUNCTION,
-    toString: RETURN_STRING,
-    toLocaleString: RETURN_STRING,
-    valueOf: RETURN_OBJECT,
-    hasOwnProperty: RETURN_BOOLEAN,
-    isPrototypeOf: RETURN_BOOLEAN,
-    propertyIsEnumerable: RETURN_BOOLEAN,
-})
+} = cache(() =>
+    createObject<
+        {
+            // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
+            [key in keyof object]: TypeInfo | null
+        }
+    >({
+        // ES5
+        constructor: UNKNOWN_FUNCTION,
+        toString: RETURN_STRING,
+        toLocaleString: RETURN_STRING,
+        valueOf: RETURN_OBJECT,
+        hasOwnProperty: RETURN_BOOLEAN,
+        isPrototypeOf: RETURN_BOOLEAN,
+        propertyIsEnumerable: RETURN_BOOLEAN,
+    }),
+)
 
 export class TypeObject implements ITypeClass {
     public type = "Object" as const
@@ -106,7 +110,7 @@ export class TypeObject implements ITypeClass {
         return null
     }
 
-    public property(name: string): TypeInfo | null {
+    public propertyType(name: string): TypeInfo | null {
         const getType = this.properties[name]
         if (getType) {
             return getType()
@@ -116,7 +120,11 @@ export class TypeObject implements ITypeClass {
                 return getValue()
             }
         }
-        return OBJECT_PROTO_TYPES[name as never] || null
+        return getObjectPrototypes()[name as never] || null
+    }
+
+    public iterateType(): TypeInfo {
+        return this
     }
 
     public typeNames(): string[] {
@@ -151,4 +159,9 @@ function returnAssign(
             }
         }
     })
+}
+
+/** Function Type that Return Object */
+function returnObject(): TypeObject {
+    return UNKNOWN_OBJECT
 }

@@ -1,11 +1,21 @@
 import type { Rule } from "eslint"
 import type * as TS from "typescript"
 import type * as ES from "estree"
-import { findVariable, getPropertyName, isParenthesized } from "./utils"
+import {
+    findVariable,
+    getParent,
+    getPropertyName,
+    isParenthesized,
+} from "./utils"
 import type { TypeInfo, NamedType, OtherTypeName } from "./type-data"
 import {
     UNKNOWN_ARRAY,
     UNKNOWN_OBJECT,
+    STRING,
+    NUMBER,
+    BOOLEAN,
+    REGEXP,
+    BIGINT,
     TypeArray,
     TypeObject,
     UNKNOWN_FUNCTION,
@@ -18,6 +28,10 @@ import {
     GLOBAL_OBJECTS_PROP_TYPES,
     TypeUnionOrIntersection,
     isTypeClass,
+    TypeMap,
+    UNKNOWN_MAP,
+    TypeSet,
+    UNKNOWN_SET,
 } from "./type-data"
 import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
@@ -119,29 +133,29 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
     ): TypeInfo | null {
         if (node.type === "Literal") {
             if (typeof node.value === "string") {
-                return "String"
+                return STRING
             }
             if (typeof node.value === "boolean") {
-                return "Boolean"
+                return BOOLEAN
             }
             if (typeof node.value === "number") {
-                return "Number"
+                return NUMBER
             }
             if ("regex" in node && node.regex) {
-                return "RegExp"
+                return REGEXP
             }
             if (
                 "bigint" in node &&
                 // @ts-expect-error -- types is out of date.
                 node.bigint
             ) {
-                return "BigInt"
+                return BIGINT
             }
             if (node.value == null) {
                 return "null"
             }
         } else if (node.type === "TemplateLiteral") {
-            return "String"
+            return STRING
         }
 
         if (availableTS) {
@@ -151,6 +165,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         const jsdoc = getJSDoc(node, context)
         if (jsdoc) {
             if (isParenthesized(context, node)) {
+                // e.g. /** @type {Foo} */(expr)
                 const type = typeTextToTypeInfo(jsdoc.getTag("type")?.type)
                 if (type) {
                     return type
@@ -233,10 +248,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 const left = getType(node.left)
                 const right = getType(node.right)
                 if (hasType(left, "String") || hasType(right, "String")) {
-                    return "String"
+                    return STRING
                 }
                 if (hasType(left, "Number") && hasType(right, "Number")) {
-                    return "Number"
+                    return NUMBER
                 }
             } else {
                 const type = BI_OPERATOR_TYPES[node.operator]
@@ -269,6 +284,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                 idJsdoc.getTag("type")?.type,
                             )
                             if (type) {
+                                // e.g. /** @type {Foo} */
                                 return type
                             }
 
@@ -276,13 +292,36 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                 idJsdoc.getTag("returns")?.type,
                             )
                             if (returnType) {
+                                // e.g. /** @returns {Foo} */
                                 return () => returnType
                             }
                         }
-                        if (def.parent.kind === "const" && def.node.init) {
-                            const type = getType(def.node.init)
-                            if (type) {
-                                return type
+                        if (def.parent.kind === "const") {
+                            if (def.node.init) {
+                                // e.g. const v = 42
+                                const type = getType(def.node.init)
+                                if (type) {
+                                    return type
+                                }
+                            } else {
+                                const parent = getParent(def.parent)
+                                if (parent) {
+                                    if (parent?.type === "ForOfStatement") {
+                                        // e.g. for (const v of list)
+                                        const rightType = getType(parent.right)
+                                        if (isTypeClass(rightType)) {
+                                            const type = rightType.iterateType()
+                                            if (type) {
+                                                return type
+                                            }
+                                        }
+                                    } else if (
+                                        parent?.type === "ForInStatement"
+                                    ) {
+                                        // e.g. for (const v in obj)
+                                        return STRING
+                                    }
+                                }
                             }
                         }
                     } else if (def.type === "Parameter") {
@@ -330,7 +369,20 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             if (node.callee.type !== "Super") {
                 const type = getType(node.callee)
                 if (typeof type === "symbol") {
-                    return GLOBAL_FACTORY_TYPES[type]
+                    const argTypes: ((() => TypeInfo | null) | null)[] = []
+                    for (const arg of node.arguments) {
+                        argTypes.push(
+                            arg.type === "SpreadElement"
+                                ? null
+                                : () => {
+                                      return getType(arg)
+                                  },
+                        )
+                    }
+                    return GLOBAL_FACTORY_TYPES[type](
+                        () => UNKNOWN_FUNCTION,
+                        argTypes,
+                    )
                 }
             }
         } else if (
@@ -358,7 +410,8 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                     return type(null, argTypes)
                 }
                 if (typeof type === "symbol") {
-                    return GLOBAL_FACTORY_TYPES[type]
+                    // e.g. String(foo)
+                    return GLOBAL_FACTORY_TYPES[type](null, argTypes)
                 }
             } else if (callee.type === "MemberExpression") {
                 const mem = callee
@@ -380,15 +433,16 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             propertyName === "toString" ||
                             propertyName === "toLocaleString"
                         ) {
-                            return "String"
+                            return STRING
                         }
                         const objectType = getType(mem.object)
                         if (typeof objectType === "symbol") {
                             const propTypes =
                                 GLOBAL_OBJECTS_PROP_TYPES[objectType]
                             if (propTypes) {
-                                const type = propTypes[propertyName]
+                                const type = propTypes()[propertyName]
                                 if (typeof type === "function") {
+                                    // e.g. String.fromCodePoint(foo)
                                     return type(null, argTypes)
                                 }
                             }
@@ -402,7 +456,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             }
                         }
                         if (isTypeClass(objectType)) {
-                            const type = objectType.property(propertyName)
+                            const type = objectType.propertyType(propertyName)
                             if (typeof type === "function") {
                                 return type(() => objectType, argTypes)
                             }
@@ -426,6 +480,16 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 }
                 if (propertyName != null) {
                     const objectType = getType(node.object)
+                    if (typeof objectType === "symbol") {
+                        const propTypes = GLOBAL_OBJECTS_PROP_TYPES[objectType]
+                        if (propTypes) {
+                            const type = propTypes()[propertyName]
+                            if (type) {
+                                // e.g. Number.MAX_VALUE
+                                return type
+                            }
+                        }
+                    }
                     for (const [checkType, protoTypes] of PROTO_TYPES) {
                         if (protoTypes && hasType(objectType, checkType)) {
                             const type = protoTypes[propertyName]
@@ -435,7 +499,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                         }
                     }
                     if (isTypeClass(objectType)) {
-                        const type = objectType.property(propertyName)
+                        const type = objectType.propertyType(propertyName)
                         if (type) {
                             return type
                         }
@@ -465,16 +529,16 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         tsType: TS.Type,
     ): TypeInfo | null {
         if ((tsType.flags & ts.TypeFlags.StringLike) !== 0) {
-            return "String"
+            return STRING
         }
         if ((tsType.flags & ts.TypeFlags.NumberLike) !== 0) {
-            return "Number"
+            return NUMBER
         }
         if ((tsType.flags & ts.TypeFlags.BooleanLike) !== 0) {
-            return "Boolean"
+            return BOOLEAN
         }
         if ((tsType.flags & ts.TypeFlags.BigIntLike) !== 0) {
-            return "BigInt"
+            return BIGINT
         }
         if (
             (tsType.flags & ts.TypeFlags.Any) !== 0 ||
@@ -622,10 +686,10 @@ function jsDocTypeNodeToTypeInfo(
         return typeNameToTypeInfo(node.name)
     }
     if (node.type === "STRING_VALUE") {
-        return "String"
+        return STRING
     }
     if (node.type === "NUMBER_VALUE") {
-        return "Number"
+        return NUMBER
     }
     if (
         node.type === "OPTIONAL" ||
@@ -658,22 +722,23 @@ function jsDocTypeNodeToTypeInfo(
         })
     }
     if (node.type === "GENERIC") {
-        if (node.subject.type === "NAME" && node.subject.name === "Record") {
-            return new TypeObject()
-        }
-
         const subject = jsDocTypeNodeToTypeInfo(node.subject)
         if (hasType(subject, "Array")) {
             return new TypeArray(function* () {
-                const param = node.objects[0]
-                if (!param) {
-                    return
-                }
-                const paramType = jsDocTypeNodeToTypeInfo(param)
+                const paramType = jsDocTypeNodeToTypeInfo(node.objects[0])
                 if (paramType) {
                     yield paramType
                 }
             })
+        }
+        if (hasType(subject, "Map")) {
+            return new TypeMap(
+                () => jsDocTypeNodeToTypeInfo(node.objects[0]),
+                () => jsDocTypeNodeToTypeInfo(node.objects[1]),
+            )
+        }
+        if (hasType(subject, "Set")) {
+            return new TypeSet(() => jsDocTypeNodeToTypeInfo(node.objects[0]))
         }
         return subject
     }
@@ -701,22 +766,26 @@ function jsDocTypeNodeToTypeInfo(
     return null
 }
 
+/* eslint-disable complexity -- X( */
 /** Get type from type name */
-function typeNameToTypeInfo(name: string): TypeInfo | null {
+function typeNameToTypeInfo(
+    /* eslint-enable complexity -- X( */
+    name: string,
+): TypeInfo | null {
     if (name === "String" || name === "string") {
-        return "String"
+        return STRING
     }
     if (name === "Number" || name === "number") {
-        return "Number"
+        return NUMBER
     }
     if (name === "Boolean" || name === "boolean") {
-        return "Boolean"
+        return BOOLEAN
     }
     if (name === "BigInt" || name === "bigint") {
-        return "BigInt"
+        return BIGINT
     }
     if (name === "RegExp") {
-        return "RegExp"
+        return REGEXP
     }
     if (name === "Array" || name === "array") {
         return UNKNOWN_ARRAY
@@ -726,6 +795,15 @@ function typeNameToTypeInfo(name: string): TypeInfo | null {
     }
     if (name === "Object" || name === "object") {
         return UNKNOWN_OBJECT
+    }
+    if (name === "Record") {
+        return UNKNOWN_OBJECT
+    }
+    if (name === "Map") {
+        return UNKNOWN_MAP
+    }
+    if (name === "Set") {
+        return UNKNOWN_SET
     }
     return null
 }
@@ -743,9 +821,9 @@ function getParamPath(
         | ES.RestElement,
     context: Rule.RuleContext,
 ): { name: string | null; index: number | null }[] {
-    const parent: ES.Pattern | ES.AssignmentProperty | ES.Function =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-        (node as any).parent
+    const parent = getParent<ES.Pattern | ES.AssignmentProperty | ES.Function>(
+        node,
+    )
     if (!parent) {
         return [{ name, index: null }]
     }
@@ -767,8 +845,7 @@ function getParamPath(
         return getParamPath(null, parent, context).concat([path])
     }
     if (parent.type === "Property") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-        const object: ES.ObjectPattern = (parent as any).parent
+        const object = getParent<ES.ObjectPattern>(parent)!
 
         const path = {
             name: getPropertyName(context, parent),

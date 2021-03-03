@@ -60,3 +60,11 @@ function getScope(
 
     return scopeManager.scopes[0]
 }
+
+/** Get parent node */
+export function getParent<E extends ES.Node>(node: ES.Node | null): E | null {
+    if (!node) {
+        return null
+    }
+    return (node as any).parent
+}
