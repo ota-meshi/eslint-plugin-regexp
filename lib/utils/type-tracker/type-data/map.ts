@@ -59,8 +59,11 @@ const getPrototypes: () => {
                     if (isTypeClass(type)) {
                         yield type.paramType(0)
                         yield type.paramType(1)
+                    } else {
+                        yield null
+                        yield null
                     }
-                })
+                }, true)
             })
         },
     )
@@ -151,7 +154,7 @@ export class TypeMap implements ITypeClass {
         return new TypeArray(function* () {
             yield map.paramType(0)
             yield map.paramType(1)
-        })
+        }, true)
     }
 
     public returnType(): null {

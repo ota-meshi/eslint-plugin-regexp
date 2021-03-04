@@ -12,8 +12,6 @@ import { BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
 import { BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
-import type { TypeMap } from "./map"
-import { UNKNOWN_MAP } from "./map"
 import type { TypeNumber } from "./number"
 import { NUMBER } from "./number"
 import type { TypeObject } from "./object"
@@ -92,6 +90,12 @@ export class TypeGlobalFunction extends TypeFunction {
     }
 }
 
+export const UNKNOWN_FUNCTION = new TypeFunction(
+    /** Unknown Function Type */
+    function returnUnknown(): null {
+        return null
+    },
+)
 /** Build Function constructor type */
 export function buildFunctionConstructor(): TypeGlobalFunction {
     const FUNCTION_TYPES: () => {
@@ -101,11 +105,14 @@ export function buildFunctionConstructor(): TypeGlobalFunction {
             prototype: null,
         }),
     )
-    return new TypeGlobalFunction(returnFunction, FUNCTION_TYPES)
+    return new TypeGlobalFunction(
+        /** Function Type that Return Function */
+        function returnFunction(): TypeFunction {
+            return UNKNOWN_FUNCTION
+        },
+        FUNCTION_TYPES,
+    )
 }
-export const UNKNOWN_FUNCTION = new TypeFunction(returnUnknown)
-
-export const RETURN_UNKNOWN_FUNCTION = new TypeFunction(returnFunction)
 
 export const RETURN_VOID = new TypeFunction(
     /** Function Type that Return void */
@@ -169,15 +176,6 @@ export const RETURN_BIGINT = new TypeFunction(
     },
 )
 
-export const RETURN_UNKNOWN_MAP = new TypeFunction(
-    /**
-     * Function Type that Return unknown array
-     */
-    function returnUnknownMap(): TypeMap {
-        return UNKNOWN_MAP
-    },
-)
-
 const RETURN_SELF = new TypeFunction(
     /**
      * Function Type that Return self array
@@ -208,13 +206,3 @@ export const getFunctionPrototypes: () => {
         prototype: null,
     }),
 )
-
-/** Unknown Function Type */
-function returnUnknown(): null {
-    return null
-}
-
-/** Function Type that Return Function */
-function returnFunction(): TypeFunction {
-    return UNKNOWN_FUNCTION
-}

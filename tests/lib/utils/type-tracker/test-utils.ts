@@ -16,7 +16,7 @@ const tsconfigRootDir = path.resolve(__dirname, "../../../..")
 const project = "tsconfig.json"
 const filename = path.join(
     tsconfigRootDir,
-    "./tests/lib/utils/type-tracker/index.ts",
+    "./tests/lib/utils/type-tracker/fixture.ts",
 )
 /**
  * Test
@@ -52,6 +52,8 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 Set: "readonly",
                 Map: "readonly",
                 BigInt: "readonly",
+                window: "readonly",
+                globalThis: "readonly",
             },
             parser: testCase.parser,
             parserOptions: {

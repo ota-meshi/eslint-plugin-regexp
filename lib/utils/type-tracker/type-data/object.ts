@@ -85,8 +85,8 @@ export class TypeObject implements ITypeClass {
         return getObjectPrototypes()[name as never] || null
     }
 
-    public iterateType(): TypeInfo {
-        return this
+    public iterateType(): null {
+        return null
     }
 
     public returnType(): null {
@@ -123,10 +123,14 @@ export class TypeObject implements ITypeClass {
                     }
                     e2 = itr2.next()
                 }
-                if (!e2.done) {
+                if (e2.done) {
                     return false
                 }
             }
+        }
+        const e2 = itr2.next()
+        if (!e2.done) {
+            return false
         }
         return true
     }
@@ -197,7 +201,7 @@ export function buildObjectConstructor(): TypeGlobalFunction {
         })
     })
     return new TypeGlobalFunction(
-        (thisType) => thisType?.() ?? UNKNOWN_OBJECT,
+        (_thisType, [argType]) => argType?.() ?? UNKNOWN_OBJECT,
         OBJECT_TYPES,
     )
 }

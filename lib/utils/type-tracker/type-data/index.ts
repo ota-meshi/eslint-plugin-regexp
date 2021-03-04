@@ -5,12 +5,9 @@ import { BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
 import { BOOLEAN } from "./boolean"
 import { isTypeClass, createObject, hasType } from "./common"
-import {
-    RETURN_UNKNOWN_FUNCTION,
-    UNKNOWN_FUNCTION,
-    TypeFunction,
-} from "./function"
-import { TypeGlobal } from "./global"
+import { UNKNOWN_FUNCTION, TypeFunction } from "./function"
+import type { TypeGlobal } from "./global"
+import { GLOBAL } from "./global"
 import type { TypeIterable } from "./iterable"
 import { TypeMap, UNKNOWN_MAP } from "./map"
 import type { TypeNumber } from "./number"
@@ -30,7 +27,6 @@ export {
     UNKNOWN_ARRAY,
     UNKNOWN_OBJECT,
     UNKNOWN_FUNCTION,
-    RETURN_UNKNOWN_FUNCTION,
     STRING,
     NUMBER,
     BOOLEAN,
@@ -43,6 +39,7 @@ export {
     UNKNOWN_MAP,
     UNKNOWN_SET,
     TypeFunction,
+    GLOBAL,
 }
 
 export const GLOBAL_NUMBER = Symbol("Number")
@@ -78,6 +75,7 @@ export type TypeClass =
     | TypeSet
     | TypeFunction
     | TypeIterable
+    | TypeGlobal
 export interface ITypeClass {
     type:
         | "TypeUnionOrIntersection"
@@ -105,8 +103,6 @@ export interface ITypeClass {
     typeNames(): string[]
     equals(o: TypeClass): boolean
 }
-
-export const GLOBAL = new TypeGlobal()
 
 /** Get BinaryExpression calc type */
 function binaryNumOp(getTypes: () => [TypeInfo | null, TypeInfo | null]) {

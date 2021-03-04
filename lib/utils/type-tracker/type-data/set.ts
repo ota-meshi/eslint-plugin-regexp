@@ -42,8 +42,11 @@ const getPrototypes: () => {
                     if (isTypeClass(type)) {
                         yield type.iterateType()
                         yield type.iterateType()
+                    } else {
+                        yield null
+                        yield null
                     }
-                })
+                }, true)
             })
         },
     )

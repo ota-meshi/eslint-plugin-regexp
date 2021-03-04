@@ -404,12 +404,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
             const callee =
                 node.type === "CallExpression" ? node.callee : node.tag
-            if (callee.type === "Identifier") {
-                const type = getType(callee)
-                if (isTypeClass(type)) {
-                    return type.returnType(null, argTypes)
-                }
-            } else if (callee.type === "MemberExpression") {
+            if (callee.type === "MemberExpression") {
                 const mem = callee
                 if (mem.object.type !== "Super") {
                     let propertyName: string | null = null
@@ -442,6 +437,11 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             }
                         }
                     }
+                }
+            } else if (callee.type !== "Super") {
+                const type = getType(callee)
+                if (isTypeClass(type)) {
+                    return type.returnType(null, argTypes)
                 }
             }
         } else if (node.type === "MemberExpression") {

@@ -16,11 +16,45 @@ import {
     buildFunctionConstructor,
 } from "./function"
 import { buildMapConstructor } from "./map"
-import { buildNumberConstructor } from "./number"
+import { buildNumberConstructor, NUMBER } from "./number"
 import { buildObjectConstructor } from "./object"
 import { buildRegExpConstructor } from "./regexp"
 import { buildSetConstructor } from "./set"
 import { buildStringConstructor } from "./string"
+
+export class TypeGlobal implements ITypeClass {
+    public type = "Global" as const
+
+    public has(_type: NamedType | OtherTypeName): boolean {
+        return false
+    }
+
+    public paramType(): null {
+        return null
+    }
+
+    public propertyType(name: string): TypeInfo | null {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+        return getProperties()[name as never] || null
+    }
+
+    public iterateType(): null {
+        return null
+    }
+
+    public returnType(): null {
+        return null
+    }
+
+    public typeNames(): string[] {
+        return ["Global"]
+    }
+
+    public equals(o: TypeClass): boolean {
+        return o.type === "Global"
+    }
+}
+export const GLOBAL = new TypeGlobal()
 
 const getProperties: () => {
     [key: string]: TypeInfo | null
@@ -48,37 +82,12 @@ const getProperties: () => {
         encodeURIComponent: RETURN_STRING,
         escape: RETURN_STRING,
         unescape: RETURN_STRING,
+        globalThis: GLOBAL,
+        window: GLOBAL,
+        self: GLOBAL,
+        global: GLOBAL,
+        undefined: "undefined",
+        Infinity: NUMBER,
+        NaN: NUMBER,
     }),
 )
-
-export class TypeGlobal implements ITypeClass {
-    public type = "Global" as const
-
-    public has(_type: NamedType | OtherTypeName): boolean {
-        return false
-    }
-
-    public paramType(): null {
-        return null
-    }
-
-    public propertyType(name: string): TypeInfo | null {
-        return getProperties()[name as never] || null
-    }
-
-    public iterateType(): null {
-        return null
-    }
-
-    public returnType(): null {
-        return null
-    }
-
-    public typeNames(): string[] {
-        return ["Boolean"]
-    }
-
-    public equals(o: TypeClass): boolean {
-        return o.type === "Boolean"
-    }
-}
