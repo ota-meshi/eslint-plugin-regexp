@@ -7,7 +7,12 @@ import type {
 } from "."
 import { BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
-import { RETURN_REGEXP, RETURN_STRING_ARRAY, RETURN_BOOLEAN } from "./function"
+import {
+    RETURN_REGEXP,
+    RETURN_STRING_ARRAY,
+    RETURN_BOOLEAN,
+    TypeGlobalFunction,
+} from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
@@ -46,27 +51,31 @@ export class TypeRegExp implements ITypeClass {
 }
 export const REGEXP = new TypeRegExp()
 
-export const REGEXP_TYPES: () => {
-    [key in keyof RegExpConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof RegExpConstructor]: TypeInfo | null
-        }
-    >({
-        $1: STRING,
-        $2: STRING,
-        $3: STRING,
-        $4: STRING,
-        $5: STRING,
-        $6: STRING,
-        $7: STRING,
-        $8: STRING,
-        $9: STRING,
-        lastMatch: NUMBER, // prop
-        prototype: null,
-    }),
-)
+/** Build RegExp constructor type */
+export function buildRegExpConstructor(): TypeGlobalFunction {
+    const REGEXP_TYPES: () => {
+        [key in keyof RegExpConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof RegExpConstructor]: TypeInfo | null
+            }
+        >({
+            $1: STRING,
+            $2: STRING,
+            $3: STRING,
+            $4: STRING,
+            $5: STRING,
+            $6: STRING,
+            $7: STRING,
+            $8: STRING,
+            $9: STRING,
+            lastMatch: NUMBER, // prop
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => REGEXP, REGEXP_TYPES)
+}
 
 const getPrototypes: () => {
     [key in keyof RegExp]: TypeInfo | null

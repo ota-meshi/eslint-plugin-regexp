@@ -1,31 +1,25 @@
 import type * as ES from "estree"
-import { TypeArray, UNKNOWN_ARRAY, ARRAY_TYPES } from "./array"
+import { TypeArray, UNKNOWN_ARRAY } from "./array"
 import type { TypeBigInt } from "./bigint"
-import { BIGINT, BIGINT_TYPES } from "./bigint"
+import { BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
-import { BOOLEAN, BOOLEAN_TYPES } from "./boolean"
-import { isTypeClass, createObject, cache, hasType } from "./common"
+import { BOOLEAN } from "./boolean"
+import { isTypeClass, createObject, hasType } from "./common"
 import {
     RETURN_UNKNOWN_FUNCTION,
     UNKNOWN_FUNCTION,
     TypeFunction,
-    RETURN_STRING,
-    RETURN_NUMBER,
-    RETURN_REGEXP,
-    RETURN_BIGINT,
-    RETURN_UNKNOWN_ARRAY,
-    RETURN_UNKNOWN_OBJECT,
-    RETURN_BOOLEAN,
 } from "./function"
-import { TypeMap, MAP_TYPES, buildMapConstructor, UNKNOWN_MAP } from "./map"
+import { TypeGlobal } from "./global"
+import { TypeMap, UNKNOWN_MAP } from "./map"
 import type { TypeNumber } from "./number"
-import { NUMBER_TYPES, NUMBER } from "./number"
-import { TypeObject, OBJECT_TYPES, UNKNOWN_OBJECT } from "./object"
+import { NUMBER } from "./number"
+import { TypeObject, UNKNOWN_OBJECT } from "./object"
 import type { TypeRegExp } from "./regexp"
-import { REGEXP, REGEXP_TYPES } from "./regexp"
-import { TypeSet, buildSetConstructor, SET_TYPES, UNKNOWN_SET } from "./set"
+import { REGEXP } from "./regexp"
+import { TypeSet, UNKNOWN_SET } from "./set"
 import type { TypeString } from "./string"
-import { STRING_TYPES, STRING } from "./string"
+import { STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
 
 export {
@@ -50,16 +44,11 @@ export {
     TypeFunction,
 }
 
-export const GLOBAL_STRING = Symbol("String")
 export const GLOBAL_NUMBER = Symbol("Number")
-export const GLOBAL_BOOLEAN = Symbol("Boolean")
 export const GLOBAL_REGEXP = Symbol("RegExp")
-export const GLOBAL_BIGINT = Symbol("BigInt")
-export const GLOBAL_ARRAY = Symbol("Array")
+// export const GLOBAL_BIGINT = Symbol("BigInt")
 export const GLOBAL_FUNCTION = Symbol("Function")
 export const GLOBAL_OBJECT = Symbol("Object")
-export const GLOBAL_MAP = Symbol("Map")
-export const GLOBAL_SET = Symbol("Map")
 
 export type NamedType = "null" | "undefined"
 export type OtherTypeName =
@@ -73,19 +62,8 @@ export type OtherTypeName =
     | "BigInt"
     | "Map"
     | "Set"
-export type GlobalType =
-    | typeof GLOBAL_STRING
-    | typeof GLOBAL_NUMBER
-    | typeof GLOBAL_BOOLEAN
-    | typeof GLOBAL_REGEXP
-    | typeof GLOBAL_BIGINT
-    | typeof GLOBAL_ARRAY
-    | typeof GLOBAL_FUNCTION
-    | typeof GLOBAL_OBJECT
-    | typeof GLOBAL_MAP
-    | typeof GLOBAL_SET
 
-export type TypeInfo = NamedType | GlobalType | TypeClass
+export type TypeInfo = NamedType | TypeClass
 export type TypeClass =
     | TypeUnionOrIntersection
     | TypeArray
@@ -111,6 +89,7 @@ export interface ITypeClass {
         | "Map"
         | "Set"
         | "Function"
+        | "Global"
     has(type: NamedType | OtherTypeName): boolean
     paramType(index: number): TypeInfo | null
     iterateType(): TypeInfo | null
@@ -118,81 +97,13 @@ export interface ITypeClass {
     returnType(
         thisType: (() => TypeInfo | null) | null,
         argTypes: ((() => TypeInfo | null) | null)[],
+        meta?: { isConstructor?: boolean },
     ): TypeInfo | null
     typeNames(): string[]
     equals(o: TypeClass): boolean
 }
 
-export const GLOBAL_FACTORIES: { [key: string]: GlobalType } = createObject({
-    String: GLOBAL_STRING,
-    Number: GLOBAL_NUMBER,
-    Boolean: GLOBAL_BOOLEAN,
-    RegExp: GLOBAL_REGEXP,
-    BigInt: GLOBAL_BIGINT,
-    Array: GLOBAL_ARRAY,
-    Function: GLOBAL_FUNCTION,
-    Object: GLOBAL_OBJECT,
-    Map: GLOBAL_MAP,
-    Set: GLOBAL_SET,
-})
-export const GLOBAL_FACTORY_TYPES: {
-    [key in GlobalType]: TypeFunction
-} = {
-    [GLOBAL_STRING]: RETURN_STRING,
-    [GLOBAL_NUMBER]: RETURN_NUMBER,
-    [GLOBAL_BOOLEAN]: RETURN_BOOLEAN,
-    [GLOBAL_REGEXP]: RETURN_REGEXP,
-    [GLOBAL_BIGINT]: RETURN_BIGINT,
-    [GLOBAL_ARRAY]: RETURN_UNKNOWN_ARRAY,
-    [GLOBAL_FUNCTION]: RETURN_UNKNOWN_FUNCTION,
-    [GLOBAL_OBJECT]: RETURN_UNKNOWN_OBJECT,
-    [GLOBAL_MAP]: buildMapConstructor(),
-    [GLOBAL_SET]: buildSetConstructor(),
-}
-export const GLOBAL_FACTORY_FUNCTIONS: {
-    [key: string]: TypeInfo
-} = createObject({
-    String: RETURN_STRING,
-    Number: RETURN_NUMBER,
-    Boolean: RETURN_BOOLEAN,
-    RegExp: RETURN_REGEXP,
-    BigInt: RETURN_BIGINT,
-    Array: RETURN_UNKNOWN_ARRAY,
-    Function: RETURN_UNKNOWN_FUNCTION,
-    isFinite: RETURN_BOOLEAN,
-    isNaN: RETURN_BOOLEAN,
-    parseFloat: RETURN_NUMBER,
-    parseInt: RETURN_NUMBER,
-    decodeURI: RETURN_STRING,
-    decodeURIComponent: RETURN_STRING,
-    encodeURI: RETURN_STRING,
-    encodeURIComponent: RETURN_STRING,
-    escape: RETURN_STRING,
-    unescape: RETURN_STRING,
-})
-
-const FUNCTION_TYPES: () => {
-    [key in keyof FunctionConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject({
-        prototype: null,
-    }),
-)
-
-export const GLOBAL_OBJECTS_PROP_TYPES: {
-    [key in GlobalType]: () => { [key: string]: TypeInfo | null }
-} = createObject({
-    [GLOBAL_STRING]: STRING_TYPES,
-    [GLOBAL_ARRAY]: ARRAY_TYPES,
-    [GLOBAL_NUMBER]: NUMBER_TYPES,
-    [GLOBAL_BOOLEAN]: BOOLEAN_TYPES,
-    [GLOBAL_REGEXP]: REGEXP_TYPES,
-    [GLOBAL_BIGINT]: BIGINT_TYPES,
-    [GLOBAL_FUNCTION]: FUNCTION_TYPES,
-    [GLOBAL_OBJECT]: OBJECT_TYPES,
-    [GLOBAL_MAP]: MAP_TYPES,
-    [GLOBAL_SET]: SET_TYPES,
-})
+export const GLOBAL = new TypeGlobal()
 
 /** Get BinaryExpression calc type */
 function binaryNumOp(getTypes: () => [TypeInfo | null, TypeInfo | null]) {

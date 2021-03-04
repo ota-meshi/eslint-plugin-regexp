@@ -6,7 +6,12 @@ import type {
     TypeInfo,
 } from "."
 import { cache, createObject } from "./common"
-import { RETURN_NUMBER, RETURN_STRING, RETURN_BOOLEAN } from "./function"
+import {
+    RETURN_NUMBER,
+    RETURN_STRING,
+    RETURN_BOOLEAN,
+    TypeGlobalFunction,
+} from "./function"
 import { getObjectPrototypes } from "./object"
 
 export class TypeNumber implements ITypeClass {
@@ -43,35 +48,38 @@ export class TypeNumber implements ITypeClass {
 }
 export const NUMBER = new TypeNumber()
 
-export const NUMBER_TYPES: () => {
-    [key in keyof NumberConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof NumberConstructor]: TypeInfo | null
-        }
-    >({
-        // ES5
-        MAX_VALUE: NUMBER, // prop
-        MIN_VALUE: NUMBER, // prop
-        NaN: NUMBER, // prop
-        NEGATIVE_INFINITY: NUMBER, // prop
-        POSITIVE_INFINITY: NUMBER, // prop
-        // ES2015
-        EPSILON: NUMBER, // prop
-        isFinite: RETURN_BOOLEAN,
-        isInteger: RETURN_BOOLEAN,
-        isNaN: RETURN_BOOLEAN,
-        isSafeInteger: RETURN_BOOLEAN,
-        MAX_SAFE_INTEGER: NUMBER, // prop
-        MIN_SAFE_INTEGER: NUMBER, // prop
-        parseFloat: RETURN_NUMBER,
-        parseInt: RETURN_NUMBER,
+/** Build Number constructor type */
+export function buildNumberConstructor(): TypeGlobalFunction {
+    const NUMBER_TYPES: () => {
+        [key in keyof NumberConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof NumberConstructor]: TypeInfo | null
+            }
+        >({
+            // ES5
+            MAX_VALUE: NUMBER, // prop
+            MIN_VALUE: NUMBER, // prop
+            NaN: NUMBER, // prop
+            NEGATIVE_INFINITY: NUMBER, // prop
+            POSITIVE_INFINITY: NUMBER, // prop
+            // ES2015
+            EPSILON: NUMBER, // prop
+            isFinite: RETURN_BOOLEAN,
+            isInteger: RETURN_BOOLEAN,
+            isNaN: RETURN_BOOLEAN,
+            isSafeInteger: RETURN_BOOLEAN,
+            MAX_SAFE_INTEGER: NUMBER, // prop
+            MIN_SAFE_INTEGER: NUMBER, // prop
+            parseFloat: RETURN_NUMBER,
+            parseInt: RETURN_NUMBER,
 
-        prototype: null,
-    }),
-)
-
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => NUMBER, NUMBER_TYPES)
+}
 const getPrototypes: () => {
     [key in keyof number]: TypeInfo | null
 } = cache(() =>

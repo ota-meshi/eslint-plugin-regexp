@@ -13,21 +13,14 @@ import {
     isEquals,
     isTypeClass,
 } from "./common"
-import { RETURN_VOID, RETURN_BOOLEAN, TypeFunction } from "./function"
+import {
+    RETURN_VOID,
+    RETURN_BOOLEAN,
+    TypeFunction,
+    TypeGlobalFunction,
+} from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-
-export const MAP_TYPES: () => {
-    [key in keyof MapConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof MapConstructor]: TypeInfo | null
-        }
-    >({
-        prototype: null,
-    }),
-)
 
 type MapKeys = keyof Map<unknown, unknown>
 
@@ -147,17 +140,29 @@ export const UNKNOWN_MAP = new TypeMap(
 )
 /** Build Map constructor type */
 export function buildMapConstructor(): TypeFunction {
-    return new TypeFunction(mapConstructor)
+    const MAP_TYPES: () => {
+        [key in keyof MapConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof MapConstructor]: TypeInfo | null
+            }
+        >({
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(mapConstructor, MAP_TYPES)
 }
 
 /**
  * Map constructor type
  */
 function mapConstructor(
-    thisType: (() => TypeInfo | null) | null,
+    _thisType: (() => TypeInfo | null) | null,
     argTypes: ((() => TypeInfo | null) | null)[],
+    meta?: { isConstructor?: boolean },
 ): TypeInfo | null {
-    if (thisType == null) {
+    if (!meta?.isConstructor) {
         return null
     }
     const arg = argTypes[0]?.()

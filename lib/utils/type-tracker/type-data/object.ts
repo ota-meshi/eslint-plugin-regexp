@@ -14,69 +14,9 @@ import {
     RETURN_UNKNOWN_OBJECT,
     TypeFunction,
     UNKNOWN_FUNCTION,
+    TypeGlobalFunction,
 } from "./function"
 
-export const OBJECT_TYPES: () => {
-    [key in keyof ObjectConstructor]: TypeInfo | null
-} = cache(() => {
-    const RETURN_ARG = new TypeFunction(
-        /**
-         * Function Type that Return argument
-         */
-        function returnArg(_selfType, argTypes) {
-            return argTypes[0]?.() ?? null
-        },
-    )
-    const RETURN_ASSIGN = new TypeFunction(
-        /**
-         * Function Type that Return assign objects
-         */
-        function returnAssign(selfType, argTypes) {
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
-            return new TypeObject(function* () {
-                for (const getType of [selfType, ...argTypes].reverse()) {
-                    const s = getType?.()
-                    if (isTypeClass(s) && s.type === "Object") {
-                        yield* s.allProperties()
-                    }
-                }
-            })
-        },
-    )
-    return createObject<
-        {
-            [key in keyof ObjectConstructor]: TypeInfo | null
-        }
-    >({
-        // ES5
-        getPrototypeOf: null,
-        getOwnPropertyDescriptor: null,
-        getOwnPropertyNames: RETURN_STRING_ARRAY,
-        create: null,
-        defineProperty: null,
-        defineProperties: null,
-        seal: RETURN_ARG,
-        freeze: RETURN_ARG,
-        preventExtensions: null,
-        isSealed: RETURN_BOOLEAN,
-        isFrozen: RETURN_BOOLEAN,
-        isExtensible: RETURN_BOOLEAN,
-        keys: RETURN_STRING_ARRAY,
-        // ES2015
-        assign: RETURN_ASSIGN,
-        getOwnPropertySymbols: RETURN_UNKNOWN_ARRAY,
-        is: RETURN_BOOLEAN,
-        setPrototypeOf: null,
-        // ES2017
-        values: RETURN_UNKNOWN_ARRAY,
-        entries: RETURN_UNKNOWN_ARRAY,
-        getOwnPropertyDescriptors: null,
-        // ES2019
-        fromEntries: null,
-
-        prototype: null,
-    })
-})
 export const getObjectPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof object]: TypeInfo | null
@@ -193,3 +133,71 @@ export class TypeObject implements ITypeClass {
 }
 
 export const UNKNOWN_OBJECT = new TypeObject()
+
+/** Build Object constructor type */
+export function buildObjectConstructor(): TypeGlobalFunction {
+    const OBJECT_TYPES: () => {
+        [key in keyof ObjectConstructor]: TypeInfo | null
+    } = cache(() => {
+        const RETURN_ARG = new TypeFunction(
+            /**
+             * Function Type that Return argument
+             */
+            function returnArg(_selfType, argTypes) {
+                return argTypes[0]?.() ?? null
+            },
+        )
+        const RETURN_ASSIGN = new TypeFunction(
+            /**
+             * Function Type that Return assign objects
+             */
+            function returnAssign(selfType, argTypes) {
+                return new TypeObject(function* () {
+                    for (const getType of [selfType, ...argTypes].reverse()) {
+                        const s = getType?.()
+                        if (isTypeClass(s) && s.type === "Object") {
+                            yield* s.allProperties()
+                        }
+                    }
+                })
+            },
+        )
+        return createObject<
+            {
+                [key in keyof ObjectConstructor]: TypeInfo | null
+            }
+        >({
+            // ES5
+            getPrototypeOf: null,
+            getOwnPropertyDescriptor: null,
+            getOwnPropertyNames: RETURN_STRING_ARRAY,
+            create: null,
+            defineProperty: null,
+            defineProperties: null,
+            seal: RETURN_ARG,
+            freeze: RETURN_ARG,
+            preventExtensions: null,
+            isSealed: RETURN_BOOLEAN,
+            isFrozen: RETURN_BOOLEAN,
+            isExtensible: RETURN_BOOLEAN,
+            keys: RETURN_STRING_ARRAY,
+            // ES2015
+            assign: RETURN_ASSIGN,
+            getOwnPropertySymbols: RETURN_UNKNOWN_ARRAY,
+            is: RETURN_BOOLEAN,
+            setPrototypeOf: null,
+            // ES2017
+            values: RETURN_UNKNOWN_ARRAY,
+            entries: RETURN_UNKNOWN_ARRAY,
+            getOwnPropertyDescriptors: null,
+            // ES2019
+            fromEntries: null,
+
+            prototype: null,
+        })
+    })
+    return new TypeGlobalFunction(
+        (thisType) => thisType?.() ?? UNKNOWN_OBJECT,
+        OBJECT_TYPES,
+    )
+}

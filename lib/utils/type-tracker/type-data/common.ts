@@ -8,7 +8,7 @@ export function isTypeClass(
         return false
     }
     const t = typeof type
-    if (t === "string" || t === "symbol" || t === "function") {
+    if (t === "string") {
         return false
     }
     return true
@@ -40,9 +40,6 @@ export function hasType(
     }
     if (typeof result === "string") {
         return result === type
-    }
-    if (typeof result === "function" || typeof result === "symbol") {
-        return type === "Function"
     }
     return result.has(type)
 }
@@ -85,8 +82,6 @@ export class TypeCollection {
         for (const t of this.generator()) {
             if (typeof t === "string") {
                 if (t === type) return true
-            } else if (typeof t === "function" || typeof t === "symbol") {
-                if (type === "Function") return true
             } else {
                 if (t.has(type)) return true
             }
@@ -138,12 +133,6 @@ export class TypeCollection {
                     set.add(t)
                     yield str
                 }
-            } else if (typeof t === "function" || typeof t === "symbol") {
-                const str = "Function"
-                if (!set.has(str)) {
-                    set.add(t)
-                    yield str
-                }
             } else {
                 for (const str of t.typeNames()) {
                     if (!set.has(str)) {
@@ -165,9 +154,6 @@ export function getTypeName(type: TypeInfo | null): string | null {
     }
     if (typeof type === "string") {
         return type
-    }
-    if (typeof type === "function" || typeof type === "symbol") {
-        return "Function"
     }
     return type.typeNames().join("|")
 }

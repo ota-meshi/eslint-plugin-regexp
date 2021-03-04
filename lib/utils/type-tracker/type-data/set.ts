@@ -7,23 +7,14 @@ import type {
 } from "."
 import { isTypeClass } from "."
 import { cache, createObject, getTypeName, isEquals } from "./common"
-import { RETURN_VOID, RETURN_BOOLEAN, TypeFunction } from "./function"
+import {
+    RETURN_VOID,
+    RETURN_BOOLEAN,
+    TypeFunction,
+    TypeGlobalFunction,
+} from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-
-export const RETURN_UNKNOWN_SET = returnUnknownSet
-
-export const SET_TYPES: () => {
-    [key in keyof SetConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof SetConstructor]: TypeInfo | null
-        }
-    >({
-        prototype: null,
-    }),
-)
 
 type SetKeys = keyof Set<unknown>
 
@@ -105,29 +96,34 @@ export class TypeSet implements ITypeClass {
 export const UNKNOWN_SET = new TypeSet(() => null)
 /** Build Set constructor type */
 export function buildSetConstructor(): TypeFunction {
-    return new TypeFunction(setConstructor)
+    const SET_TYPES: () => {
+        [key in keyof SetConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof SetConstructor]: TypeInfo | null
+            }
+        >({
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(setConstructor, SET_TYPES)
 }
 
 /**
  * Set constructor type
  */
 function setConstructor(
-    thisType: (() => TypeInfo | null) | null,
+    _thisType: (() => TypeInfo | null) | null,
     argTypes: ((() => TypeInfo | null) | null)[],
+    meta?: { isConstructor?: boolean },
 ): TypeInfo | null {
-    if (thisType == null) {
+    if (!meta?.isConstructor) {
         return null
     }
     const arg = argTypes[0]?.()
     if (isTypeClass(arg)) {
         return new TypeSet(() => arg.iterateType())
     }
-    return UNKNOWN_SET
-}
-
-/**
- * Function Type that Return unknown array
- */
-function returnUnknownSet(): TypeSet {
     return UNKNOWN_SET
 }

@@ -12,6 +12,7 @@ import {
     RETURN_VOID,
     TypeFunction,
     RETURN_BOOLEAN,
+    TypeGlobalFunction,
 } from "./function"
 import {
     cache,
@@ -25,23 +26,6 @@ import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
-
-export const ARRAY_TYPES: () => {
-    [key in keyof ArrayConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof ArrayConstructor]: TypeInfo | null
-        }
-    >({
-        // ES5
-        isArray: RETURN_BOOLEAN,
-        // ES2015
-        from: RETURN_UNKNOWN_ARRAY,
-        of: RETURN_UNKNOWN_ARRAY,
-        prototype: null,
-    }),
-)
 
 const getPrototypes = cache(() => {
     const RETURN_ARRAY_ELEMENT = new TypeFunction(
@@ -204,3 +188,24 @@ export class TypeArray implements ITypeClass {
 }
 export const UNKNOWN_ARRAY = new TypeArray()
 export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
+
+/** Build Array constructor type */
+export function buildArrayConstructor(): TypeGlobalFunction {
+    const ARRAY_TYPES: () => {
+        [key in keyof ArrayConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof ArrayConstructor]: TypeInfo | null
+            }
+        >({
+            // ES5
+            isArray: RETURN_BOOLEAN,
+            // ES2015
+            from: RETURN_UNKNOWN_ARRAY,
+            of: RETURN_UNKNOWN_ARRAY,
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
+}

@@ -26,12 +26,13 @@ import { STRING } from "./string"
 type FunctionArg = (
     thisType: (() => TypeInfo | null) | null,
     argTypes: ((() => TypeInfo | null) | null)[],
+    meta?: { isConstructor?: boolean },
 ) => TypeInfo | null
 
 export class TypeFunction implements ITypeClass {
     public type = "Function" as const
 
-    public fn: FunctionArg
+    private readonly fn: FunctionArg
 
     public constructor(fn: FunctionArg) {
         this.fn = fn
@@ -44,8 +45,9 @@ export class TypeFunction implements ITypeClass {
     public returnType(
         thisType: (() => TypeInfo | null) | null,
         argTypes: ((() => TypeInfo | null) | null)[],
+        meta?: { isConstructor?: boolean },
     ): TypeInfo | null {
-        return this.fn(thisType, argTypes)
+        return this.fn(thisType, argTypes, meta)
     }
 
     public paramType(): null {
@@ -70,6 +72,37 @@ export class TypeFunction implements ITypeClass {
     }
 }
 
+export class TypeGlobalFunction extends TypeFunction {
+    private readonly getProps: () => {
+        [key: string]: TypeInfo | null
+    }
+
+    public constructor(
+        fn: FunctionArg,
+        getProps: () => {
+            [key: string]: TypeInfo | null
+        },
+    ) {
+        super(fn)
+        this.getProps = getProps
+    }
+
+    public propertyType(name: string): TypeInfo | null {
+        return this.getProps()[name] || super.propertyType(name)
+    }
+}
+
+/** Build Function constructor type */
+export function buildFunctionConstructor(): TypeGlobalFunction {
+    const FUNCTION_TYPES: () => {
+        [key in keyof FunctionConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject({
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(returnFunction, FUNCTION_TYPES)
+}
 export const UNKNOWN_FUNCTION = new TypeFunction(returnUnknown)
 
 export const RETURN_UNKNOWN_FUNCTION = new TypeFunction(returnFunction)

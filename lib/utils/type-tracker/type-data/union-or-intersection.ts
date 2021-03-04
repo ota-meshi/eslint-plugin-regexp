@@ -7,7 +7,6 @@ import type {
 } from "."
 import { isTypeClass } from "."
 import { isEquals, TypeCollection } from "./common"
-import { getFunctionPrototypes } from "./function"
 
 export class TypeUnionOrIntersection implements ITypeClass {
     public type = "TypeUnionOrIntersection" as const
@@ -32,8 +31,6 @@ export class TypeUnionOrIntersection implements ITypeClass {
             for (const type of baseCollection.all()) {
                 const propType = isTypeClass(type)
                     ? type.propertyType(name)
-                    : typeof type === "function"
-                    ? getFunctionPrototypes()[name as never]
                     : null
                 if (propType) {
                     yield propType

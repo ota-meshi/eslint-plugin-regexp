@@ -22,10 +22,7 @@ import {
     UNKNOWN_FUNCTION,
     BI_OPERATOR_TYPES,
     UN_OPERATOR_TYPES,
-    GLOBAL_FACTORY_FUNCTIONS,
-    GLOBAL_FACTORIES,
-    GLOBAL_FACTORY_TYPES,
-    GLOBAL_OBJECTS_PROP_TYPES,
+    GLOBAL,
     TypeUnionOrIntersection,
     isTypeClass,
     TypeMap,
@@ -100,9 +97,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
         if (typeof result === "string") {
             return [result]
-        }
-        if (typeof result === "function" || typeof result === "symbol") {
-            return ["Function"]
         }
         return result.typeNames()
     }
@@ -366,9 +360,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                     }
                 } else if (variable.defs.length === 0) {
                     // globals
-                    const type =
-                        GLOBAL_FACTORIES[node.name] ||
-                        GLOBAL_FACTORY_FUNCTIONS[node.name]
+                    const type = GLOBAL.propertyType(node.name)
                     if (type) {
                         return type
                     }
@@ -377,7 +369,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         } else if (node.type === "NewExpression") {
             if (node.callee.type !== "Super") {
                 const type = getType(node.callee)
-                if (typeof type === "symbol") {
+                if (isTypeClass(type)) {
                     const argTypes: ((() => TypeInfo | null) | null)[] = []
                     for (const arg of node.arguments) {
                         argTypes.push(
@@ -388,10 +380,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                   },
                         )
                     }
-                    return GLOBAL_FACTORY_TYPES[type].returnType(
-                        () => UNKNOWN_FUNCTION,
-                        argTypes,
-                    )
+                    return type.returnType(null, argTypes, {
+                        isConstructor: true,
+                    })
                 }
             }
         } else if (
@@ -418,10 +409,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 if (isTypeClass(type)) {
                     return type.returnType(null, argTypes)
                 }
-                if (typeof type === "symbol") {
-                    // e.g. String(foo)
-                    return GLOBAL_FACTORY_TYPES[type].returnType(null, argTypes)
-                }
             } else if (callee.type === "MemberExpression") {
                 const mem = callee
                 if (mem.object.type !== "Super") {
@@ -445,17 +432,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             return STRING
                         }
                         const objectType = getType(mem.object)
-                        if (typeof objectType === "symbol") {
-                            const propTypes =
-                                GLOBAL_OBJECTS_PROP_TYPES[objectType]
-                            if (propTypes) {
-                                const type = propTypes()[propertyName]
-                                if (isTypeClass(type)) {
-                                    // e.g. String.fromCodePoint(foo)
-                                    return type.returnType(null, argTypes)
-                                }
-                            }
-                        }
                         if (isTypeClass(objectType)) {
                             const type = objectType.propertyType(propertyName)
                             if (isTypeClass(type)) {
@@ -484,16 +460,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 }
                 if (propertyName != null) {
                     const objectType = getType(node.object)
-                    if (typeof objectType === "symbol") {
-                        const propTypes = GLOBAL_OBJECTS_PROP_TYPES[objectType]
-                        if (propTypes) {
-                            const type = propTypes()[propertyName]
-                            if (type) {
-                                // e.g. Number.MAX_VALUE
-                                return type
-                            }
-                        }
-                    }
                     if (isTypeClass(objectType)) {
                         const type = objectType.propertyType(propertyName)
                         if (type) {

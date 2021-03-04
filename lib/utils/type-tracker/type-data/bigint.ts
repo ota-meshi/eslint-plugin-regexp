@@ -6,22 +6,9 @@ import type {
     TypeInfo,
 } from "."
 import { cache, createObject } from "./common"
-import { RETURN_BIGINT, RETURN_STRING } from "./function"
+import { RETURN_BIGINT, RETURN_STRING, TypeGlobalFunction } from "./function"
 import { getObjectPrototypes } from "./object"
 
-export const BIGINT_TYPES: () => {
-    [key in keyof BigIntConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof BigIntConstructor]: TypeInfo | null
-        }
-    >({
-        asIntN: RETURN_BIGINT,
-        asUintN: RETURN_BIGINT,
-        prototype: null,
-    }),
-)
 export class TypeBigInt implements ITypeClass {
     public type = "BigInt" as const
 
@@ -56,6 +43,23 @@ export class TypeBigInt implements ITypeClass {
 }
 export const BIGINT = new TypeBigInt()
 
+/** Build BigInt constructor type */
+export function buildBigIntConstructor(): TypeGlobalFunction {
+    const BIGINT_TYPES: () => {
+        [key in keyof BigIntConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof BigIntConstructor]: TypeInfo | null
+            }
+        >({
+            asIntN: RETURN_BIGINT,
+            asUintN: RETURN_BIGINT,
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => BIGINT, BIGINT_TYPES)
+}
 const getPrototypes: () => {
     [key in keyof BigInt]: TypeInfo | null
 } = cache(() =>

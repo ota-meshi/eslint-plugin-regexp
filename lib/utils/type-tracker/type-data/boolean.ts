@@ -6,20 +6,9 @@ import type {
     TypeInfo,
 } from "."
 import { cache, createObject } from "./common"
-import { RETURN_BOOLEAN } from "./function"
+import { RETURN_BOOLEAN, TypeGlobalFunction } from "./function"
 import { getObjectPrototypes } from "./object"
 
-export const BOOLEAN_TYPES: () => {
-    [key in keyof BooleanConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof BooleanConstructor]: TypeInfo | null
-        }
-    >({
-        prototype: null,
-    }),
-)
 export class TypeBoolean implements ITypeClass {
     public type = "Boolean" as const
 
@@ -53,6 +42,22 @@ export class TypeBoolean implements ITypeClass {
     }
 }
 export const BOOLEAN = new TypeBoolean()
+
+/** Build BigInt constructor type */
+export function buildBooleanConstructor(): TypeGlobalFunction {
+    const BOOLEAN_TYPES: () => {
+        [key in keyof BooleanConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof BooleanConstructor]: TypeInfo | null
+            }
+        >({
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => BOOLEAN, BOOLEAN_TYPES)
+}
 
 const getPrototypes: () => {
     [key in keyof boolean]: TypeInfo | null

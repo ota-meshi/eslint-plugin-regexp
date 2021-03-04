@@ -11,27 +11,11 @@ import {
     RETURN_STRING_ARRAY,
     RETURN_BOOLEAN,
     RETURN_NUMBER,
+    TypeGlobalFunction,
 } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
-export const STRING_TYPES: () => {
-    [key in keyof StringConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
-        {
-            [key in keyof StringConstructor]: TypeInfo | null
-        }
-    >({
-        // ES5
-        fromCharCode: RETURN_STRING,
-        // ES2015
-        fromCodePoint: RETURN_STRING,
-        raw: RETURN_STRING,
-
-        prototype: null,
-    }),
-)
 export class TypeString implements ITypeClass {
     public type = "String" as const
 
@@ -68,6 +52,28 @@ export class TypeString implements ITypeClass {
     }
 }
 export const STRING = new TypeString()
+
+/** Build String constructor type */
+export function buildStringConstructor(): TypeGlobalFunction {
+    const STRING_TYPES: () => {
+        [key in keyof StringConstructor]: TypeInfo | null
+    } = cache(() =>
+        createObject<
+            {
+                [key in keyof StringConstructor]: TypeInfo | null
+            }
+        >({
+            // ES5
+            fromCharCode: RETURN_STRING,
+            // ES2015
+            fromCodePoint: RETURN_STRING,
+            raw: RETURN_STRING,
+
+            prototype: null,
+        }),
+    )
+    return new TypeGlobalFunction(() => STRING, STRING_TYPES)
+}
 
 const getPrototypes: () => {
     [key in keyof string]: TypeInfo | null
