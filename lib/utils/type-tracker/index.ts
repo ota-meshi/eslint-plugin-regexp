@@ -313,6 +313,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             }
                         }
                     } else if (def.type === "Parameter") {
+                        // e.g. function (arg) {}
                         const fnJsdoc = getJSDoc(def.node, context)
                         if (fnJsdoc) {
                             const jsdocParams = fnJsdoc.parseParams()
@@ -331,7 +332,27 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                 }
                             }
                         }
+                        const parent = getParent(def.name)
+                        if (parent?.type === "RestElement") {
+                            const pp = getParent(parent)
+                            if (pp) {
+                                if (pp.type === "ArrayPattern") {
+                                    return UNKNOWN_ARRAY
+                                }
+                                if (pp.type === "ObjectPattern") {
+                                    return UNKNOWN_OBJECT
+                                }
+                                if (
+                                    pp.type === "FunctionExpression" ||
+                                    pp.type === "FunctionDeclaration" ||
+                                    pp.type === "ArrowFunctionExpression"
+                                ) {
+                                    return UNKNOWN_ARRAY
+                                }
+                            }
+                        }
                     } else if (def.type === "FunctionName") {
+                        // e.g. function target () {}
                         const fnJsdoc = getJSDoc(def.node, context)
                         if (fnJsdoc) {
                             const type = typeTextToTypeInfo(

@@ -256,14 +256,14 @@ const TESTCASES: TestCase[] = [
         const a = [...[].concat(is), ss]
         a
         `,
-        type: ["Array<Array<String>|Number>"],
+        type: "Array<Array<String>|Number>",
     },
     {
         code: `
         const obj = {a: 'foo'}
         obj.a
         `,
-        type: ["String"],
+        type: "String",
     },
     {
         code: `
@@ -272,7 +272,7 @@ const TESTCASES: TestCase[] = [
         const obj3 = {a: true, ...obj1, ...obj2}
         obj3.a
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
@@ -281,7 +281,7 @@ const TESTCASES: TestCase[] = [
         const obj3 = {...obj1, ...obj2, a: true}
         obj3.a
         `,
-        type: ["Boolean"],
+        type: "Boolean",
     },
     {
         code: `
@@ -290,7 +290,7 @@ const TESTCASES: TestCase[] = [
         const obj3 = Object.assign({a: true}, obj1, obj2)
         obj3.a
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
@@ -299,27 +299,27 @@ const TESTCASES: TestCase[] = [
         const obj3 = Object.assign(obj1, obj2, {a: true})
         obj3.a
         `,
-        type: ["Boolean"],
+        type: "Boolean",
     },
     {
         code: `
         const f = parseFloat
         f(a)
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
         const obj = { foo: parseFloat }
         obj.foo(a)
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
         Number.MAX_VALUE
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
@@ -328,7 +328,7 @@ const TESTCASES: TestCase[] = [
             e
         }
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
@@ -337,34 +337,34 @@ const TESTCASES: TestCase[] = [
             e
         }
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
         const a = new Map([[1,2]])
         a.size
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
         const a = new Map([['a',1], ['b',2]])
         a.get('a')
         `,
-        type: ["Number"],
+        type: "Number",
     },
     {
         code: `
         const a = new Map([[1,'a'], [2,'b']])
         a.get(1)
         `,
-        type: ["String"],
+        type: "String",
     },
     {
         code: `
         BigInt.asIntN(64, v)
         `,
-        type: ["BigInt"],
+        type: "BigInt",
     },
     {
         code: `
@@ -377,20 +377,28 @@ const TESTCASES: TestCase[] = [
         code: `
         1n + 2n
         `,
-        type: ["BigInt"],
+        type: "BigInt",
     },
     {
         code: `
         1n * 2n
         `,
-        type: ["BigInt"],
+        type: "BigInt",
     },
     {
         code: `
         const a = 2n;
         -a
         `,
-        type: ["BigInt"],
+        type: "BigInt",
+    },
+    {
+        code: `
+        function f(...a) {
+            a.length
+        }
+        `,
+        type: "Number",
     },
     {
         code: `
@@ -610,6 +618,88 @@ const TESTCASES: TestCase[] = [
         }
         `,
         type: "String",
+    },
+    {
+        code: `
+        /** @type {boolean} */
+        let bool
+        bool
+        `,
+        type: "Boolean",
+    },
+    {
+        code: `
+        /** @type {BigInt} */
+        let bigint
+        bigint
+        `,
+        type: "BigInt",
+    },
+    {
+        code: `
+        /** @type {RegExp} */
+        let regexp
+        regexp
+        `,
+        type: "RegExp",
+    },
+    {
+        code: `
+        /** @type {function} */
+        let fn
+        fn
+        `,
+        type: "Function",
+    },
+    {
+        code: `
+        /** @type {object} */
+        let obj
+        obj
+        `,
+        type: "Object",
+    },
+    {
+        code: `
+        /** @type {Record<string, number>} */
+        let rec
+        `,
+        type: "Object",
+    },
+    {
+        code: `
+        /** @type {?} */
+        let a
+        a
+        `,
+        type: [],
+    },
+    {
+        code: `
+        /** @param {...} a */
+        function f(a) {
+            a.length
+        }
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /** @param {...number} a */
+        function f(...a) {
+            a[1]
+        }
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        /** @param {number=} a */
+        function f(a) {
+            a
+        }
+        `,
+        type: "Number",
     },
 ]
 describe("type track", () => {
