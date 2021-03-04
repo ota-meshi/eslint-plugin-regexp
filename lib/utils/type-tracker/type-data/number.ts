@@ -5,12 +5,9 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { RETURN_BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
+import { RETURN_NUMBER, RETURN_STRING, RETURN_BOOLEAN } from "./function"
 import { getObjectPrototypes } from "./object"
-import { RETURN_STRING } from "./string"
-
-export const RETURN_NUMBER = returnNumber
 
 export class TypeNumber implements ITypeClass {
     public type = "Number" as const
@@ -29,6 +26,10 @@ export class TypeNumber implements ITypeClass {
     }
 
     public iterateType(): null {
+        return null
+    }
+
+    public returnType(): null {
         return null
     }
 
@@ -89,8 +90,3 @@ const getPrototypes: () => {
         toLocaleString: RETURN_STRING,
     }),
 )
-
-/** Function Type that Return number */
-function returnNumber(): TypeNumber {
-    return NUMBER
-}

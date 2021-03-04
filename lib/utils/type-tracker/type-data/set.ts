@@ -6,15 +6,8 @@ import type {
     TypeInfo,
 } from "."
 import { isTypeClass } from "."
-import { RETURN_BOOLEAN } from "./boolean"
-import {
-    cache,
-    createObject,
-    getTypeName,
-    isEquals,
-    RETURN_VOID,
-} from "./common"
-import type { FunctionType } from "./function"
+import { cache, createObject, getTypeName, isEquals } from "./common"
+import { RETURN_VOID, RETURN_BOOLEAN, TypeFunction } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
@@ -36,8 +29,16 @@ type SetKeys = keyof Set<unknown>
 
 const getPrototypes: () => {
     [key in SetKeys]: TypeInfo | null
-} = cache(() =>
-    createObject<
+} = cache(() => {
+    const RETURN_SELF = new TypeFunction(
+        /**
+         * Function Type that Return self array
+         */
+        function returnSelf(selfType) {
+            return selfType?.() ?? null
+        },
+    )
+    return createObject<
         {
             [key in SetKeys]: TypeInfo | null
         }
@@ -48,13 +49,13 @@ const getPrototypes: () => {
         delete: RETURN_BOOLEAN,
         forEach: RETURN_VOID,
         has: RETURN_BOOLEAN,
-        add: returnSelf,
+        add: RETURN_SELF,
         size: NUMBER,
         entries: null,
         keys: null,
         values: null,
-    }),
-)
+    })
+})
 
 export class TypeSet implements ITypeClass {
     public type = "Set" as const
@@ -84,6 +85,10 @@ export class TypeSet implements ITypeClass {
         return this.paramType(0)
     }
 
+    public returnType(): null {
+        return null
+    }
+
     public typeNames(): string[] {
         const param0 = getTypeName(this.paramType(0))
         return [`Set${param0 != null ? `<${param0}>` : ""}`]
@@ -98,13 +103,17 @@ export class TypeSet implements ITypeClass {
 }
 
 export const UNKNOWN_SET = new TypeSet(() => null)
-export const SET_CONSTRUCTOR = setConstructor
+/** Build Set constructor type */
+export function buildSetConstructor(): TypeFunction {
+    return new TypeFunction(setConstructor)
+}
 
 /**
  * Set constructor type
  */
 function setConstructor(
-    ...[thisType, argTypes]: Parameters<FunctionType>
+    thisType: (() => TypeInfo | null) | null,
+    argTypes: ((() => TypeInfo | null) | null)[],
 ): TypeInfo | null {
     if (thisType == null) {
         return null
@@ -121,13 +130,4 @@ function setConstructor(
  */
 function returnUnknownSet(): TypeSet {
     return UNKNOWN_SET
-}
-
-/**
- * Function Type that Return self Set
- */
-function returnSelf(
-    selfType: Parameters<FunctionType>[0],
-): ReturnType<FunctionType> {
-    return selfType?.() ?? null
 }

@@ -6,20 +6,16 @@ import type {
     TypeInfo,
 } from "."
 import { TypeArray } from "./array"
-import { RETURN_BOOLEAN } from "./boolean"
 import {
     cache,
     createObject,
     getTypeName,
     isEquals,
     isTypeClass,
-    RETURN_VOID,
 } from "./common"
-import type { FunctionType } from "./function"
+import { RETURN_VOID, RETURN_BOOLEAN, TypeFunction } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-
-export const RETURN_UNKNOWN_MAP = returnUnknownMap
 
 export const MAP_TYPES: () => {
     [key in keyof MapConstructor]: TypeInfo | null
@@ -37,8 +33,28 @@ type MapKeys = keyof Map<unknown, unknown>
 
 const getPrototypes: () => {
     [key in MapKeys]: TypeInfo | null
-} = cache(() =>
-    createObject<
+} = cache(() => {
+    const RETURN_MAP_VALUE = new TypeFunction(
+        /**
+         * Function Type that Return Map value
+         */
+        function returnMapValue(selfType) {
+            const type = selfType?.()
+            if (!isTypeClass(type)) {
+                return null
+            }
+            return type.paramType(1)
+        },
+    )
+    const RETURN_SELF = new TypeFunction(
+        /**
+         * Function Type that Return self array
+         */
+        function returnSelf(selfType) {
+            return selfType?.() ?? null
+        },
+    )
+    return createObject<
         {
             [key in MapKeys]: TypeInfo | null
         }
@@ -48,15 +64,15 @@ const getPrototypes: () => {
         clear: RETURN_VOID,
         delete: RETURN_BOOLEAN,
         forEach: RETURN_VOID,
-        get: returnMapValue,
+        get: RETURN_MAP_VALUE,
         has: RETURN_BOOLEAN,
-        set: returnSelf,
+        set: RETURN_SELF,
         size: NUMBER,
         entries: null,
         keys: null,
         values: null,
-    }),
-)
+    })
+})
 
 export class TypeMap implements ITypeClass {
     public type = "Map" as const
@@ -100,6 +116,10 @@ export class TypeMap implements ITypeClass {
         })
     }
 
+    public returnType(): null {
+        return null
+    }
+
     public typeNames(): string[] {
         const param0 = getTypeName(this.paramType(0))
         const param1 = getTypeName(this.paramType(1))
@@ -125,13 +145,17 @@ export const UNKNOWN_MAP = new TypeMap(
     () => null,
     () => null,
 )
-export const MAP_CONSTRUCTOR = mapConstructor
+/** Build Map constructor type */
+export function buildMapConstructor(): TypeFunction {
+    return new TypeFunction(mapConstructor)
+}
 
 /**
  * Map constructor type
  */
 function mapConstructor(
-    ...[thisType, argTypes]: Parameters<FunctionType>
+    thisType: (() => TypeInfo | null) | null,
+    argTypes: ((() => TypeInfo | null) | null)[],
 ): TypeInfo | null {
     if (thisType == null) {
         return null
@@ -147,33 +171,4 @@ function mapConstructor(
         }
     }
     return UNKNOWN_MAP
-}
-
-/**
- * Function Type that Return unknown array
- */
-function returnUnknownMap(): TypeMap {
-    return UNKNOWN_MAP
-}
-
-/**
- * Function Type that Return Map value
- */
-function returnMapValue(
-    selfType: Parameters<FunctionType>[0],
-): ReturnType<FunctionType> {
-    const type = selfType?.()
-    if (!isTypeClass(type)) {
-        return null
-    }
-    return type.paramType(1)
-}
-
-/**
- * Function Type that Return self Map
- */
-function returnSelf(
-    selfType: Parameters<FunctionType>[0],
-): ReturnType<FunctionType> {
-    return selfType?.() ?? null
 }

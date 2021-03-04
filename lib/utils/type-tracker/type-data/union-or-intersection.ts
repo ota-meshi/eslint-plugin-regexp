@@ -70,6 +70,30 @@ export class TypeUnionOrIntersection implements ITypeClass {
         return new TypeUnionOrIntersection(() => collection.all())
     }
 
+    public returnType(
+        thisType: (() => TypeInfo | null) | null,
+        argTypes: ((() => TypeInfo | null) | null)[],
+    ): TypeInfo | null {
+        const baseCollection = this.collection
+        const collection = new TypeCollection(function* () {
+            for (const type of baseCollection.all()) {
+                if (isTypeClass(type)) {
+                    const itrType = type.returnType(thisType, argTypes)
+                    if (itrType) {
+                        yield itrType
+                    }
+                }
+            }
+        })
+        if (collection.isOneType()) {
+            for (const t of collection.all()) {
+                return t
+            }
+            return null
+        }
+        return new TypeUnionOrIntersection(() => collection.all())
+    }
+
     public typeNames(): string[] {
         // eslint-disable-next-line @typescript-eslint/require-array-sort-compare -- ignore
         return [...this.collection.strings()].sort()

@@ -5,20 +5,45 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { isTypeClass } from "."
-import { RETURN_STRING_ARRAY, RETURN_UNKNOWN_ARRAY } from "./array"
-import { RETURN_BOOLEAN } from "./boolean"
-import { cache, createObject, isEquals } from "./common"
-import type { FunctionType } from "./function"
-import { UNKNOWN_FUNCTION } from "./function"
-import { RETURN_STRING } from "./string"
-
-export const RETURN_OBJECT = returnObject
+import { cache, createObject, isEquals, isTypeClass } from "./common"
+import {
+    RETURN_STRING,
+    RETURN_BOOLEAN,
+    RETURN_STRING_ARRAY,
+    RETURN_UNKNOWN_ARRAY,
+    RETURN_UNKNOWN_OBJECT,
+    TypeFunction,
+    UNKNOWN_FUNCTION,
+} from "./function"
 
 export const OBJECT_TYPES: () => {
     [key in keyof ObjectConstructor]: TypeInfo | null
-} = cache(() =>
-    createObject<
+} = cache(() => {
+    const RETURN_ARG = new TypeFunction(
+        /**
+         * Function Type that Return argument
+         */
+        function returnArg(_selfType, argTypes) {
+            return argTypes[0]?.() ?? null
+        },
+    )
+    const RETURN_ASSIGN = new TypeFunction(
+        /**
+         * Function Type that Return assign objects
+         */
+        function returnAssign(selfType, argTypes) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return new TypeObject(function* () {
+                for (const getType of [selfType, ...argTypes].reverse()) {
+                    const s = getType?.()
+                    if (isTypeClass(s) && s.type === "Object") {
+                        yield* s.allProperties()
+                    }
+                }
+            })
+        },
+    )
+    return createObject<
         {
             [key in keyof ObjectConstructor]: TypeInfo | null
         }
@@ -30,15 +55,15 @@ export const OBJECT_TYPES: () => {
         create: null,
         defineProperty: null,
         defineProperties: null,
-        seal: returnArg,
-        freeze: returnArg,
+        seal: RETURN_ARG,
+        freeze: RETURN_ARG,
         preventExtensions: null,
         isSealed: RETURN_BOOLEAN,
         isFrozen: RETURN_BOOLEAN,
         isExtensible: RETURN_BOOLEAN,
         keys: RETURN_STRING_ARRAY,
         // ES2015
-        assign: returnAssign,
+        assign: RETURN_ASSIGN,
         getOwnPropertySymbols: RETURN_UNKNOWN_ARRAY,
         is: RETURN_BOOLEAN,
         setPrototypeOf: null,
@@ -50,8 +75,8 @@ export const OBJECT_TYPES: () => {
         fromEntries: null,
 
         prototype: null,
-    }),
-)
+    })
+})
 export const getObjectPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof object]: TypeInfo | null
@@ -66,7 +91,7 @@ export const getObjectPrototypes: () => {
         constructor: UNKNOWN_FUNCTION,
         toString: RETURN_STRING,
         toLocaleString: RETURN_STRING,
-        valueOf: RETURN_OBJECT,
+        valueOf: RETURN_UNKNOWN_OBJECT,
         hasOwnProperty: RETURN_BOOLEAN,
         isPrototypeOf: RETURN_BOOLEAN,
         propertyIsEnumerable: RETURN_BOOLEAN,
@@ -124,6 +149,10 @@ export class TypeObject implements ITypeClass {
         return this
     }
 
+    public returnType(): null {
+        return null
+    }
+
     public typeNames(): string[] {
         return ["Object"]
     }
@@ -164,35 +193,3 @@ export class TypeObject implements ITypeClass {
 }
 
 export const UNKNOWN_OBJECT = new TypeObject()
-
-/**
- * Function Type that Return argument
- */
-function returnArg(
-    _selfType: Parameters<FunctionType>[0],
-    argTypes: Parameters<FunctionType>[1],
-): ReturnType<FunctionType> {
-    return argTypes[0]?.() ?? null
-}
-
-/**
- * Function Type that Return assign objects
- */
-function returnAssign(
-    selfType: Parameters<FunctionType>[0],
-    argTypes: Parameters<FunctionType>[1],
-): ReturnType<FunctionType> {
-    return new TypeObject(function* () {
-        for (const getType of [selfType, ...argTypes].reverse()) {
-            const s = getType?.()
-            if (isTypeClass(s) && s.type === "Object") {
-                yield* s.allProperties()
-            }
-        }
-    })
-}
-
-/** Function Type that Return Object */
-function returnObject(): TypeObject {
-    return UNKNOWN_OBJECT
-}

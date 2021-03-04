@@ -6,9 +6,8 @@ import type {
     TypeInfo,
 } from "."
 import { cache, createObject } from "./common"
+import { RETURN_BOOLEAN } from "./function"
 import { getObjectPrototypes } from "./object"
-
-export const RETURN_BOOLEAN = returnBoolean
 
 export const BOOLEAN_TYPES: () => {
     [key in keyof BooleanConstructor]: TypeInfo | null
@@ -41,6 +40,10 @@ export class TypeBoolean implements ITypeClass {
         return null
     }
 
+    public returnType(): null {
+        return null
+    }
+
     public typeNames(): string[] {
         return ["Boolean"]
     }
@@ -64,8 +67,3 @@ const getPrototypes: () => {
         valueOf: RETURN_BOOLEAN,
     }),
 )
-
-/** Function Type that Return boolean */
-function returnBoolean(): TypeBoolean {
-    return BOOLEAN
-}

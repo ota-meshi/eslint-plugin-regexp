@@ -5,14 +5,12 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { RETURN_STRING_ARRAY } from "./array"
-import { BOOLEAN, RETURN_BOOLEAN } from "./boolean"
+import { BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
+import { RETURN_REGEXP, RETURN_STRING_ARRAY, RETURN_BOOLEAN } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
-
-export const RETURN_REGEXP = returnRegExp
 
 export class TypeRegExp implements ITypeClass {
     public type = "RegExp" as const
@@ -31,6 +29,10 @@ export class TypeRegExp implements ITypeClass {
     }
 
     public iterateType(): null {
+        return null
+    }
+
+    public returnType(): null {
         return null
     }
 
@@ -92,8 +94,3 @@ const getPrototypes: () => {
         dotAll: BOOLEAN, // prop
     }),
 )
-
-/** Function Type that Return RegExp */
-function returnRegExp(): TypeRegExp {
-    return REGEXP
-}

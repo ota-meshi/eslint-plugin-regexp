@@ -6,10 +6,8 @@ import type {
     TypeInfo,
 } from "."
 import { cache, createObject } from "./common"
+import { RETURN_BIGINT, RETURN_STRING } from "./function"
 import { getObjectPrototypes } from "./object"
-import { RETURN_STRING } from "./string"
-
-export const RETURN_BIGINT = returnBigInt
 
 export const BIGINT_TYPES: () => {
     [key in keyof BigIntConstructor]: TypeInfo | null
@@ -44,6 +42,10 @@ export class TypeBigInt implements ITypeClass {
         return null
     }
 
+    public returnType(): null {
+        return null
+    }
+
     public typeNames(): string[] {
         return ["BigInt"]
     }
@@ -68,8 +70,3 @@ const getPrototypes: () => {
         valueOf: RETURN_BIGINT,
     }),
 )
-
-/** Function Type that Return BigInt */
-function returnBigInt(): TypeBigInt {
-    return BIGINT
-}

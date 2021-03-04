@@ -9,6 +9,7 @@ import {
 } from "./utils"
 import type { TypeInfo } from "./type-data"
 import {
+    TypeFunction,
     UNKNOWN_ARRAY,
     UNKNOWN_OBJECT,
     STRING,
@@ -22,7 +23,6 @@ import {
     BI_OPERATOR_TYPES,
     UN_OPERATOR_TYPES,
     GLOBAL_FACTORY_FUNCTIONS,
-    PROTO_TYPES,
     GLOBAL_FACTORIES,
     GLOBAL_FACTORY_TYPES,
     GLOBAL_OBJECTS_PROP_TYPES,
@@ -181,7 +181,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             if (jsdoc) {
                 const type = typeTextToTypeInfo(jsdoc.getTag("returns")?.type)
                 if (type) {
-                    return () => type
+                    return new TypeFunction(() => type)
                 }
             }
             return UNKNOWN_FUNCTION
@@ -281,7 +281,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             )
                             if (returnType) {
                                 // e.g. /** @returns {Foo} */
-                                return () => returnType
+                                return new TypeFunction(() => returnType)
                             }
                         }
                         if (def.parent.kind === "const") {
@@ -359,7 +359,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                 fnJsdoc.getTag("returns")?.type,
                             )
                             if (type) {
-                                return () => type
+                                return new TypeFunction(() => type)
                             }
                         }
                         return UNKNOWN_FUNCTION
@@ -388,7 +388,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                   },
                         )
                     }
-                    return GLOBAL_FACTORY_TYPES[type](
+                    return GLOBAL_FACTORY_TYPES[type].returnType(
                         () => UNKNOWN_FUNCTION,
                         argTypes,
                     )
@@ -415,12 +415,12 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 node.type === "CallExpression" ? node.callee : node.tag
             if (callee.type === "Identifier") {
                 const type = getType(callee)
-                if (typeof type === "function") {
-                    return type(null, argTypes)
+                if (isTypeClass(type)) {
+                    return type.returnType(null, argTypes)
                 }
                 if (typeof type === "symbol") {
                     // e.g. String(foo)
-                    return GLOBAL_FACTORY_TYPES[type](null, argTypes)
+                    return GLOBAL_FACTORY_TYPES[type].returnType(null, argTypes)
                 }
             } else if (callee.type === "MemberExpression") {
                 const mem = callee
@@ -450,24 +450,19 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                                 GLOBAL_OBJECTS_PROP_TYPES[objectType]
                             if (propTypes) {
                                 const type = propTypes()[propertyName]
-                                if (typeof type === "function") {
+                                if (isTypeClass(type)) {
                                     // e.g. String.fromCodePoint(foo)
-                                    return type(null, argTypes)
-                                }
-                            }
-                        }
-                        for (const [checkType, protoTypes] of PROTO_TYPES) {
-                            if (protoTypes && hasType(objectType, checkType)) {
-                                const type = protoTypes[propertyName]
-                                if (typeof type === "function") {
-                                    return type(() => objectType, argTypes)
+                                    return type.returnType(null, argTypes)
                                 }
                             }
                         }
                         if (isTypeClass(objectType)) {
                             const type = objectType.propertyType(propertyName)
-                            if (typeof type === "function") {
-                                return type(() => objectType, argTypes)
+                            if (isTypeClass(type)) {
+                                return type.returnType(
+                                    () => objectType,
+                                    argTypes,
+                                )
                             }
                         }
                     }
@@ -495,14 +490,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             const type = propTypes()[propertyName]
                             if (type) {
                                 // e.g. Number.MAX_VALUE
-                                return type
-                            }
-                        }
-                    }
-                    for (const [checkType, protoTypes] of PROTO_TYPES) {
-                        if (protoTypes && hasType(objectType, checkType)) {
-                            const type = protoTypes[propertyName]
-                            if (type) {
                                 return type
                             }
                         }

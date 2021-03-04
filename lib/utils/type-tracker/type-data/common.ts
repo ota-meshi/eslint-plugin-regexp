@@ -1,12 +1,5 @@
 import type { NamedType, OtherTypeName, TypeClass, TypeInfo } from "."
 
-export const RETURN_VOID = retVoid
-
-/** Function Type that Return void */
-function retVoid(): "undefined" {
-    return "undefined"
-}
-
 /** Check whether given type is TypeClass */
 export function isTypeClass(
     type: TypeInfo | null | undefined,

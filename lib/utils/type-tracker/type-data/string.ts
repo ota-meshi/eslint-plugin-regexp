@@ -5,13 +5,15 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { RETURN_STRING_ARRAY } from "./array"
-import { RETURN_BOOLEAN } from "./boolean"
 import { cache, createObject } from "./common"
-import { NUMBER, RETURN_NUMBER } from "./number"
+import {
+    RETURN_STRING,
+    RETURN_STRING_ARRAY,
+    RETURN_BOOLEAN,
+    RETURN_NUMBER,
+} from "./function"
+import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-
-export const RETURN_STRING = returnString
 
 export const STRING_TYPES: () => {
     [key in keyof StringConstructor]: TypeInfo | null
@@ -51,6 +53,10 @@ export class TypeString implements ITypeClass {
 
     public iterateType(): TypeInfo {
         return this
+    }
+
+    public returnType(): null {
+        return null
     }
 
     public typeNames(): string[] {
@@ -129,8 +135,3 @@ const getPrototypes: () => {
         0: STRING, // string
     }),
 )
-
-/** Function Type that Return string */
-function returnString(): TypeString {
-    return STRING
-}
