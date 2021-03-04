@@ -11,6 +11,7 @@ import {
     TypeFunction,
 } from "./function"
 import { TypeGlobal } from "./global"
+import type { TypeIterable } from "./iterable"
 import { TypeMap, UNKNOWN_MAP } from "./map"
 import type { TypeNumber } from "./number"
 import { NUMBER } from "./number"
@@ -76,6 +77,7 @@ export type TypeClass =
     | TypeMap
     | TypeSet
     | TypeFunction
+    | TypeIterable
 export interface ITypeClass {
     type:
         | "TypeUnionOrIntersection"
@@ -89,6 +91,7 @@ export interface ITypeClass {
         | "Map"
         | "Set"
         | "Function"
+        | "Iterable"
         | "Global"
     has(type: NamedType | OtherTypeName): boolean
     paramType(index: number): TypeInfo | null

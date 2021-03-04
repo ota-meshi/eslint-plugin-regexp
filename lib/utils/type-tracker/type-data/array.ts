@@ -26,6 +26,7 @@ import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
+import { TypeIterable } from "./iterable"
 
 const getPrototypes = cache(() => {
     const RETURN_ARRAY_ELEMENT = new TypeFunction(
@@ -66,6 +67,47 @@ const getPrototypes = cache(() => {
             })
         },
     )
+    const RETURN_ENTRIES = new TypeFunction(
+        /**
+         * Function Type that Return entries
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+                return new TypeArray(function* () {
+                    yield NUMBER
+                    const type = selfType?.()
+                    if (isTypeClass(type)) {
+                        yield type.iterateType()
+                    }
+                })
+            })
+        },
+    )
+    const RETURN_KEYS = new TypeFunction(
+        /**
+         * Function Type that Return keys
+         */
+        function () {
+            return new TypeIterable(() => {
+                return NUMBER
+            })
+        },
+    )
+    const RETURN_VALUES = new TypeFunction(
+        /**
+         * Function Type that Return values
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                const type = selfType?.()
+                if (isTypeClass(type)) {
+                    return type.iterateType()
+                }
+                return null
+            })
+        },
+    )
     return createObject<
         {
             [key in keyof unknown[]]: TypeInfo | null
@@ -99,9 +141,9 @@ const getPrototypes = cache(() => {
         findIndex: RETURN_NUMBER,
         fill: RETURN_UNKNOWN_ARRAY,
         copyWithin: RETURN_SELF,
-        entries: null, // IterableIterator
-        keys: null, // IterableIterator
-        values: null, // IterableIterator
+        entries: RETURN_ENTRIES, // IterableIterator
+        keys: RETURN_KEYS, // IterableIterator
+        values: RETURN_VALUES, // IterableIterator
         // ES2016
         includes: RETURN_BOOLEAN,
         // ES2019
@@ -175,7 +217,7 @@ export class TypeArray implements ITypeClass {
     }
 
     public typeNames(): string[] {
-        const param0 = getTypeName(this.paramType(0))
+        const param0 = getTypeName(this.iterateType())
         return [`Array${param0 ? `<${param0}>` : ""}`]
     }
 
@@ -183,7 +225,7 @@ export class TypeArray implements ITypeClass {
         if (o.type !== "Array") {
             return false
         }
-        return isEquals(this.paramType(0), o.paramType(0))
+        return isEquals(this.iterateType(), o.iterateType())
     }
 }
 export const UNKNOWN_ARRAY = new TypeArray()

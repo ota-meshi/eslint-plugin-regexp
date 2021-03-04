@@ -19,6 +19,7 @@ import {
     TypeFunction,
     TypeGlobalFunction,
 } from "./function"
+import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
@@ -47,6 +48,50 @@ const getPrototypes: () => {
             return selfType?.() ?? null
         },
     )
+    const RETURN_ENTRIES = new TypeFunction(
+        /**
+         * Function Type that Return entries
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                return new TypeArray(function* () {
+                    const type = selfType?.()
+                    if (isTypeClass(type)) {
+                        yield type.paramType(0)
+                        yield type.paramType(1)
+                    }
+                })
+            })
+        },
+    )
+    const RETURN_KEYS = new TypeFunction(
+        /**
+         * Function Type that Return keys
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                const type = selfType?.()
+                if (isTypeClass(type)) {
+                    return type.paramType(0)
+                }
+                return null
+            })
+        },
+    )
+    const RETURN_VALUES = new TypeFunction(
+        /**
+         * Function Type that Return values
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                const type = selfType?.()
+                if (isTypeClass(type)) {
+                    return type.paramType(1)
+                }
+                return null
+            })
+        },
+    )
     return createObject<
         {
             [key in MapKeys]: TypeInfo | null
@@ -61,9 +106,9 @@ const getPrototypes: () => {
         has: RETURN_BOOLEAN,
         set: RETURN_SELF,
         size: NUMBER,
-        entries: null,
-        keys: null,
-        values: null,
+        entries: RETURN_ENTRIES,
+        keys: RETURN_KEYS,
+        values: RETURN_VALUES,
     })
 })
 

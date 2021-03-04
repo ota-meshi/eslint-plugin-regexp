@@ -6,6 +6,7 @@ import type {
     TypeInfo,
 } from "."
 import { isTypeClass } from "."
+import { TypeArray } from "./array"
 import { cache, createObject, getTypeName, isEquals } from "./common"
 import {
     RETURN_VOID,
@@ -13,6 +14,7 @@ import {
     TypeFunction,
     TypeGlobalFunction,
 } from "./function"
+import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
@@ -29,6 +31,50 @@ const getPrototypes: () => {
             return selfType?.() ?? null
         },
     )
+    const RETURN_ENTRIES = new TypeFunction(
+        /**
+         * Function Type that Return entries
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                return new TypeArray(function* () {
+                    const type = selfType?.()
+                    if (isTypeClass(type)) {
+                        yield type.iterateType()
+                        yield type.iterateType()
+                    }
+                })
+            })
+        },
+    )
+    const RETURN_KEYS = new TypeFunction(
+        /**
+         * Function Type that Return keys
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                const type = selfType?.()
+                if (isTypeClass(type)) {
+                    return type.iterateType()
+                }
+                return null
+            })
+        },
+    )
+    const RETURN_VALUES = new TypeFunction(
+        /**
+         * Function Type that Return values
+         */
+        function (selfType) {
+            return new TypeIterable(() => {
+                const type = selfType?.()
+                if (isTypeClass(type)) {
+                    return type.iterateType()
+                }
+                return null
+            })
+        },
+    )
     return createObject<
         {
             [key in SetKeys]: TypeInfo | null
@@ -42,9 +88,9 @@ const getPrototypes: () => {
         has: RETURN_BOOLEAN,
         add: RETURN_SELF,
         size: NUMBER,
-        entries: null,
-        keys: null,
-        values: null,
+        entries: RETURN_ENTRIES,
+        keys: RETURN_KEYS,
+        values: RETURN_VALUES,
     })
 })
 
@@ -81,7 +127,7 @@ export class TypeSet implements ITypeClass {
     }
 
     public typeNames(): string[] {
-        const param0 = getTypeName(this.paramType(0))
+        const param0 = getTypeName(this.iterateType())
         return [`Set${param0 != null ? `<${param0}>` : ""}`]
     }
 
@@ -89,7 +135,7 @@ export class TypeSet implements ITypeClass {
         if (o.type !== "Set") {
             return false
         }
-        return isEquals(this.paramType(0), o.paramType(0))
+        return isEquals(this.iterateType(), o.iterateType())
     }
 }
 
