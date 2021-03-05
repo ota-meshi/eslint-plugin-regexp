@@ -4,6 +4,16 @@ sidebarDepth: 0
 title: "regexp/prefer-regexp-exec"
 description: "enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided"
 ---
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/prefer-regexp-exec"
+description: "enforce that `RegExp# regexp/prefer-regexp-exec
+
+> enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+
 # regexp/prefer-regexp-exec
 
 > enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided
@@ -45,6 +55,10 @@ text.match(search);
 ## :wrench: Options
 
 Nothing.
+
+## :books: Further reading
+
+- [@typescript-eslint/prefer-regexp-exec](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md)
 
 ## :mag: Implementation
 

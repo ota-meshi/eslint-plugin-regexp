@@ -3,7 +3,7 @@ import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import { getStaticValue } from "eslint-utils"
 
-// Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/src/rules/prefer-regexp-exec.ts
+// Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md
 export default createRule("prefer-regexp-exec", {
     meta: {
         docs: {

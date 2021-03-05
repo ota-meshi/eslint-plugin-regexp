@@ -15,6 +15,7 @@ import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
 import preferQuantifier from "../rules/prefer-quantifier"
 import preferQuestionQuantifier from "../rules/prefer-question-quantifier"
 import preferRegexpExec from "../rules/prefer-regexp-exec"
+import preferRegexpTest from "../rules/prefer-regexp-test"
 import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferW from "../rules/prefer-w"
@@ -36,6 +37,7 @@ export const rules = [
     preferQuantifier,
     preferQuestionQuantifier,
     preferRegexpExec,
+    preferRegexpTest,
     preferStarQuantifier,
     preferT,
     preferW,

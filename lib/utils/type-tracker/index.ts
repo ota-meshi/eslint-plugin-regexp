@@ -50,6 +50,7 @@ const ts: typeof import("typescript") = (() => {
 
 type TypeTracker = {
     isString: (node: ES.Expression) => boolean
+    isRegExp: (node: ES.Expression) => boolean
     getTypes: (node: ES.Expression) => string[]
 }
 
@@ -76,6 +77,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
     const tracker: TypeTracker = {
         isString,
+        isRegExp,
         getTypes,
     }
     cacheTypeTracker.set(programNode, tracker)
@@ -86,6 +88,13 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
      */
     function isString(node: ES.Expression): boolean {
         return hasType(getType(node), "String")
+    }
+
+    /**
+     * Checks if the given node is RegExp.
+     */
+    function isRegExp(node: ES.Expression): boolean {
+        return hasType(getType(node), "RegExp")
     }
 
     /**

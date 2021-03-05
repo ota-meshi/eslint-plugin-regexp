@@ -1,4 +1,5 @@
 import type * as ESTree from "estree"
+import type { SourceCode } from "eslint"
 import type eslint from "eslint"
 
 export function findVariable(
@@ -33,6 +34,17 @@ export function getPropertyName(
 export function isCommentToken(
     token: eslint.AST.Token | ESTree.Comment,
 ): token is ESTree.Comment
+export function isOpeningParenToken(
+    token: eslint.AST.Token | ESTree.Comment,
+): boolean
+export function hasSideEffect(
+    node: ESTree.Node,
+    sourceCode: SourceCode,
+    options?: {
+        considerGetters?: boolean
+        considerImplicitTypeConversion?: boolean
+    },
+): boolean
 
 export const READ: unique symbol,
     CALL: unique symbol,
