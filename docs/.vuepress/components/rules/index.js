@@ -45,7 +45,7 @@ for (const k of Object.keys(plugin.rules)) {
         category: rule.meta.docs.category,
         ruleId: rule.meta.docs.ruleId,
         url: rule.meta.docs.url,
-        initChecked: CATEGORY_INDEX[rule.meta.docs.category] <= 3,
+        initChecked: true, // CATEGORY_INDEX[rule.meta.docs.category] <= 3,
     })
 }
 for (const k of Object.keys(coreRules)) {
