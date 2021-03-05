@@ -106,15 +106,31 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `a - b`,
-        type: "Number",
+        type: ["BigInt", "Number"],
     },
     {
         code: `typeof s`,
         type: "String",
     },
     {
-        code: `+ s`,
+        code: `
+        + s
+        `,
+        type: ["BigInt", "Number"],
+    },
+    {
+        code: `
+        const s = 123;
+        + s
+        `,
         type: "Number",
+    },
+    {
+        code: `
+        const s = 123n;
+        + s
+        `,
+        type: "BigInt",
     },
     {
         code: `void a.b`,
@@ -444,6 +460,45 @@ const TESTCASES: TestCase[] = [
         }
         `,
         type: "Number",
+    },
+    {
+        code: `
+        const a = 1
+        a - b
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        const a = 1n
+        a - b
+        `,
+        type: ["BigInt", "Number"],
+    },
+    {
+        code: `
+        const a = 1n
+        a - 2n
+        `,
+        type: "BigInt",
+    },
+    {
+        code: `
+        a + b
+        `,
+        type: ["BigInt", "Number", "String"],
+    },
+    {
+        code: `
+        a << b
+        `,
+        type: "Number",
+    },
+    {
+        code: `
+        const a = a // infinity loop?
+        `,
+        type: [],
     },
 ]
 describe("type track", () => {

@@ -33,6 +33,7 @@ import {
 } from "./type-data"
 import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
+import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
 const ts: typeof import("typescript") = (() => {
@@ -108,6 +109,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (cacheTypeInfo.has(node)) {
             return cacheTypeInfo.get(node) ?? null
         }
+        cacheTypeInfo.set(node, null) // Store null to avoid an infinite loop.
         try {
             const type = getTypeWithoutCache(node)
             cacheTypeInfo.set(node, type)
@@ -540,7 +542,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             return null
         }
         if (isUnionOrIntersection(tsType)) {
-            return new TypeUnionOrIntersection(function* () {
+            return TypeUnionOrIntersection.buildType(function* () {
                 for (const t of tsType.types) {
                     const tn = getTypeFromTsType(t)
                     if (tn) {
@@ -672,7 +674,7 @@ function jsDocTypeNodeToTypeInfo(
         })
     }
     if (node.type === "UNION" || node.type === "INTERSECTION") {
-        return new TypeUnionOrIntersection(function* () {
+        return TypeUnionOrIntersection.buildType(function* () {
             const left = jsDocTypeNodeToTypeInfo(node.left)
             if (left) {
                 yield left
@@ -698,6 +700,11 @@ function jsDocTypeNodeToTypeInfo(
         }
         if (hasType(subject, "Set")) {
             return new TypeSet(() => jsDocTypeNodeToTypeInfo(node.objects[0]))
+        }
+        if (subject === UNKNOWN_ITERABLE) {
+            return new TypeIterable(() =>
+                jsDocTypeNodeToTypeInfo(node.objects[0]),
+            )
         }
         return subject
     }
@@ -763,6 +770,13 @@ function typeNameToTypeInfo(
     }
     if (name === "Set") {
         return UNKNOWN_SET
+    }
+    if (
+        name === "Generator" ||
+        name === "Iterable" ||
+        name === "IterableIterator"
+    ) {
+        return UNKNOWN_ITERABLE
     }
     return null
 }

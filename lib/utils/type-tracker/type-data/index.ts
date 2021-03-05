@@ -107,10 +107,21 @@ export interface ITypeClass {
 /** Get BinaryExpression calc type */
 function binaryNumOp(getTypes: () => [TypeInfo | null, TypeInfo | null]) {
     const [t1, t2] = getTypes()
-    if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
-        return BIGINT
-    }
-    return NUMBER
+    return TypeUnionOrIntersection.buildType(function* () {
+        let unknown = true
+        if (hasType(t1, "Number") || hasType(t2, "Number")) {
+            unknown = false
+            yield NUMBER
+        }
+        if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
+            unknown = false
+            yield BIGINT
+        }
+        if (unknown) {
+            yield NUMBER
+            yield BIGINT
+        }
+    })
 }
 
 /** Get condition type */
@@ -151,25 +162,47 @@ export const BI_OPERATOR_TYPES: {
     ">>>": binaryBitwise,
     "+": (getTypes) => {
         const [t1, t2] = getTypes()
-        if (hasType(t1, "String") || hasType(t2, "String")) {
-            return STRING
-        }
-        if (hasType(t1, "Number") && hasType(t2, "Number")) {
-            return NUMBER
-        }
-        if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
-            return BIGINT
-        }
-        return null
+        return TypeUnionOrIntersection.buildType(function* () {
+            let unknown = true
+            if (hasType(t1, "String") || hasType(t2, "String")) {
+                unknown = false
+                yield STRING
+            }
+            if (hasType(t1, "Number") && hasType(t2, "Number")) {
+                unknown = false
+                yield NUMBER
+            }
+            if (hasType(t1, "BigInt") && hasType(t2, "BigInt")) {
+                unknown = false
+                yield BIGINT
+            }
+            if (unknown) {
+                yield STRING
+                yield NUMBER
+                yield BIGINT
+            }
+        })
     },
 })
 
 /** Get UnaryExpression calc type */
 function unaryNumOp(getType: () => TypeInfo | null) {
-    if (hasType(getType(), "BigInt")) {
-        return BIGINT
-    }
-    return NUMBER
+    const t = getType()
+    return TypeUnionOrIntersection.buildType(function* () {
+        let unknown = true
+        if (hasType(t, "Number")) {
+            unknown = false
+            yield NUMBER
+        }
+        if (hasType(t, "BigInt")) {
+            unknown = false
+            yield BIGINT
+        }
+        if (unknown) {
+            yield NUMBER
+            yield BIGINT
+        }
+    })
 }
 
 export const UN_OPERATOR_TYPES: {

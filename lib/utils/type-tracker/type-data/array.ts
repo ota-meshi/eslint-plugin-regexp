@@ -49,13 +49,9 @@ export class TypeArray implements ITypeClass {
 
     public paramType(index: number): TypeInfo | null {
         if (index === 0) {
-            if (this.collection.isOneType()) {
-                for (const t of this.collection.all()) {
-                    return t
-                }
-                return null
-            }
-            return new TypeUnionOrIntersection(() => this.collection.all())
+            return TypeUnionOrIntersection.buildType(() =>
+                this.collection.all(),
+            )
         }
         return null
     }

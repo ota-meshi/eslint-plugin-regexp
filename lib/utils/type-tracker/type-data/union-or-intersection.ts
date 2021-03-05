@@ -13,7 +13,20 @@ export class TypeUnionOrIntersection implements ITypeClass {
 
     private readonly collection: TypeCollection
 
-    public constructor(generator?: () => IterableIterator<TypeInfo | null>) {
+    public static buildType(
+        generator?: () => IterableIterator<TypeInfo | null>,
+    ): TypeInfo | null {
+        const collection = new TypeCollection(generator)
+        if (collection.isOneType()) {
+            for (const t of collection.all()) {
+                return t
+            }
+            return null
+        }
+        return new TypeUnionOrIntersection(() => collection.all())
+    }
+
+    private constructor(generator?: () => IterableIterator<TypeInfo | null>) {
         this.collection = new TypeCollection(generator)
     }
 
@@ -27,7 +40,7 @@ export class TypeUnionOrIntersection implements ITypeClass {
 
     public propertyType(name: string): TypeInfo | null {
         const baseCollection = this.collection
-        const collection = new TypeCollection(function* () {
+        return TypeUnionOrIntersection.buildType(function* () {
             for (const type of baseCollection.all()) {
                 const propType = isTypeClass(type)
                     ? type.propertyType(name)
@@ -37,18 +50,11 @@ export class TypeUnionOrIntersection implements ITypeClass {
                 }
             }
         })
-        if (collection.isOneType()) {
-            for (const t of collection.all()) {
-                return t
-            }
-            return null
-        }
-        return new TypeUnionOrIntersection(() => collection.all())
     }
 
     public iterateType(): TypeInfo | null {
         const baseCollection = this.collection
-        const collection = new TypeCollection(function* () {
+        return TypeUnionOrIntersection.buildType(function* () {
             for (const type of baseCollection.all()) {
                 if (isTypeClass(type)) {
                     const itrType = type.iterateType()
@@ -58,13 +64,6 @@ export class TypeUnionOrIntersection implements ITypeClass {
                 }
             }
         })
-        if (collection.isOneType()) {
-            for (const t of collection.all()) {
-                return t
-            }
-            return null
-        }
-        return new TypeUnionOrIntersection(() => collection.all())
     }
 
     public returnType(
@@ -72,7 +71,7 @@ export class TypeUnionOrIntersection implements ITypeClass {
         argTypes: ((() => TypeInfo | null) | null)[],
     ): TypeInfo | null {
         const baseCollection = this.collection
-        const collection = new TypeCollection(function* () {
+        return TypeUnionOrIntersection.buildType(function* () {
             for (const type of baseCollection.all()) {
                 if (isTypeClass(type)) {
                     const itrType = type.returnType(thisType, argTypes)
@@ -82,13 +81,6 @@ export class TypeUnionOrIntersection implements ITypeClass {
                 }
             }
         })
-        if (collection.isOneType()) {
-            for (const t of collection.all()) {
-                return t
-            }
-            return null
-        }
-        return new TypeUnionOrIntersection(() => collection.all())
     }
 
     public typeNames(): string[] {

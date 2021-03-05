@@ -241,6 +241,16 @@ const TESTCASES: TestCase[] = [
         `,
         type: "Number",
     },
+    {
+        code: `
+        /** @return {IterableIterator<number>} */
+        function* f() {}
+        for (const e of f()) {
+            e
+        }
+        `,
+        type: "Number",
+    },
 ]
 describe("type track with jsdoc", () => {
     for (const testCase of TESTCASES) {

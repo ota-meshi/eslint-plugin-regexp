@@ -37,7 +37,8 @@ export default createRule("prefer-regexp-exec", {
                 const arg = node.arguments[0]
                 const evaluated = getStaticValue(arg, context.getScope())
                 if (
-                    evaluated?.value instanceof RegExp &&
+                    evaluated &&
+                    evaluated.value instanceof RegExp &&
                     evaluated.value.flags.includes("g")
                 ) {
                     return
