@@ -145,17 +145,13 @@ export class TypeSet implements ITypeClass {
 export const UNKNOWN_SET = new TypeSet(() => null)
 /** Build Set constructor type */
 export function buildSetConstructor(): TypeFunction {
-    const SET_TYPES: () => {
-        [key in keyof SetConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof SetConstructor]: TypeInfo | null
-            }
-        >({
-            prototype: null,
-        }),
-    )
+    const SET_TYPES = createObject<
+        {
+            [key in keyof SetConstructor]: TypeInfo | null
+        }
+    >({
+        prototype: null,
+    })
     return new TypeGlobalFunction(setConstructor, SET_TYPES)
 }
 

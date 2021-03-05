@@ -188,17 +188,14 @@ export const UNKNOWN_MAP = new TypeMap(
 )
 /** Build Map constructor type */
 export function buildMapConstructor(): TypeFunction {
-    const MAP_TYPES: () => {
-        [key in keyof MapConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof MapConstructor]: TypeInfo | null
-            }
-        >({
-            prototype: null,
-        }),
-    )
+    const MAP_TYPES = createObject<
+        {
+            [key in keyof MapConstructor]: TypeInfo | null
+        }
+    >({
+        prototype: null,
+    })
+
     return new TypeGlobalFunction(mapConstructor, MAP_TYPES)
 }
 

@@ -107,22 +107,18 @@ export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
 
 /** Build Array constructor type */
 export function buildArrayConstructor(): TypeGlobalFunction {
-    const ARRAY_TYPES: () => {
-        [key in keyof ArrayConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof ArrayConstructor]: TypeInfo | null
-            }
-        >({
-            // ES5
-            isArray: RETURN_BOOLEAN,
-            // ES2015
-            from: RETURN_UNKNOWN_ARRAY,
-            of: RETURN_UNKNOWN_ARRAY,
-            prototype: null,
-        }),
-    )
+    const ARRAY_TYPES = createObject<
+        {
+            [key in keyof ArrayConstructor]: TypeInfo | null
+        }
+    >({
+        // ES5
+        isArray: RETURN_BOOLEAN,
+        // ES2015
+        from: RETURN_UNKNOWN_ARRAY,
+        of: RETURN_UNKNOWN_ARRAY,
+        prototype: null,
+    })
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }
 

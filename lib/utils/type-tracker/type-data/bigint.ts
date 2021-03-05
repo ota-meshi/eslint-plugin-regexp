@@ -45,19 +45,15 @@ export const BIGINT = new TypeBigInt()
 
 /** Build BigInt constructor type */
 export function buildBigIntConstructor(): TypeGlobalFunction {
-    const BIGINT_TYPES: () => {
-        [key in keyof BigIntConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof BigIntConstructor]: TypeInfo | null
-            }
-        >({
-            asIntN: RETURN_BIGINT,
-            asUintN: RETURN_BIGINT,
-            prototype: null,
-        }),
-    )
+    const BIGINT_TYPES = createObject<
+        {
+            [key in keyof BigIntConstructor]: TypeInfo | null
+        }
+    >({
+        asIntN: RETURN_BIGINT,
+        asUintN: RETURN_BIGINT,
+        prototype: null,
+    })
     return new TypeGlobalFunction(() => BIGINT, BIGINT_TYPES)
 }
 const getPrototypes: () => {

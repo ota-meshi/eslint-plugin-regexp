@@ -54,7 +54,7 @@ export class TypeFunction implements ITypeClass {
 
     public propertyType(name: string): TypeInfo | null {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
-        return getFunctionPrototypes()[name as never] || null
+        return getPrototypes()[name as never] || null
     }
 
     public iterateType(): null {
@@ -71,22 +71,22 @@ export class TypeFunction implements ITypeClass {
 }
 
 export class TypeGlobalFunction extends TypeFunction {
-    private readonly getProps: () => {
+    private readonly props: {
         [key: string]: TypeInfo | null
     }
 
     public constructor(
         fn: FunctionArg,
-        getProps: () => {
+        props: {
             [key: string]: TypeInfo | null
         },
     ) {
         super(fn)
-        this.getProps = getProps
+        this.props = props
     }
 
     public propertyType(name: string): TypeInfo | null {
-        return this.getProps()[name] || super.propertyType(name)
+        return this.props[name] || super.propertyType(name)
     }
 }
 
@@ -98,13 +98,13 @@ export const UNKNOWN_FUNCTION = new TypeFunction(
 )
 /** Build Function constructor type */
 export function buildFunctionConstructor(): TypeGlobalFunction {
-    const FUNCTION_TYPES: () => {
-        [key in keyof FunctionConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject({
-            prototype: null,
-        }),
-    )
+    const FUNCTION_TYPES = createObject<
+        {
+            [key in keyof FunctionConstructor]: TypeInfo | null
+        }
+    >({
+        prototype: null,
+    })
     return new TypeGlobalFunction(
         /** Function Type that Return Function */
         function returnFunction(): TypeFunction {
@@ -184,7 +184,7 @@ const RETURN_SELF = new TypeFunction(
         return selfType?.() ?? null
     },
 )
-export const getFunctionPrototypes: () => {
+const getPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof Function]: TypeInfo | null
 } = cache(() =>

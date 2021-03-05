@@ -45,17 +45,13 @@ export const BOOLEAN = new TypeBoolean()
 
 /** Build BigInt constructor type */
 export function buildBooleanConstructor(): TypeGlobalFunction {
-    const BOOLEAN_TYPES: () => {
-        [key in keyof BooleanConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof BooleanConstructor]: TypeInfo | null
-            }
-        >({
-            prototype: null,
-        }),
-    )
+    const BOOLEAN_TYPES = createObject<
+        {
+            [key in keyof BooleanConstructor]: TypeInfo | null
+        }
+    >({
+        prototype: null,
+    })
     return new TypeGlobalFunction(() => BOOLEAN, BOOLEAN_TYPES)
 }
 

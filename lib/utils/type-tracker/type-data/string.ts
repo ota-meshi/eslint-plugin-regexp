@@ -55,23 +55,19 @@ export const STRING = new TypeString()
 
 /** Build String constructor type */
 export function buildStringConstructor(): TypeGlobalFunction {
-    const STRING_TYPES: () => {
-        [key in keyof StringConstructor]: TypeInfo | null
-    } = cache(() =>
-        createObject<
-            {
-                [key in keyof StringConstructor]: TypeInfo | null
-            }
-        >({
-            // ES5
-            fromCharCode: RETURN_STRING,
-            // ES2015
-            fromCodePoint: RETURN_STRING,
-            raw: RETURN_STRING,
+    const STRING_TYPES = createObject<
+        {
+            [key in keyof StringConstructor]: TypeInfo | null
+        }
+    >({
+        // ES5
+        fromCharCode: RETURN_STRING,
+        // ES2015
+        fromCodePoint: RETURN_STRING,
+        raw: RETURN_STRING,
 
-            prototype: null,
-        }),
-    )
+        prototype: null,
+    })
     return new TypeGlobalFunction(() => STRING, STRING_TYPES)
 }
 
