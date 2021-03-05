@@ -1,9 +1,12 @@
 import { Linter } from "eslint"
+import type { AST } from "eslint"
+import type * as ES from "estree"
 import type { Expression } from "estree"
 import path from "path"
 import { createTypeTracker } from "../../../../lib/utils/type-tracker"
 import * as tsParser from "@typescript-eslint/parser"
 import assert from "assert"
+import { isCommentToken } from "eslint-utils"
 
 export type TestCase = {
     code: string
@@ -26,10 +29,27 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
     const linter = new Linter()
     linter.defineRule("test", {
         create(context) {
+            const sourceCode = context.getSourceCode()
             let lastExpr: Expression | null = null
+            let target: Expression | null = null
             return {
                 ":expression:exit"(node: Expression) {
                     lastExpr = node
+                    if (!target) {
+                        const token:
+                            | AST.Token
+                            | ES.Comment
+                            | null = sourceCode.getTokenBefore(node, {
+                            includeComments: true,
+                        }) as AST.Token | ES.Comment | null
+                        if (
+                            token &&
+                            isCommentToken(token) &&
+                            /^\s*target\s*$/iu.test(token.value)
+                        ) {
+                            target = node
+                        }
+                    }
                 },
                 "Program:exit"() {
                     // if (
@@ -39,7 +59,9 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                     // ) {
                     //     debugger
                     // }
-                    types = createTypeTracker(context).getTypes(lastExpr!)
+                    types = createTypeTracker(context).getTypes(
+                        target ?? lastExpr!,
+                    )
                 },
             }
         },

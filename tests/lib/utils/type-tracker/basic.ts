@@ -410,6 +410,41 @@ const TESTCASES: TestCase[] = [
         `,
         type: [],
     },
+    {
+        code: `
+        for (const e in a) e
+        `,
+        type: "String",
+    },
+    {
+        code: `
+        const f = (...e) => e
+        f()
+        `,
+        type: "Array",
+    },
+    {
+        code: `
+        const f = ([...e]) => e
+        f()
+        `,
+        type: "Array",
+    },
+    {
+        code: `
+        const f = ({...e}) => e
+        f()
+        `,
+        type: "Object",
+    },
+    {
+        code: `
+        function f(a=42) {
+            a
+        }
+        `,
+        type: "Number",
+    },
 ]
 describe("type track", () => {
     for (const testCase of TESTCASES) {

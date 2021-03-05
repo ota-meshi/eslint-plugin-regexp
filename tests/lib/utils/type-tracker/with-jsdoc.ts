@@ -232,6 +232,15 @@ const TESTCASES: TestCase[] = [
         `,
         type: "Number",
     },
+    {
+        code: `
+        /** @param {number} a */
+        function f(a=42) {
+            a
+        }
+        `,
+        type: "Number",
+    },
 ]
 describe("type track with jsdoc", () => {
     for (const testCase of TESTCASES) {

@@ -178,6 +178,15 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                     return new TypeFunction(() => type)
                 }
             }
+        }
+        if (node.type === "FunctionExpression") {
+            return UNKNOWN_FUNCTION
+        }
+        if (node.type === "ArrowFunctionExpression") {
+            if (node.body.type !== "BlockStatement") {
+                const body = node.body
+                return new TypeFunction(() => getType(body))
+            }
             return UNKNOWN_FUNCTION
         }
 
@@ -327,22 +336,30 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                             }
                         }
                         const parent = getParent(def.name)
-                        if (parent?.type === "RestElement") {
-                            const pp = getParent(parent)
-                            if (pp) {
-                                if (pp.type === "ArrayPattern") {
-                                    return UNKNOWN_ARRAY
+                        if (parent) {
+                            if (parent.type === "RestElement") {
+                                const pp = getParent(parent)
+                                if (pp) {
+                                    if (pp.type === "ArrayPattern") {
+                                        // e.g. ([...arg]) => {}
+                                        return UNKNOWN_ARRAY
+                                    }
+                                    if (pp.type === "ObjectPattern") {
+                                        // e.g. ({...arg}) => {}
+                                        return UNKNOWN_OBJECT
+                                    }
+                                    if (
+                                        pp.type === "FunctionExpression" ||
+                                        pp.type === "FunctionDeclaration" ||
+                                        pp.type === "ArrowFunctionExpression"
+                                    ) {
+                                        // e.g. (...arg) => {}
+                                        return UNKNOWN_ARRAY
+                                    }
                                 }
-                                if (pp.type === "ObjectPattern") {
-                                    return UNKNOWN_OBJECT
-                                }
-                                if (
-                                    pp.type === "FunctionExpression" ||
-                                    pp.type === "FunctionDeclaration" ||
-                                    pp.type === "ArrowFunctionExpression"
-                                ) {
-                                    return UNKNOWN_ARRAY
-                                }
+                            } else if (parent.type === "AssignmentPattern") {
+                                // e.g. (arg=42) => {}
+                                return getType(parent.right)
                             }
                         }
                     } else if (def.type === "FunctionName") {

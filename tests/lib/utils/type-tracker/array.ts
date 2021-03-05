@@ -86,6 +86,26 @@ const TESTCASES: TestCase[] = [
         `,
         type: "Array<String>",
     },
+    {
+        code: `
+        const a = [1,2,3]
+        a.map(()=>a+'')
+        `,
+        type: "Array<String>",
+    },
+    {
+        code: `
+        const a = [1,2,3]
+        a.map(()=>{})
+        `,
+        type: "Array",
+    },
+    {
+        code: `
+        [1,2,3,,,,'']
+        `,
+        type: "Array<Number|String>",
+    },
 ]
 describe("type track for Array", () => {
     for (const testCase of TESTCASES) {

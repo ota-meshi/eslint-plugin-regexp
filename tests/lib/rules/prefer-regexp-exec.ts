@@ -49,5 +49,12 @@ tester.run("prefer-regexp-exec", rule as any, {
                 },
             ],
         },
+        {
+            code: `
+            const fn = (a) => a + ''
+            fn(1).match(search);
+            `,
+            errors: ["Use the `RegExp#exec()` method instead."],
+        },
     ],
 })
