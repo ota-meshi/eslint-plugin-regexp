@@ -35,7 +35,7 @@ export default createRule("no-useless-character-class", {
         ],
         messages: {
             unexpected:
-                "Unexpected character class with one {{type}}. Can remove brackets.",
+                "Unexpected character class with one {{type}}. Can remove brackets{{additional}}.",
         },
         type: "suggestion", // "problem",
     },
@@ -53,6 +53,7 @@ export default createRule("no-useless-character-class", {
             flags: string,
         ): RegExpVisitor.Handlers {
             return {
+                // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode) {
                     if (ccNode.elements.length !== 1) {
                         return
@@ -61,6 +62,9 @@ export default createRule("no-useless-character-class", {
                         return
                     }
                     const element = ccNode.elements[0]
+                    if (ignores.length > 0 && ignores.includes(element.raw)) {
+                        return
+                    }
                     if (element.type === "Character") {
                         if (element.raw === "\\b") {
                             // Backspace escape
@@ -81,14 +85,11 @@ export default createRule("no-useless-character-class", {
                         ) {
                             return
                         }
-                    } else if (element.type === "CharacterSet") {
-                        if (
-                            ignores.length > 0 &&
-                            ignores.includes(element.raw)
-                        ) {
+                    } else if (element.type === "CharacterClassRange") {
+                        if (element.min.value !== element.max.value) {
                             return
                         }
-                    } else {
+                    } else if (element.type !== "CharacterSet") {
                         return
                     }
 
@@ -100,7 +101,13 @@ export default createRule("no-useless-character-class", {
                             type:
                                 element.type === "Character"
                                     ? "character"
+                                    : element.type === "CharacterClassRange"
+                                    ? "character class range"
                                     : "character set",
+                            additional:
+                                element.type === "CharacterClassRange"
+                                    ? " and range"
+                                    : "",
                         },
                         fix(fixer) {
                             const range = getRegexpRange(
@@ -111,27 +118,22 @@ export default createRule("no-useless-character-class", {
                             if (range == null) {
                                 return null
                             }
-                            if (element.type === "Character") {
+                            let text: string =
+                                element.type === "CharacterClassRange"
+                                    ? element.min.raw
+                                    : element.raw
+                            if (
+                                element.type === "Character" ||
+                                element.type === "CharacterClassRange"
+                            ) {
                                 if (
-                                    /^[.*+?${()|[/]$/u.test(element.raw) ||
-                                    (flags.includes("u") && element.raw === "}")
+                                    /^[.*+?${()|[/]$/u.test(text) ||
+                                    (flags.includes("u") && text === "}")
                                 ) {
-                                    return [
-                                        fixer.replaceTextRange(
-                                            [range[0], range[0] + 1],
-                                            fixerApplyEscape("\\", node),
-                                        ),
-                                        fixer.removeRange([
-                                            range[1] - 1,
-                                            range[1],
-                                        ]),
-                                    ]
+                                    text = fixerApplyEscape("\\", node) + text
                                 }
                             }
-                            return [
-                                fixer.removeRange([range[0], range[0] + 1]),
-                                fixer.removeRange([range[1] - 1, range[1]]),
-                            ]
+                            return fixer.replaceTextRange(range, text)
                         },
                     })
                 },

@@ -24,6 +24,10 @@ tester.run("no-useless-character-class", rule as any, {
             code: String.raw`/[\d]/`,
             options: [{ ignores: ["\\d"] }],
         },
+        {
+            code: String.raw`/[\u0061]/`,
+            options: [{ ignores: ["a"] }],
+        },
         String.raw`/[\b]/ // backspace`,
         String.raw`/(,)[\1]/ // back reference escape`,
         String.raw`/(,)(,)(,)(,)(,) (,)(,)(,)(,)(,) (,)[\7]/ // back reference escape`,
@@ -38,6 +42,18 @@ tester.run("no-useless-character-class", rule as any, {
                 {
                     message:
                         "Unexpected character class with one character. Can remove brackets.",
+                    line: 1,
+                    column: 2,
+                },
+            ],
+        },
+        {
+            code: `/[a-a]/`,
+            output: `/a/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected character class with one character class range. Can remove brackets and range.",
                     line: 1,
                     column: 2,
                 },
@@ -96,6 +112,12 @@ tester.run("no-useless-character-class", rule as any, {
             output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/u`,
             options: [{ ignores: [] }],
             errors: 18,
+        },
+        {
+            code: String.raw`/[.-.]/u`,
+            output: String.raw`/\./u`,
+            options: [{ ignores: [] }],
+            errors: 1,
         },
         {
             code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
