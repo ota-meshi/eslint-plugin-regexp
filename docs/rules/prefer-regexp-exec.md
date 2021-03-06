@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-regexp-exec"
 description: "enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided"
+since: "v0.3.0"
 ---
 # regexp/prefer-regexp-exec
 
 > enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 `RegExp#exec` is faster than `String#match` and both work the same when not using the `/g` flag.
 
@@ -49,6 +48,10 @@ Nothing.
 ## :books: Further reading
 
 - [@typescript-eslint/prefer-regexp-exec](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md)
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.3.0
 
 ## :mag: Implementation
 
