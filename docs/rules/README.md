@@ -20,13 +20,18 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
+| [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
+| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
+| [regexp/prefer-regexp-exec](./prefer-regexp-exec.md) | enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided |  |
+| [regexp/prefer-regexp-test](./prefer-regexp-test.md) | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec` | :wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
 | [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
+| [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |

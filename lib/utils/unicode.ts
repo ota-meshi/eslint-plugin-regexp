@@ -1,3 +1,4 @@
+export const CP_BACKSPACE = 8
 export const CP_TAB = 9
 export const CP_LF = 10
 export const CP_VT = 11
@@ -8,9 +9,9 @@ export const CP_BAN = "!".codePointAt(0)!
 export const CP_SLASH = "/".codePointAt(0)!
 export const CP_COLON = ":".codePointAt(0)!
 export const CP_AT = "@".codePointAt(0)!
-export const CP_OPENING_BRACE = "[".codePointAt(0)!
+export const CP_OPENING_BRACKET = "[".codePointAt(0)!
 export const CP_BACKTICK = "`".codePointAt(0)!
-export const CP_OPENING_BRACKET = "{".codePointAt(0)!
+export const CP_OPENING_BRACE = "{".codePointAt(0)!
 export const CP_TILDE = "~".codePointAt(0)!
 export const CP_NEL = "\u0085".codePointAt(0)!
 export const CP_NBSP = "\u00a0".codePointAt(0)!
@@ -108,8 +109,8 @@ export function isSymbol(codePoint: number): boolean {
     return (
         isCodePointInRange(codePoint, [CP_BAN, CP_SLASH]) ||
         isCodePointInRange(codePoint, [CP_COLON, CP_AT]) ||
-        isCodePointInRange(codePoint, [CP_OPENING_BRACE, CP_BACKTICK]) ||
-        isCodePointInRange(codePoint, [CP_OPENING_BRACKET, CP_TILDE])
+        isCodePointInRange(codePoint, [CP_OPENING_BRACKET, CP_BACKTICK]) ||
+        isCodePointInRange(codePoint, [CP_OPENING_BRACE, CP_TILDE])
     )
 }
 

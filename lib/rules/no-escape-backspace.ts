@@ -1,6 +1,11 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import {
+    CP_BACKSPACE,
+    createRule,
+    defineRegexpVisitor,
+    getRegexpLocation,
+} from "../utils"
 
 export default createRule("no-escape-backspace", {
     meta: {
@@ -24,7 +29,7 @@ export default createRule("no-escape-backspace", {
         function createVisitor(node: Expression): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
-                    if (cNode.value === 8 && cNode.raw === "\\b") {
+                    if (cNode.value === CP_BACKSPACE && cNode.raw === "\\b") {
                         context.report({
                             node,
                             loc: getRegexpLocation(sourceCode, node, cNode),

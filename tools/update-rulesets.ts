@@ -6,12 +6,16 @@ import { rules } from "./lib/load-rules"
 const isWin = os.platform().startsWith("win")
 
 const coreRules = [
+    // Possible Errors
     "no-control-regex",
+    // TODO In the major version
+    // "no-empty-character-class",
     "no-invalid-regexp",
     "no-misleading-character-class",
     "no-regex-spaces",
-    "prefer-regex-literals",
+    // Best Practices
     // "prefer-named-capture-group", // modern
+    "prefer-regex-literals",
     // "require-unicode-regexp", // modern
 ]
 

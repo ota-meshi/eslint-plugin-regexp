@@ -44,7 +44,7 @@ jobs:
                   node-version: 8.10.x
             - name: Install Target Packages
               run: |+
-                  npm i -D eslint@6.0.0 mocha@7
+                  npm i -D eslint@6.0.0 mocha@7 @typescript-eslint/parser@3
                   npx rimraf node_modules
                   npm install
             - name: Test
