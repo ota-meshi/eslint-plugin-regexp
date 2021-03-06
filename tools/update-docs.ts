@@ -107,9 +107,9 @@ class DocFile {
             notes.push("", "")
         }
 
-        const headerPattern = /#.+\n+[^\n]*\n+(?:- .+\n+)*\n*/u
+        const headerPattern = /(?:^|\n)#.+\n+[^\n]*\n+(?:- .+\n+)*\n*/u
 
-        const header = `${title}\n\n${notes.join("\n")}`
+        const header = `\n${title}\n\n${notes.join("\n")}`
         if (headerPattern.test(this.content)) {
             this.content = this.content.replace(headerPattern, header)
         } else {
