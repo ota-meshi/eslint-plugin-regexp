@@ -54,6 +54,30 @@ tester.run("no-dupe-disjunctions", rule as any, {
             ],
         },
         {
+            code: `/(?=a|a)/`,
+            errors: [
+                {
+                    message: "The disjunctions are duplicated.",
+                    line: 1,
+                    column: 7,
+                    endLine: 1,
+                    endColumn: 8,
+                },
+            ],
+        },
+        {
+            code: `/(?<=a|a)/`,
+            errors: [
+                {
+                    message: "The disjunctions are duplicated.",
+                    line: 1,
+                    column: 8,
+                    endLine: 1,
+                    endColumn: 9,
+                },
+            ],
+        },
+        {
             code: `/(?:[ab]|[ab])/`,
             errors: ["The disjunctions are duplicated."],
         },
