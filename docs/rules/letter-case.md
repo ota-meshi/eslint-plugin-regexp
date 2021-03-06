@@ -13,7 +13,7 @@ since: "v0.3.0"
 
 ## :book: Rule Details
 
-This rule aims to unify the case of letters.
+This rule is aimed to unify the case of letters.
 
 <eslint-code-block fix>
 
