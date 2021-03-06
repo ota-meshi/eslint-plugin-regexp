@@ -16,6 +16,7 @@ import preferQuantifier from "../rules/prefer-quantifier"
 import preferQuestionQuantifier from "../rules/prefer-question-quantifier"
 import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
+import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
 
 export const rules = [
@@ -36,5 +37,6 @@ export const rules = [
     preferQuestionQuantifier,
     preferStarQuantifier,
     preferT,
+    preferUnicodeCodepointEscapes,
     preferW,
 ] as RuleModule[]

@@ -28,4 +28,5 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
 | [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
+| [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
