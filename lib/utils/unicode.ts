@@ -90,15 +90,28 @@ export function isDigit(codePoint: number): boolean {
     return isCodePointInRange(codePoint, CP_RANGE_DIGIT)
 }
 /**
+ * Checks if the given code point is lowercase.
+ * @param codePoint The code point to check
+ * @returns {boolean} `true` if the given code point is lowercase.
+ */
+export function isLowercaseLetter(codePoint: number): boolean {
+    return isCodePointInRange(codePoint, CP_RANGE_SMALL_LETTER)
+}
+/**
+ * Checks if the given code point is uppercase.
+ * @param codePoint The code point to check
+ * @returns {boolean} `true` if the given code point is uppercase.
+ */
+export function isUppercaseLetter(codePoint: number): boolean {
+    return isCodePointInRange(codePoint, CP_RANGE_CAPITAL_LETTER)
+}
+/**
  * Checks if the given code point is letter.
  * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is letter.
  */
 export function isLetter(codePoint: number): boolean {
-    return (
-        isCodePointInRange(codePoint, CP_RANGE_SMALL_LETTER) ||
-        isCodePointInRange(codePoint, CP_RANGE_CAPITAL_LETTER)
-    )
+    return isLowercaseLetter(codePoint) || isUppercaseLetter(codePoint)
 }
 /**
  * Checks if the given code point is symbol.
