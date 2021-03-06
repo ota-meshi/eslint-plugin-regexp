@@ -10,6 +10,7 @@ import noOctal from "../rules/no-octal"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
+import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import preferD from "../rules/prefer-d"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
@@ -31,6 +32,7 @@ export const rules = [
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessExactlyQuantifier,
+    noUselessNonGreedy,
     noUselessTwoNumsQuantifier,
     preferD,
     preferPlusQuantifier,

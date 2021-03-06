@@ -26,7 +26,6 @@ var foo = /a{1,5}/;
 var foo = /a{1,}/;
 var foo = /a{2}/;
 
-
 /* ✗ BAD */
 var foo = /a{0,0}/;
 var foo = /a{1,1}/;
