@@ -1,4 +1,5 @@
 import type { RuleModule } from "../types"
+import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
 import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
@@ -19,6 +20,7 @@ import preferT from "../rules/prefer-t"
 import preferW from "../rules/prefer-w"
 
 export const rules = [
+    letterCase,
     matchAny,
     noAssertionCapturingGroup,
     noDupeCharactersCharacterClass,
