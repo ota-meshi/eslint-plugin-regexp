@@ -2,7 +2,6 @@
 eslint-disable
     eslint-comments/disable-enable-pair,
     regexp/no-dupe-characters-character-class,
-    regexp/match-any,
     regexp/prefer-question-quantifier,
     regexp/prefer-star-quantifier,
 --------------------------------------------- ignore */
@@ -10,8 +9,8 @@ import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
 import { isEqualNodes } from "../../../lib/utils/regexp-ast"
 type TestCase = {
-    a: RegExp
-    b: RegExp
+    a: RegExp | string
+    b: RegExp | string
     result: boolean
 }
 const TESTCASES: TestCase[] = [
@@ -181,8 +180,8 @@ const TESTCASES: TestCase[] = [
         result: false,
     },
     {
-        a: /[\p{ASCII}\P{ASCII}]/u,
-        b: /[\P{ASCII}\p{ASCII}]/u,
+        a: String.raw`/[\p{ASCII}\P{ASCII}]/u`,
+        b: String.raw`/[\P{ASCII}\p{ASCII}]/u`,
         result: true,
     },
     {
@@ -208,7 +207,11 @@ const TESTCASES: TestCase[] = [
 ]
 describe("regexp-ast isEqualNodes", () => {
     for (const testCase of TESTCASES) {
-        it(`${testCase.a.source} : ${testCase.b.source}`, () => {
+        it(`${
+            typeof testCase.a === "string" ? testCase.a : testCase.a.source
+        } : ${
+            typeof testCase.b === "string" ? testCase.b : testCase.b.source
+        }`, () => {
             const ast1 = parseRegExpLiteral(testCase.a)
             const ast2 = parseRegExpLiteral(testCase.b)
 
