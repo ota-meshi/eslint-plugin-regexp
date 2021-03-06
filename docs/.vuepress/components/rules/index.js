@@ -45,7 +45,7 @@ for (const k of Object.keys(plugin.rules)) {
         category: rule.meta.docs.category,
         ruleId: rule.meta.docs.ruleId,
         url: rule.meta.docs.url,
-        initChecked: true, // CATEGORY_INDEX[rule.meta.docs.category] <= 3,
+        init: "error", // CATEGORY_INDEX[rule.meta.docs.category] <= 3,
     })
 }
 for (const k of Object.keys(coreRules)) {
@@ -55,7 +55,7 @@ for (const k of Object.keys(coreRules)) {
         fallbackTitle: `ESLint core rules(${rule.meta.docs.category})`,
         ruleId: k,
         url: rule.meta.docs.url,
-        initChecked: false, // rule.meta.docs.recommended,
+        init: plugin.configs.recommended.rules[k] || "off",
     })
 }
 
@@ -96,7 +96,7 @@ export const DEFAULT_RULES_CONFIG = allRules.reduce((c, r) => {
     if (r.ruleId === "vue/no-parsing-error") {
         c[r.ruleId] = "error"
     } else {
-        c[r.ruleId] = r.initChecked ? "error" : "off"
+        c[r.ruleId] = r.init
     }
     return c
 }, {})
