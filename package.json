@@ -48,6 +48,7 @@
     "devDependencies": {
         "@ota-meshi/eslint-plugin": "^0.1.0",
         "@types/eslint": "^7.2.0",
+        "@types/eslint-scope": "^3.7.0",
         "@types/estree": "~0.0.45",
         "@types/mocha": "^8.0.0",
         "@types/node": "^14.0.13",
@@ -81,7 +82,9 @@
         "vuepress": "^1.5.2"
     },
     "dependencies": {
+        "comment-parser": "^1.1.2",
         "eslint-utils": "^2.1.0",
+        "jsdoctypeparser": "^9.0.0",
         "regexpp": "^3.1.0"
     }
 }

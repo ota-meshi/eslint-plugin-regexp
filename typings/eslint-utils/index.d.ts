@@ -1,4 +1,5 @@
 import type * as ESTree from "estree"
+import type { SourceCode } from "eslint"
 import type eslint from "eslint"
 
 export function findVariable(
@@ -20,6 +21,30 @@ export function getStringIfConstant(
     node: ESTree.Node,
     initialScope: eslint.Scope.Scope,
 ): string | null
+
+export function getStaticValue(
+    node: ESTree.Node,
+    initialScope: eslint.Scope.Scope,
+): { value: unknown } | { value: undefined; optional?: true } | null
+export function getPropertyName(
+    node: ESTree.Property | ESTree.MemberExpression | ESTree.MethodDefinition,
+    initialScope: eslint.Scope.Scope,
+): string | null
+
+export function isCommentToken(
+    token: eslint.AST.Token | ESTree.Comment,
+): token is ESTree.Comment
+export function isOpeningParenToken(
+    token: eslint.AST.Token | ESTree.Comment,
+): boolean
+export function hasSideEffect(
+    node: ESTree.Node,
+    sourceCode: SourceCode,
+    options?: {
+        considerGetters?: boolean
+        considerImplicitTypeConversion?: boolean
+    },
+): boolean
 
 export const READ: unique symbol,
     CALL: unique symbol,
