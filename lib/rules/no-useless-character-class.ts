@@ -1,6 +1,7 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import {
+    canUnwrapped,
     createRule,
     defineRegexpVisitor,
     fixerApplyEscape,
@@ -83,6 +84,9 @@ export default createRule("no-useless-character-class", {
                                 String.fromCodePoint(element.value),
                             )
                         ) {
+                            return
+                        }
+                        if (!canUnwrapped(ccNode, element.raw)) {
                             return
                         }
                     } else if (element.type === "CharacterClassRange") {

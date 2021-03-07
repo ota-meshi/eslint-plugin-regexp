@@ -1,7 +1,17 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Node as RegExpNode, Quantifier } from "regexpp/ast"
+import type {
+    Alternative,
+    AnyCharacterSet,
+    Assertion,
+    Backreference,
+    CapturingGroup,
+    CharacterClass,
+    Group,
+    Node as RegExpNode,
+    Quantifier,
+} from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import {
     CALL,
@@ -344,4 +354,113 @@ export function getQuantifierOffsets(qNode: Quantifier): [number, number] {
     const startOffset = qNode.element.end - qNode.start
     const endOffset = qNode.raw.length - (qNode.greedy ? 0 : 1)
     return [startOffset, endOffset]
+}
+
+/* eslint-disable complexity -- X( */
+/**
+ * Check the siblings to see if the regex doesn't change when unwrapped.
+ */
+export function canUnwrapped(
+    /* eslint-enable complexity -- X( */
+    node:
+        | CharacterClass
+        | Group
+        | CapturingGroup
+        | Assertion
+        | Quantifier
+        | AnyCharacterSet
+        | Backreference,
+    text: string,
+): boolean {
+    const { alternative, index } = getAlternativeAndIndex()
+    if (index === 0) {
+        return true
+    }
+    if (/^\d+$/u.test(text)) {
+        let prevIndex = index - 1
+        let prev = alternative.elements[prevIndex]
+        if (prev.type === "Backreference") {
+            // e.g. /()\1[0]/ -> /()\10/
+            return false
+        }
+
+        while (
+            prev.type === "Character" &&
+            /^\d+$/u.test(prev.raw) &&
+            prevIndex > 0
+        ) {
+            prevIndex--
+            prev = alternative.elements[prevIndex]
+        }
+        if (prev.type === "Character" && prev.raw === "{") {
+            // e.g. /a{[0]}/ -> /a{0}/
+            return false
+        }
+    }
+    if (/^[0-7]+$/u.test(text)) {
+        const prev = alternative.elements[index - 1]
+        if (prev.type === "Character" && /^\\[0-7]+$/u.test(prev.raw)) {
+            // e.g. /\0[1]/ -> /\01/
+            return false
+        }
+    }
+    if (/^[\da-f]+$/iu.test(text)) {
+        let prevIndex = index - 1
+        let prev = alternative.elements[prevIndex]
+        while (
+            prev.type === "Character" &&
+            /^[\da-f]+$/iu.test(prev.raw) &&
+            prevIndex > 0
+        ) {
+            prevIndex--
+            prev = alternative.elements[prevIndex]
+        }
+        if (
+            prev.type === "Character" &&
+            (prev.raw === "\\x" || prev.raw === "\\u")
+        ) {
+            // e.g. /\xF[F]/ -> /\xFF/
+            // e.g. /\uF[F]FF/ -> /\xFFFF/
+            return false
+        }
+    }
+    if (/^[a-z]+$/iu.test(text)) {
+        if (index > 1) {
+            const prev = alternative.elements[index - 1]
+            if (prev.type === "Character" && prev.raw === "c") {
+                const prev2 = alternative.elements[index - 2]
+                if (prev2.type === "Character" && prev2.raw === "\\") {
+                    // e.g. /\c[M]/ -> /\cM/
+                    return false
+                }
+            }
+        }
+    }
+
+    return true
+
+    /** Get alternative and element index */
+    function getAlternativeAndIndex() {
+        const parent = node.parent
+        let target:
+                | CharacterClass
+                | Group
+                | CapturingGroup
+                | Assertion
+                | Quantifier
+                | AnyCharacterSet
+                | Backreference,
+            alt: Alternative
+        if (parent.type === "Quantifier") {
+            alt = parent.parent
+            target = parent
+        } else {
+            alt = parent
+            target = node
+        }
+        return {
+            alternative: alt,
+            index: alt.elements.indexOf(target),
+        }
+    }
 }
