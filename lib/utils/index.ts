@@ -3,12 +3,7 @@ import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Alternative,
-    AnyCharacterSet,
-    Assertion,
-    Backreference,
-    CapturingGroup,
-    CharacterClass,
-    Group,
+    Element,
     Node as RegExpNode,
     Quantifier,
 } from "regexpp/ast"
@@ -362,17 +357,21 @@ export function getQuantifierOffsets(qNode: Quantifier): [number, number] {
  */
 export function canUnwrapped(
     /* eslint-enable complexity -- X( */
-    node:
-        | CharacterClass
-        | Group
-        | CapturingGroup
-        | Assertion
-        | Quantifier
-        | AnyCharacterSet
-        | Backreference,
+    node: Element,
     text: string,
 ): boolean {
-    const { alternative, index } = getAlternativeAndIndex()
+    const parent = node.parent
+    let target: Element, alternative: Alternative
+    if (parent.type === "Quantifier") {
+        alternative = parent.parent
+        target = parent
+    } else if (parent.type === "Alternative") {
+        alternative = parent
+        target = node
+    } else {
+        return true
+    }
+    const index = alternative.elements.indexOf(target)
     if (index === 0) {
         return true
     }
@@ -438,29 +437,4 @@ export function canUnwrapped(
     }
 
     return true
-
-    /** Get alternative and element index */
-    function getAlternativeAndIndex() {
-        const parent = node.parent
-        let target:
-                | CharacterClass
-                | Group
-                | CapturingGroup
-                | Assertion
-                | Quantifier
-                | AnyCharacterSet
-                | Backreference,
-            alt: Alternative
-        if (parent.type === "Quantifier") {
-            alt = parent.parent
-            target = parent
-        } else {
-            alt = parent
-            target = node
-        }
-        return {
-            alternative: alt,
-            index: alt.elements.indexOf(target),
-        }
-    }
 }

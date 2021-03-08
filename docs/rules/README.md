@@ -22,6 +22,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
+| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
