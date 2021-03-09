@@ -84,30 +84,6 @@ tester.run("no-useless-escape", rule as any, {
             errors: ["Unnecessary escape character: \\x."],
         },
         {
-            code: String.raw`/\c1/`,
-            errors: [
-                {
-                    message: "Unnecessary escape character: \\c.",
-                    line: 1,
-                    column: 2,
-                    endLine: 1,
-                    endColumn: 3,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\c]/`,
-            errors: [
-                {
-                    message: "Unnecessary escape character: \\c.",
-                    line: 1,
-                    column: 3,
-                    endLine: 1,
-                    endColumn: 4,
-                },
-            ],
-        },
-        {
             code: `/\\u41/`,
             errors: ["Unnecessary escape character: \\u."],
         },
@@ -137,7 +113,6 @@ tester.run("no-useless-escape", rule as any, {
                 "Unnecessary escape character: \\9.",
             ],
         },
-
         {
             code: String.raw`/\p{ASCII}/; /[\p{ASCII}]/; /\P{ASCII}/; /[\P{ASCII}]/`, // Missing u flag
             errors: [
@@ -147,5 +122,29 @@ tester.run("no-useless-escape", rule as any, {
                 "Unnecessary escape character: \\P.",
             ],
         },
+        // {
+        //     code: String.raw`/\c1/`,
+        //     errors: [
+        //         {
+        //             message: "Unnecessary escape character: \\c.",
+        //             line: 1,
+        //             column: 2,
+        //             endLine: 1,
+        //             endColumn: 3,
+        //         },
+        //     ],
+        // },
+        // {
+        //     code: String.raw`/[\c]/`,
+        //     errors: [
+        //         {
+        //             message: "Unnecessary escape character: \\c.",
+        //             line: 1,
+        //             column: 3,
+        //             endLine: 1,
+        //             endColumn: 4,
+        //         },
+        //     ],
+        // },
     ],
 })

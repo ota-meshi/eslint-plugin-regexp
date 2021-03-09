@@ -27,7 +27,6 @@ var foo = /\\/
 /* ✗ BAD */
 var foo = /\a/
 var foo = /\x7/
-var foo = /\c1/
 var foo = /\u41/
 var foo = /\u{[41]}/
 ```
@@ -46,7 +45,6 @@ var foo = /\a/
 
 // no-useless-escape rule DOES NOT report it.
 var foo = /\x7/
-var foo = /\c1/
 var foo = /\u41/
 var foo = /\u{[41]}/
 ```

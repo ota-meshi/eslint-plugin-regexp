@@ -96,7 +96,6 @@ export default createRule("no-useless-escape", {
                 onCharacterClassLeave() {
                     inCharacterClass = false
                 },
-                // eslint-disable-next-line complexity -- X(
                 onCharacterEnter(cNode) {
                     if (cNode.raw.startsWith("\\")) {
                         // escapes
@@ -125,24 +124,25 @@ export default createRule("no-useless-escape", {
                                 return
                             }
                             report(cNode, 0, char)
-                        } else if (cNode.value === CP_BACK_SLASH) {
-                            // Invalid escape for /\c/
-                            if (cNode.raw === "\\") {
-                                const parent = cNode.parent
-                                if (
-                                    parent.type === "Alternative" ||
-                                    parent.type === "CharacterClass"
-                                ) {
-                                    const next =
-                                        parent.elements[
-                                            parent.elements.indexOf(cNode) + 1
-                                        ]
-                                    if (next && next.raw.length === 1) {
-                                        report(cNode, 0, next.raw)
-                                    }
-                                }
-                            }
                         }
+                        // else if (cNode.value === CP_BACK_SLASH) {
+                        //     // Invalid escape for /\c/
+                        //     if (cNode.raw === "\\") {
+                        //         const parent = cNode.parent
+                        //         if (
+                        //             parent.type === "Alternative" ||
+                        //             parent.type === "CharacterClass"
+                        //         ) {
+                        //             const next =
+                        //                 parent.elements[
+                        //                     parent.elements.indexOf(cNode) + 1
+                        //                 ]
+                        //             if (next && next.raw.length === 1) {
+                        //                 report(cNode, 0, next.raw)
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                 },
             }
