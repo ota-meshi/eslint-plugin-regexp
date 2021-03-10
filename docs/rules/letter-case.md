@@ -23,6 +23,7 @@ This rule is aimed to unify the case of letters.
 /* ✓ GOOD */
 var foo = /a/i
 var foo = /\u000a/
+var foo = /\x/
 var foo = /\cA/
 
 /* ✗ BAD */
@@ -40,6 +41,7 @@ var foo = /\ca/
   "regexp/letter-case": ["error", {
     "caseInsensitive": "lowercase", // or "uppercase" or "ignore"
     "unicodeEscape": "lowercase", // or "uppercase" or "ignore"
+    "hexadecimalEscape": "lowercase", // or "uppercase" or "ignore"
     "controlEscape": "uppercase", // or "lowercase" or "ignore"
   }]
 }
@@ -52,6 +54,7 @@ var foo = /\ca/
 - Properties
   - `caseInsensitive` ... Specifies the letter case when the `i` flag is present. Default is `"lowercase"`.
   - `unicodeEscape` ... Specifies the letter case when the unicode escapes. Default is `"lowercase"`.
+  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"lowercase"`.
   - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"uppercase"`.
 
 ## :rocket: Version
