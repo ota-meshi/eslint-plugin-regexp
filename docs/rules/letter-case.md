@@ -23,10 +23,12 @@ This rule is aimed to unify the case of letters.
 /* ✓ GOOD */
 var foo = /a/i
 var foo = /\u000a/
+var foo = /\cA/
 
 /* ✗ BAD */
 var foo = /A/i
 var foo = /\u000A/
+var foo = /\ca/
 ```
 
 </eslint-code-block>
@@ -37,18 +39,20 @@ var foo = /\u000A/
 {
   "regexp/letter-case": ["error", {
     "caseInsensitive": "lowercase", // or "uppercase" or "ignore"
-    "unicodeEscape": "lowercase" // or "uppercase" or "ignore"
+    "unicodeEscape": "lowercase", // or "uppercase" or "ignore"
+    "controlEscape": "uppercase", // or "lowercase" or "ignore"
   }]
 }
 ```
 
 - String options
-  - `"lowercase"` ... Enforce lowercase letters. This is default.
+  - `"lowercase"` ... Enforce lowercase letters.
   - `"uppercase"` ... Enforce uppercase letters.
   - `"ignore"` ... Does not force case.
 - Properties
-  - `caseInsensitive` ... Specifies the letter case when the `i` flag is present.
-  - `unicodeEscape` ... Specifies the letter case when the unicode escapes.
+  - `caseInsensitive` ... Specifies the letter case when the `i` flag is present. Default is `"lowercase"`.
+  - `unicodeEscape` ... Specifies the letter case when the unicode escapes. Default is `"lowercase"`.
+  - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"uppercase"`.
 
 ## :rocket: Version
 
