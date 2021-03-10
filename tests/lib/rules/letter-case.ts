@@ -132,6 +132,24 @@ tester.run("letter-case", rule as any, {
             errors: ["'A-Z' is not in lowercase"],
         },
         {
+            code: String.raw`/[\u0041-Z]/i`,
+            output: `/[a-z]/i`,
+            errors: ["'\\u0041-Z' is not in lowercase"],
+        },
+        {
+            code: String.raw`/[\u004A-Z]/i`,
+            output: String.raw`/[\u004a-Z]/i`,
+            errors: [
+                "'\\u004A-Z' is not in lowercase",
+                "'\\u004A' is not in lowercase",
+            ],
+        },
+        {
+            code: String.raw`/[\u004a-Z]/i`,
+            output: `/[j-z]/i`,
+            errors: ["'\\u004a-Z' is not in lowercase"],
+        },
+        {
             code: String.raw`/\u000A/`,
             output: String.raw`/\u000a/`,
             errors: [String.raw`'\u000A' is not in lowercase`],
