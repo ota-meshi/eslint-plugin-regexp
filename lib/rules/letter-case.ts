@@ -14,6 +14,16 @@ import {
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
 type Case = typeof CASE_SCHEMA[number]
 
+const DEFAULTS = {
+    caseInsensitive: "lowercase" as const,
+    unicodeEscape: "lowercase" as const,
+    // TODO In the major version
+    // hexadecimalEscape: "lowercase" as const,
+    // controlEscape: "uppercase" as const,
+    hexadecimalEscape: "ignore" as const,
+    controlEscape: "ignore" as const,
+}
+
 /** Parse option */
 function parseOptions(option?: {
     caseInsensitive?: Case
@@ -27,18 +37,14 @@ function parseOptions(option?: {
     controlEscape: Case
 } {
     if (!option) {
-        return {
-            caseInsensitive: "lowercase",
-            unicodeEscape: "lowercase",
-            hexadecimalEscape: "lowercase",
-            controlEscape: "uppercase",
-        }
+        return DEFAULTS
     }
     return {
-        caseInsensitive: option.caseInsensitive || "lowercase",
-        unicodeEscape: option.unicodeEscape || "lowercase",
-        hexadecimalEscape: option.hexadecimalEscape || "lowercase",
-        controlEscape: option.controlEscape || "uppercase",
+        caseInsensitive: option.caseInsensitive || DEFAULTS.caseInsensitive,
+        unicodeEscape: option.unicodeEscape || DEFAULTS.unicodeEscape,
+        hexadecimalEscape:
+            option.hexadecimalEscape || DEFAULTS.hexadecimalEscape,
+        controlEscape: option.controlEscape || DEFAULTS.controlEscape,
     }
 }
 
