@@ -27,6 +27,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star: |
+| [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |

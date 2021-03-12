@@ -15,6 +15,7 @@ import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
+import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
 import preferQuantifier from "../rules/prefer-quantifier"
@@ -44,6 +45,7 @@ export const rules = [
     noUselessNonGreedy,
     noUselessRange,
     noUselessTwoNumsQuantifier,
+    preferCharacterClass,
     preferD,
     preferPlusQuantifier,
     preferQuantifier,
