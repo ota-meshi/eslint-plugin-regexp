@@ -12,6 +12,7 @@ import noOctal from "../rules/no-octal"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
+import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
@@ -42,6 +43,7 @@ export const rules = [
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessExactlyQuantifier,
+    noUselessNonCapturingGroup,
     noUselessNonGreedy,
     noUselessRange,
     noUselessTwoNumsQuantifier,
