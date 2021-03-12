@@ -18,15 +18,19 @@ This rule is aimed to unify the case of letters.
 <eslint-code-block fix>
 
 ```js
-/* eslint regexp/letter-case: "error" */
+/* eslint regexp/letter-case: ["error", { hexadecimalEscape: 'lowercase', controlEscape: 'uppercase' }] */
 
 /* ✓ GOOD */
 var foo = /a/i
 var foo = /\u000a/
+var foo = /\x0a/
+var foo = /\cA/
 
 /* ✗ BAD */
 var foo = /A/i
 var foo = /\u000A/
+var foo = /\x0A/
+var foo = /\ca/
 ```
 
 </eslint-code-block>
@@ -37,18 +41,24 @@ var foo = /\u000A/
 {
   "regexp/letter-case": ["error", {
     "caseInsensitive": "lowercase", // or "uppercase" or "ignore"
-    "unicodeEscape": "lowercase" // or "uppercase" or "ignore"
+    "unicodeEscape": "lowercase", // or "uppercase" or "ignore"
+    "hexadecimalEscape": "ignore", // or "lowercase" or "uppercase"
+    "controlEscape": "ignore", // or "lowercase" or "uppercase"
   }]
 }
 ```
 
 - String options
-  - `"lowercase"` ... Enforce lowercase letters. This is default.
+  - `"lowercase"` ... Enforce lowercase letters.
   - `"uppercase"` ... Enforce uppercase letters.
   - `"ignore"` ... Does not force case.
 - Properties
-  - `caseInsensitive` ... Specifies the letter case when the `i` flag is present.
-  - `unicodeEscape` ... Specifies the letter case when the unicode escapes.
+  - `caseInsensitive` ... Specifies the letter case when the `i` flag is present. Default is `"lowercase"`.
+  - `unicodeEscape` ... Specifies the letter case when the unicode escapes. Default is `"lowercase"`.
+  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"ignore"`.  
+    (The default value will change to `"lowercase"` in the next major version.)
+  - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"ignore"`.  
+    (The default value will change to `"uppercase"` in the next major version.)
 
 ## :rocket: Version
 

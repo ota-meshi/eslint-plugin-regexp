@@ -14,17 +14,37 @@ import {
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
 type Case = typeof CASE_SCHEMA[number]
 
+const DEFAULTS = {
+    caseInsensitive: "lowercase" as const,
+    unicodeEscape: "lowercase" as const,
+    // TODO In the major version
+    // hexadecimalEscape: "lowercase" as const,
+    // controlEscape: "uppercase" as const,
+    hexadecimalEscape: "ignore" as const,
+    controlEscape: "ignore" as const,
+}
+
 /** Parse option */
 function parseOptions(option?: {
     caseInsensitive?: Case
     unicodeEscape?: Case
-}): { caseInsensitive: Case; unicodeEscape: Case } {
+    hexadecimalEscape?: Case
+    controlEscape?: Case
+}): {
+    caseInsensitive: Case
+    unicodeEscape: Case
+    hexadecimalEscape: Case
+    controlEscape: Case
+} {
     if (!option) {
-        return { caseInsensitive: "lowercase", unicodeEscape: "lowercase" }
+        return DEFAULTS
     }
     return {
-        caseInsensitive: option.caseInsensitive || "lowercase",
-        unicodeEscape: option.unicodeEscape || "lowercase",
+        caseInsensitive: option.caseInsensitive || DEFAULTS.caseInsensitive,
+        unicodeEscape: option.unicodeEscape || DEFAULTS.unicodeEscape,
+        hexadecimalEscape:
+            option.hexadecimalEscape || DEFAULTS.hexadecimalEscape,
+        controlEscape: option.controlEscape || DEFAULTS.controlEscape,
     }
 }
 
@@ -54,6 +74,8 @@ export default createRule("letter-case", {
                 properties: {
                     caseInsensitive: { enum: CASE_SCHEMA },
                     unicodeEscape: { enum: CASE_SCHEMA },
+                    hexadecimalEscape: { enum: CASE_SCHEMA },
+                    controlEscape: { enum: CASE_SCHEMA },
                 },
                 additionalProperties: false,
             },
@@ -157,7 +179,7 @@ export default createRule("letter-case", {
             if (options.unicodeEscape === "ignore") {
                 return
             }
-            const parts = /(\\u\{?)(.*)(\}?)/u.exec(cNode.raw)!
+            const parts = /^(\\u\{?)(.*)(\}?)$/u.exec(cNode.raw)!
             if (STRING_CASE_CHECKER[options.unicodeEscape](parts[2])) {
                 return
             }
@@ -166,6 +188,43 @@ export default createRule("letter-case", {
                 cNode,
                 options.unicodeEscape,
                 (converter) => `${parts[1]}${converter(parts[2])}${parts[3]}`,
+            )
+        }
+
+        /** Verify for Character in hexadecimal escape */
+        function verifyCharacterInHexadecimalEscape(
+            node: Expression,
+            cNode: Character,
+        ) {
+            if (options.hexadecimalEscape === "ignore") {
+                return
+            }
+            const parts = /^\\x(.*)$/u.exec(cNode.raw)!
+            if (STRING_CASE_CHECKER[options.hexadecimalEscape](parts[1])) {
+                return
+            }
+            report(
+                node,
+                cNode,
+                options.hexadecimalEscape,
+                (converter) => `\\x${converter(parts[1])}`,
+            )
+        }
+
+        /** Verify for Character in control escape */
+        function verifyCharacterInControl(node: Expression, cNode: Character) {
+            if (options.controlEscape === "ignore") {
+                return
+            }
+            const parts = /^\\c(.*)$/u.exec(cNode.raw)!
+            if (STRING_CASE_CHECKER[options.controlEscape](parts[1])) {
+                return
+            }
+            report(
+                node,
+                cNode,
+                options.controlEscape,
+                (converter) => `\\c${converter(parts[1])}`,
             )
         }
 
@@ -185,6 +244,12 @@ export default createRule("letter-case", {
                     }
                     if (cNode.raw.startsWith("\\u")) {
                         verifyCharacterInUnicodeEscape(node, cNode)
+                    }
+                    if (/^\\x.+$/u.test(cNode.raw)) {
+                        verifyCharacterInHexadecimalEscape(node, cNode)
+                    }
+                    if (/^\\c[a-zA-Z]$/u.test(cNode.raw)) {
+                        verifyCharacterInControl(node, cNode)
                     }
                 },
                 ...(flags.includes("i")
