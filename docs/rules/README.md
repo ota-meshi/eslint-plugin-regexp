@@ -15,6 +15,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | disallow capturing group that captures assertions. | :star: |
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star: |
+| [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |

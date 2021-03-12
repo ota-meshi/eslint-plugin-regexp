@@ -23,6 +23,9 @@ module.exports = {
         "no-lonely-if": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-duplicate-imports": "error",
+
+        "no-shadow": "off", // ts bug?
+        "@typescript-eslint/no-shadow": "error",
     },
     overrides: [
         {

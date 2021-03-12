@@ -3,6 +3,7 @@ import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
 import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
+import noDupeDisjunctions from "../rules/no-dupe-disjunctions"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
@@ -31,6 +32,7 @@ export const rules = [
     matchAny,
     noAssertionCapturingGroup,
     noDupeCharactersCharacterClass,
+    noDupeDisjunctions,
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
