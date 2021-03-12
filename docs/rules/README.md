@@ -13,8 +13,10 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 |:--------|:------------|:---|
 | [regexp/letter-case](./letter-case.md) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
+| [regexp/negation](./negation.md) | enforce use of escapes on negation | :wrench: |
 | [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | disallow capturing group that captures assertions. | :star: |
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star: |
+| [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
@@ -22,15 +24,19 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
+| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
+| [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star: |
 | [regexp/order-in-character-class](./order-in-character-class.md) | enforces elements order in character class | :wrench: |
+| [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
+| [regexp/prefer-range](./prefer-range.md) | enforce using character class range | :wrench: |
 | [regexp/prefer-regexp-exec](./prefer-regexp-exec.md) | enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided |  |
 | [regexp/prefer-regexp-test](./prefer-regexp-test.md) | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec` | :wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
