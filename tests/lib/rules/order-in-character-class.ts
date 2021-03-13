@@ -171,5 +171,12 @@ tester.run("order-in-character-class", rule as any, {
                 "Expected character class elements to be in ascending order. '\\w' should be before '\\d'.",
             ],
         },
+        {
+            code: String.raw`/[\da-b-]/u`,
+            output: String.raw`/[\d\-a-b]/u`,
+            errors: [
+                "Expected character class elements to be in ascending order. '-' should be before 'a-b'.",
+            ],
+        },
     ],
 })

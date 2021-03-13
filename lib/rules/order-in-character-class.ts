@@ -1,6 +1,7 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
+    CharacterClass,
     CharacterClassElement,
     UnicodePropertyCharacterSet,
 } from "regexpp/ast"
@@ -9,6 +10,7 @@ import {
     CP_SPACE,
     createRule,
     defineRegexpVisitor,
+    fixerApplyEscape,
     getRegexpLocation,
     getRegexpRange,
 } from "../utils"
@@ -126,9 +128,15 @@ export default createRule("order-in-character-class", {
                                         if (!targetRange || !nextRange) {
                                             return
                                         }
+
                                         yield fixer.insertTextBeforeRange(
                                             targetRange,
-                                            next.raw,
+                                            fixerApplyEscape(
+                                                (isNeedEscape(next, moveTarget)
+                                                    ? "\\"
+                                                    : "") + next.raw,
+                                                node,
+                                            ),
                                         )
 
                                         yield fixer.removeRange(nextRange)
@@ -250,3 +258,21 @@ export default createRule("order-in-character-class", {
         })
     },
 })
+
+/**
+ *Check whether the given CharacterClassElement is need escape.
+ */
+function isNeedEscape(
+    next: CharacterClassElement,
+    target: CharacterClassElement,
+) {
+    if (!next.raw.startsWith("-")) {
+        return false
+    }
+    const parent = target.parent as CharacterClass
+    const prev = parent.elements[parent.elements.indexOf(target) - 1]
+    if (prev.type !== "Character" && prev.type !== "CharacterSet") {
+        return false
+    }
+    return true
+}
