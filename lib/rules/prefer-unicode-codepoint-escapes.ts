@@ -40,7 +40,7 @@ export default createRule("prefer-unicode-codepoint-escapes", {
             return {
                 onCharacterEnter(cNode) {
                     if (cNode.value >= 0x10000) {
-                        if (/^(?:\\u[\da-fA-F]{4}){2}$/.test(cNode.raw)) {
+                        if (/^(?:\\u[\dA-Fa-f]{4}){2}$/.test(cNode.raw)) {
                             context.report({
                                 node,
                                 loc: getRegexpLocation(sourceCode, node, cNode),

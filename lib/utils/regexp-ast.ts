@@ -151,10 +151,7 @@ export function isEqualNodes<N extends Node>(
             return kind
         }
     }
-    if (
-        /(?:\(|\\|\[|\{|\||\+|\?|\*)/.test(a.raw) ||
-        /(?:\(|\\|\[|\{|\||\+|\?|\*)/.test(b.raw)
-    ) {
+    if (/[(*+?[\\{|]/.test(a.raw) || /[(*+?[\\{|]/.test(b.raw)) {
         return EQUALS_CHECKER[a.type](a as never, b as never, shortCircuit)
     }
     return a.raw === b.raw

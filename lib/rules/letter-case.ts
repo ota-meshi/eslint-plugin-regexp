@@ -248,7 +248,7 @@ export default createRule("letter-case", {
                     if (/^\\x.+$/u.test(cNode.raw)) {
                         verifyCharacterInHexadecimalEscape(node, cNode)
                     }
-                    if (/^\\c[a-zA-Z]$/u.test(cNode.raw)) {
+                    if (/^\\c[A-Za-z]$/u.test(cNode.raw)) {
                         verifyCharacterInControl(node, cNode)
                     }
                 },

@@ -131,7 +131,7 @@ export default createRule("no-useless-character-class", {
                                 element.type === "CharacterClassRange"
                             ) {
                                 if (
-                                    /^[.*+?${()|[/]$/u.test(text) ||
+                                    /^[$(-+./?[{|]$/u.test(text) ||
                                     (flags.includes("u") && text === "}")
                                 ) {
                                     text = fixerApplyEscape("\\", node) + text

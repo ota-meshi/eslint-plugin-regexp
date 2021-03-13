@@ -26,6 +26,30 @@ module.exports = {
 
         "no-shadow": "off", // ts bug?
         "@typescript-eslint/no-shadow": "error",
+
+        // https://github.com/ota-meshi/eslint-plugin-regexp/pull/49
+        "no-empty-character-class": "error",
+        "regexp/negation": "error",
+        "regexp/no-dupe-disjunctions": "error",
+        "regexp/no-useless-character-class": "error",
+        "regexp/no-useless-escape": "error",
+        "regexp/no-useless-non-capturing-group": "error",
+        "regexp/no-useless-non-greedy": "error",
+        "regexp/no-useless-range": "error",
+        "regexp/prefer-character-class": "error",
+        "regexp/prefer-range": "error",
+        "regexp/prefer-unicode-codepoint-escapes": "error",
+
+        "regexp/letter-case": [
+            "error",
+            { hexadecimalEscape: "lowercase", controlEscape: "uppercase" },
+        ],
+
+        // others
+        "regexp/order-in-character-class": "error",
+        "regexp/prefer-quantifier": "error",
+        "regexp/prefer-regexp-exec": "error",
+        "regexp/prefer-regexp-test": "error",
     },
     overrides: [
         {

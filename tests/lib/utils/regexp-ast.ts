@@ -4,6 +4,9 @@ eslint-disable
     regexp/no-dupe-characters-character-class,
     regexp/prefer-question-quantifier,
     regexp/prefer-star-quantifier,
+    regexp/prefer-character-class,
+    regexp/prefer-range,
+    regexp/order-in-character-class,
 --------------------------------------------- ignore */
 import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
