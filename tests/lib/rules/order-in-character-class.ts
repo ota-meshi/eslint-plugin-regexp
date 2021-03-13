@@ -178,5 +178,12 @@ tester.run("order-in-character-class", rule as any, {
                 "Expected character class elements to be in ascending order. '-' should be before 'a-b'.",
             ],
         },
+        {
+            code: String.raw`/[a-b-]/u`,
+            output: String.raw`/[-a-b]/u`,
+            errors: [
+                "Expected character class elements to be in ascending order. '-' should be before 'a-b'.",
+            ],
+        },
     ],
 })

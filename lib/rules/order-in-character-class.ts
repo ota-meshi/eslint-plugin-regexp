@@ -271,7 +271,7 @@ function isNeedEscape(
     }
     const parent = target.parent as CharacterClass
     const prev = parent.elements[parent.elements.indexOf(target) - 1]
-    if (prev.type !== "Character" && prev.type !== "CharacterSet") {
+    if (!prev || (prev.type !== "Character" && prev.type !== "CharacterSet")) {
         return false
     }
     return true
