@@ -56,9 +56,7 @@ export default createRule("no-super-linear-backtracking", {
         docs: {
             description: "disallow exponential and polynomial backtracking",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [

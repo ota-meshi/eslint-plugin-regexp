@@ -217,12 +217,11 @@ tester.run("letter-case", rule as any, {
             options: [{ unicodeEscape: "uppercase" }],
             errors: [String.raw`'\u{a}' is not in uppercase`],
         },
-        // TODO In the major version
-        // {
-        //     code: String.raw`/\x0A/`,
-        //     output: String.raw`/\x0a/`,
-        //     errors: [String.raw`'\x0A' is not in lowercase`],
-        // },
+        {
+            code: String.raw`/\x0A/`,
+            output: String.raw`/\x0a/`,
+            errors: [String.raw`'\x0A' is not in lowercase`],
+        },
         {
             code: String.raw`/\x0A/`,
             output: String.raw`/\x0a/`,
@@ -235,12 +234,11 @@ tester.run("letter-case", rule as any, {
             options: [{ hexadecimalEscape: "uppercase" }],
             errors: [String.raw`'\x0a' is not in uppercase`],
         },
-        // TODO In the major version
-        // {
-        //     code: String.raw`/\ca/u`,
-        //     output: String.raw`/\cA/u`,
-        //     errors: [String.raw`'\ca' is not in uppercase`],
-        // },
+        {
+            code: String.raw`/\ca/u`,
+            output: String.raw`/\cA/u`,
+            errors: [String.raw`'\ca' is not in uppercase`],
+        },
         {
             code: String.raw`/\cA/u`,
             output: String.raw`/\ca/u`,

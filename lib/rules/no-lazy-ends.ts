@@ -48,9 +48,7 @@ export default createRule("no-lazy-ends", {
             description:
                 "disallow lazy quantifiers at the end of an expression",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
             default: "warn",
         },
         schema: [

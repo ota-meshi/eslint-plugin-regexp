@@ -17,11 +17,8 @@ type Case = typeof CASE_SCHEMA[number]
 const DEFAULTS = {
     caseInsensitive: "lowercase" as const,
     unicodeEscape: "lowercase" as const,
-    // TODO In the major version
-    // hexadecimalEscape: "lowercase" as const,
-    // controlEscape: "uppercase" as const,
-    hexadecimalEscape: "ignore" as const,
-    controlEscape: "ignore" as const,
+    hexadecimalEscape: "lowercase" as const,
+    controlEscape: "uppercase" as const,
 }
 
 /** Parse option */

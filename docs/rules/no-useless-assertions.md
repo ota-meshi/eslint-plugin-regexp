@@ -9,6 +9,8 @@ since: "v0.9.0"
 
 > disallow assertions that are known to always accept (or reject)
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 Some assertion are unnecessary because the rest of the pattern forces them to

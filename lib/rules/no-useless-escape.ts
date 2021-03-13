@@ -53,9 +53,7 @@ export default createRule("no-useless-escape", {
         docs: {
             description: "disallow unnecessary escape characters in RegExp",
             category: "Stylistic Issues",
-            // TODO In the major version
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

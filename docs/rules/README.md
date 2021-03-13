@@ -13,53 +13,53 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
-| [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements |  |
-| [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. |  |
+| [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions | :star: |
+| [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements | :star: |
+| [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. | :star: |
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
-| [regexp/no-invalid-regexp](./no-invalid-regexp.md) | disallow invalid regular expression strings in `RegExp` constructors |  |
-| [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression |  |
-| [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions |  |
-| [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
-| [regexp/no-super-linear-backtracking](./no-super-linear-backtracking.md) | disallow exponential and polynomial backtracking | :wrench: |
+| [regexp/no-invalid-regexp](./no-invalid-regexp.md) | disallow invalid regular expression strings in `RegExp` constructors | :star: |
+| [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression | :star: |
+| [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions | :star: |
+| [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched | :star: |
+| [regexp/no-super-linear-backtracking](./no-super-linear-backtracking.md) | disallow exponential and polynomial backtracking | :star::wrench: |
 | [regexp/no-super-linear-move](./no-super-linear-move.md) | disallow quantifiers that cause quadratic moves |  |
-| [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) |  |
+| [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) | :star: |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
-| [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
-| [regexp/strict](./strict.md) | disallow not strictly valid regular expressions | :wrench: |
+| [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string | :star: |
+| [regexp/strict](./strict.md) | disallow not strictly valid regular expressions | :star::wrench: |
 
 ### Best Practices
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/confusing-quantifier](./confusing-quantifier.md) | disallow confusing quantifiers |  |
-| [regexp/control-character-escape](./control-character-escape.md) | enforce consistent escaping of control characters | :wrench: |
-| [regexp/negation](./negation.md) | enforce use of escapes on negation | :wrench: |
+| [regexp/confusing-quantifier](./confusing-quantifier.md) | disallow confusing quantifiers | :star: |
+| [regexp/control-character-escape](./control-character-escape.md) | enforce consistent escaping of control characters | :star::wrench: |
+| [regexp/negation](./negation.md) | enforce use of escapes on negation | :star::wrench: |
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star::wrench: |
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
-| [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
-| [regexp/no-non-standard-flag](./no-non-standard-flag.md) | disallow non-standard flags |  |
-| [regexp/no-obscure-range](./no-obscure-range.md) | disallow obscure character ranges |  |
+| [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features | :star: |
+| [regexp/no-non-standard-flag](./no-non-standard-flag.md) | disallow non-standard flags | :star: |
+| [regexp/no-obscure-range](./no-obscure-range.md) | disallow obscure character ranges | :star: |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-standalone-backslash](./no-standalone-backslash.md) | disallow standalone backslashes (`\`) |  |
-| [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
-| [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
-| [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group | :wrench: |
-| [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
-| [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |
-| [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
-| [regexp/no-useless-quantifier](./no-useless-quantifier.md) | disallow quantifiers that can be removed | :wrench: |
-| [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
+| [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :star::wrench: |
+| [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :star::wrench: |
+| [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group | :star::wrench: |
+| [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :star::wrench: |
+| [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :star::wrench: |
+| [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :star::wrench: |
+| [regexp/no-useless-quantifier](./no-useless-quantifier.md) | disallow quantifiers that can be removed | :star::wrench: |
+| [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :star::wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
-| [regexp/no-zero-quantifier](./no-zero-quantifier.md) | disallow quantifiers with a maximum of zero |  |
-| [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
-| [regexp/optimal-quantifier-concatenation](./optimal-quantifier-concatenation.md) | require optimal quantifiers for concatenated quantifiers | :wrench: |
+| [regexp/no-zero-quantifier](./no-zero-quantifier.md) | disallow quantifiers with a maximum of zero | :star: |
+| [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier | :star: |
+| [regexp/optimal-quantifier-concatenation](./optimal-quantifier-concatenation.md) | require optimal quantifiers for concatenated quantifiers | :star::wrench: |
 | [regexp/prefer-escape-replacement-dollar-char](./prefer-escape-replacement-dollar-char.md) | enforces escape of replacement `$` character (`$$`). |  |
-| [regexp/prefer-predefined-assertion](./prefer-predefined-assertion.md) | prefer predefined assertion over equivalent lookarounds | :wrench: |
+| [regexp/prefer-predefined-assertion](./prefer-predefined-assertion.md) | prefer predefined assertion over equivalent lookarounds | :star::wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |
-| [regexp/prefer-range](./prefer-range.md) | enforce using character class range | :wrench: |
+| [regexp/prefer-range](./prefer-range.md) | enforce using character class range | :star::wrench: |
 | [regexp/prefer-regexp-exec](./prefer-regexp-exec.md) | enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided |  |
 | [regexp/prefer-regexp-test](./prefer-regexp-test.md) | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec` | :wrench: |
 | [regexp/sort-alternatives](./sort-alternatives.md) | sort alternatives if order doesn't matter | :wrench: |
@@ -71,18 +71,18 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/hexadecimal-escape](./hexadecimal-escape.md) | enforce consistent usage of hexadecimal escape | :wrench: |
 | [regexp/letter-case](./letter-case.md) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
-| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp | :wrench: |
-| [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
-| [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
+| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp | :star::wrench: |
+| [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :star::wrench: |
+| [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :star::wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-named-backreference](./prefer-named-backreference.md) | enforce using named backreferences | :wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
-| [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
+| [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :star::wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-character-class-elements](./sort-character-class-elements.md) | enforces elements order in character class | :wrench: |
-| [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
+| [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :star::wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
 
 ### Deprecated

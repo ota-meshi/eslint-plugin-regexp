@@ -503,9 +503,7 @@ export default createRule("optimal-quantifier-concatenation", {
             description:
                 "require optimal quantifiers for concatenated quantifiers",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],
