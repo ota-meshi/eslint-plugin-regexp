@@ -132,9 +132,7 @@ export default createRule("order-in-character-class", {
                                         yield fixer.insertTextBeforeRange(
                                             targetRange,
                                             fixerApplyEscape(
-                                                (isNeedEscape(next, moveTarget)
-                                                    ? "\\"
-                                                    : "") + next.raw,
+                                                escapeRaw(next, moveTarget),
                                                 node,
                                             ),
                                         )
@@ -260,19 +258,24 @@ export default createRule("order-in-character-class", {
 })
 
 /**
- *Check whether the given CharacterClassElement is need escape.
+ * get the escape text from the given CharacterClassElement.
  */
-function isNeedEscape(
-    next: CharacterClassElement,
-    target: CharacterClassElement,
-) {
-    if (!next.raw.startsWith("-")) {
-        return false
+function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
+    let raw = node.raw
+    if (raw.startsWith("-")) {
+        const parent = target.parent as CharacterClass
+        const prev = parent.elements[parent.elements.indexOf(target) - 1]
+        if (
+            prev &&
+            (prev.type === "Character" || prev.type === "CharacterSet")
+        ) {
+            raw = `\\${raw}`
+        }
     }
-    const parent = target.parent as CharacterClass
-    const prev = parent.elements[parent.elements.indexOf(target) - 1]
-    if (!prev || (prev.type !== "Character" && prev.type !== "CharacterSet")) {
-        return false
+    if (target.raw.startsWith("-")) {
+        if (node.type === "Character" || node.type === "CharacterSet") {
+            raw = `${raw}\\`
+        }
     }
-    return true
+    return raw
 }

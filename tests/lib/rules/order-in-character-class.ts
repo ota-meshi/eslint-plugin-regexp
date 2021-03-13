@@ -185,5 +185,26 @@ tester.run("order-in-character-class", rule as any, {
                 "Expected character class elements to be in ascending order. '-' should be before 'a-b'.",
             ],
         },
+        {
+            code: String.raw`/[-$a]/u`,
+            output: String.raw`/[$\-a]/u`,
+            errors: [
+                "Expected character class elements to be in ascending order. '$' should be before '-'.",
+            ],
+        },
+        {
+            code: String.raw`/[-_\s]+/gu`,
+            output: String.raw`/[\s\-_]+/gu`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\s' should be before '-'.",
+            ],
+        },
+        {
+            code: String.raw`/[-_-]/u`,
+            output: String.raw`/[-\-_]/u`,
+            errors: [
+                "Expected character class elements to be in ascending order. '-' should be before '_'.",
+            ],
+        },
     ],
 })
