@@ -87,5 +87,41 @@ tester.run("negation", rule as any, {
                 "Unexpected negated character class. Use '\\p{Script=Hiragana}' instead.",
             ],
         },
+        {
+            code: String.raw`const s ="[^\\w]"
+            new RegExp(s)`,
+            output: String.raw`const s ="\\W"
+            new RegExp(s)`,
+            errors: ["Unexpected negated character class. Use '\\W' instead."],
+        },
+        {
+            code: String.raw`const s ="[^\\w]"
+            new RegExp(s)
+            new RegExp(s)`,
+            output: String.raw`const s ="\\W"
+            new RegExp(s)
+            new RegExp(s)`,
+            errors: [
+                "Unexpected negated character class. Use '\\W' instead.",
+                "Unexpected negated character class. Use '\\W' instead.",
+            ],
+        },
+        {
+            code: String.raw`const s ="[^\\w]"
+            new RegExp(s, "i")
+            new RegExp(s)`,
+            output: null,
+            errors: [
+                "Unexpected negated character class. Use '\\W' instead.",
+                "Unexpected negated character class. Use '\\W' instead.",
+            ],
+        },
+        {
+            code: String.raw`const s ="[^\\w]"
+            Number(s)
+            new RegExp(s)`,
+            output: null,
+            errors: ["Unexpected negated character class. Use '\\W' instead."],
+        },
     ],
 })

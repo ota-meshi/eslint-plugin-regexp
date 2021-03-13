@@ -35,8 +35,19 @@ tester.run("prefer-t", rule as any, {
             ],
         },
         {
-            code: `
-            const s = "\\\\u0009"
+            code: String.raw`
+            const s = "\\u0009"
+            new RegExp(s)
+            `,
+            output: String.raw`
+            const s = "\\t"
+            new RegExp(s)
+            `,
+            errors: ['Unexpected character "\\u0009". Use "\\t" instead.'],
+        },
+        {
+            code: String.raw`
+            const s = "\\u"+"0009"
             new RegExp(s)
             `,
             output: null,

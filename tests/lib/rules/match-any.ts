@@ -106,8 +106,24 @@ tester.run("match-any", rule as any, {
             ],
         },
         {
-            code: `
-            const s = "[\\\\s\\\\S][\\\\S\\\\s][^]."
+            code: String.raw`
+            const s = "[\\s\\S][\\S\\s][^]."
+            new RegExp(s, 's')
+            `,
+            output: String.raw`
+            const s = "[^][^][^][^]"
+            new RegExp(s, 's')
+            `,
+            options: [{ allows: ["[^]"] }],
+            errors: [
+                'Unexpected using "[\\s\\S]" to match any character.',
+                'Unexpected using "[\\S\\s]" to match any character.',
+                'Unexpected using "." to match any character.',
+            ],
+        },
+        {
+            code: String.raw`
+            const s = "[\\s\\S]"+"[\\S\\s][^]."
             new RegExp(s, 's')
             `,
             output: null,

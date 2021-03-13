@@ -103,7 +103,7 @@ export default createRule("prefer-character-class", {
                             if (text.startsWith("-")) {
                                 newText += fixerApplyEscape("\\", node)
                             }
-                            newText += text
+                            newText += fixerApplyEscape(text, node)
                         }
                         return fixer.replaceTextRange(
                             replaceRange!,

@@ -6,6 +6,7 @@ import {
     getRegexpLocation,
     getRegexpRange,
     CP_TAB,
+    fixerApplyEscape,
 } from "../utils"
 
 export default createRule("prefer-t", {
@@ -55,7 +56,10 @@ export default createRule("prefer-t", {
                                 if (range == null) {
                                     return null
                                 }
-                                return fixer.replaceTextRange(range, "\\t")
+                                return fixer.replaceTextRange(
+                                    range,
+                                    fixerApplyEscape("\\t", node),
+                                )
                             },
                         })
                     }

@@ -134,10 +134,13 @@ export default createRule("no-useless-character-class", {
                                     /^[$(-+./?[{|]$/u.test(text) ||
                                     (flags.includes("u") && text === "}")
                                 ) {
-                                    text = fixerApplyEscape("\\", node) + text
+                                    text = `\\${text}`
                                 }
                             }
-                            return fixer.replaceTextRange(range, text)
+                            return fixer.replaceTextRange(
+                                range,
+                                fixerApplyEscape(text, node),
+                            )
                         },
                     })
                 },

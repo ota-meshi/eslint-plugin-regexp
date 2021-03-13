@@ -16,6 +16,7 @@ import {
     findVariable,
 } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
+import { parseStringTokens } from "./string-literal-parser"
 export * from "./unicode"
 
 type RegexpRule = {
@@ -184,6 +185,7 @@ function buildRegexpVisitor(
                 }
             })
         },
+        // eslint-disable-next-line complexity -- X(
         Program() {
             const scope = context.getScope()
             const tracker = new ReferenceTracker(scope)
@@ -191,6 +193,13 @@ function buildRegexpVisitor(
             // Iterate calls of RegExp.
             // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
             //       `const {RegExp: a} = window; new a()`, etc...
+            const regexpDataList: {
+                newOrCall: ESTree.NewExpression | ESTree.CallExpression
+                patternNode: ESTree.Expression
+                pattern: string | null
+                flagsNode: ESTree.Expression | ESTree.SpreadElement | undefined
+                flags: string | null
+            }[] = []
             for (const { node } of tracker.iterateGlobalReferences({
                 RegExp: { [CALL]: true, [CONSTRUCT]: true },
             })) {
@@ -202,8 +211,19 @@ function buildRegexpVisitor(
                     continue
                 }
                 const pattern = getStringIfConstant(patternNode, scope)
-                const flags = getStringIfConstant(flagsNode, scope)
+                const flags = flagsNode
+                    ? getStringIfConstant(flagsNode, scope)
+                    : null
 
+                regexpDataList.push({
+                    newOrCall,
+                    patternNode,
+                    pattern,
+                    flagsNode,
+                    flags,
+                })
+            }
+            for (const { patternNode, pattern, flags } of regexpDataList) {
                 if (typeof pattern === "string") {
                     let verifyPatternNode = patternNode
                     if (patternNode.type === "Identifier") {
@@ -219,7 +239,30 @@ function buildRegexpVisitor(
                                 def.node.init &&
                                 def.node.init.type === "Literal"
                             ) {
-                                verifyPatternNode = def.node.init
+                                let useInit = false
+                                if (variable.references.length > 2) {
+                                    if (
+                                        variable.references.every((ref) => {
+                                            if (ref.isWriteOnly()) {
+                                                return true
+                                            }
+                                            return regexpDataList.some(
+                                                (r) =>
+                                                    r.patternNode ===
+                                                        ref.identifier &&
+                                                    r.flags === flags,
+                                            )
+                                        })
+                                    ) {
+                                        useInit = true
+                                    }
+                                } else {
+                                    useInit = true
+                                }
+
+                                if (useInit) {
+                                    verifyPatternNode = def.node.init
+                                }
                             }
                         }
                     }
@@ -261,12 +304,53 @@ export function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: RegExpNode,
+    offsets?: [number, number],
 ): AST.Range | null {
-    if (!availableRegexpLocation(sourceCode, node)) {
-        return null
+    const startOffset = regexpNode.start + (offsets?.[0] ?? 0)
+    const endOffset = regexpNode.end + (offsets?.[1] ?? 0)
+    if (isRegexpLiteral(node)) {
+        const nodeStart = node.range![0] + 1
+        return [nodeStart + startOffset, nodeStart + endOffset]
     }
-    const nodeStart = node.range![0] + 1
-    return [nodeStart + regexpNode.start, nodeStart + regexpNode.end]
+    if (isStringLiteral(node)) {
+        let start: number | null = null
+        let end: number | null = null
+        try {
+            const sourceText = sourceCode.text.slice(
+                node.range![0] + 1,
+                node.range![1] - 1,
+            )
+            let startIndex = 0
+            for (const t of parseStringTokens(sourceText)) {
+                const endIndex = startIndex + t.value.length
+
+                if (
+                    start == null &&
+                    startIndex <= startOffset &&
+                    startOffset < endIndex
+                ) {
+                    start = t.range[0]
+                }
+                if (
+                    start != null &&
+                    end == null &&
+                    startIndex < endOffset &&
+                    endOffset <= endIndex
+                ) {
+                    end = t.range[1]
+                    break
+                }
+                startIndex = endIndex
+            }
+            if (start != null && end != null) {
+                const nodeStart = node.range![0] + 1
+                return [nodeStart + start, nodeStart + end]
+            }
+        } catch {
+            // ignore
+        }
+    }
+    return null
 }
 
 /**
@@ -300,28 +384,31 @@ export function getRegexpLocation(
 }
 
 /**
- * Check if the location of the regular expression node is available.
- * @param sourceCode The ESLint source code instance.
- * @param node The node to check.
- * @returns `true` if the location of the regular expression node is available.
+ * Check if the given expression node is regexp literal.
  */
-export function availableRegexpLocation(
-    sourceCode: SourceCode,
+function isRegexpLiteral(
     node: ESTree.Expression,
-): boolean {
+): node is ESTree.RegExpLiteral {
     if (node.type !== "Literal") {
         return false
     }
     if (!(node as ESTree.RegExpLiteral).regex) {
-        if (typeof node.value !== "string") {
-            return false
-        }
-        if (
-            sourceCode.text.slice(node.range![0] + 1, node.range![1] - 1) !==
-            node.value
-        ) {
-            return false
-        }
+        return false
+    }
+    return true
+}
+
+/**
+ * Check if the given expression node is string literal.
+ */
+function isStringLiteral(
+    node: ESTree.Expression,
+): node is ESTree.Literal & { value: string } {
+    if (node.type !== "Literal") {
+        return false
+    }
+    if (typeof node.value !== "string") {
+        return false
     }
     return true
 }

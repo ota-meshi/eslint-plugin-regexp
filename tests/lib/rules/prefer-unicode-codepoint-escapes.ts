@@ -57,6 +57,19 @@ tester.run("prefer-unicode-codepoint-escapes", rule as any, {
             const s = "\\ud83d\\ude00"
             new RegExp(s, 'u')
             `,
+            output: String.raw`
+            const s = "\\u{1f600}"
+            new RegExp(s, 'u')
+            `,
+            errors: [
+                "Use Unicode codepoint escapes instead of Unicode escapes using surrogate pairs.",
+            ],
+        },
+        {
+            code: String.raw`
+            const s = "\\ud83d"+"\\ude00"
+            new RegExp(s, 'u')
+            `,
             output: null,
             errors: [
                 "Use Unicode codepoint escapes instead of Unicode escapes using surrogate pairs.",

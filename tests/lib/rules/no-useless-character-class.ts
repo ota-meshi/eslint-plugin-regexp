@@ -134,16 +134,16 @@ tester.run("no-useless-character-class", rule as any, {
             errors: 1,
         },
         {
-            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
-            output: null,
+            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]", "u")`,
+            output: String.raw`new RegExp("\\. \\* \\+ \\? \\^ = ! : \\$ \\{ \\} \\( \\) \\| \\[ \\] \\/ \\\\", "u")`,
             options: [{ ignores: [] }],
             errors: 18,
         },
         {
-            code: String.raw`new RegExp("[.] [*] [+] [?] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [/]")`,
-            output: String.raw`new RegExp("\\. \\* \\+ \\? = ! : \\$ \\{ } \\( \\) \\| \\[ \\/")`,
+            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:]"+" [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
+            output: null,
             options: [{ ignores: [] }],
-            errors: 15,
+            errors: 18,
         },
     ],
 })

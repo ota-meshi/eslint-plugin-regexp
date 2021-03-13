@@ -108,5 +108,22 @@ tester.run("prefer-character-class", rule as any, {
                 'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
             ],
         },
+        {
+            code: String.raw`const s = "a|b|\\d|c"
+            new RegExp(s)`,
+            output: String.raw`const s = "[ab\\dc]"
+            new RegExp(s)`,
+            errors: [
+                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+            ],
+        },
+        {
+            code: String.raw`const s = "a|b|"+"c"
+            new RegExp(s)`,
+            output: null,
+            errors: [
+                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+            ],
+        },
     ],
 })
