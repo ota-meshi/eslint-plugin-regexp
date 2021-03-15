@@ -9,7 +9,40 @@ const tester = new RuleTester({
 })
 
 tester.run("prefer-range", rule as any, {
-    valid: [`/[a]/`, `/[ab]/`, `/[a-c]/`, `/[a-b]/`],
+    valid: [
+        `/[a]/`,
+        `/[ab]/`,
+        `/[a-c]/`,
+        `/[a-b]/`,
+        `/[0-9]/`,
+        `/[A-Z]/`,
+        `/[ !"#$]/`,
+        {
+            code: `/[ !"#$]/`,
+            options: [{ target: "alphanumeric" }],
+        },
+        {
+            code: `/[ !"#$]/`,
+            options: [{ target: ["alphanumeric"] }],
+        },
+        {
+            code: `/[ !"#$]/`,
+            options: [{ target: ["alphanumeric", "①-⑳"] }],
+        },
+        `/[ -$]/`,
+        {
+            code: `/[ -$]/`,
+            options: [{ target: "all" }],
+        },
+        {
+            code: `/[ -$]/`,
+            options: [{ target: ["all"] }],
+        },
+        {
+            code: `/[0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ]/`,
+            options: [{ target: ["😀-😏"] }],
+        },
+    ],
     invalid: [
         {
             code: `/[abc]/`,
@@ -23,6 +56,14 @@ tester.run("prefer-range", rule as any, {
                     endLine: 1,
                     endColumn: 6,
                 },
+            ],
+        },
+        {
+            code: `/[ABC abc]/`,
+            output: `/[A-C a-c]/`,
+            errors: [
+                'Unexpected multiple adjacent characters. Use "A-C" instead.',
+                'Unexpected multiple adjacent characters. Use "a-c" instead.',
             ],
         },
         {
@@ -154,6 +195,33 @@ tester.run("prefer-range", rule as any, {
             output: null,
             errors: [
                 'Unexpected multiple adjacent characters. Use "0-4" instead.',
+            ],
+        },
+        {
+            code: `/[ !"#$]/`,
+            output: `/[ -$]/`,
+            options: [{ target: "all" }],
+            errors: [
+                'Unexpected multiple adjacent characters. Use " -$" instead.',
+            ],
+        },
+        {
+            code: `/[abcd ①②③④⑤⑥⑦⑧⑨10⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/`,
+            output: `/[a-d ①-⑨10⑪-⑳]/`,
+            options: [{ target: ["alphanumeric", "①-⑳"] }],
+            errors: [
+                'Unexpected multiple adjacent characters. Use "a-d" instead.',
+                'Unexpected multiple adjacent characters. Use "①-⑨" instead.',
+                'Unexpected multiple adjacent characters. Use "⑪-⑳" instead.',
+            ],
+        },
+        {
+            code: `/[😀😁😂😃😄 😆😇😈😉😊]/u`,
+            output: `/[😀-😄 😆-😊]/u`,
+            options: [{ target: ["alphanumeric", "😀-😏"] }],
+            errors: [
+                'Unexpected multiple adjacent characters. Use "😀-😄" instead.',
+                'Unexpected multiple adjacent characters. Use "😆-😊" instead.',
             ],
         },
     ],
