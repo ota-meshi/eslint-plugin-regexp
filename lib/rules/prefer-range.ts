@@ -77,6 +77,7 @@ export default createRule("prefer-range", {
                                         },
                                     ],
                                 },
+                                uniqueItems: true,
                                 minItems: 1,
                                 additionalItems: false,
                             },
