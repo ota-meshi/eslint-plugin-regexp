@@ -1,17 +1,19 @@
 # User Guide
 
-## Installation
+## :cd: Installation
 
 ```bash
 npm install --save-dev eslint eslint-plugin-regexp
 ```
 
 ::: tip Requirements
+
 - ESLint v6.0.0 and above
 - Node.js v8.10.0 and above
+
 :::
 
-## Usage
+## :book: Usage
 
 ### Configuration
 

@@ -12,19 +12,23 @@
 [![Build Status](https://github.com/ota-meshi/eslint-plugin-regexp/workflows/CI/badge.svg?branch=master)](https://github.com/ota-meshi/eslint-plugin-regexp/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/ota-meshi/eslint-plugin-regexp/badge.svg?branch=master)](https://coveralls.io/github/ota-meshi/eslint-plugin-regexp?branch=master)
 
-## Features
+## :name_badge: Features
 
 This ESLint plugin provides linting rules relate to better ways to help you avoid problems when using RegExp.
+
+- Find the wrong usage of regular expressions, and their hints.
+- Enforces a consistent style of regular expressions.
+- Find hints for writing optimized regular expressions.
 
 You can check on the [Online DEMO](https://ota-meshi.github.io/eslint-plugin-regexp/playground/).
 
 <!--DOCS_IGNORE_START-->
 
-## Documentation
+## :book: Documentation
 
 See [documents](https://ota-meshi.github.io/eslint-plugin-regexp/).
 
-## Installation
+## :cd: Installation
 
 ```bash
 npm install --save-dev eslint eslint-plugin-regexp
@@ -37,7 +41,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 <!--DOCS_IGNORE_END-->
 
-## Usage
+## :book: Usage
 
 <!--USAGE_SECTION_START-->
 
@@ -59,7 +63,7 @@ module.exports = {
 }
 ```
 
-## Configs
+### Configuration
 
 This plugin provides one config:
 
@@ -68,7 +72,7 @@ This plugin provides one config:
 
 <!--USAGE_SECTION_END-->
 
-## Rules
+## :white_check_mark: Rules
 
 <!--RULES_SECTION_START-->
 
@@ -117,7 +121,11 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 <!--DOCS_IGNORE_START-->
 
-## Contributing
+<!-- ## :traffic_light: Semantic Versioning Policy
+
+**eslint-plugin-jsonc** follows [Semantic Versioning](http://semver.org/) and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy). -->
+
+## :beers: Contributing
 
 Welcome contributing!
 
@@ -130,6 +138,6 @@ Please use GitHub's Issues/PRs.
 
 <!--DOCS_IGNORE_END-->
 
-## License
+## :lock: License
 
 See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
