@@ -1,7 +1,48 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character, CharacterClassRange } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpRange } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    getRegexpRange,
+    isDigit,
+    isLetter,
+} from "../utils"
+
+const reOptionRange = /^([\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])-([\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])$/
+
+/**
+ * Parse option
+ */
+function parseOption(
+    option:
+        | undefined
+        | {
+              target?: "all" | "alphanumeric" | string[]
+          },
+): (cp: number) => boolean {
+    const target = option?.target ?? ["alphanumeric"]
+    if (typeof target === "string") {
+        return parseOption({ target: [target] })
+    }
+    const predicates: ((cp: number) => boolean)[] = []
+    for (const t of target) {
+        if (t === "all") {
+            return () => true
+        }
+        if (t === "alphanumeric") {
+            predicates.push((cp) => isDigit(cp) || isLetter(cp))
+        }
+        const res = reOptionRange.exec(t)
+        if (!res) {
+            continue
+        }
+        const from = res[1].codePointAt(0)!
+        const to = res[2].codePointAt(0)!
+        predicates.push((cp) => from <= cp && cp <= to)
+    }
+    return (cp) => predicates.some((p) => p(cp))
+}
 
 export default createRule("prefer-range", {
     meta: {
@@ -12,7 +53,40 @@ export default createRule("prefer-range", {
             recommended: false,
         },
         fixable: "code",
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    target: {
+                        anyOf: [
+                            { enum: ["all", "alphanumeric"] },
+                            {
+                                type: "array",
+                                items: [{ enum: ["all", "alphanumeric"] }],
+                                minItems: 1,
+                                additionalItems: false,
+                            },
+                            {
+                                type: "array",
+                                items: {
+                                    anyOf: [
+                                        { const: "alphanumeric" },
+                                        {
+                                            type: "string",
+                                            pattern: reOptionRange.source,
+                                        },
+                                    ],
+                                },
+                                uniqueItems: true,
+                                minItems: 1,
+                                additionalItems: false,
+                            },
+                        ],
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             unexpected:
                 'Unexpected multiple adjacent characters. Use "{{range}}" instead.',
@@ -20,6 +94,7 @@ export default createRule("prefer-range", {
         type: "suggestion", // "problem",
     },
     create(context) {
+        const isTarget = parseOption(context.options[0])
         const sourceCode = context.getSourceCode()
 
         type CharacterGroup = {
@@ -66,8 +141,17 @@ export default createRule("prefer-range", {
                     for (const element of ccNode.elements) {
                         let data: { min: Character; max: Character }
                         if (element.type === "Character") {
+                            if (!isTarget(element.value)) {
+                                continue
+                            }
                             data = { min: element, max: element }
                         } else if (element.type === "CharacterClassRange") {
+                            if (
+                                !isTarget(element.min.value) &&
+                                !isTarget(element.max.value)
+                            ) {
+                                continue
+                            }
                             data = {
                                 min: element.min,
                                 max: element.max,
