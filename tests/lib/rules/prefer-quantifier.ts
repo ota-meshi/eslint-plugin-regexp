@@ -113,6 +113,19 @@ tester.run("prefer-quantifier", rule as any, {
             const s = "\\\\d\\\\d"
             new RegExp(s)
             `,
+            output: `
+            const s = "\\\\d{2}"
+            new RegExp(s)
+            `,
+            errors: [
+                'Unexpected consecutive same character sets. Use "{2}" instead.',
+            ],
+        },
+        {
+            code: `
+            const s = "\\\\d"+"\\\\d"
+            new RegExp(s)
+            `,
             output: null,
             errors: [
                 'Unexpected consecutive same character sets. Use "{2}" instead.',

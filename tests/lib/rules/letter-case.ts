@@ -256,6 +256,14 @@ tester.run("letter-case", rule as any, {
         {
             code: String.raw`const s = "\\u000A";
             new RegExp(s)`,
+            output: String.raw`const s = "\\u000a";
+            new RegExp(s)`,
+            options: [{ unicodeEscape: "lowercase" }],
+            errors: [String.raw`'\u000A' is not in lowercase`],
+        },
+        {
+            code: String.raw`const s = "\\u"+"000A";
+            new RegExp(s)`,
             output: null,
             options: [{ unicodeEscape: "lowercase" }],
             errors: [String.raw`'\u000A' is not in lowercase`],

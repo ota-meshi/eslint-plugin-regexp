@@ -3,6 +3,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
     defineRegexpVisitor,
+    fixerApplyEscape,
     getRegexpLocation,
     getRegexpRange,
 } from "../utils"
@@ -62,7 +63,7 @@ export default createRule("prefer-unicode-codepoint-escapes", {
                                     }
                                     return fixer.replaceTextRange(
                                         range,
-                                        `\\u{${text}}`,
+                                        fixerApplyEscape(`\\u{${text}}`, node),
                                     )
                                 },
                             })

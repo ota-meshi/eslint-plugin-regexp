@@ -4,6 +4,7 @@ import type { Character, CharacterSet, Quantifier } from "regexpp/ast"
 import {
     createRule,
     defineRegexpVisitor,
+    fixerApplyEscape,
     getRegexpRange,
     isDigit,
     isLetter,
@@ -249,7 +250,8 @@ export default createRule("prefer-quantifier", {
                                 }
                                 return fixer.replaceTextRange(
                                     range,
-                                    buffer.target.raw + buffer.getQuantifier(),
+                                    fixerApplyEscape(buffer.target.raw, node) +
+                                        buffer.getQuantifier(),
                                 )
                             },
                         })

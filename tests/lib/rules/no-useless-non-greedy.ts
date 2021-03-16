@@ -42,5 +42,18 @@ tester.run("no-useless-non-greedy", rule as any, {
             output: `/a{2,2}/`,
             errors: ["Unexpected quantifier non-greedy."],
         },
+        {
+            code: String.raw`const s = "\\d{1}?"
+            new RegExp(s)`,
+            output: String.raw`const s = "\\d{1}"
+            new RegExp(s)`,
+            errors: ["Unexpected quantifier non-greedy."],
+        },
+        {
+            code: String.raw`const s = "\\d"+"{1}?"
+            new RegExp(s)`,
+            output: null,
+            errors: ["Unexpected quantifier non-greedy."],
+        },
     ],
 })

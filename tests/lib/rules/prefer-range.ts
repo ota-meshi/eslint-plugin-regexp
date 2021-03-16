@@ -192,6 +192,15 @@ tester.run("prefer-range", rule as any, {
         {
             code: String.raw`const s = "[0-23-4\\d]"
             new RegExp(s)`,
+            output: String.raw`const s = "[0-4\\d]"
+            new RegExp(s)`,
+            errors: [
+                'Unexpected multiple adjacent characters. Use "0-4" instead.',
+            ],
+        },
+        {
+            code: String.raw`const s = "[0-23" + "-4\\d]"
+            new RegExp(s)`,
             output: null,
             errors: [
                 'Unexpected multiple adjacent characters. Use "0-4" instead.',

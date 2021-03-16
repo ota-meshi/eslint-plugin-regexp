@@ -81,6 +81,15 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             code: String.raw`
             const s = "(?:a\\n)"
             new RegExp(s)`,
+            output: String.raw`
+            const s = "a\\n"
+            new RegExp(s)`,
+            errors: ["Unexpected quantifier Non-capturing group."],
+        },
+        {
+            code: String.raw`
+            const s = "(?:a"+"\\n)"
+            new RegExp(s)`,
             output: null,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
