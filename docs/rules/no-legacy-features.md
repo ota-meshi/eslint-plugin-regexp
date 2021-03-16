@@ -2,11 +2,11 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-legacy-features"
-description: "disallow invisible raw character"
+description: "disallow legacy RegExp features"
 ---
 # regexp/no-legacy-features
 
-> disallow invisible raw character
+> disallow legacy RegExp features
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 

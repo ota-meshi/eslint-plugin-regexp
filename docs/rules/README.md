@@ -21,7 +21,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
-| [regexp/no-legacy-features](./no-legacy-features.md) | disallow invisible raw character |  |
+| [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
