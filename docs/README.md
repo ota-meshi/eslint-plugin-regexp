@@ -12,20 +12,24 @@
 [![Build Status](https://github.com/ota-meshi/eslint-plugin-regexp/workflows/CI/badge.svg?branch=master)](https://github.com/ota-meshi/eslint-plugin-regexp/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/ota-meshi/eslint-plugin-regexp/badge.svg?branch=master)](https://coveralls.io/github/ota-meshi/eslint-plugin-regexp?branch=master)
 
-## Features
+## :name_badge: Features
 
 This ESLint plugin provides linting rules relate to better ways to help you avoid problems when using RegExp.
 
+- Find the wrong usage of regular expressions, and their hints.
+- Enforces a consistent style of regular expressions.
+- Find hints for writing optimized regular expressions.
+
 You can check on the [Online DEMO](./playground/).
 
-## Usage
+## :book: Usage
 
 See [User Guide](./user-guide/README.md).
 
-## Rules
+## :white_check_mark: Rules
 
 See [Available Rules](./rules/README.md).
 
-## License
+## :lock: License
 
 See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
