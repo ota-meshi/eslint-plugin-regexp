@@ -9,6 +9,7 @@ import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noInvisibleCharacter from "../rules/no-invisible-character"
+import noLegacyFeatures from "../rules/no-legacy-features"
 import noOctal from "../rules/no-octal"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
@@ -43,6 +44,7 @@ export const rules = [
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
     noInvisibleCharacter,
+    noLegacyFeatures,
     noOctal,
     noUselessBackreference,
     noUselessCharacterClass,
