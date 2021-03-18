@@ -2,7 +2,6 @@ import type { CallExpression, Literal } from "estree"
 import { createRule } from "../utils"
 import { isKnownMethodCall, parseReplacements } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import { getStaticValue } from "eslint-utils"
 
 export default createRule("prefer-escape-replacement-dollar-char", {
     meta: {
@@ -53,11 +52,7 @@ export default createRule("prefer-escape-replacement-dollar-char", {
                 ) {
                     return
                 }
-                const evaluated = getStaticValue(
-                    node.arguments[0],
-                    context.getScope(),
-                )
-                if (!evaluated || !(evaluated.value instanceof RegExp)) {
+                if (!typeTracer.isRegExp(node.arguments[0])) {
                     return
                 }
                 if (!typeTracer.isString(mem.object)) {
