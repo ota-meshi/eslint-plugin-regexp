@@ -111,7 +111,10 @@ class DocFile {
 
         const header = `\n${title}\n\n${notes.join("\n")}`
         if (headerPattern.test(this.content)) {
-            this.content = this.content.replace(headerPattern, header)
+            this.content = this.content.replace(
+                headerPattern,
+                header.replace(/\$/g, "$$$$"),
+            )
         } else {
             this.content = `${header}${this.content.trim()}\n`
         }
@@ -136,7 +139,10 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
 - [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/${ruleName}.ts)
 `
         if (footerPattern.test(this.content)) {
-            this.content = this.content.replace(footerPattern, footer)
+            this.content = this.content.replace(
+                footerPattern,
+                footer.replace(/\$/g, "$$$$"),
+            )
         } else {
             this.content = `${this.content.trim()}\n\n${footer}`
         }
@@ -195,7 +201,10 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
         const fileIntroPattern = /^---\n(.*\n)+?---\n*/gu
 
         if (fileIntroPattern.test(this.content)) {
-            this.content = this.content.replace(fileIntroPattern, computed)
+            this.content = this.content.replace(
+                fileIntroPattern,
+                computed.replace(/\$/g, "$$$$"),
+            )
         } else {
             this.content = `${computed}${this.content.trim()}\n`
         }

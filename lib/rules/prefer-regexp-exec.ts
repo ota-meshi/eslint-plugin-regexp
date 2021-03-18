@@ -2,6 +2,7 @@ import type { CallExpression } from "estree"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import { getStaticValue } from "eslint-utils"
+import { isKnownMethodCall } from "../utils/ast-utils"
 
 // Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md
 export default createRule("prefer-regexp-exec", {
@@ -22,16 +23,7 @@ export default createRule("prefer-regexp-exec", {
 
         return {
             CallExpression(node: CallExpression) {
-                if (node.arguments.length !== 1) {
-                    return
-                }
-                if (
-                    node.callee.type !== "MemberExpression" ||
-                    node.callee.computed ||
-                    node.callee.property.type !== "Identifier" ||
-                    node.callee.property.name !== "match" ||
-                    node.callee.object.type === "Super"
-                ) {
+                if (!isKnownMethodCall(node, { match: 1 })) {
                     return
                 }
                 const arg = node.arguments[0]
