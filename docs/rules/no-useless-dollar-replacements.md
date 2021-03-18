@@ -48,6 +48,10 @@ var newStr = str.replace(/(\w+)\s(\w+)/, '$<last>, $<first>');
 
 Nothing.
 
+## :couple: Related rules
+
+- [regexp/prefer-escape-replacement-dollar-char](./prefer-escape-replacement-dollar-char.md)
+
 ## :books: Further reading
 
 - [MDN Web Docs - String.prototype.replace() > Specifying a string as a parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_a_parameter)

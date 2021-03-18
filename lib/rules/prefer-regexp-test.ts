@@ -2,6 +2,7 @@ import type * as ES from "estree"
 import { hasSideEffect, isOpeningParenToken } from "eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
+import { isKnownMethodCall } from "../utils/ast-utils"
 
 // Inspired by https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-regexp-test.md
 export default createRule("prefer-regexp-test", {
@@ -25,21 +26,7 @@ export default createRule("prefer-regexp-test", {
 
         return {
             CallExpression(node: ES.CallExpression) {
-                if (node.arguments.length !== 1) {
-                    return
-                }
-                if (
-                    node.callee.type !== "MemberExpression" ||
-                    node.callee.computed ||
-                    node.callee.property.type !== "Identifier" ||
-                    node.callee.object.type === "Super"
-                ) {
-                    return
-                }
-                if (
-                    node.callee.property.name !== "match" &&
-                    node.callee.property.name !== "exec"
-                ) {
+                if (!isKnownMethodCall(node, { match: 1, exec: 1 })) {
                     return
                 }
                 if (!isUseBoolean(node)) {

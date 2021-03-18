@@ -35,6 +35,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/order-in-character-class](./order-in-character-class.md) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
+| [regexp/prefer-escape-replacement-dollar-char](./prefer-escape-replacement-dollar-char.md) | enforces escape of replacement `$` character (`$$`). |  |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
