@@ -23,17 +23,22 @@ const str = 'John Smith';
 /* ✓ GOOD */
 var newStr = str.replace(/(\w+)\s(\w+)/, '$2, $1');
 // newStr = "Smith, John"
+
 var newStr = str.replace(/(?<first>\w+)\s(?<last>\w+)/, '$<last>, $<first>');
 // newStr = "Smith, John"
+
 '123456789012'.replaceAll(/(.)../g, '$1**'); // "1**4**7**0**"
 
 /* ✗ BAD */
 var newStr = str.replace(/(\w+)\s(\w+)/, '$3, $1 $2');
 // newStr = "$3, John Smith"
+
 var newStr = str.replace(/(?<first>\w+)\s(?<last>\w+)/, '$<last>, $<first> $<middle>');
 // newStr = "Smith, John "
+
 var newStr = str.replace(/(\w+)\s(\w+)/, '$<last>, $<first>');
 // newStr = "$<last>, $<first>"
+
 '123456789012'.replaceAll(/.(.)./g, '*$2*'); // "*$2**$2**$2**$2*"
 ```
 
