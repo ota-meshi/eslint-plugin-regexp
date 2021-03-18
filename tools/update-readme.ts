@@ -20,7 +20,10 @@ const newReadme = fs
     .readFileSync(readmeFilePath, "utf8")
     .replace(
         /<!--RULES_TABLE_START-->[\s\S]*<!--RULES_TABLE_END-->/u,
-        `<!--RULES_TABLE_START-->${insertText}<!--RULES_TABLE_END-->`,
+        `<!--RULES_TABLE_START-->${insertText.replace(
+            /\$/g,
+            "$$$$",
+        )}<!--RULES_TABLE_END-->`,
     )
 fs.writeFileSync(readmeFilePath, newReadme)
 

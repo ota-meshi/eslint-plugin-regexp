@@ -97,6 +97,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-octal](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-octal.html) | disallow octal escape sequence | :star: |
 | [regexp/no-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-backreference.html) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-character-class.html) | disallow character class with one character | :wrench: |
+| [regexp/no-useless-dollar-replacements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-dollar-replacements.html) | disallow useless `$` replacements in replacement string |  |
 | [regexp/no-useless-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-escape.html) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-exactly-quantifier.html) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-non-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-capturing-group.html) | disallow unnecessary Non-capturing group | :wrench: |
