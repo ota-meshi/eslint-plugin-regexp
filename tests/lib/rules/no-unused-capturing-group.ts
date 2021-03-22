@@ -68,6 +68,18 @@ tester.run("no-unused-capturing-group", rule as any, {
             var d = matches[3] // "31"
         }
         `,
+        String.raw`
+        const s = '2000-12-31 2000-12-31'
+        const reg = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g;
+        if(reg.test(s)) {
+            s.replace(reg, '$<y>/$<m>/$<d>');
+        }
+        `,
+        String.raw`
+        const reg = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g;
+        '2000-12-31 2000-12-31'.replace(reg, '$<y>/$<m>');
+        '2000-12-31 2000-12-31'.replace(reg, '$<m>/$<d>');
+        `,
     ],
     invalid: [
         {
@@ -379,7 +391,6 @@ tester.run("no-unused-capturing-group", rule as any, {
                 var m = matches.groups.m // "12"
                 // var d = matches[3] // "31"
             }
-            
             `,
             errors: [
                 "'y' is defined for capturing group, but it name is never used.",

@@ -20,13 +20,122 @@ import type { CapturingGroup } from "regexpp/ast"
 import { parseReplacementsForString } from "../utils/replacements-utils"
 import type { Rule } from "eslint"
 
-type CapturingData = {
-    unused: Set<CapturingGroup>
-    unusedIndexes: Map<number, CapturingGroup>
-    unusedNames: Map<string, CapturingGroup[]>
-    count: number
-    node: Expression
-    flags: string
+class CapturingData {
+    private readonly unused = new Set<CapturingGroup>()
+
+    private readonly unusedNames = new Map<string, CapturingGroup[]>()
+
+    private readonly indexToCapturingGroup = new Map<number, CapturingGroup>()
+
+    public countOfCapturingGroup = 0
+
+    public readonly node: Expression
+
+    public readonly flags: string
+
+    private readonly state = {
+        used: false,
+        track: true,
+    }
+
+    public constructor(node: Expression, flags: string) {
+        this.node = node
+        this.flags = flags
+    }
+
+    public getUnused(): {
+        unusedCapturingGroups: Set<CapturingGroup>
+        unusedNames: Set<CapturingGroup & { name: string }>
+    } {
+        const unusedCapturingGroups = new Set(this.unused)
+        const unusedNames = new Set<CapturingGroup & { name: string }>()
+
+        for (const cgNodes of this.unusedNames.values()) {
+            for (const cgNode of cgNodes) {
+                if (!unusedCapturingGroups.has(cgNode)) {
+                    unusedNames.add(cgNode as never)
+                }
+            }
+        }
+        return {
+            unusedCapturingGroups,
+            unusedNames,
+        }
+    }
+
+    public usedIndex(ref: number) {
+        const cgNode = this.indexToCapturingGroup.get(ref)
+        if (cgNode) {
+            this.unused.delete(cgNode)
+        }
+    }
+
+    public usedName(ref: string) {
+        const cgNodes = this.unusedNames.get(ref)
+        if (cgNodes) {
+            this.unusedNames.delete(ref)
+            for (const cgNode of cgNodes) {
+                this.unused.delete(cgNode)
+            }
+        }
+    }
+
+    public usedAllNames() {
+        for (const cgNodes of this.unusedNames.values()) {
+            for (const cgNode of cgNodes) {
+                this.unused.delete(cgNode)
+            }
+        }
+        this.unusedNames.clear()
+    }
+
+    public isAllUsed() {
+        return !this.unused.size && !this.unusedNames.size
+    }
+
+    public markAsUsed() {
+        this.state.used = true
+    }
+
+    public markAsCannotTrack() {
+        this.state.track = false
+    }
+
+    public isNeedReport() {
+        return this.state.used && this.state.track && !this.isAllUsed()
+    }
+
+    public visitor(): RegExpVisitor.Handlers {
+        return {
+            onCapturingGroupEnter: (cgNode) => {
+                this.countOfCapturingGroup++
+
+                if (!cgNode.references.length) {
+                    this.unused.add(cgNode)
+                    this.indexToCapturingGroup.set(
+                        this.countOfCapturingGroup,
+                        cgNode,
+                    )
+                }
+                // used as reference
+                else if (
+                    cgNode.references.some((ref) => typeof ref.ref === "string")
+                ) {
+                    // reference name is used
+                    return
+                }
+
+                if (cgNode.name) {
+                    const array = this.unusedNames.get(cgNode.name)
+                    if (array) {
+                        array.push(cgNode)
+                    } else {
+                        this.unusedNames.set(cgNode.name, [cgNode])
+                    }
+                }
+            },
+        }
+    }
 }
 type KnownCall = CallExpression & {
     callee: MemberExpression & { object: Expression; property: Identifier }
@@ -228,50 +337,45 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /**
-         * Report
-         */
-        function report(
-            cgNode: CapturingGroup,
-            data: CapturingData,
-            messageId: null | "unusedName",
-        ) {
-            context.report({
-                node: data.node,
-                loc: getRegexpLocation(sourceCode, data.node, cgNode),
-                messageId:
-                    messageId ??
-                    (cgNode.name
-                        ? "unusedNamedCapturingGroup"
-                        : "unusedCapturingGroup"),
-                data: cgNode.name ? { name: cgNode.name } : {},
-            })
-        }
-
-        /**
          * Report for unused
          */
-        function reportUnused(
-            capturingData: CapturingData,
-            unusedCapturingGroups: Set<CapturingGroup>,
-            unusedNames: Map<string, CapturingGroup[]>,
-        ) {
+        function reportUnused(capturingData: CapturingData) {
+            const {
+                unusedCapturingGroups,
+                unusedNames,
+            } = capturingData.getUnused()
             for (const cgNode of unusedCapturingGroups) {
-                report(cgNode, capturingData, null)
+                context.report({
+                    node: capturingData.node,
+                    loc: getRegexpLocation(
+                        sourceCode,
+                        capturingData.node,
+                        cgNode,
+                    ),
+                    messageId: cgNode.name
+                        ? "unusedNamedCapturingGroup"
+                        : "unusedCapturingGroup",
+                    data: cgNode.name ? { name: cgNode.name } : {},
+                })
             }
-            for (const cgNodes of unusedNames.values()) {
-                for (const cgNode of cgNodes) {
-                    if (unusedCapturingGroups.has(cgNode)) {
-                        continue
-                    }
-                    report(cgNode, capturingData, "unusedName")
-                }
+            for (const cgNode of unusedNames) {
+                context.report({
+                    node: capturingData.node,
+                    loc: getRegexpLocation(
+                        sourceCode,
+                        capturingData.node,
+                        cgNode,
+                    ),
+                    messageId: "unusedName",
+                    data: { name: cgNode.name },
+                })
             }
         }
 
         /** Verify for String.prototype.match() */
         function verifyForMatch(node: KnownCall) {
             const capturingData = getCapturingData(node.arguments[0])
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
@@ -279,10 +383,9 @@ export default createRule("no-unused-capturing-group", {
             }
             if (capturingData.flags.includes("g")) {
                 // String.prototype.match() with g flag
-                for (const cgNode of capturingData.unused) {
-                    report(cgNode, capturingData, null)
-                }
+                capturingData.markAsUsed()
             } else {
+                capturingData.markAsUsed()
                 verifyForExecResult(node, capturingData)
             }
         }
@@ -290,37 +393,33 @@ export default createRule("no-unused-capturing-group", {
         /** Verify for String.prototype.search() */
         function verifyForSearch(node: KnownCall) {
             const capturingData = getCapturingData(node.arguments[0])
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
                 return
             }
             // String.prototype.search()
-            for (const cgNode of capturingData.unused) {
-                report(cgNode, capturingData, null)
-            }
+            capturingData.markAsUsed()
         }
 
         /** Verify for RegExp.prototype.test() */
         function verifyForTest(node: KnownCall) {
             const capturingData = getCapturingData(node.callee.object)
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.arguments[0])) {
                 return
             }
             // RegExp.prototype.test()
-            for (const cgNode of capturingData.unused) {
-                report(cgNode, capturingData, null)
-            }
+            capturingData.markAsUsed()
         }
 
         /** Verify for String.prototype.replace() and String.prototype.replaceAll() */
         function verifyForReplace(node: KnownCall) {
             const capturingData = getCapturingData(node.arguments[0])
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
@@ -331,6 +430,7 @@ export default createRule("no-unused-capturing-group", {
                 replacementNode.type === "FunctionExpression" ||
                 replacementNode.type === "ArrowFunctionExpression"
             ) {
+                capturingData.markAsUsed()
                 verifyForReplaceFunction(replacementNode, capturingData)
             } else {
                 const evaluated = getStaticValue(
@@ -338,8 +438,10 @@ export default createRule("no-unused-capturing-group", {
                     context.getScope(),
                 )
                 if (!evaluated || typeof evaluated.value !== "string") {
+                    capturingData.markAsCannotTrack()
                     return
                 }
+                capturingData.markAsUsed()
                 verifyForReplacePattern(evaluated.value, capturingData)
             }
         }
@@ -349,31 +451,17 @@ export default createRule("no-unused-capturing-group", {
             replacementPattern: string,
             capturingData: CapturingData,
         ) {
-            const unusedCapturingGroups = new Set(capturingData.unused)
-            const unusedNames = new Map(capturingData.unusedNames)
             for (const replacement of parseReplacementsForString(
                 replacementPattern,
             )) {
                 if (replacement.type === "ReferenceElement") {
                     if (typeof replacement.ref === "number") {
-                        const cgNode = capturingData.unusedIndexes.get(
-                            replacement.ref,
-                        )
-                        if (cgNode) {
-                            unusedCapturingGroups.delete(cgNode)
-                        }
+                        capturingData.usedIndex(replacement.ref)
                     } else {
-                        const cgNodes = unusedNames.get(replacement.ref)
-                        if (cgNodes) {
-                            unusedNames.delete(replacement.ref)
-                            for (const cgNode of cgNodes) {
-                                unusedCapturingGroups.delete(cgNode)
-                            }
-                        }
+                        capturingData.usedName(replacement.ref)
                     }
                 }
             }
-            reportUnused(capturingData, unusedCapturingGroups, unusedNames)
         }
 
         /** Verify for String.prototype.replace(regexp, fn) and String.prototype.replaceAll(regexp, fn) */
@@ -381,9 +469,6 @@ export default createRule("no-unused-capturing-group", {
             replacementNode: FunctionExpression | ArrowFunctionExpression,
             capturingData: CapturingData,
         ) {
-            const unusedCapturingGroups = new Set(capturingData.unused)
-            const unusedNames = new Map(capturingData.unusedNames)
-
             for (
                 let index = 0;
                 index < replacementNode.params.length;
@@ -391,37 +476,30 @@ export default createRule("no-unused-capturing-group", {
             ) {
                 const arg = replacementNode.params[index]
                 if (arg.type === "RestElement") {
+                    capturingData.markAsCannotTrack()
                     return
                 }
                 if (index === 0) {
                     continue
-                } else if (index <= capturingData.count) {
-                    const cgNode = capturingData.unusedIndexes.get(index)
-                    if (cgNode) {
-                        unusedCapturingGroups.delete(cgNode)
-                    }
-                } else if (capturingData.count + 3 <= index) {
+                } else if (index <= capturingData.countOfCapturingGroup) {
+                    capturingData.usedIndex(index)
+                } else if (capturingData.countOfCapturingGroup + 3 <= index) {
                     // used as name
-                    for (const cgNodes of unusedNames.values()) {
-                        for (const cgNode of cgNodes) {
-                            unusedCapturingGroups.delete(cgNode)
-                        }
-                    }
-                    unusedNames.clear()
+                    capturingData.usedAllNames()
                 }
             }
-            reportUnused(capturingData, unusedCapturingGroups, unusedNames)
         }
 
         /** Verify for RegExp.prototype.exec() */
         function verifyForExec(node: KnownCall) {
             const capturingData = getCapturingData(node.callee.object)
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.arguments[0])) {
                 return
             }
+            capturingData.markAsUsed()
             verifyForExecResult(node, capturingData)
         }
 
@@ -432,91 +510,56 @@ export default createRule("no-unused-capturing-group", {
         ) {
             const refs = extractUsedReferencesFromExpression(node, context)
             if (refs == null) {
+                capturingData.markAsCannotTrack()
                 return
             }
-            const unusedCapturingGroups = new Set(capturingData.unused)
-            const unusedNames = new Map(capturingData.unusedNames)
             for (const ref of refs) {
                 if (ref.ref === "groups") {
                     const sub = ref.getSubReferences()
                     if (sub == null) {
                         // unknown used as name
-                        for (const cgNodes of unusedNames.values()) {
-                            for (const cgNode of cgNodes) {
-                                unusedCapturingGroups.delete(cgNode)
-                            }
-                        }
-                        unusedNames.clear()
+                        capturingData.usedAllNames()
                     } else {
                         for (const namedRef of sub) {
-                            const cgNodes = unusedNames.get(namedRef.ref)
-                            if (cgNodes) {
-                                unusedNames.delete(namedRef.ref)
-                                for (const cgNode of cgNodes) {
-                                    unusedCapturingGroups.delete(cgNode)
-                                }
-                            }
+                            capturingData.usedName(namedRef.ref)
                         }
                     }
                 } else {
-                    const cgNode = capturingData.unusedIndexes.get(
-                        Number(ref.ref),
-                    )
-                    if (cgNode) {
-                        unusedCapturingGroups.delete(cgNode)
-                    }
+                    capturingData.usedIndex(Number(ref.ref))
                 }
             }
-            reportUnused(capturingData, unusedCapturingGroups, unusedNames)
         }
 
         /** Verify for String.prototype.matchAll() */
         function verifyForMatchAll(node: KnownCall) {
             const capturingData = getCapturingData(node.arguments[0])
-            if (capturingData == null || !capturingData.unused.size) {
+            if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
                 return
             }
+            capturingData.markAsUsed()
             const refs = extractUsedReferencesForIteration(node)
             if (refs == null) {
+                capturingData.markAsCannotTrack()
                 return
             }
-            const unusedCapturingGroups = new Set(capturingData.unused)
-            const unusedNames = new Map(capturingData.unusedNames)
             for (const ref of refs) {
                 if (ref.ref === "groups") {
                     const sub = ref.getSubReferences()
                     if (sub == null) {
                         // unknown used as name
-                        for (const cgNodes of unusedNames.values()) {
-                            for (const cgNode of cgNodes) {
-                                unusedCapturingGroups.delete(cgNode)
-                            }
-                        }
-                        unusedNames.clear()
+                        capturingData.usedAllNames()
                     } else {
                         for (const namedRef of sub) {
-                            const cgNodes = unusedNames.get(namedRef.ref)
-                            if (cgNodes) {
-                                unusedNames.delete(namedRef.ref)
-                                for (const cgNode of cgNodes) {
-                                    unusedCapturingGroups.delete(cgNode)
-                                }
-                            }
+                            capturingData.usedName(namedRef.ref)
                         }
                     }
                 } else {
-                    const cgNode = capturingData.unusedIndexes.get(
-                        Number(ref.ref),
-                    )
-                    if (cgNode) {
-                        unusedCapturingGroups.delete(cgNode)
-                    }
+                    capturingData.usedIndex(Number(ref.ref))
                 }
             }
-            reportUnused(capturingData, unusedCapturingGroups, unusedNames)
 
             /**
              * Extract used references
@@ -591,52 +634,22 @@ export default createRule("no-unused-capturing-group", {
             flags: string,
             regexpNode: RegExpLiteral | NewExpression | CallExpression,
         ): RegExpVisitor.Handlers {
-            const capturingData: CapturingData = {
-                unused: new Set(),
-                unusedIndexes: new Map(),
-                unusedNames: new Map(),
-                count: 0,
-                flags,
-                node,
-            }
+            const capturingData = new CapturingData(node, flags)
             capturingDataMap.set(regexpNode, capturingData)
-            return {
-                onCapturingGroupEnter(cgNode) {
-                    capturingData.count++
-
-                    if (!cgNode.references.length) {
-                        capturingData.unused.add(cgNode)
-                        capturingData.unusedIndexes.set(
-                            capturingData.count,
-                            cgNode,
-                        )
-                    }
-                    // used as reference
-                    else if (
-                        cgNode.references.some(
-                            (ref) => typeof ref.ref === "string",
-                        )
-                    ) {
-                        // reference name is used
-                        return
-                    }
-
-                    if (cgNode.name) {
-                        const array = capturingData.unusedNames.get(cgNode.name)
-                        if (array) {
-                            array.push(cgNode)
-                        } else {
-                            capturingData.unusedNames.set(cgNode.name, [cgNode])
-                        }
-                    }
-                },
-            }
+            return capturingData.visitor()
         }
 
         return {
             ...defineRegexpVisitor(context, {
                 createVisitor,
             }),
+            "Program:exit"() {
+                for (const capturingData of capturingDataMap.values()) {
+                    if (capturingData.isNeedReport()) {
+                        reportUnused(capturingData)
+                    }
+                }
+            },
             "CallExpression:exit"(node: CallExpression) {
                 if (
                     !isKnownMethodCall(node, {
