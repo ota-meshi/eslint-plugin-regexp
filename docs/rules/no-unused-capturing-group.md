@@ -29,7 +29,7 @@ var isDate = /(?:\d{4})-(?:\d{2})-(?:\d{2})/.test('2000-12-31') // true
 var matches = '2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(\d{2})/)
 var y = matches[1] // "2000"
 var m = matches[2] // "12"
-var d = matches[3] // "32"
+var d = matches[3] // "31"
 
 var index = '2000-12-31'.search(/(?:\d{4})-(?:\d{2})-(?:\d{2})/) // 0
 

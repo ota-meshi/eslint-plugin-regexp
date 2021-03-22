@@ -19,7 +19,7 @@ tester.run("no-unused-capturing-group", rule as any, {
         var matches = '2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(\d{2})/)
         var y = matches[1] // "2000"
         var m = matches[2] // "12"
-        var d = matches[3] // "32"
+        var d = matches[3] // "31"
         
         var index = '2000-12-31'.search(/(?:\d{4})-(?:\d{2})-(?:\d{2})/) // 0
         `,
@@ -49,6 +49,25 @@ tester.run("no-unused-capturing-group", rule as any, {
         "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, ...d) => `${y}/${m}/${d}`)",
         // Duplicate capture group name
         // String.raw`var replaced = '2000-12-31'.replace(/(?<n>\d{4})|(?<n>\d{2})|(?<n>\d{1})/, '$<n>')`,
+        String.raw`
+        const regexp = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/
+        let re 
+        while(re = regexp.exec('2000-12-31 2001-01-01')) {
+            const y = re.groups.y // "2000"
+            const m = re.groups.m // "12"
+            const d = re.groups.d // "31"
+        }
+        `,
+        String.raw`
+        const { groups: {...ymd} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+        `,
+        String.raw`
+        for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g)) {
+            var y = matches[1] // "2000"
+            var m = matches[2] // "12"
+            var d = matches[3] // "31"
+        }
+        `,
     ],
     invalid: [
         {
@@ -101,21 +120,24 @@ tester.run("no-unused-capturing-group", rule as any, {
                     endColumn: 85,
                 },
                 {
-                    message: "'y' capturing group is defined but never used.",
+                    message:
+                        "'y' is defined for capturing group, but it name is never used.",
                     line: 5,
                     column: 50,
                     endLine: 5,
                     endColumn: 61,
                 },
                 {
-                    message: "'m' capturing group is defined but never used.",
+                    message:
+                        "'m' is defined for capturing group, but it name is never used.",
                     line: 5,
                     column: 62,
                     endLine: 5,
                     endColumn: 73,
                 },
                 {
-                    message: "'d' capturing group is defined but never used.",
+                    message:
+                        "'d' is defined for capturing group, but it name is never used.",
                     line: 5,
                     column: 74,
                     endLine: 5,
@@ -203,9 +225,9 @@ tester.run("no-unused-capturing-group", rule as any, {
             code:
                 "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
             errors: [
-                "'y' capturing group is defined but never used.",
-                "'m' capturing group is defined but never used.",
-                "'d' capturing group is defined but never used.",
+                "'y' is defined for capturing group, but it name is never used.",
+                "'m' is defined for capturing group, but it name is never used.",
+                "'d' is defined for capturing group, but it name is never used.",
             ],
         },
         {
@@ -255,6 +277,144 @@ tester.run("no-unused-capturing-group", rule as any, {
                     endColumn: 68,
                 },
             ],
+        },
+        {
+            code: String.raw`
+            var matches = '2000-12-31'.match(/(\d{4})-(\d{2})-(\d{2})/)
+            var y = matches[1] // "2000"
+            var m = matches[2] // "12"
+            // var d = matches[3] // "31"
+            `,
+            errors: [
+                {
+                    message: "Capturing group is defined but never used.",
+                    line: 2,
+                    column: 63,
+                    endLine: 2,
+                    endColumn: 70,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const groups = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/).groups
+            const y = groups.y // "2000"
+            const d = groups.d // "31"
+            `,
+            errors: ["'m' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const { groups } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+            const y = groups.y // "2000"
+            const d = groups.d // "31"
+            `,
+            errors: ["'m' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const { groups: {y,d} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+            `,
+            errors: ["'m' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const [,y,m,d] = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "'m' is defined for capturing group, but it name is never used.",
+                "'d' is defined for capturing group, but it name is never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)["groups"]
+            `,
+            errors: ["'d' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const { groups: {m, d} = {} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+            `,
+            errors: ["'y' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const { ["groups"]: {m, d} = {} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+            `,
+            errors: ["'y' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g)) {
+                var y = matches[1] // "2000"
+                // var m = matches[2] // "12"
+                // var d = matches[3] // "31"
+            }
+            
+            `,
+            errors: [
+                {
+                    message: "Capturing group is defined but never used.",
+                    line: 2,
+                    column: 77,
+                    endLine: 2,
+                    endColumn: 84,
+                },
+                {
+                    message: "Capturing group is defined but never used.",
+                    line: 2,
+                    column: 85,
+                    endLine: 2,
+                    endColumn: 92,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "'d' capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            let re
+            re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "'d' capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            let re
+            re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                const {...groups} = matches.groups
+                var m = groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            
+            `,
+            errors: ["Capturing group is defined but never used."],
         },
     ],
 })

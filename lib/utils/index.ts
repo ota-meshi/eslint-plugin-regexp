@@ -13,10 +13,10 @@ import {
     CONSTRUCT,
     ReferenceTracker,
     getStringIfConstant,
-    findVariable,
 } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
+import { findVariable } from "./ast-utils"
 export * from "./unicode"
 
 type RegexpRule = {
@@ -239,10 +239,7 @@ function buildRegexpVisitor(
                 if (typeof pattern === "string") {
                     let verifyPatternNode = patternNode
                     if (patternNode.type === "Identifier") {
-                        const variable = findVariable(
-                            context.getScope(),
-                            patternNode,
-                        )
+                        const variable = findVariable(context, patternNode)
                         if (variable && variable.defs.length === 1) {
                             const def = variable.defs[0]
                             if (
