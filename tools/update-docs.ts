@@ -173,7 +173,7 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
     public adjustCodeBlocks() {
         // Adjust the necessary blank lines before and after the code block so that GitHub can recognize `.md`.
         this.content = this.content.replace(
-            /(<eslint-code-block([\s\S]*?)>)\n+```/gmu,
+            /(<eslint-code-block[\s\S]*?>)\n+```/gmu,
             "$1\n\n```",
         )
         this.content = this.content.replace(
@@ -198,7 +198,7 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
             .map((key) => `${key}: ${yamlValue((fileIntro as any)[key])}`)
             .join("\n")}\n---\n`
 
-        const fileIntroPattern = /^---\n(.*\n)+?---\n*/gu
+        const fileIntroPattern = /^---\n(?:.*\n)+?---\n*/gu
 
         if (fileIntroPattern.test(this.content)) {
             this.content = this.content.replace(
