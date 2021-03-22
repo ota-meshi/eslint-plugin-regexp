@@ -409,9 +409,6 @@ export default createRule("no-unused-capturing-group", {
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
-            if (!typeTracer.isString(node.arguments[0])) {
-                return
-            }
             // RegExp.prototype.test()
             capturingData.markAsUsed()
         }
@@ -494,9 +491,6 @@ export default createRule("no-unused-capturing-group", {
         function verifyForExec(node: KnownCall) {
             const capturingData = getCapturingData(node.callee.object)
             if (capturingData == null || capturingData.isAllUsed()) {
-                return
-            }
-            if (!typeTracer.isString(node.arguments[0])) {
                 return
             }
             capturingData.markAsUsed()
