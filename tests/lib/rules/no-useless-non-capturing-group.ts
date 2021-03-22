@@ -17,6 +17,7 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         String.raw`/()\1(?:0)/`,
         String.raw`/\1(?:0)/`,
         String.raw`/\0(?:1)/`,
+        String.raw`/(\d)(?=(?:\d{3})+(?!\d))/g`,
     ],
     invalid: [
         {

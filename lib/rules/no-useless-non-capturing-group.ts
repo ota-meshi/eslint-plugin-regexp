@@ -47,7 +47,8 @@ export default createRule("no-useless-non-capturing-group", {
                     const parent = gNode.parent
                     if (
                         parent.type === "Quantifier" &&
-                        alt.elements.length > 1
+                        (alt.elements.length > 1 ||
+                            alt.elements[0].type === "Quantifier")
                     ) {
                         // e.g. /(?:ab)?/
                         return
