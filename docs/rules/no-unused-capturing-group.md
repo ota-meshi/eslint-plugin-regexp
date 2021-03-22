@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-unused-capturing-group"
 description: "disallow unused capturing group"
+since: "v0.6.0"
 ---
 # regexp/no-unused-capturing-group
 
 > disallow unused capturing group
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -56,6 +55,10 @@ Nothing.
 ## :couple: Related rules
 
 - [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md)
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.6.0
 
 ## :mag: Implementation
 
