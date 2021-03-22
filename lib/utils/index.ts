@@ -13,10 +13,10 @@ import {
     CONSTRUCT,
     ReferenceTracker,
     getStringIfConstant,
-    findVariable,
 } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
+import { findVariable } from "./ast-utils"
 export * from "./unicode"
 
 type RegexpRule = {
@@ -24,11 +24,13 @@ type RegexpRule = {
         node: ESTree.RegExpLiteral,
         pattern: string,
         flags: string,
+        regexpNode: ESTree.RegExpLiteral,
     ) => RegExpVisitor.Handlers
     createSourceVisitor?: (
         node: ESTree.Expression,
         pattern: string,
         flags: string,
+        regexpNode: ESTree.NewExpression | ESTree.CallExpression,
     ) => RegExpVisitor.Handlers
 }
 const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
@@ -75,6 +77,10 @@ export function defineRegexpVisitor(
                   node: ESTree.Expression,
                   pattern: string,
                   flags: string,
+                  regexpNode:
+                      | ESTree.RegExpLiteral
+                      | ESTree.NewExpression
+                      | ESTree.CallExpression,
               ) => RegExpVisitor.Handlers
           },
 ): RuleListener {
@@ -180,6 +186,7 @@ function buildRegexpVisitor(
                             node,
                             node.regex.pattern,
                             node.regex.flags,
+                            node,
                         )
                     }
                 }
@@ -223,14 +230,16 @@ function buildRegexpVisitor(
                     flags,
                 })
             }
-            for (const { patternNode, pattern, flags } of regexpDataList) {
+            for (const {
+                newOrCall,
+                patternNode,
+                pattern,
+                flags,
+            } of regexpDataList) {
                 if (typeof pattern === "string") {
                     let verifyPatternNode = patternNode
                     if (patternNode.type === "Identifier") {
-                        const variable = findVariable(
-                            context.getScope(),
-                            patternNode,
-                        )
+                        const variable = findVariable(context, patternNode)
                         if (variable && variable.defs.length === 1) {
                             const def = variable.defs[0]
                             if (
@@ -273,6 +282,7 @@ function buildRegexpVisitor(
                                     verifyPatternNode,
                                     pattern,
                                     flags || "",
+                                    newOrCall,
                                 )
                             }
                         }

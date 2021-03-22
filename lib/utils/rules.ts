@@ -11,6 +11,7 @@ import noEscapeBackspace from "../rules/no-escape-backspace"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLegacyFeatures from "../rules/no-legacy-features"
 import noOctal from "../rules/no-octal"
+import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
@@ -48,6 +49,7 @@ export const rules = [
     noInvisibleCharacter,
     noLegacyFeatures,
     noOctal,
+    noUnusedCapturingGroup,
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessDollarReplacements,
