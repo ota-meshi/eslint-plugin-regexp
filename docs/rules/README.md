@@ -23,6 +23,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
+| [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
