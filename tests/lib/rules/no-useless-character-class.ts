@@ -79,7 +79,7 @@ tester.run("no-useless-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected character class with one character set. Can remove brackets.",
+                        "Unexpected character class with one character class escape. Can remove brackets.",
                     line: 1,
                     column: 2,
                 },
@@ -98,7 +98,7 @@ tester.run("no-useless-character-class", rule as any, {
             output: String.raw`/\D/`,
             options: [{ ignores: ["\\d"] }],
             errors: [
-                "Unexpected character class with one character set. Can remove brackets.",
+                "Unexpected character class with one character class escape. Can remove brackets.",
             ],
         },
         {

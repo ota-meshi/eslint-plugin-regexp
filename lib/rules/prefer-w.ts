@@ -73,7 +73,7 @@ export default createRule("prefer-w", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected character set "{{expr}}". Use "{{instead}}" instead.',
+                'Unexpected {{type}} "{{expr}}". Use "{{instead}}" instead.',
         },
         type: "suggestion", // "problem",
     },
@@ -142,6 +142,7 @@ export default createRule("prefer-w", {
                                 ),
                                 messageId: "unexpected",
                                 data: {
+                                    type: "character class",
                                     expr: ccNode.raw,
                                     instead,
                                 },
@@ -170,6 +171,7 @@ export default createRule("prefer-w", {
                                 ),
                                 messageId: "unexpected",
                                 data: {
+                                    type: "character class ranges",
                                     expr: `[${unexpectedElements
                                         .map((e) => e.raw)
                                         .join("")}]`,

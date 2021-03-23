@@ -107,7 +107,7 @@ export default createRule("no-useless-character-class", {
                                     ? "character"
                                     : element.type === "CharacterClassRange"
                                     ? "character class range"
-                                    : "character set",
+                                    : "character class escape",
                             additional:
                                 element.type === "CharacterClassRange"
                                     ? " and range"
