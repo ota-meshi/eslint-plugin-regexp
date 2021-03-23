@@ -4,8 +4,8 @@ import * as parser from "@typescript-eslint/parser"
 import { rules } from "../../lib/index"
 import assert from "assert"
 import { createRule, defineRegexpVisitor } from "../../lib/utils"
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
+import type { Expression } from "estree"
 
 const TEST_RULE = createRule("test", {
     meta: {
@@ -36,8 +36,8 @@ const TEST_RULE = createRule("test", {
     },
 })
 
-describe("Don't crash even if with d flag.", () => {
-    const code = "var foo = /a/d; new RegExp('a', 'd')"
+describe("Don't crash even if with unknown flag.", () => {
+    const code = "var foo = /a/abcdefgg; new RegExp('a', 'abcdefgg')"
 
     for (const key of Object.keys(rules)) {
         const rule = rules[key]
@@ -59,6 +59,7 @@ describe("Don't crash even if with d flag.", () => {
             linter.defineParser("@typescript-eslint/parser", parser)
             // @ts-expect-error -- ignore
             linter.defineRule(ruleId, rule)
+
             linter.defineRule(
                 "regexp/test",
                 // @ts-expect-error -- ignore
@@ -79,3 +80,48 @@ describe("Don't crash even if with d flag.", () => {
         })
     }
 })
+
+// describe("Don't crash even if with unknown flag in core rules", () => {
+//     const code = "var foo = /a/abcdefgg;\n new RegExp('a', 'abcdefgg')"
+
+//     for (const ruleId of new Set([
+//         ...Object.keys(configs.recommended.rules),
+//         "no-empty-character-class",
+//     ])) {
+//         if (ruleId.startsWith("regexp/")) {
+//             continue
+//         }
+
+//         it(ruleId, () => {
+//             const linter = new Linter()
+//             const config: Linter.Config = {
+//                 parser: "@typescript-eslint/parser",
+//                 parserOptions: {
+//                     ecmaVersion: 2020,
+//                 },
+//                 rules: {
+//                     [ruleId]: "error",
+//                 },
+//             }
+//             // @ts-expect-error -- ignore
+//             linter.defineParser("@typescript-eslint/parser", parser)
+//             const resultVue = linter.verifyAndFix(code, config, "test.js")
+
+//             const msgs = resultVue.messages.map((m) => ({
+//                 ruleId: m.ruleId,
+//                 line: m.line,
+//             }))
+//             if (ruleId === "no-invalid-regexp") {
+//                 assert.deepStrictEqual(msgs, [
+//                     { ruleId: "no-invalid-regexp", line: 2 },
+//                 ])
+//             } else if (ruleId === "prefer-regex-literals") {
+//                 assert.deepStrictEqual(msgs, [
+//                     { ruleId: "prefer-regex-literals", line: 2 },
+//                 ])
+//             } else {
+//                 assert.deepStrictEqual(msgs, [])
+//             }
+//         })
+//     }
+// })
