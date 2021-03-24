@@ -11,6 +11,7 @@ eslint-disable
     regexp/no-useless-non-capturing-group,
     regexp/no-useless-range,
     regexp/prefer-quantifier,
+    regexp/letter-case,
 --------------------------------------------- ignore */
 import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
@@ -388,6 +389,21 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         b: /^/,
         result: false,
     },
+    {
+        a: /[a-c][E-G]/i,
+        b: /bf/i,
+        result: true,
+    },
+    {
+        a: /[a-c][E-G]/i,
+        b: /BF/i,
+        result: true,
+    },
+    {
+        a: /[a-c][E-G]/,
+        b: /Bf/,
+        result: false,
+    },
 ]
 describe("regexp-ast isCoveredNode", () => {
     for (const testCase of [
@@ -402,7 +418,12 @@ describe("regexp-ast isCoveredNode", () => {
             const ast1 = parseRegExpLiteral(testCase.a)
             const ast2 = parseRegExpLiteral(testCase.b)
 
-            assert.deepStrictEqual(isCoveredNode(ast1, ast2), testCase.result)
+            assert.deepStrictEqual(
+                isCoveredNode(ast1, ast2, {
+                    flags: { left: ast1.flags.raw, right: ast2.flags.raw },
+                }),
+                testCase.result,
+            )
         })
     }
 })

@@ -127,6 +127,28 @@ export function isLetter(codePoint: number): boolean {
     return isLowercaseLetter(codePoint) || isUppercaseLetter(codePoint)
 }
 /**
+ * Convert the given character to lowercase.
+ * @param codePoint The code point to convert.
+ * @returns {number} Converted code point.
+ */
+export function toLowerCodePoint(codePoint: number): number {
+    if (isUppercaseLetter(codePoint)) {
+        return codePoint + 0x0020
+    }
+    return codePoint
+}
+/**
+ * Convert the given character to uppercase.
+ * @param codePoint The code point to convert.
+ * @returns {number} Converted code point.
+ */
+export function toUpperCodePoint(codePoint: number): number {
+    if (isLowercaseLetter(codePoint)) {
+        return codePoint - 0x0020
+    }
+    return codePoint
+}
+/**
  * Checks if the given code point is symbol.
  * @param codePoint The code point to check
  * @returns {boolean} `true` if the given code point is symbol.

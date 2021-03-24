@@ -43,7 +43,11 @@ export default createRule("no-dupe-disjunctions", {
          * Create visitor
          * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            node: Expression,
+            _p: string,
+            flags: string,
+        ): RegExpVisitor.Handlers {
             /** Verify group node */
             function verify(
                 regexpNode:
@@ -56,7 +60,9 @@ export default createRule("no-dupe-disjunctions", {
                 for (const alt of regexpNode.alternatives) {
                     const dupeAlt = disallowNeverMatch
                         ? leftAlts.find((leftAlt) =>
-                              isCoveredNode(leftAlt, alt),
+                              isCoveredNode(leftAlt, alt, {
+                                  flags: { left: flags, right: flags },
+                              }),
                           )
                         : leftAlts.find((leftAlt) =>
                               isEqualNodes(leftAlt, alt, (a, _b) => {
