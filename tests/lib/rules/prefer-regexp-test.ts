@@ -115,5 +115,33 @@ tester.run("prefer-regexp-test", rule as any, {
                 "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
             ],
         },
+        {
+            code: `
+            const re = /a/g;
+            const str = 'abc';
+            
+            console.log(!!str.match(re)); // ignore
+            console.log(!!str.match(re)); // ignore
+            console.log(!!re.exec(str));
+            console.log(!!re.exec(str));
+            console.log(re.test(str));
+            console.log(re.test(str));
+            `,
+            output: `
+            const re = /a/g;
+            const str = 'abc';
+            
+            console.log(!!str.match(re)); // ignore
+            console.log(!!str.match(re)); // ignore
+            console.log(!!re.test(str));
+            console.log(!!re.test(str));
+            console.log(re.test(str));
+            console.log(re.test(str));
+            `,
+            errors: [
+                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
+                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
+            ],
+        },
     ],
 })

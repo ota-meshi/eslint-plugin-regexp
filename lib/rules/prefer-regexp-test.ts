@@ -1,5 +1,9 @@
 import type * as ES from "estree"
-import { hasSideEffect, isOpeningParenToken } from "eslint-utils"
+import {
+    getStaticValue,
+    hasSideEffect,
+    isOpeningParenToken,
+} from "eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import { isKnownMethodCall } from "../utils/ast-utils"
@@ -37,6 +41,16 @@ export default createRule("prefer-regexp-test", {
                     if (!typeTracer.isString(node.callee.object)) {
                         return
                     }
+                    const arg = node.arguments[0]
+                    const evaluated = getStaticValue(arg, context.getScope())
+                    if (
+                        evaluated &&
+                        evaluated.value instanceof RegExp &&
+                        evaluated.value.flags.includes("g")
+                    ) {
+                        return
+                    }
+
                     const memberExpr = node.callee
                     context.report({
                         node,
