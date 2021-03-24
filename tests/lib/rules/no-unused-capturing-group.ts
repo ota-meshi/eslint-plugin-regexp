@@ -80,6 +80,14 @@ tester.run("no-unused-capturing-group", rule as any, {
         '2000-12-31 2000-12-31'.replace(reg, '$<y>/$<m>');
         '2000-12-31 2000-12-31'.replace(reg, '$<m>/$<d>');
         `,
+        String.raw`
+        const reg = /,/;
+        'a,b,c'.split(reg)
+        `,
+        String.raw`
+        const reg = /(,)/;
+        'a,b,c'.split(reg)
+        `,
     ],
     invalid: [
         {
@@ -423,9 +431,17 @@ tester.run("no-unused-capturing-group", rule as any, {
                 var m = groups.m // "12"
                 // var d = matches[3] // "31"
             }
-            
             `,
             errors: ["Capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const reg = /(?<comma>,)/;
+            'a,b,c'.split(reg)
+            `,
+            errors: [
+                "'comma' is defined for capturing group, but it name is never used.",
+            ],
         },
     ],
 })
