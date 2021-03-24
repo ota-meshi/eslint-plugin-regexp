@@ -44,7 +44,6 @@ type NormalizedNode =
     | NormalizedDisjunctions
     | NormalizedAlternative
     | NormalizedLookaroundAssertion
-    | NormalizedQuantifier
 class NormalizedOther implements NormalizedBase {
     public readonly type = "NormalizedOther"
 
@@ -336,9 +335,8 @@ class NormalizedCharacterRanges implements NormalizedBase {
 
 /**
  * Normalized alternative
- * Alternative is converted to this.
+ * Alternative and Quantifier are converted to this.
  * If there is only one element of alternative, it will be skipped. e.g. /a/
- * Quantifiers with exact quantities are also converted to this. e.g. /a{3}/
  */
 class NormalizedAlternative implements NormalizedBase {
     public readonly type = "NormalizedAlternative"
@@ -347,7 +345,7 @@ class NormalizedAlternative implements NormalizedBase {
 
     public readonly elements: NormalizedNode[]
 
-    public static fromNode(node: Alternative, flags: string) {
+    public static fromAlternative(node: Alternative, flags: string) {
         const normalizeElements: NormalizedNode[] = []
         for (const element of node.elements) {
             const normal = normalizeNode(element, flags)
@@ -401,7 +399,10 @@ class NormalizedDisjunctions implements NormalizedBase {
         flags: string,
     ) {
         if (node.alternatives.length === 1) {
-            return NormalizedAlternative.fromNode(node.alternatives[0], flags)
+            return NormalizedAlternative.fromAlternative(
+                node.alternatives[0],
+                flags,
+            )
         }
         return new NormalizedDisjunctions(node, flags)
     }
@@ -457,50 +458,6 @@ class NormalizedLookaroundAssertion implements NormalizedBase {
     }
 }
 
-/**
- * Normalized Quantifier
- * Quantifier is converted to this.
- * Quantifiers with exact quantities are also converted to NormalizedAlternative. e.g. /a{3}/
- */
-class NormalizedQuantifier implements NormalizedBase {
-    public readonly type = "NormalizedQuantifier"
-
-    public readonly raw: string
-
-    private readonly node: Quantifier
-
-    private readonly flags: string
-
-    private normalizedElement?: NormalizedNode
-
-    public static fromNode(node: Quantifier, flags: string) {
-        if (node.min === node.max) {
-            return NormalizedAlternative.fromQuantifier(node, flags)
-        }
-        return new NormalizedQuantifier(node, flags)
-    }
-
-    private constructor(node: Quantifier, flags: string) {
-        this.raw = node.raw
-        this.node = node
-        this.flags = flags
-    }
-
-    public get min() {
-        return this.node.min
-    }
-
-    public get element() {
-        return (
-            this.normalizedElement ??
-            (this.normalizedElement = normalizeNode(
-                this.node.element,
-                this.flags,
-            ))
-        )
-    }
-}
-
 type TargetRightNode = Exclude<
     NormalizedNode,
     NormalizedOther | NormalizedDisjunctions
@@ -526,7 +483,13 @@ const COVERED_CHECKER = {
             }
             return false
         }
-        return isCoveredAnyNode(left.elements, right, options)
+        if (left.elements.length === 0) {
+            return true
+        }
+        if (left.elements.length === 1) {
+            return isCoveredNodeImpl(left.elements[0], right, options)
+        }
+        return false
     },
     NormalizedLookaroundAssertion(
         left: NormalizedLookaroundAssertion,
@@ -605,27 +568,6 @@ const COVERED_CHECKER = {
         }
         return false
     },
-    NormalizedQuantifier(
-        left: NormalizedQuantifier,
-        right: TargetRightNode,
-        options: Options,
-    ) {
-        if (right.type === "NormalizedAlternative") {
-            if (right.elements.length > 0) {
-                const re = right.elements[0]
-                return isCoveredNodeImpl(left, re, options)
-            }
-        }
-        if (right.type === "NormalizedQuantifier") {
-            if (left.min <= right.min) {
-                return isCoveredNodeImpl(left.element, right.element, options)
-            }
-        }
-        if (left.min >= 1) {
-            return isCoveredNodeImpl(left.element, right, options)
-        }
-        return false
-    },
 }
 
 /** Checks whether the right node is covered by the left node. */
@@ -694,7 +636,10 @@ function normalizeNodeWithoutCache(node: Node, flags: string): NormalizedNode {
         return NormalizedCharacterRanges.fromCharacterClassElement(node, flags)
     }
     if (node.type === "Alternative") {
-        return NormalizedAlternative.fromNode(node, flags)
+        return NormalizedAlternative.fromAlternative(node, flags)
+    }
+    if (node.type === "Quantifier") {
+        return NormalizedAlternative.fromQuantifier(node, flags)
     }
     if (
         node.type === "CapturingGroup" ||
@@ -711,9 +656,6 @@ function normalizeNodeWithoutCache(node: Node, flags: string): NormalizedNode {
             return NormalizedLookaroundAssertion.fromNode(node, flags)
         }
         return NormalizedOther.fromNode(node)
-    }
-    if (node.type === "Quantifier") {
-        return NormalizedQuantifier.fromNode(node, flags)
     }
     return NormalizedOther.fromNode(node)
 }
