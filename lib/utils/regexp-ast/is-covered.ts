@@ -9,7 +9,6 @@ import type {
     Pattern,
     CharacterClassElement,
     LookaroundAssertion,
-    UnicodePropertyCharacterSet,
 } from "regexpp/ast"
 import { isEqualNodes } from "./is-equals"
 import {
@@ -57,23 +56,76 @@ class NormalizedOther implements NormalizedBase {
         this.node = node
     }
 }
-type NormalizedCharacterRange = NormalizedRange | NormalizedUnicodeProperty
+type NormalizedCharacterRange =
+    | NormalizedRange
+    | NormalizedUnicodeProperty
+    | NormalizedUnknownRange
 /**
  * Code point range
  * Character, CharacterClassRange and CharacterSet are converted to this.
  */
-type NormalizedRange = {
-    min: number
-    max: number
-    type: "NormalizedRange"
+class NormalizedRange implements NormalizedBase {
+    public readonly type = "NormalizedRange"
+
+    public readonly min: number
+
+    public max: number
+
+    public constructor(min: number, max?: number) {
+        this.min = min
+        this.max = max ?? min
+    }
+
+    public isCovered(right: NormalizedCharacterRange) {
+        if (right.type === "NormalizedRange") {
+            return this.min <= right.min && right.max <= this.max
+        }
+        return this.min === -Infinity && this.max === Infinity
+    }
 }
 /**
  * UnicodeProperty
  * UnicodePropertyCharacterSet is converted to this.
  */
-type NormalizedUnicodeProperty = {
-    node: UnicodePropertyCharacterSet
-    type: "NormalizedUnicodeProperty"
+class NormalizedUnicodeProperty implements NormalizedBase {
+    public readonly type = "NormalizedUnicodeProperty"
+
+    private readonly text: string
+
+    private readonly negateFlag: boolean
+
+    public constructor(text: string, negate: boolean) {
+        this.text = text
+        this.negateFlag = negate
+    }
+
+    public get patternText() {
+        if (this.negateFlag) {
+            return `\\P${this.text}`
+        }
+        return `\\p${this.text}`
+    }
+
+    public negate() {
+        return new NormalizedUnicodeProperty(this.text, !this.negateFlag)
+    }
+
+    public isCovered(right: NormalizedCharacterRange) {
+        if (right.type === "NormalizedUnicodeProperty") {
+            return this.patternText === right.patternText
+        }
+        return false
+    }
+}
+/**
+ * Unknown range
+ */
+class NormalizedUnknownRange implements NormalizedBase {
+    public readonly type = "NormalizedUnknownRange"
+
+    public isCovered(_right: NormalizedCharacterRange) {
+        return false
+    }
 }
 /**
  * Code point range list
@@ -87,31 +139,21 @@ class NormalizedCharacterRanges implements NormalizedBase {
     public readonly ranges: NormalizedCharacterRange[] = []
 
     private static readonly ALL = new NormalizedCharacterRanges(
-        [{ min: -Infinity, max: Infinity, type: "NormalizedRange" as const }],
+        [new NormalizedRange(-Infinity, Infinity)],
         ".",
     )
 
     private static readonly DOT = new NormalizedCharacterRanges(
         [
-            { min: CP_CR, max: CP_CR, type: "NormalizedRange" as const },
-            { min: CP_LF, max: CP_LF, type: "NormalizedRange" as const },
-            {
-                min: CP_LINE_SEPARATOR,
-                max: CP_PARAGRAPH_SEPARATOR,
-                type: "NormalizedRange" as const,
-            },
+            new NormalizedRange(CP_CR),
+            new NormalizedRange(CP_LF),
+            new NormalizedRange(CP_LINE_SEPARATOR, CP_PARAGRAPH_SEPARATOR),
         ],
         "",
     ).negate(".")
 
     private static readonly D = new NormalizedCharacterRanges(
-        [
-            {
-                min: CP_RANGE_DIGIT[0],
-                max: CP_RANGE_DIGIT[1],
-                type: "NormalizedRange" as const,
-            },
-        ],
+        [new NormalizedRange(...CP_RANGE_DIGIT)],
         "\\d",
     )
 
@@ -119,16 +161,10 @@ class NormalizedCharacterRanges implements NormalizedBase {
 
     private static readonly W = new NormalizedCharacterRanges(
         [
-            ...CP_RANGES_WORDS.map(([min, max]) => ({
-                min,
-                max,
-                type: "NormalizedRange" as const,
-            })),
-            {
-                min: CP_LOW_LINE,
-                max: CP_LOW_LINE,
-                type: "NormalizedRange" as const,
-            },
+            ...CP_RANGES_WORDS.map(
+                ([min, max]) => new NormalizedRange(min, max),
+            ),
+            new NormalizedRange(CP_LOW_LINE),
         ],
         "\\w",
     )
@@ -137,16 +173,8 @@ class NormalizedCharacterRanges implements NormalizedBase {
 
     private static readonly S = new NormalizedCharacterRanges(
         [
-            ...[...CPS_SINGLE_SPACES].map((num) => ({
-                min: num,
-                max: num,
-                type: "NormalizedRange" as const,
-            })),
-            {
-                min: CP_RANGE_SPACES[0],
-                max: CP_RANGE_SPACES[1],
-                type: "NormalizedRange" as const,
-            },
+            ...[...CPS_SINGLE_SPACES].map((num) => new NormalizedRange(num)),
+            new NormalizedRange(...CP_RANGE_SPACES),
         ],
         "\\s",
     )
@@ -198,7 +226,7 @@ class NormalizedCharacterRanges implements NormalizedBase {
         }
         if (node.kind === "property") {
             return new NormalizedCharacterRanges(
-                [{ node, type: "NormalizedUnicodeProperty" }],
+                [new NormalizedUnicodeProperty(node.raw.slice(2), node.negate)],
                 node.raw,
             )
         }
@@ -212,17 +240,9 @@ class NormalizedCharacterRanges implements NormalizedBase {
         if (node.type === "Character" || node.type === "CharacterClassRange") {
             let baseRange: NormalizedRange
             if (node.type === "Character") {
-                baseRange = {
-                    min: node.value,
-                    max: node.value,
-                    type: "NormalizedRange" as const,
-                }
+                baseRange = new NormalizedRange(node.value)
             } else {
-                baseRange = {
-                    min: node.min.value,
-                    max: node.max.value,
-                    type: "NormalizedRange" as const,
-                }
+                baseRange = new NormalizedRange(node.min.value, node.max.value)
             }
             const ranges: NormalizedRange[] = [baseRange]
 
@@ -232,22 +252,24 @@ class NormalizedCharacterRanges implements NormalizedBase {
                     [baseRange.min, baseRange.max],
                 )
                 if (capitalIntersection) {
-                    ranges.push({
-                        min: toLowerCodePoint(capitalIntersection[0]),
-                        max: toLowerCodePoint(capitalIntersection[1]),
-                        type: "NormalizedRange" as const,
-                    })
+                    ranges.push(
+                        new NormalizedRange(
+                            toLowerCodePoint(capitalIntersection[0]),
+                            toLowerCodePoint(capitalIntersection[1]),
+                        ),
+                    )
                 }
                 const smallIntersection = getIntersection(
                     CP_RANGE_SMALL_LETTER,
                     [baseRange.min, baseRange.max],
                 )
                 if (smallIntersection) {
-                    ranges.push({
-                        min: toUpperCodePoint(smallIntersection[0]),
-                        max: toUpperCodePoint(smallIntersection[1]),
-                        type: "NormalizedRange" as const,
-                    })
+                    ranges.push(
+                        new NormalizedRange(
+                            toUpperCodePoint(smallIntersection[0]),
+                            toUpperCodePoint(smallIntersection[1]),
+                        ),
+                    )
                 }
             }
             return new NormalizedCharacterRanges(ranges, node.raw)
@@ -288,17 +310,21 @@ class NormalizedCharacterRanges implements NormalizedBase {
                     continue
                 }
             }
-            last = { ...range }
+            last = new NormalizedRange(range.min, range.max)
             this.ranges.push(last)
         }
         this.ranges.push(
-            ...ranges.filter(
-                (range) => range.type === "NormalizedUnicodeProperty",
-            ),
+            ...ranges.filter((range) => range.type !== "NormalizedRange"),
         )
     }
 
     public negate(newRaw: string) {
+        if (this.ranges.length === 1) {
+            const range = this.ranges[0]
+            if (range.type === "NormalizedUnicodeProperty") {
+                return new NormalizedCharacterRanges([range.negate()], newRaw)
+            }
+        }
         const newRanges: NormalizedCharacterRange[] = []
         const normalizedRanges = this.ranges.filter(
             (range): range is NormalizedRange =>
@@ -306,11 +332,7 @@ class NormalizedCharacterRanges implements NormalizedBase {
         )
         let start = -Infinity
         for (const range of normalizedRanges) {
-            const newRange = {
-                min: start,
-                max: range.min - 1,
-                type: "NormalizedRange" as const,
-            }
+            const newRange = new NormalizedRange(start, range.min - 1)
             if (newRange.max === -Infinity) {
                 continue
             }
@@ -318,17 +340,11 @@ class NormalizedCharacterRanges implements NormalizedBase {
             start = range.max + 1
         }
         if (start < Infinity) {
-            newRanges.push({
-                min: start,
-                max: Infinity,
-                type: "NormalizedRange" as const,
-            })
+            newRanges.push(new NormalizedRange(start, Infinity))
         }
-        newRanges.push(
-            ...this.ranges.filter(
-                (range) => range.type === "NormalizedUnicodeProperty",
-            ),
-        )
+        if (this.ranges.some((range) => range.type !== "NormalizedRange")) {
+            newRanges.push(new NormalizedUnknownRange())
+        }
         return new NormalizedCharacterRanges(newRanges, newRaw)
     }
 }
@@ -533,32 +549,9 @@ const COVERED_CHECKER = {
         }
         if (right.type === "NormalizedCharacterRanges") {
             for (const rightRange of right.ranges) {
-                if (rightRange.type === "NormalizedUnicodeProperty") {
-                    if (
-                        !left.ranges.some((leftRange) => {
-                            if (
-                                leftRange.type === "NormalizedUnicodeProperty"
-                            ) {
-                                return isEqualNodes(
-                                    leftRange.node,
-                                    rightRange.node,
-                                )
-                            }
-                            return false
-                        })
-                    ) {
-                        return false
-                    }
-                } else if (
+                if (
                     !left.ranges.some((leftRange) => {
-                        if (leftRange.type === "NormalizedUnicodeProperty") {
-                            // unknown
-                            return false
-                        }
-                        return (
-                            leftRange.min <= rightRange.min &&
-                            rightRange.max <= leftRange.max
-                        )
+                        return leftRange.isCovered(rightRange)
                     })
                 ) {
                     return false

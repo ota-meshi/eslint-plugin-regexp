@@ -434,6 +434,31 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         b: /a+a+/,
         result: true,
     },
+    {
+        a: String.raw`/[\p{ASCII}]/u`,
+        b: String.raw`/[^\P{ASCII}]/u`,
+        result: true,
+    },
+    {
+        a: String.raw`/./us`,
+        b: String.raw`/[^\P{ASCII}]/us`,
+        result: true,
+    },
+    {
+        a: String.raw`/./u`,
+        b: String.raw`/[^\P{ASCII}]/u`,
+        result: false,
+    },
+    {
+        a: String.raw`/[ab]+/u`,
+        b: String.raw`/[a]/u`,
+        result: true,
+    },
+    {
+        a: String.raw`/a+/u`,
+        b: String.raw`/[a]/u`,
+        result: true,
+    },
 ]
 describe("regexp-ast isCoveredNode", () => {
     for (const testCase of [
