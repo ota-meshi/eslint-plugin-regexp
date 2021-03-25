@@ -33,7 +33,7 @@ type Options = {
         right: string
     }
 }
-interface NormalizedBase {
+interface NormalizedNodeBase {
     readonly type: string
 }
 
@@ -43,7 +43,8 @@ type NormalizedNode =
     | NormalizedDisjunctions
     | NormalizedAlternative
     | NormalizedLookaroundAssertion
-class NormalizedOther implements NormalizedBase {
+    | NormalizedOptional
+class NormalizedOther implements NormalizedNodeBase {
     public readonly type = "NormalizedOther"
 
     public readonly node: Node
@@ -56,6 +57,12 @@ class NormalizedOther implements NormalizedBase {
         this.node = node
     }
 }
+interface NormalizedCharacterRangeBase {
+    readonly type: string
+
+    isCovered(right: NormalizedCharacterRange): boolean
+}
+
 type NormalizedCharacterRange =
     | NormalizedRange
     | NormalizedUnicodeProperty
@@ -64,7 +71,7 @@ type NormalizedCharacterRange =
  * Code point range
  * Character, CharacterClassRange and CharacterSet are converted to this.
  */
-class NormalizedRange implements NormalizedBase {
+class NormalizedRange implements NormalizedCharacterRangeBase {
     public readonly type = "NormalizedRange"
 
     public readonly min: number
@@ -80,6 +87,7 @@ class NormalizedRange implements NormalizedBase {
         if (right.type === "NormalizedRange") {
             return this.min <= right.min && right.max <= this.max
         }
+        // dotAll covers everything.
         return this.min === -Infinity && this.max === Infinity
     }
 }
@@ -87,7 +95,7 @@ class NormalizedRange implements NormalizedBase {
  * UnicodeProperty
  * UnicodePropertyCharacterSet is converted to this.
  */
-class NormalizedUnicodeProperty implements NormalizedBase {
+class NormalizedUnicodeProperty implements NormalizedCharacterRangeBase {
     public readonly type = "NormalizedUnicodeProperty"
 
     private readonly text: string
@@ -120,7 +128,7 @@ class NormalizedUnicodeProperty implements NormalizedBase {
 /**
  * Unknown range
  */
-class NormalizedUnknownRange implements NormalizedBase {
+class NormalizedUnknownRange implements NormalizedCharacterRangeBase {
     public readonly type = "NormalizedUnknownRange"
 
     public isCovered(_right: NormalizedCharacterRange) {
@@ -131,7 +139,7 @@ class NormalizedUnknownRange implements NormalizedBase {
  * Code point range list
  * Character, CharacterClass and CharacterSet are converted to this.
  */
-class NormalizedCharacterRanges implements NormalizedBase {
+class NormalizedCharacterRanges implements NormalizedNodeBase {
     public readonly type = "NormalizedCharacterRanges"
 
     public readonly raw: string
@@ -354,7 +362,7 @@ class NormalizedCharacterRanges implements NormalizedBase {
  * Alternative and Quantifier are converted to this.
  * If there is only one element of alternative, it will be skipped. e.g. /a/
  */
-class NormalizedAlternative implements NormalizedBase {
+class NormalizedAlternative implements NormalizedNodeBase {
     public readonly type = "NormalizedAlternative"
 
     public readonly raw: string
@@ -362,15 +370,18 @@ class NormalizedAlternative implements NormalizedBase {
     public readonly elements: NormalizedNode[]
 
     public static fromAlternative(node: Alternative, flags: string) {
-        const normalizeElements: NormalizedNode[] = []
-        for (const element of node.elements) {
-            const normal = normalizeNode(element, flags)
-            if (normal.type === "NormalizedAlternative") {
-                normalizeElements.push(...normal.elements)
-            } else {
-                normalizeElements.push(normal)
-            }
-        }
+        const normalizeElements = [
+            ...NormalizedAlternative.normalizedElements(function* () {
+                for (const element of node.elements) {
+                    const normal = normalizeNode(element, flags)
+                    if (normal.type === "NormalizedAlternative") {
+                        yield* normal.elements
+                    } else {
+                        yield normal
+                    }
+                }
+            }),
+        ]
         if (normalizeElements.length === 1) {
             return normalizeElements[0]
         }
@@ -378,15 +389,42 @@ class NormalizedAlternative implements NormalizedBase {
     }
 
     public static fromQuantifier(node: Quantifier, flags: string) {
-        const normalizeElement = normalizeNode(node.element, flags)
-        const normalizeElements: NormalizedNode[] = []
-        for (let index = 0; index < node.min; index++) {
-            normalizeElements.push(normalizeElement)
-        }
+        const normalizeElements = [
+            ...NormalizedAlternative.normalizedElements(function* () {
+                const normalizeElement = normalizeNode(node.element, flags)
+                for (let index = 0; index < node.min; index++) {
+                    yield normalizeElement
+                }
+            }),
+        ]
         if (normalizeElements.length === 1) {
             return normalizeElements[0]
         }
         return new NormalizedAlternative(normalizeElements, node)
+    }
+
+    public static fromElements(
+        elements: NormalizedNode[],
+        node: Alternative | Quantifier,
+    ) {
+        const normalizeElements = [
+            ...NormalizedAlternative.normalizedElements(function* () {
+                yield* elements
+            }),
+        ]
+        return new NormalizedAlternative(normalizeElements, node)
+    }
+
+    private static *normalizedElements(
+        generate: () => Generator<NormalizedNode>,
+    ): IterableIterator<NormalizedNode> {
+        for (const node of generate()) {
+            if (node.type === "NormalizedAlternative") {
+                yield* node.elements
+            } else {
+                yield node
+            }
+        }
     }
 
     private constructor(
@@ -403,12 +441,16 @@ class NormalizedAlternative implements NormalizedBase {
  * CapturingGroup, Group and Pattern are converted to this.
  * If there is only one element of disjunctions, it will be skipped. e.g. /(abc)/
  */
-class NormalizedDisjunctions implements NormalizedBase {
+class NormalizedDisjunctions implements NormalizedNodeBase {
     public readonly type = "NormalizedDisjunctions"
 
     public readonly raw: string
 
-    public readonly alternatives: NormalizedNode[]
+    public readonly node: CapturingGroup | Group | Pattern
+
+    private readonly flags: string
+
+    public normalizedAlternatives?: NormalizedAlternative[]
 
     public static fromNode(
         node: CapturingGroup | Group | Pattern,
@@ -425,9 +467,26 @@ class NormalizedDisjunctions implements NormalizedBase {
 
     private constructor(node: CapturingGroup | Group | Pattern, flags: string) {
         this.raw = node.raw
-        this.alternatives = node.alternatives.map((n) =>
-            normalizeNode(n, flags),
-        )
+        this.node = node
+        this.flags = flags
+    }
+
+    public get alternatives() {
+        if (this.normalizedAlternatives) {
+            return this.normalizedAlternatives
+        }
+        this.normalizedAlternatives = []
+        for (const alt of this.node.alternatives) {
+            const node = normalizeNode(alt, this.flags)
+            if (node.type === "NormalizedAlternative") {
+                this.normalizedAlternatives.push(node)
+            } else {
+                this.normalizedAlternatives.push(
+                    NormalizedAlternative.fromElements([node], alt),
+                )
+            }
+        }
+        return this.normalizedAlternatives
     }
 }
 
@@ -435,7 +494,7 @@ class NormalizedDisjunctions implements NormalizedBase {
  * Normalized lookaround assertion
  * LookaheadAssertion and LookbehindAssertion are converted to this.
  */
-class NormalizedLookaroundAssertion implements NormalizedBase {
+class NormalizedLookaroundAssertion implements NormalizedNodeBase {
     public readonly type = "NormalizedLookaroundAssertion"
 
     public readonly raw: string
@@ -444,7 +503,7 @@ class NormalizedLookaroundAssertion implements NormalizedBase {
 
     private readonly flags: string
 
-    public normalizedAlternative?: NormalizedNode[]
+    public normalizedAlternatives?: NormalizedAlternative[]
 
     public static fromNode(node: LookaroundAssertion, flags: string) {
         return new NormalizedLookaroundAssertion(node, flags)
@@ -457,12 +516,21 @@ class NormalizedLookaroundAssertion implements NormalizedBase {
     }
 
     public get alternatives() {
-        return (
-            this.normalizedAlternative ??
-            (this.normalizedAlternative = this.node.alternatives.map((a) =>
-                normalizeNode(a, this.flags),
-            ))
-        )
+        if (this.normalizedAlternatives) {
+            return this.normalizedAlternatives
+        }
+        this.normalizedAlternatives = []
+        for (const alt of this.node.alternatives) {
+            const node = normalizeNode(alt, this.flags)
+            if (node.type === "NormalizedAlternative") {
+                this.normalizedAlternatives.push(node)
+            } else {
+                this.normalizedAlternatives.push(
+                    NormalizedAlternative.fromElements([node], alt),
+                )
+            }
+        }
+        return this.normalizedAlternatives
     }
 
     public get kind() {
@@ -471,6 +539,76 @@ class NormalizedLookaroundAssertion implements NormalizedBase {
 
     public get negate() {
         return this.node.negate
+    }
+}
+
+/**
+ * Normalized optional node
+ * Quantifier is converted to this.
+ * The exactly quantifier of the number will be converted to NormalizedAlternative.
+ */
+class NormalizedOptional implements NormalizedNodeBase {
+    public readonly type = "NormalizedOptional"
+
+    public readonly raw: string
+
+    public readonly max: number
+
+    public readonly node: Quantifier
+
+    private readonly flags: string
+
+    private normalizedElement?: NormalizedNode
+
+    public static fromQuantifier(node: Quantifier, flags: string) {
+        let alt: NormalizedNode | null = null
+        if (node.min > 0) {
+            alt = NormalizedAlternative.fromQuantifier(node, flags)
+        }
+        const max = node.max - node.min
+        if (max > 0) {
+            const optional = new NormalizedOptional(node, flags, max)
+            if (alt) {
+                if (alt.type === "NormalizedAlternative") {
+                    return NormalizedAlternative.fromElements(
+                        [...alt.elements, optional],
+                        node,
+                    )
+                }
+                return NormalizedAlternative.fromElements([alt, optional], node)
+            }
+            return optional
+        }
+        if (alt) {
+            return alt
+        }
+        return NormalizedOther.fromNode(node)
+    }
+
+    private constructor(node: Quantifier, flags: string, max: number) {
+        this.raw = node.raw
+        this.max = max
+        this.node = node
+        this.flags = flags
+    }
+
+    public get element() {
+        return (
+            this.normalizedElement ??
+            (this.normalizedElement = normalizeNode(
+                this.node.element,
+                this.flags,
+            ))
+        )
+    }
+
+    public decrementMax() {
+        if (this.max === Infinity) {
+            return this
+        }
+        const opt = new NormalizedOptional(this.node, this.flags, this.max - 1)
+        opt.normalizedElement = this.normalizedElement
+        return opt
     }
 }
 
@@ -486,26 +624,9 @@ const COVERED_CHECKER = {
         options: Options,
     ) {
         if (right.type === "NormalizedAlternative") {
-            if (left.elements.length <= right.elements.length) {
-                // check for /ab/ : /abc/
-                for (let index = 0; index < left.elements.length; index++) {
-                    const le = left.elements[index]
-                    const re = right.elements[index]
-                    if (!isCoveredNodeImpl(le, re, options)) {
-                        return false
-                    }
-                }
-                return true
-            }
-            return false
+            return isCoveredAltNodes(left.elements, right.elements, options)
         }
-        if (left.elements.length === 0) {
-            return true
-        }
-        if (left.elements.length === 1) {
-            return isCoveredNodeImpl(left.elements[0], right, options)
-        }
-        return false
+        return isCoveredAltNodes(left.elements, [right], options)
     },
     NormalizedLookaroundAssertion(
         left: NormalizedLookaroundAssertion,
@@ -513,10 +634,7 @@ const COVERED_CHECKER = {
         options: Options,
     ) {
         if (right.type === "NormalizedAlternative") {
-            if (right.elements.length > 0) {
-                const re = right.elements[0]
-                return isCoveredNodeImpl(left, re, options)
-            }
+            return isCoveredAltNodes([left], right.elements, options)
         }
         if (right.type === "NormalizedLookaroundAssertion") {
             if (left.kind === right.kind && !left.negate && !right.negate) {
@@ -542,10 +660,7 @@ const COVERED_CHECKER = {
         options: Options,
     ) {
         if (right.type === "NormalizedAlternative") {
-            if (right.elements.length > 0) {
-                const re = right.elements[0]
-                return isCoveredNodeImpl(left, re, options)
-            }
+            return isCoveredAltNodes([left], right.elements, options)
         }
         if (right.type === "NormalizedCharacterRanges") {
             for (const rightRange of right.ranges) {
@@ -585,12 +700,21 @@ function isCoveredNodeImpl(
             isCoveredNodeImpl(left, r, options),
         )
     }
+    if (
+        left.type === "NormalizedOptional" ||
+        right.type === "NormalizedOptional"
+    ) {
+        if (right.type === "NormalizedAlternative") {
+            return isCoveredAltNodes([left], right.elements, options)
+        }
+        if (left.type === "NormalizedAlternative") {
+            return isCoveredAltNodes(left.elements, [right], options)
+        }
+        return true
+    }
     if (left.type === "NormalizedOther" || right.type === "NormalizedOther") {
         if (right.type === "NormalizedAlternative") {
-            if (right.elements.length > 0) {
-                const re = right.elements[0]
-                return isCoveredNodeImpl(left, re, options)
-            }
+            return isCoveredAltNodes([left], right.elements, options)
         }
         if (
             left.type === "NormalizedOther" &&
@@ -632,7 +756,7 @@ function normalizeNodeWithoutCache(node: Node, flags: string): NormalizedNode {
         return NormalizedAlternative.fromAlternative(node, flags)
     }
     if (node.type === "Quantifier") {
-        return NormalizedAlternative.fromQuantifier(node, flags)
+        return NormalizedOptional.fromQuantifier(node, flags)
     }
     if (
         node.type === "CapturingGroup" ||
@@ -665,4 +789,63 @@ function isCoveredAnyNode(
         }
     }
     return false
+}
+
+/** Check whether the right nodes is covered by the left nodes. */
+function isCoveredAltNodes(
+    left: NormalizedNode[],
+    right: NormalizedNode[],
+    options: Options,
+) {
+    let leftIndex = 0
+    let rightIndex = 0
+    while (leftIndex < left.length && rightIndex < right.length) {
+        const le = left[leftIndex]
+        const re = right[rightIndex]
+
+        if (re.type === "NormalizedOptional") {
+            rightIndex++
+            continue
+        } else if (le.type === "NormalizedOptional") {
+            // Checks if skipped.
+            const skippedLeftItems = left.slice(leftIndex + 1)
+            if (
+                isCoveredAltNodes(
+                    skippedLeftItems,
+                    right.slice(rightIndex),
+                    options,
+                )
+            ) {
+                return true
+            }
+            if (!isCoveredNodeImpl(le.element, re, options)) {
+                // I know it won't match if I skip it.
+                return false
+            }
+            if (le.max >= 2) {
+                // Check for multiple iterations.
+                if (
+                    isCoveredAltNodes(
+                        [le.decrementMax(), ...skippedLeftItems],
+                        right.slice(rightIndex + 1),
+                        options,
+                    )
+                ) {
+                    return true
+                }
+            }
+        } else if (!isCoveredNodeImpl(le, re, options)) {
+            return false
+        }
+        leftIndex++
+        rightIndex++
+    }
+    while (leftIndex < left.length) {
+        const le = left[leftIndex]
+        if (le.type !== "NormalizedOptional") {
+            break
+        }
+        leftIndex++
+    }
+    return leftIndex >= left.length
 }

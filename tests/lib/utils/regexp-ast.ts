@@ -212,6 +212,11 @@ const TESTCASES_FOR_IS_EQUAL_NODES: TestCase[] = [
         b: /a{0,1}/u,
         result: true,
     },
+    {
+        a: /ya?ml/u,
+        b: /ya?ml/u,
+        result: true,
+    },
 ]
 describe("regexp-ast isEqualNodes", () => {
     for (const testCase of TESTCASES_FOR_IS_EQUAL_NODES) {
@@ -230,8 +235,28 @@ describe("regexp-ast isEqualNodes", () => {
 
 const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
     {
+        a: /a+a+/,
+        b: /aa/,
+        result: true,
+    },
+    {
         a: /a?/,
         b: /b/,
+        result: true,
+    },
+    {
+        a: /ya?ml/u,
+        b: /yaml/u,
+        result: true,
+    },
+    {
+        a: /ya?ml/u,
+        b: /yml/u,
+        result: true,
+    },
+    {
+        a: /fo?/u,
+        b: /fe?/u,
         result: true,
     },
     {
@@ -425,11 +450,6 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         result: true,
     },
     {
-        a: /a+a+/,
-        b: /aa/,
-        result: true,
-    },
-    {
         a: /a{2}/,
         b: /a+a+/,
         result: true,
@@ -450,13 +470,28 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         result: false,
     },
     {
-        a: String.raw`/[ab]+/u`,
-        b: String.raw`/[a]/u`,
+        a: String.raw`/[\s\S]/u`,
+        b: String.raw`/[\P{ASCII}]/us`,
         result: true,
     },
     {
-        a: String.raw`/a+/u`,
-        b: String.raw`/[a]/u`,
+        a: /[ab]+/u,
+        b: /[a]/u,
+        result: true,
+    },
+    {
+        a: /a+/u,
+        b: /[a]/u,
+        result: true,
+    },
+    {
+        a: /gooo{0,3}d/,
+        b: /goooood/,
+        result: true,
+    },
+    {
+        a: /goo+d/,
+        b: /gooooood/,
         result: true,
     },
 ]
