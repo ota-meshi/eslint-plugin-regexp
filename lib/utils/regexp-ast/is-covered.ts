@@ -612,31 +612,74 @@ class NormalizedOptional implements NormalizedNodeBase {
     }
 }
 
-type TargetRightNode = Exclude<
-    NormalizedNode,
-    NormalizedOther | NormalizedDisjunctions
->
+/** Checks whether the right node is covered by the left node. */
+export function isCoveredNode(
+    left: Node,
+    right: Node,
+    options: Options,
+): boolean {
+    const leftNode = normalizeNode(left, options.flags.left)
+    const rightNode = normalizeNode(right, options.flags.right)
+    return isCoveredForNormalizedNode(leftNode, rightNode, options)
+}
 
-const COVERED_CHECKER = {
-    NormalizedAlternative(
-        left: NormalizedAlternative,
-        right: TargetRightNode,
-        options: Options,
-    ) {
+/* eslint-disable complexity -- X( */
+/** Checks whether the right node is covered by the left node. */
+function isCoveredForNormalizedNode(
+    /* eslint-enable complexity -- X( */
+    left: NormalizedNode,
+    right: NormalizedNode,
+    options: Options,
+): boolean {
+    // Disjunctions
+    if (right.type === "NormalizedDisjunctions") {
+        // If any is covered, the disjunctions on the right is covered.
+        return right.alternatives.every((r) =>
+            isCoveredForNormalizedNode(left, r, options),
+        )
+    }
+    if (left.type === "NormalizedDisjunctions") {
+        return isCoveredAnyNode(left.alternatives, right, options)
+    }
+
+    // Alternative
+    if (left.type === "NormalizedAlternative") {
         if (right.type === "NormalizedAlternative") {
             return isCoveredAltNodes(left.elements, right.elements, options)
         }
         return isCoveredAltNodes(left.elements, [right], options)
-    },
-    NormalizedLookaroundAssertion(
-        left: NormalizedLookaroundAssertion,
-        right: TargetRightNode,
-        options: Options,
+    } else if (right.type === "NormalizedAlternative") {
+        return isCoveredAltNodes([left], right.elements, options)
+    }
+
+    // Optional
+    if (
+        left.type === "NormalizedOptional" ||
+        right.type === "NormalizedOptional"
     ) {
-        if (right.type === "NormalizedAlternative") {
-            return isCoveredAltNodes([left], right.elements, options)
+        return isCoveredAltNodes([left], [right], options)
+    }
+
+    // Other
+    if (left.type === "NormalizedOther" || right.type === "NormalizedOther") {
+        if (
+            left.type === "NormalizedOther" &&
+            right.type === "NormalizedOther"
+        ) {
+            return isEqualNodes(left.node, right.node)
         }
-        if (right.type === "NormalizedLookaroundAssertion") {
+        return false
+    }
+
+    // NormalizedLookaroundAssertion
+    if (
+        left.type === "NormalizedLookaroundAssertion" ||
+        right.type === "NormalizedLookaroundAssertion"
+    ) {
+        if (
+            left.type === "NormalizedLookaroundAssertion" &&
+            right.type === "NormalizedLookaroundAssertion"
+        ) {
             if (left.kind === right.kind && !left.negate && !right.negate) {
                 // check for /(?=a|b|c)/ : /(?=a|b)/
                 return right.alternatives.every((r) =>
@@ -646,85 +689,22 @@ const COVERED_CHECKER = {
             return isEqualNodes(left.node, right.node)
         }
         return false
-    },
-    NormalizedDisjunctions(
-        left: NormalizedDisjunctions,
-        right: TargetRightNode,
-        options: Options,
-    ) {
-        return isCoveredAnyNode(left.alternatives, right, options)
-    },
-    NormalizedCharacterRanges(
-        left: NormalizedCharacterRanges,
-        right: TargetRightNode,
-        options: Options,
-    ) {
-        if (right.type === "NormalizedAlternative") {
-            return isCoveredAltNodes([left], right.elements, options)
-        }
-        if (right.type === "NormalizedCharacterRanges") {
-            for (const rightRange of right.ranges) {
-                if (
-                    !left.ranges.some((leftRange) => {
-                        return leftRange.isCovered(rightRange)
-                    })
-                ) {
-                    return false
-                }
-            }
-            return true
-        }
-        return false
-    },
-}
-
-/** Checks whether the right node is covered by the left node. */
-export function isCoveredNode(
-    left: Node,
-    right: Node,
-    options: Options,
-): boolean {
-    const leftNode = normalizeNode(left, options.flags.left)
-    const rightNode = normalizeNode(right, options.flags.right)
-    return isCoveredNodeImpl(leftNode, rightNode, options)
-}
-
-/** Checks whether the right node is covered by the left node. */
-function isCoveredNodeImpl(
-    left: NormalizedNode,
-    right: NormalizedNode,
-    options: Options,
-): boolean {
-    if (right.type === "NormalizedDisjunctions") {
-        return right.alternatives.every((r) =>
-            isCoveredNodeImpl(left, r, options),
-        )
     }
-    if (
-        left.type === "NormalizedOptional" ||
-        right.type === "NormalizedOptional"
-    ) {
-        if (right.type === "NormalizedAlternative") {
-            return isCoveredAltNodes([left], right.elements, options)
-        }
-        if (left.type === "NormalizedAlternative") {
-            return isCoveredAltNodes(left.elements, [right], options)
+
+    // NormalizedCharacterRanges
+    if (right.type === "NormalizedCharacterRanges") {
+        for (const rightRange of right.ranges) {
+            if (
+                !left.ranges.some((leftRange) => {
+                    return leftRange.isCovered(rightRange)
+                })
+            ) {
+                return false
+            }
         }
         return true
     }
-    if (left.type === "NormalizedOther" || right.type === "NormalizedOther") {
-        if (right.type === "NormalizedAlternative") {
-            return isCoveredAltNodes([left], right.elements, options)
-        }
-        if (
-            left.type === "NormalizedOther" &&
-            right.type === "NormalizedOther"
-        ) {
-            return isEqualNodes(left.node, right.node)
-        }
-        return false
-    }
-    return COVERED_CHECKER[left.type](left as never, right, options)
+    return false
 }
 
 const cacheNormalizeNode = new WeakMap<Node, NormalizedNode>()
@@ -784,7 +764,7 @@ function isCoveredAnyNode(
     options: Options,
 ) {
     for (const e of left) {
-        if (isCoveredNodeImpl(e, right, options)) {
+        if (isCoveredForNormalizedNode(e, right, options)) {
             return true
         }
     }
@@ -818,7 +798,7 @@ function isCoveredAltNodes(
             ) {
                 return true
             }
-            if (!isCoveredNodeImpl(le.element, re, options)) {
+            if (!isCoveredForNormalizedNode(le.element, re, options)) {
                 // I know it won't match if I skip it.
                 return false
             }
@@ -834,7 +814,7 @@ function isCoveredAltNodes(
                     return true
                 }
             }
-        } else if (!isCoveredNodeImpl(le, re, options)) {
+        } else if (!isCoveredForNormalizedNode(le, re, options)) {
             return false
         }
         leftIndex++
@@ -843,7 +823,7 @@ function isCoveredAltNodes(
     while (leftIndex < left.length) {
         const le = left[leftIndex]
         if (le.type !== "NormalizedOptional") {
-            break
+            return false
         }
         leftIndex++
     }
