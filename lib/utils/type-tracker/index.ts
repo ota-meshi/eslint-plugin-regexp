@@ -150,11 +150,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             if ("regex" in node && node.regex) {
                 return REGEXP
             }
-            if (
-                "bigint" in node &&
-                // @ts-expect-error -- types is out of date.
-                node.bigint
-            ) {
+            if ("bigint" in node && node.bigint) {
                 return BIGINT
             }
             if (node.value == null) {
