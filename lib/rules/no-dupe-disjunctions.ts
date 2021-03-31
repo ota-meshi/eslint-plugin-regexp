@@ -5,6 +5,7 @@ import type {
     Group,
     LookaroundAssertion,
     Pattern,
+    Quantifier,
 } from "regexpp/ast"
 import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
@@ -40,6 +41,35 @@ export default createRule("no-dupe-disjunctions", {
         const sourceCode = context.getSourceCode()
 
         /**
+         * Check has after pattern
+         */
+        function hasAfterPattern(
+            node: Group | CapturingGroup | Pattern | LookaroundAssertion,
+        ): boolean {
+            if (node.type === "Assertion") {
+                return false
+            }
+            if (node.type === "Pattern") {
+                return false
+            }
+            let target: Group | CapturingGroup | Quantifier = node
+            let parent = target.parent
+            while (parent) {
+                if (parent.type === "Alternative") {
+                    const index = parent.elements.indexOf(target)
+                    return index < parent.elements.length - 1
+                }
+                if (parent.type === "Quantifier") {
+                    target = parent
+                    parent = target.parent
+                    continue
+                }
+                return false
+            }
+            return false
+        }
+
+        /**
          * Create visitor
          * @param node
          */
@@ -56,12 +86,15 @@ export default createRule("no-dupe-disjunctions", {
                     | Pattern
                     | LookaroundAssertion,
             ) {
+                const canOmitRight =
+                    disallowNeverMatch && !hasAfterPattern(regexpNode)
                 const leftAlts = []
                 for (const alt of regexpNode.alternatives) {
                     const dupeAlt = disallowNeverMatch
                         ? leftAlts.find((leftAlt) =>
                               isCoveredNode(leftAlt, alt, {
                                   flags: { left: flags, right: flags },
+                                  canOmitRight,
                               }),
                           )
                         : leftAlts.find((leftAlt) =>

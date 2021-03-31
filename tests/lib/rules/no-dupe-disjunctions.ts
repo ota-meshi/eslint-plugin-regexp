@@ -10,7 +10,16 @@ const tester = new RuleTester({
 
 tester.run("no-dupe-disjunctions", rule as any, {
     valid: [
-        ...[`/a|b/`, `/(a|b)/`, `/(?:a|b)/`, `/((?:ab|ba)|(?:ba|ac))/`].reduce(
+        ...[
+            `/a|b/`,
+            `/(a|b)/`,
+            `/(?:a|b)/`,
+            `/((?:ab|ba)|(?:ba|ac))/`,
+            `/(?:js|json)$/`,
+            `/(?:js|jso?n?)$/`,
+            `/(?:js|json)abc/`,
+            `/(?:js|json)?abc/`,
+        ].reduce(
             (acc, x) =>
                 acc.concat(x, {
                     code: x,
