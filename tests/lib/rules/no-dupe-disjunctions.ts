@@ -11,6 +11,7 @@ const tester = new RuleTester({
 tester.run("no-dupe-disjunctions", rule as any, {
     valid: [
         ...[
+            String.raw`/^\s*(eslint-(?:en|dis)able)(?:\s+(\S|\S[\s\S]*\S))?\s*$/u`,
             `/a|b/`,
             `/(a|b)/`,
             `/(?:a|b)/`,
