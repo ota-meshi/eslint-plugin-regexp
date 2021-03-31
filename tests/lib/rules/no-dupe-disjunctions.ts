@@ -20,6 +20,8 @@ tester.run("no-dupe-disjunctions", rule as any, {
             `/(?:js|jso?n?)$/`,
             `/(?:js|json)abc/`,
             `/(?:js|json)?abc/`,
+            `/(?:yml|ya?ml)$/`,
+            `/(?:yml|ya?ml)/`,
         ].reduce(
             (acc, x) =>
                 acc.concat(x, {
@@ -309,6 +311,20 @@ tester.run("no-dupe-disjunctions", rule as any, {
         },
         {
             code: String.raw`/[^\r]|./`,
+            options: [{ disallowNeverMatch: true }],
+            errors: [
+                "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
+            ],
+        },
+        {
+            code: `/(?:ya?ml|yml)$/`,
+            options: [{ disallowNeverMatch: true }],
+            errors: [
+                "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
+            ],
+        },
+        {
+            code: `/(?:ya?ml|yml)/`,
             options: [{ disallowNeverMatch: true }],
             errors: [
                 "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
