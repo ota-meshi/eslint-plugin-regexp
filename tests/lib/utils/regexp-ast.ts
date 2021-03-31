@@ -12,6 +12,7 @@ eslint-disable
     regexp/no-useless-range,
     regexp/prefer-quantifier,
     regexp/letter-case,
+    regexp/no-dupe-disjunctions,
 --------------------------------------------- ignore */
 import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
