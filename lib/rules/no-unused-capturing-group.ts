@@ -89,6 +89,10 @@ class CapturingData {
         this.unusedNames.clear()
     }
 
+    public usedAllUnnamed() {
+        this.unused.clear()
+    }
+
     public isAllUsed() {
         return !this.unused.size && !this.unusedNames.size
     }
@@ -618,6 +622,19 @@ export default createRule("no-unused-capturing-group", {
             }
         }
 
+        /** Verify for String.prototype.split() */
+        function verifyForSplit(node: KnownCall) {
+            const capturingData = getCapturingData(node.arguments[0])
+            if (capturingData == null || capturingData.isAllUsed()) {
+                return
+            }
+            if (!typeTracer.isString(node.callee.object)) {
+                return
+            }
+            capturingData.markAsUsed()
+            capturingData.usedAllUnnamed()
+        }
+
         /**
          * Create RegExp visitor
          * @param node
@@ -654,6 +671,7 @@ export default createRule("no-unused-capturing-group", {
                         replaceAll: 2,
                         matchAll: 1,
                         exec: 1,
+                        split: 1,
                     })
                 ) {
                     return
@@ -673,6 +691,8 @@ export default createRule("no-unused-capturing-group", {
                     verifyForExec(node)
                 } else if (node.callee.property.name === "matchAll") {
                     verifyForMatchAll(node)
+                } else if (node.callee.property.name === "split") {
+                    verifyForSplit(node)
                 }
             },
         }
