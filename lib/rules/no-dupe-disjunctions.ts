@@ -57,7 +57,10 @@ export default createRule("no-dupe-disjunctions", {
             while (parent) {
                 if (parent.type === "Alternative") {
                     const index = parent.elements.indexOf(target)
-                    return index < parent.elements.length - 1
+                    if (index < parent.elements.length - 1) {
+                        return true
+                    }
+                    return hasAfterPattern(parent.parent)
                 }
                 if (parent.type === "Quantifier") {
                     target = parent
