@@ -772,24 +772,41 @@ function isCoveredAnyNode(
     return false
 }
 
+/* eslint-disable complexity -- X( */
 /** Check whether the right nodes is covered by the left nodes. */
 function isCoveredAltNodes(
+    /* eslint-enable complexity -- X( */
     left: NormalizedNode[],
     right: NormalizedNode[],
     options: Options,
 ) {
-    // if (options.canOmitRight) {
-    //     return isCoveredAltNodesForCanOmitRight(left, right, options)
-    // }
+    let rightLength = right.length
+    if (options.canOmitRight) {
+        while (right[rightLength - 1]) {
+            const re = right[rightLength - 1]
+            if (re.type === "NormalizedOptional") {
+                rightLength--
+            } else {
+                break
+            }
+        }
+    }
     let leftIndex = 0
     let rightIndex = 0
-    while (leftIndex < left.length && rightIndex < right.length) {
+    while (leftIndex < left.length && rightIndex < rightLength) {
         const le = left[leftIndex]
         const re = right[rightIndex]
 
         if (re.type === "NormalizedOptional") {
-            rightIndex++
-            continue
+            let leftElement
+            if (le.type === "NormalizedOptional") {
+                leftElement = le.element
+            } else {
+                leftElement = le
+            }
+            if (!isCoveredForNormalizedNode(leftElement, re.element, options)) {
+                return false
+            }
         } else if (le.type === "NormalizedOptional") {
             // Checks if skipped.
             const skippedLeftItems = left.slice(leftIndex + 1)
@@ -838,62 +855,3 @@ function isCoveredAltNodes(
     }
     return leftIndex >= left.length
 }
-
-/** Check whether the right nodes is covered by the left nodes. */
-// function isCoveredAltNodesForCanOmitRight(
-//     left: NormalizedNode[],
-//     right: NormalizedNode[],
-//     options: Options,
-// ) {
-//     let leftIndex = 0
-//     let rightIndex = 0
-//     while (leftIndex < left.length && rightIndex < right.length) {
-//         const le = left[leftIndex]
-//         const re = right[rightIndex]
-
-//         if (re.type === "NormalizedOptional") {
-//             rightIndex++
-//             continue
-//         } else if (le.type === "NormalizedOptional") {
-//             // Checks if skipped.
-//             const skippedLeftItems = left.slice(leftIndex + 1)
-//             if (
-//                 isCoveredAltNodes(
-//                     skippedLeftItems,
-//                     right.slice(rightIndex),
-//                     options,
-//                 )
-//             ) {
-//                 return true
-//             }
-//             if (!isCoveredForNormalizedNode(le.element, re, options)) {
-//                 // I know it won't match if I skip it.
-//                 return false
-//             }
-//             if (le.max >= 2) {
-//                 // Check for multiple iterations.
-//                 if (
-//                     isCoveredAltNodes(
-//                         [le.decrementMax(), ...skippedLeftItems],
-//                         right.slice(rightIndex + 1),
-//                         options,
-//                     )
-//                 ) {
-//                     return true
-//                 }
-//             }
-//         } else if (!isCoveredForNormalizedNode(le, re, options)) {
-//             return false
-//         }
-//         leftIndex++
-//         rightIndex++
-//     }
-//     while (leftIndex < left.length) {
-//         const le = left[leftIndex]
-//         if (le.type !== "NormalizedOptional") {
-//             return false
-//         }
-//         leftIndex++
-//     }
-//     return leftIndex >= left.length
-// }
