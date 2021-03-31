@@ -1,6 +1,6 @@
 {
     "name": "eslint-plugin-regexp",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
     "main": "dist/index.js",
     "files": [
