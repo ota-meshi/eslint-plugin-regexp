@@ -603,11 +603,18 @@ class NormalizedOptional implements NormalizedNodeBase {
         )
     }
 
-    public decrementMax() {
+    public decrementMax(dec = 1): NormalizedOptional | null {
+        if (this.max <= dec) {
+            return null
+        }
         if (this.max === Infinity) {
             return this
         }
-        const opt = new NormalizedOptional(this.node, this.flags, this.max - 1)
+        const opt = new NormalizedOptional(
+            this.node,
+            this.flags,
+            this.max - dec,
+        )
         opt.normalizedElement = this.normalizedElement
         return opt
     }
@@ -776,82 +783,93 @@ function isCoveredAnyNode(
 /** Check whether the right nodes is covered by the left nodes. */
 function isCoveredAltNodes(
     /* eslint-enable complexity -- X( */
-    left: NormalizedNode[],
-    right: NormalizedNode[],
+    leftNodes: NormalizedNode[],
+    rightNodes: NormalizedNode[],
     options: Options,
-) {
-    let rightLength = right.length
-    if (options.canOmitRight) {
-        while (right[rightLength - 1]) {
-            const re = right[rightLength - 1]
-            if (re.type === "NormalizedOptional") {
-                rightLength--
-            } else {
-                break
-            }
-        }
-    }
-    let leftIndex = 0
-    let rightIndex = 0
-    while (leftIndex < left.length && rightIndex < rightLength) {
-        const le = left[leftIndex]
-        const re = right[rightIndex]
+): boolean {
+    const left = options.canOmitRight ? omitEnds(leftNodes) : leftNodes
+    const right = options.canOmitRight ? omitEnds(rightNodes) : rightNodes
+    while (left.length && right.length) {
+        const le = left.shift()!
+        const re = right.shift()!
 
         if (re.type === "NormalizedOptional") {
-            let leftElement
             if (le.type === "NormalizedOptional") {
-                leftElement = le.element
+                // Check for elements
+                if (
+                    !isCoveredForNormalizedNode(le.element, re.element, options)
+                ) {
+                    return false
+                }
+                // Check for next
+                const decrementLe = le.decrementMax(re.max)
+                if (decrementLe) {
+                    return isCoveredAltNodes(
+                        [decrementLe, ...left],
+                        right,
+                        options,
+                    )
+                }
+                const decrementRe = re.decrementMax(le.max)
+                if (decrementRe) {
+                    return isCoveredAltNodes(
+                        left,
+                        [decrementRe, ...right],
+                        options,
+                    )
+                }
             } else {
-                leftElement = le
-            }
-            if (!isCoveredForNormalizedNode(leftElement, re.element, options)) {
-                return false
+                // Check for elements
+                if (!isCoveredForNormalizedNode(le, re.element, options)) {
+                    return false
+                }
+                const decrementRe = re.decrementMax()
+                if (decrementRe) {
+                    // Check for multiple iterations.
+                    return isCoveredAltNodes(
+                        left,
+                        [decrementRe, ...right],
+                        options,
+                    )
+                }
             }
         } else if (le.type === "NormalizedOptional") {
             // Checks if skipped.
-            const skippedLeftItems = left.slice(leftIndex + 1)
-            if (
-                isCoveredAltNodes(
-                    skippedLeftItems,
-                    right.slice(rightIndex),
-                    options,
-                )
-            ) {
+            if (isCoveredAltNodes(left, [re, ...right], options)) {
                 return true
             }
             if (!isCoveredForNormalizedNode(le.element, re, options)) {
                 // I know it won't match if I skip it.
                 return false
             }
-            if (le.max >= 2) {
+            const decrementLe = le.decrementMax()
+            if (decrementLe) {
                 // Check for multiple iterations.
-                if (
-                    isCoveredAltNodes(
-                        [le.decrementMax(), ...skippedLeftItems],
-                        right.slice(rightIndex + 1),
-                        options,
-                    )
-                ) {
+                if (isCoveredAltNodes([decrementLe, ...left], right, options)) {
                     return true
                 }
             }
         } else if (!isCoveredForNormalizedNode(le, re, options)) {
             return false
         }
-        leftIndex++
-        rightIndex++
     }
     if (!options.canOmitRight) {
-        if (rightIndex < right.length) {
+        if (right.length) {
             return false
         }
     }
-    while (leftIndex < left.length) {
-        const le = left[leftIndex]
-        if (le.type !== "NormalizedOptional") {
-            return false
+    return !left.length
+}
+
+/**
+ * Exclude the end optionals.
+ */
+function omitEnds(nodes: NormalizedNode[]): NormalizedNode[] {
+    for (let index = nodes.length - 1; index >= 0; index--) {
+        const node = nodes[index]
+        if (node.type !== "NormalizedOptional") {
+            return nodes.slice(0, index + 1)
         }
-        leftIndex++
     }
-    return leftIndex >= left.length
+    return []
 }

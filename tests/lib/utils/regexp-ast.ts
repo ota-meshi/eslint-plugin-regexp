@@ -236,6 +236,11 @@ describe("regexp-ast isEqualNodes", () => {
 
 const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
     {
+        a: /a?b?cd?e?f?/,
+        b: /a*b?c_/,
+        result: false,
+    },
+    {
         a: /a+a+/,
         b: /aa/,
         result: true,
@@ -494,6 +499,16 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         a: /goo+d/,
         b: /gooooood/,
         result: true,
+    },
+    {
+        a: /a?b?cd?e?f?/,
+        b: /a?b?c_/,
+        result: true,
+    },
+    {
+        a: /a?b?cd?e?f?/,
+        b: /a*b?c_/,
+        result: false,
     },
 ]
 describe("regexp-ast isCoveredNode", () => {
