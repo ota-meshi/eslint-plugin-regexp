@@ -383,6 +383,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
+                capturingData.markAsCannotTrack()
                 return
             }
             if (capturingData.flags.includes("g")) {
@@ -401,6 +402,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
+                capturingData.markAsCannotTrack()
                 return
             }
             // String.prototype.search()
@@ -424,6 +426,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
+                capturingData.markAsCannotTrack()
                 return
             }
             const replacementNode = node.arguments[1]
@@ -535,6 +538,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
+                capturingData.markAsCannotTrack()
                 return
             }
             capturingData.markAsUsed()
@@ -629,6 +633,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             if (!typeTracer.isString(node.callee.object)) {
+                capturingData.markAsCannotTrack()
                 return
             }
             capturingData.markAsUsed()
