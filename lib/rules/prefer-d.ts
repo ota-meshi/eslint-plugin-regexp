@@ -1,6 +1,6 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { CharacterClassRange, Node as RegExpNode } from "regexpp/ast"
+import type { CharacterClass, CharacterClassRange } from "regexpp/ast"
 import {
     createRule,
     defineRegexpVisitor,
@@ -21,7 +21,7 @@ export default createRule("prefer-d", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected character set "{{expr}}". Use "{{instead}}" instead.',
+                'Unexpected {{type}} "{{expr}}". Use "{{instead}}" instead.',
         },
         type: "suggestion", // "problem",
     },
@@ -39,7 +39,8 @@ export default createRule("prefer-d", {
                         ccrNode.min.value === CP_DIGIT_ZERO &&
                         ccrNode.max.value === CP_DIGIT_NINE
                     ) {
-                        let reportNode: RegExpNode, instead: string
+                        let reportNode: CharacterClass | CharacterClassRange,
+                            instead: string
                         const ccNode = ccrNode.parent
                         if (ccNode.elements.length === 1) {
                             reportNode = ccNode
@@ -57,6 +58,10 @@ export default createRule("prefer-d", {
                             ),
                             messageId: "unexpected",
                             data: {
+                                type:
+                                    reportNode.type === "CharacterClass"
+                                        ? "character class"
+                                        : "character class range",
                                 expr: reportNode.raw,
                                 instead,
                             },

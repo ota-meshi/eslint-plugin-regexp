@@ -17,7 +17,7 @@ tester.run("prefer-d", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character set "[0-9]". Use "\\d" instead.',
+                        'Unexpected character class "[0-9]". Use "\\d" instead.',
                     column: 2,
                     endColumn: 7,
                 },
@@ -29,7 +29,7 @@ tester.run("prefer-d", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character set "[^0-9]". Use "\\D" instead.',
+                        'Unexpected character class "[^0-9]". Use "\\D" instead.',
                     column: 2,
                     endColumn: 8,
                 },
@@ -41,7 +41,7 @@ tester.run("prefer-d", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character set "0-9". Use "\\d" instead.',
+                        'Unexpected character class range "0-9". Use "\\d" instead.',
                     column: 4,
                     endColumn: 7,
                 },
@@ -56,7 +56,7 @@ tester.run("prefer-d", rule as any, {
             const s = "\\\\d"
             new RegExp(s)
             `,
-            errors: ['Unexpected character set "[0-9]". Use "\\d" instead.'],
+            errors: ['Unexpected character class "[0-9]". Use "\\d" instead.'],
         },
         {
             code: `
@@ -64,7 +64,7 @@ tester.run("prefer-d", rule as any, {
             new RegExp(s)
             `,
             output: null,
-            errors: ['Unexpected character set "[0-9]". Use "\\d" instead.'],
+            errors: ['Unexpected character class "[0-9]". Use "\\d" instead.'],
         },
     ],
 })
