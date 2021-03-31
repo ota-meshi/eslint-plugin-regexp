@@ -511,6 +511,7 @@ describe("regexp-ast isCoveredNode", () => {
             assert.deepStrictEqual(
                 isCoveredNode(ast1, ast2, {
                     flags: { left: ast1.flags.raw, right: ast2.flags.raw },
+                    canOmitRight: true,
                 }),
                 testCase.result,
             )
