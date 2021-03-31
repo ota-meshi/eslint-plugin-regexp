@@ -34,7 +34,6 @@ tester.run("no-unused-capturing-group", rule as any, {
         var replaced = '2000-12-31'.repl(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2')
 
         // var isDate = /(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31')
-        var isDate = /(\d{4})-(\d{2})-(\d{2})/.test(123)
         
         // var matches = '2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(\d{2})/g)
         var matches = '2000-12-31 2001-01-01'.match(/\d{4}-\d{2}-\d{2}/g)
@@ -442,6 +441,36 @@ tester.run("no-unused-capturing-group", rule as any, {
             errors: [
                 "'comma' is defined for capturing group, but it name is never used.",
             ],
+        },
+        {
+            code: String.raw`var isDate = /(\d{4})-(\d{2})-(\d{2})/.test(foo)`,
+            errors: [
+                "Capturing group is defined but never used.",
+                "Capturing group is defined but never used.",
+                "Capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            const regexp = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/
+            let re 
+            while(re = regexp.exec(foo)) {
+                const y = re.groups.y
+                // const m = re.groups.m
+                const d = re.groups.d
+            }
+            `,
+            errors: ["'m' capturing group is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const regexp = /(\d{4})-(\d{2})-(\d{2})/
+            let re 
+            while(re = regexp.exec(foo)) {
+                const [,y,m] = re
+            }
+            `,
+            errors: ["Capturing group is defined but never used."],
         },
     ],
 })
