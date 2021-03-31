@@ -35,7 +35,43 @@ var foo = /[ab]|[ba]/
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/no-dupe-disjunctions": [
+    "error",
+    {
+        "disallowNeverMatch": false
+    }
+  ]
+}
+```
+
+- `disallowNeverMatch` ... If `true`, it reports a pattern that does not match as a result of a partial duplication of the previous pattern.
+
+### `"disallowNeverMatch": true`
+
+<eslint-code-block>
+
+```js
+/* eslint regexp/no-dupe-disjunctions: ["error", { "disallowNeverMatch": true }] */
+
+/* ✓ GOOD */
+var foo = /a|b/
+var foo = /(a|b)/
+var foo = /(?:a|b)/
+
+/* ✗ BAD */
+
+// Duplication
+var foo = /a|a/
+
+// A string that matches the pattern on the right also matches the pattern on the left, so it doesn't make sense to process the pattern on the right.
+var foo = /a|abc/
+var foo = /.|abc/
+var foo = /.|a|b|c/
+```
+
+</eslint-code-block>
 
 ## :rocket: Version
 

@@ -7,7 +7,7 @@ import type {
     Pattern,
 } from "regexpp/ast"
 import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
-import { isEqualNodes } from "../utils/regexp-ast"
+import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 
 export default createRule("no-dupe-disjunctions", {
     meta: {
@@ -17,20 +17,37 @@ export default createRule("no-dupe-disjunctions", {
             // recommended: true,
             recommended: false,
         },
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    disallowNeverMatch: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             duplicated: "The disjunctions are duplicated.",
+            neverExecute:
+                "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
+        const disallowNeverMatch = Boolean(
+            context.options[0]?.disallowNeverMatch,
+        )
         const sourceCode = context.getSourceCode()
 
         /**
          * Create visitor
          * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            node: Expression,
+            _p: string,
+            flags: string,
+        ): RegExpVisitor.Handlers {
             /** Verify group node */
             function verify(
                 regexpNode:
@@ -39,25 +56,36 @@ export default createRule("no-dupe-disjunctions", {
                     | Pattern
                     | LookaroundAssertion,
             ) {
-                const otherAlts = []
+                const leftAlts = []
                 for (const alt of regexpNode.alternatives) {
-                    const dupeAlt = otherAlts.find((o) =>
-                        isEqualNodes(alt, o, (a, _b) => {
-                            if (a.type === "CapturingGroup") {
-                                return false
-                            }
-                            return null
-                        }),
-                    )
+                    const dupeAlt = disallowNeverMatch
+                        ? leftAlts.find((leftAlt) =>
+                              isCoveredNode(leftAlt, alt, {
+                                  flags: { left: flags, right: flags },
+                              }),
+                          )
+                        : leftAlts.find((leftAlt) =>
+                              isEqualNodes(leftAlt, alt, (a, _b) => {
+                                  if (a.type === "CapturingGroup") {
+                                      return false
+                                  }
+                                  return null
+                              }),
+                          )
                     if (dupeAlt) {
                         context.report({
                             node,
                             loc: getRegexpLocation(sourceCode, node, alt),
-                            messageId: "duplicated",
+                            messageId:
+                                disallowNeverMatch &&
+                                !isEqualNodes(dupeAlt, alt)
+                                    ? "neverExecute"
+                                    : "duplicated",
                         })
-                    } else {
-                        otherAlts.push(alt)
+                        continue
                     }
+
+                    leftAlts.push(alt)
                 }
             }
 
