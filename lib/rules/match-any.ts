@@ -160,7 +160,11 @@ export default createRule("match-any", {
                         }
                         return
                     }
-                    if (characterClassData && !characterClassData.reported) {
+                    if (
+                        characterClassData &&
+                        !characterClassData.reported &&
+                        !characterClassData.node.negate
+                    ) {
                         const key = getCharacterSetKey(csNode)
                         const alreadyCharSet = characterClassData.charSets.get(
                             key,
@@ -213,7 +217,8 @@ export default createRule("match-any", {
                     ) {
                         if (
                             characterClassData &&
-                            !characterClassData.reported
+                            !characterClassData.reported &&
+                            !characterClassData.node.negate
                         ) {
                             const ccNode = characterClassData.node
                             context.report({

@@ -28,6 +28,19 @@ tester.run("match-any", rule as any, {
             code: "/[\\s\\S][\\S\\s][^]./s",
             options: [{ allows: ["[\\s\\S]", "[\\S\\s]", "[^]", "dotAll"] }],
         },
+        "/[^\\S\\s]/",
+        {
+            code: "/[^\\s\\S]/",
+            options: [{ allows: ["[^]"] }],
+        },
+        "/[^\\d\\D]/",
+        "/[^\\D\\d]/",
+        "/[^\\w\\W]/",
+        "/[^\\W\\w]/",
+        "/[^\\0-\\uFFFF]/",
+        "/[^\\p{ASCII}\\P{ASCII}]/u",
+        "/[^\\P{ASCII}\\p{ASCII}]/u",
+        "/[^\\s\\S\\0-\\uFFFF]/",
     ],
     invalid: [
         {
@@ -133,11 +146,6 @@ tester.run("match-any", rule as any, {
                 'Unexpected using "[\\S\\s]" to match any character.',
                 'Unexpected using "." to match any character.',
             ],
-        },
-        {
-            code: "/[^\\s\\S]/",
-            output: "/[\\s\\S]/",
-            errors: ['Unexpected using "[^\\s\\S]" to match any character.'],
         },
         {
             code: "/[\\p{ASCII}\\P{ASCII}]/u",
