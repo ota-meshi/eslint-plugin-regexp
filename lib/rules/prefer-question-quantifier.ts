@@ -1,4 +1,5 @@
 import type { Expression } from "estree"
+import type { Group, Quantifier } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
@@ -74,32 +75,61 @@ export default createRule("prefer-question-quantifier", {
                     }
                 },
                 onGroupEnter(gNode) {
-                    const nonEmpties = []
-                    const empties = []
-                    for (const alt of gNode.alternatives) {
-                        if (alt.elements.length === 0) {
-                            empties.push(alt)
-                        } else {
-                            nonEmpties.push(alt)
+                    const lastAlt =
+                        gNode.alternatives[gNode.alternatives.length - 1]
+                    if (!lastAlt.elements.length) {
+                        // last alternative is empty. e.g /(?:a|)/, /(?:a|b|)/
+                        const alternatives = gNode.alternatives.slice(0, -1)
+                        while (alternatives.length > 0) {
+                            if (
+                                !alternatives[alternatives.length - 1].elements
+                                    .length
+                            ) {
+                                // last alternative is empty.
+                                alternatives.pop()
+                                continue
+                            }
+                            break
                         }
-                    }
-                    if (empties.length && nonEmpties.length) {
-                        const instead = `(?:${nonEmpties
+                        if (!alternatives.length) {
+                            // all empty
+                            return
+                        }
+
+                        let reportNode: Group | Quantifier = gNode
+                        const instead = `(?:${alternatives
                             .map((ne) => ne.raw)
                             .join("|")})?`
+                        if (gNode.parent.type === "Quantifier") {
+                            if (
+                                gNode.parent.greedy &&
+                                gNode.parent.min === 0 &&
+                                gNode.parent.max === 1
+                            ) {
+                                reportNode = gNode.parent
+                            } else {
+                                // It is possible to use group `(?:)` and `?`,
+                                // but we will not report this as it makes the regex more complicated.
+                                return
+                            }
+                        }
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, gNode),
+                            loc: getRegexpLocation(
+                                sourceCode,
+                                node,
+                                reportNode,
+                            ),
                             messageId: "unexpectedGroup",
                             data: {
-                                expr: gNode.raw,
+                                expr: reportNode.raw,
                                 instead,
                             },
                             fix(fixer) {
                                 const range = getRegexpRange(
                                     sourceCode,
                                     node,
-                                    gNode,
+                                    reportNode,
                                 )
                                 if (range == null) {
                                     return null

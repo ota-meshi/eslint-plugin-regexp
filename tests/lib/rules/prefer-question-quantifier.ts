@@ -17,6 +17,12 @@ tester.run("prefer-question-quantifier", rule as any, {
         "/[a{0,1}]/",
         "/a{0,}/",
         "/(?:a|b)/",
+        "/a(?:|a)/",
+        "/(?:abc||def)/",
+        "/(?:)/",
+        "/(?:||)/",
+        "/(?:abc|def|)+/",
+        "/(?:abc|def|)??/",
     ],
     invalid: [
         {
@@ -76,15 +82,36 @@ tester.run("prefer-question-quantifier", rule as any, {
             ],
         },
         {
-            code: "/(?:abc||def)/",
+            code: "/(?:abc|def|)/",
             output: "/(?:abc|def)?/",
             errors: [
                 {
                     message:
-                        'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
+                        'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
                     column: 2,
                     endColumn: 14,
                 },
+            ],
+        },
+        {
+            code: "/(?:abc||def|)/",
+            output: "/(?:abc||def)?/",
+            errors: [
+                'Unexpected group "(?:abc||def|)". Use "(?:abc||def)?" instead.',
+            ],
+        },
+        {
+            code: "/(?:abc|def||)/",
+            output: "/(?:abc|def)?/",
+            errors: [
+                'Unexpected group "(?:abc|def||)". Use "(?:abc|def)?" instead.',
+            ],
+        },
+        {
+            code: "/(?:abc|def|)?/",
+            output: "/(?:abc|def)?/",
+            errors: [
+                'Unexpected group "(?:abc|def|)?". Use "(?:abc|def)?" instead.',
             ],
         },
         {
@@ -108,7 +135,7 @@ tester.run("prefer-question-quantifier", rule as any, {
         },
         {
             code: `
-            const s = "(?:abc||def)"
+            const s = "(?:abc|def|)"
             new RegExp(s)
             `,
             output: `
@@ -116,17 +143,17 @@ tester.run("prefer-question-quantifier", rule as any, {
             new RegExp(s)
             `,
             errors: [
-                'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
+                'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
             ],
         },
         {
             code: `
-            const s = "(?:abc|"+"|def)"
+            const s = "(?:abc|"+"def|)"
             new RegExp(s)
             `,
             output: null,
             errors: [
-                'Unexpected group "(?:abc||def)". Use "(?:abc|def)?" instead.',
+                'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
             ],
         },
     ],
