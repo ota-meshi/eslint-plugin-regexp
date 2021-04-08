@@ -83,7 +83,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/confusing-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/confusing-quantifier.html) | disallow about confusing quantifiers. |  |
+| [regexp/confusing-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/confusing-quantifier.html) | disallow about confusing quantifiers |  |
 | [regexp/letter-case](https://ota-meshi.github.io/eslint-plugin-regexp/rules/letter-case.html) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](https://ota-meshi.github.io/eslint-plugin-regexp/rules/match-any.html) | enforce match any character style | :star::wrench: |
 | [regexp/negation](https://ota-meshi.github.io/eslint-plugin-regexp/rules/negation.html) | enforce use of escapes on negation | :wrench: |

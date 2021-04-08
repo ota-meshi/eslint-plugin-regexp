@@ -11,7 +11,7 @@ import { isPotentiallyEmpty, quantToString } from "../utils/regexp-ast"
 export default createRule("confusing-quantifier", {
     meta: {
         docs: {
-            description: "disallow about confusing quantifiers.",
+            description: "disallow about confusing quantifiers",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

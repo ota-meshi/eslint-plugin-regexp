@@ -11,7 +11,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/confusing-quantifier](./confusing-quantifier.md) | disallow about confusing quantifiers. |  |
+| [regexp/confusing-quantifier](./confusing-quantifier.md) | disallow about confusing quantifiers |  |
 | [regexp/letter-case](./letter-case.md) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/negation](./negation.md) | enforce use of escapes on negation | :wrench: |
