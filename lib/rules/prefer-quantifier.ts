@@ -10,6 +10,7 @@ import {
     isLetter,
     isSymbol,
 } from "../utils"
+import { quantToString } from "../utils/regexp-ast"
 
 class CharBuffer {
     public target: CharacterSet | Character
@@ -115,19 +116,11 @@ class CharBuffer {
     }
 
     public getQuantifier(): string {
-        const greedy = this.greedy === false ? "?" : ""
-        if (this.min === 0 && this.max === Number.POSITIVE_INFINITY) {
-            return `*${greedy}`
-        } else if (this.min === 1 && this.max === Number.POSITIVE_INFINITY) {
-            return `+${greedy}`
-        } else if (this.min === 0 && this.max === 1) {
-            return `?${greedy}`
-        } else if (this.min === this.max) {
-            return `{${this.min}}`
-        } else if (this.max === Number.POSITIVE_INFINITY) {
-            return `{${this.min},}${greedy}`
-        }
-        return `{${this.min},${this.max}}${greedy}`
+        return quantToString({
+            min: this.min,
+            max: this.max,
+            greedy: this.greedy !== false,
+        })
     }
 }
 
