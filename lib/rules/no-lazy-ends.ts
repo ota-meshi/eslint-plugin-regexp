@@ -60,7 +60,7 @@ export default createRule("no-lazy-ends", {
             uselessRange:
                 "The quantifier can be replaced with '{{{min}}}' because the quantifier is lazy and has a minimum of {{min}}.",
         },
-        type: "suggestion", // "problem",
+        type: "problem",
     },
     create(context) {
         const sourceCode = context.getSourceCode()
