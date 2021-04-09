@@ -16,7 +16,7 @@ export default createRule("no-empty-alternative", {
         messages: {
             empty: "No empty alternatives. Use quantifiers instead.",
         },
-        type: "suggestion", // "problem",
+        type: "problem",
     },
     create(context) {
         const sourceCode = context.getSourceCode()
