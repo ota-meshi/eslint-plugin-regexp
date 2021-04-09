@@ -15,6 +15,7 @@ export default createRule("confusing-quantifier", {
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
+            default: "warn",
         },
         schema: [],
         messages: {
