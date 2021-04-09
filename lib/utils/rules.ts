@@ -21,6 +21,7 @@ import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
+import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
 import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
@@ -59,6 +60,7 @@ export const rules = [
     noUselessNonGreedy,
     noUselessRange,
     noUselessTwoNumsQuantifier,
+    optimalLookaroundQuantifier,
     orderInCharacterClass,
     preferCharacterClass,
     preferD,
