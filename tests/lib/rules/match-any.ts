@@ -109,8 +109,8 @@ tester.run("match-any", rule as any, {
             ],
         },
         {
-            code: "/[\\s\\S][\\S\\s][^]./s",
-            output: null,
+            code: "/[\\s\\S] [\\S\\s] [^] ./s",
+            output: "/. . . ./s",
             options: [{ allows: ["dotAll"] }],
             errors: [
                 'Unexpected using "[\\s\\S]" to match any character.',
@@ -166,6 +166,18 @@ tester.run("match-any", rule as any, {
             output: "/[\\s\\S]/",
             errors: [
                 'Unexpected using "[\\s\\S\\0-\\uFFFF]" to match any character.',
+            ],
+        },
+        {
+            code: "/[\\w\\D]/",
+            output: "/[\\s\\S]/",
+            errors: ['Unexpected using "[\\w\\D]" to match any character.'],
+        },
+        {
+            code: "/[\\P{ASCII}\\w\\0-AZ-\\xFF]/u",
+            output: "/[\\s\\S]/u",
+            errors: [
+                'Unexpected using "[\\P{ASCII}\\w\\0-AZ-\\xFF]" to match any character.',
             ],
         },
     ],

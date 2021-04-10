@@ -1,43 +1,27 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Rule } from "eslint"
-import type {
-    CharacterClass,
-    EscapeCharacterSet,
-    UnicodePropertyCharacterSet,
-    Node as RegExpNode,
-    CharacterClassRange,
-} from "regexpp/ast"
+import type { CharacterClass, Node as RegExpNode } from "regexpp/ast"
 import {
     createRule,
     defineRegexpVisitor,
-    FLAG_DOTALL,
     getRegexpLocation,
     getRegexpRange,
     fixerApplyEscape,
+    parseFlags,
 } from "../utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { matchesAllCharacters } from "regexp-ast-analysis"
 
 const OPTION_SS1 = "[\\s\\S]" as const
 const OPTION_SS2 = "[\\S\\s]" as const
 const OPTION_CARET = "[^]" as const
 const OPTION_DOTALL = "dotAll" as const
-
-/**
- * Get the key of the given CharacterSet node
- * @param node
- */
-function getCharacterSetKey(
-    node: EscapeCharacterSet | UnicodePropertyCharacterSet,
-) {
-    if (node.kind === "property") {
-        return `\\p{${
-            node.kind +
-            (node.value == null ? node.key : `${node.key}=${node.value}`)
-        }}`
-    }
-
-    return node.kind
-}
+type Allowed =
+    | typeof OPTION_SS1
+    | typeof OPTION_SS2
+    | typeof OPTION_CARET
+    | typeof OPTION_DOTALL
 
 export default createRule("match-any", {
     meta: {
@@ -75,18 +59,13 @@ export default createRule("match-any", {
     },
     create(context) {
         const sourceCode = context.getSourceCode()
-        const allowList: (
-            | "[\\s\\S]"
-            | "[\\S\\s]"
-            | "[^]"
-            | "dotAll"
-        )[] = context.options[0]?.allows ?? [OPTION_SS1, OPTION_DOTALL]
+        const allowList: Allowed[] = context.options[0]?.allows ?? [
+            OPTION_SS1,
+            OPTION_DOTALL,
+        ]
+        const allows = new Set<string>(allowList)
 
-        const allows: Set<"[\\s\\S]" | "[\\S\\s]" | "[^]" | "dotAll"> = new Set(
-            allowList,
-        )
-
-        const prefer = (allowList[0] !== OPTION_DOTALL && allowList[0]) || null
+        const preference: Allowed | null = allowList[0] || null
 
         /**
          * Fix source code
@@ -96,8 +75,13 @@ export default createRule("match-any", {
             fixer: Rule.RuleFixer,
             node: Expression,
             regexpNode: RegExpNode,
+            flags: ReadonlyFlags,
         ) {
-            if (!prefer) {
+            if (!preference) {
+                return null
+            }
+            if (preference === OPTION_DOTALL && !flags.dotAll) {
+                // since we can't just add flags, we cannot fix this
                 return null
             }
             const range = getRegexpRange(sourceCode, node, regexpNode)
@@ -107,16 +91,20 @@ export default createRule("match-any", {
 
             if (
                 regexpNode.type === "CharacterClass" &&
-                prefer.startsWith("[") &&
-                prefer.endsWith("]")
+                preference.startsWith("[") &&
+                preference.endsWith("]")
             ) {
                 return fixer.replaceTextRange(
                     [range[0] + 1, range[1] - 1],
-                    fixerApplyEscape(prefer.slice(1, -1), node),
+                    fixerApplyEscape(preference.slice(1, -1), node),
                 )
             }
 
-            return fixer.replaceTextRange(range, fixerApplyEscape(prefer, node))
+            const replacement = preference === OPTION_DOTALL ? "." : preference
+            return fixer.replaceTextRange(
+                range,
+                fixerApplyEscape(replacement, node),
+            )
         }
 
         /**
@@ -126,149 +114,47 @@ export default createRule("match-any", {
         function createVisitor(
             node: Expression,
             _pattern: string,
-            flags: string,
+            flagsStr: string,
         ): RegExpVisitor.Handlers {
-            let characterClassData: {
-                node: CharacterClass
-                charSets: Map<
-                    string,
-                    EscapeCharacterSet | UnicodePropertyCharacterSet
-                >
-                reported: boolean
-            } | null = null
+            const flags = parseFlags(flagsStr)
+
             return {
                 onCharacterSetEnter(csNode) {
-                    if (csNode.kind === "any") {
-                        if (flags.includes(FLAG_DOTALL)) {
-                            if (!allows.has(OPTION_DOTALL)) {
-                                context.report({
-                                    node,
-                                    loc: getRegexpLocation(
-                                        sourceCode,
-                                        node,
-                                        csNode,
-                                    ),
-                                    messageId: "unexpected",
-                                    data: {
-                                        expr: ".",
-                                    },
-                                    fix(fixer) {
-                                        return fix(fixer, node, csNode)
-                                    },
-                                })
-                            }
-                        }
-                        return
-                    }
                     if (
-                        characterClassData &&
-                        !characterClassData.reported &&
-                        !characterClassData.node.negate
+                        csNode.kind === "any" &&
+                        flags.dotAll &&
+                        !allows.has(OPTION_DOTALL)
                     ) {
-                        const key = getCharacterSetKey(csNode)
-                        const alreadyCharSet = characterClassData.charSets.get(
-                            key,
-                        )
-                        if (
-                            alreadyCharSet != null &&
-                            alreadyCharSet.negate === !csNode.negate
-                        ) {
-                            const ccNode = characterClassData.node
-                            if (
-                                !ccNode.negate &&
-                                ccNode.elements.length === 2 &&
-                                alreadyCharSet.kind === "space"
-                            ) {
-                                if (!alreadyCharSet.negate) {
-                                    if (allows.has(OPTION_SS1)) {
-                                        return
-                                    }
-                                } else {
-                                    if (allows.has(OPTION_SS2)) {
-                                        return
-                                    }
-                                }
-                            }
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                ),
-                                messageId: "unexpected",
-                                data: {
-                                    expr: ccNode.raw,
-                                },
-                                fix(fixer) {
-                                    return fix(fixer, node, ccNode)
-                                },
-                            })
-                            characterClassData.reported = true
-                        } else {
-                            characterClassData.charSets.set(key, csNode)
-                        }
-                    }
-                },
-                onCharacterClassRangeEnter(ccrNode: CharacterClassRange) {
-                    if (
-                        ccrNode.min.value === 0 &&
-                        ccrNode.max.value === 65535
-                    ) {
-                        if (
-                            characterClassData &&
-                            !characterClassData.reported &&
-                            !characterClassData.node.negate
-                        ) {
-                            const ccNode = characterClassData.node
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                ),
-                                messageId: "unexpected",
-                                data: {
-                                    expr: ccNode.raw,
-                                },
-                                fix(fixer) {
-                                    return fix(fixer, node, ccNode)
-                                },
-                            })
-                            characterClassData.reported = true
-                        }
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(sourceCode, node, csNode),
+                            messageId: "unexpected",
+                            data: {
+                                expr: ".",
+                            },
+                            fix(fixer) {
+                                return fix(fixer, node, csNode, flags)
+                            },
+                        })
                     }
                 },
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    if (ccNode.elements.length === 0) {
-                        if (ccNode.negate && !allows.has(OPTION_CARET)) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                ),
-                                messageId: "unexpected",
-                                data: {
-                                    expr: "[^]",
-                                },
-                                fix(fixer) {
-                                    return fix(fixer, node, ccNode)
-                                },
-                            })
-                        }
-                        return
+                    if (
+                        matchesAllCharacters(ccNode, flags) &&
+                        !allows.has(ccNode.raw as never)
+                    ) {
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(sourceCode, node, ccNode),
+                            messageId: "unexpected",
+                            data: {
+                                expr: ccNode.raw,
+                            },
+                            fix(fixer) {
+                                return fix(fixer, node, ccNode, flags)
+                            },
+                        })
                     }
-                    characterClassData = {
-                        node: ccNode,
-                        charSets: new Map(),
-                        reported: false,
-                    }
-                },
-                onCharacterClassLeave() {
-                    characterClassData = null
                 },
             }
         }
