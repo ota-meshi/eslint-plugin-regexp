@@ -9,8 +9,8 @@ import {
     isDigit,
     isLetter,
     isSymbol,
+    quantToString,
 } from "../utils"
-import { quantToString } from "../utils/regexp-ast"
 
 class CharBuffer {
     public target: CharacterSet | Character

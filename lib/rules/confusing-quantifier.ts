@@ -5,8 +5,9 @@ import {
     defineRegexpVisitor,
     getQuantifierOffsets,
     getRegexpLocation,
+    quantToString,
 } from "../utils"
-import { isPotentiallyEmpty, quantToString } from "../utils/regexp-ast"
+import { isPotentiallyEmpty } from "regexp-ast-analysis"
 
 export default createRule("confusing-quantifier", {
     meta: {

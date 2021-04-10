@@ -4,7 +4,6 @@ import type { Expression } from "estree"
 import { parseRegExpLiteral, RegExpParser, visitRegExpAST } from "regexpp"
 import { getStaticValue } from "eslint-utils"
 export { ShortCircuit } from "./common"
-export * from "./ast-util"
 export * from "./is-covered"
 export * from "./is-equals"
 

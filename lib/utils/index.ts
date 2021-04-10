@@ -516,6 +516,48 @@ export function getQuantifierOffsets(qNode: Quantifier): [number, number] {
     return [startOffset, endOffset]
 }
 
+export interface Quant {
+    min: number
+    max: number
+    greedy?: boolean
+}
+
+/**
+ * Returns the string representation of the given quantifier.
+ */
+export function quantToString(quant: Readonly<Quant>): string {
+    if (
+        quant.max < quant.min ||
+        quant.min < 0 ||
+        !Number.isInteger(quant.min) ||
+        !(Number.isInteger(quant.max) || quant.max === Infinity)
+    ) {
+        throw new Error(
+            `Invalid quantifier { min: ${quant.min}, max: ${quant.max} }`,
+        )
+    }
+
+    let value
+    if (quant.min === 0 && quant.max === 1) {
+        value = "?"
+    } else if (quant.min === 0 && quant.max === Infinity) {
+        value = "*"
+    } else if (quant.min === 1 && quant.max === Infinity) {
+        value = "+"
+    } else if (quant.min === quant.max) {
+        value = `{${quant.min}}`
+    } else if (quant.max === Infinity) {
+        value = `{${quant.min},}`
+    } else {
+        value = `{${quant.min},${quant.max}}`
+    }
+
+    if (!quant.greedy) {
+        return `${value}?`
+    }
+    return value
+}
+
 /* eslint-disable complexity -- X( */
 /**
  * Check the siblings to see if the regex doesn't change when unwrapped.
