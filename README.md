@@ -137,8 +137,9 @@ Please use GitHub's Issues/PRs.
 
 ### Development Tools
 
-- `npm test` runs tests and measures coverage.  
-- `npm run update` runs in order to update readme and recommended configuration.  
+- `npm test` runs tests and measures coverage.
+- `npm run update` runs in order to update readme and recommended configuration.
+- `npm run new [new rule name]` runs to create the files needed for the new rule.
 
 <!--DOCS_IGNORE_END-->
 
