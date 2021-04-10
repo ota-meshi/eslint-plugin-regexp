@@ -36,7 +36,10 @@
         "regexp",
         "regex"
     ],
-    "author": "Yosuke Ota",
+    "author": "Yosuke Ota (https://github.com/ota-meshi)",
+    "contributors": [
+        "Michael Schmidt (https://github.com/RunDevelopment)"
+    ],
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/ota-meshi/eslint-plugin-regexp/issues"
