@@ -7,8 +7,7 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
     getRegexpLocation,
-    getRegexpRange,
-    fixerApplyEscape,
+    fixReplaceNode,
 } from "../utils"
 
 export default createRule("prefer-d", {
@@ -65,20 +64,12 @@ export default createRule("prefer-d", {
                                 expr: reportNode.raw,
                                 instead,
                             },
-                            fix(fixer) {
-                                const range = getRegexpRange(
-                                    sourceCode,
-                                    node,
-                                    reportNode,
-                                )
-                                if (range == null) {
-                                    return null
-                                }
-                                return fixer.replaceTextRange(
-                                    range,
-                                    fixerApplyEscape(instead, node),
-                                )
-                            },
+                            fix: fixReplaceNode(
+                                sourceCode,
+                                node,
+                                reportNode,
+                                instead,
+                            ),
                         })
                     }
                 },

@@ -3,9 +3,8 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
+    fixReplaceNode,
     getRegexpLocation,
-    getRegexpRange,
 } from "../utils"
 
 export default createRule("prefer-unicode-codepoint-escapes", {
@@ -46,26 +45,22 @@ export default createRule("prefer-unicode-codepoint-escapes", {
                                 node,
                                 loc: getRegexpLocation(sourceCode, node, cNode),
                                 messageId: "disallowSurrogatePair",
-                                fix(fixer) {
-                                    const range = getRegexpRange(
-                                        sourceCode,
-                                        node,
-                                        cNode,
-                                    )
-                                    if (range == null) {
-                                        return null
-                                    }
-                                    let text = String.fromCodePoint(cNode.value)
-                                        .codePointAt(0)!
-                                        .toString(16)
-                                    if (/[A-F]/.test(cNode.raw)) {
-                                        text = text.toUpperCase()
-                                    }
-                                    return fixer.replaceTextRange(
-                                        range,
-                                        fixerApplyEscape(`\\u{${text}}`, node),
-                                    )
-                                },
+                                fix: fixReplaceNode(
+                                    sourceCode,
+                                    node,
+                                    cNode,
+                                    () => {
+                                        let text = String.fromCodePoint(
+                                            cNode.value,
+                                        )
+                                            .codePointAt(0)!
+                                            .toString(16)
+                                        if (/[A-F]/.test(cNode.raw)) {
+                                            text = text.toUpperCase()
+                                        }
+                                        return `\\u{${text}}`
+                                    },
+                                ),
                             })
                         }
                     }

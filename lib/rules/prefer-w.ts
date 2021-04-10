@@ -16,6 +16,7 @@ import {
     CP_LOW_LINE,
     FLAG_IGNORECASE,
     fixerApplyEscape,
+    fixReplaceNode,
 } from "../utils"
 
 /**
@@ -146,20 +147,12 @@ export default createRule("prefer-w", {
                                     expr: ccNode.raw,
                                     instead,
                                 },
-                                fix(fixer: Rule.RuleFixer) {
-                                    const range = getRegexpRange(
-                                        sourceCode,
-                                        node,
-                                        ccNode,
-                                    )
-                                    if (range == null) {
-                                        return null
-                                    }
-                                    return fixer.replaceTextRange(
-                                        range,
-                                        fixerApplyEscape(instead, node),
-                                    )
-                                },
+                                fix: fixReplaceNode(
+                                    sourceCode,
+                                    node,
+                                    ccNode,
+                                    instead,
+                                ),
                             })
                         } else {
                             context.report({
