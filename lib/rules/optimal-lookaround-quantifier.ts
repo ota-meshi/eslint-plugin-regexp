@@ -1,56 +1,29 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Alternative, Quantifier } from "regexpp/ast"
+import type { Alternative, LookaroundAssertion, Quantifier } from "regexpp/ast"
 import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 
 /**
- * Extract invalid quantifiers for lookahead
+ * Extract invalid quantifiers for lookarounds
  */
-function* extractEndInvalidQuantifiers(
+function* extractInvalidQuantifiers(
     alternatives: Alternative[],
+    kind: LookaroundAssertion["kind"],
 ): IterableIterator<Quantifier> {
     for (const { elements } of alternatives) {
         if (elements.length > 0) {
-            const last = elements[elements.length - 1]
+            const lastIndex = kind === "lookahead" ? elements.length - 1 : 0
+            const last = elements[lastIndex]
             switch (last.type) {
                 case "Quantifier":
                     if (last.min !== last.max) {
+                        // TODO: last might contain a capturing group in which cause, we can't change the quantifier
                         yield last
                     }
                     break
 
                 case "Group":
-                    yield* extractEndInvalidQuantifiers(last.alternatives)
-                    break
-
-                // we ignore capturing groups on purpose.
-                // Example: /(?=(a*))\w+\1/ (no ideal but it illustrates the point)
-
-                default:
-                    break
-            }
-        }
-    }
-}
-
-/**
- * Extract invalid quantifiers for lookbehind
- */
-function* extractStartInvalidQuantifiers(
-    alternatives: Alternative[],
-): IterableIterator<Quantifier> {
-    for (const { elements } of alternatives) {
-        if (elements.length > 0) {
-            const first = elements[0]
-            switch (first.type) {
-                case "Quantifier":
-                    if (first.min !== first.max) {
-                        yield first
-                    }
-                    break
-
-                case "Group":
-                    yield* extractStartInvalidQuantifiers(first.alternatives)
+                    yield* extractInvalidQuantifiers(last.alternatives, kind)
                     break
 
                 // we ignore capturing groups on purpose.
@@ -66,11 +39,6 @@ function* extractStartInvalidQuantifiers(
 const END_START_PHRASE = {
     lookahead: "end",
     lookbehind: "start",
-}
-
-const EXTRACT_INVALID_QUANTIFIERS = {
-    lookahead: extractEndInvalidQuantifiers,
-    lookbehind: extractStartInvalidQuantifiers,
 }
 
 export default createRule("optimal-lookaround-quantifier", {
@@ -107,10 +75,12 @@ export default createRule("optimal-lookaround-quantifier", {
                         aNode.kind === "lookbehind"
                     ) {
                         const endOrStart = END_START_PHRASE[aNode.kind]
-
-                        for (const q of EXTRACT_INVALID_QUANTIFIERS[aNode.kind](
+                        const quantifiers = extractInvalidQuantifiers(
                             aNode.alternatives,
-                        )) {
+                            aNode.kind,
+                        )
+
+                        for (const q of quantifiers) {
                             const replacer =
                                 q.min === 0
                                     ? ""
