@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("no-octal", rule as any, {
-    valid: ["/\\0/", "/\\7/"],
+    valid: ["/\\0/", "/[\\7]/", "/[\\1-\\4]/"],
     invalid: [
         {
             code: "/\\07/",
@@ -32,6 +32,10 @@ tester.run("no-octal", rule as any, {
             ],
         },
         {
+            code: "/[\\077]/",
+            errors: [{ message: 'Unexpected octal escape sequence "\\077".' }],
+        },
+        {
             code: "/\\0777/",
             errors: [
                 {
@@ -40,6 +44,21 @@ tester.run("no-octal", rule as any, {
                     endColumn: 6,
                 },
             ],
+        },
+        {
+            code: "/\\7/",
+            errors: [{ message: 'Unexpected octal escape sequence "\\7".' }],
+        },
+        {
+            code: "/\\1\\2/",
+            errors: [
+                { message: 'Unexpected octal escape sequence "\\1".' },
+                { message: 'Unexpected octal escape sequence "\\2".' },
+            ],
+        },
+        {
+            code: "/()\\1\\2/",
+            errors: [{ message: 'Unexpected octal escape sequence "\\2".' }],
         },
     ],
 })
