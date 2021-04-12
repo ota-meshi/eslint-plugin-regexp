@@ -4,6 +4,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Alternative,
     Element,
+    Node,
     Node as RegExpNode,
     Quantifier,
 } from "regexpp/ast"
@@ -437,6 +438,73 @@ export function fixerApplyEscape(
         return text.replace(/\\/gu, "\\\\")
     }
     return text
+}
+
+/**
+ * Creates a new fix that replaces the given node with a given string.
+ *
+ * The string will automatically be escaped if necessary.
+ */
+export function fixReplaceNode(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+    regexpNode: Node,
+    replacement: string | (() => string | null),
+) {
+    return (fixer: Rule.RuleFixer): Rule.Fix | null => {
+        const range = getRegexpRange(sourceCode, node, regexpNode)
+        if (range == null) {
+            return null
+        }
+
+        let text
+        if (typeof replacement === "string") {
+            text = replacement
+        } else {
+            text = replacement()
+            if (text == null) {
+                return null
+            }
+        }
+
+        return fixer.replaceTextRange(range, fixerApplyEscape(text, node))
+    }
+}
+/**
+ * Creates a new fix that replaces the given quantifier (but not the quantified
+ * element) with a given string.
+ *
+ * This will not change the greediness of the quantifier.
+ */
+export function fixReplaceQuant(
+    sourceCode: SourceCode,
+    node: ESTree.Expression,
+    quantifier: Quantifier,
+    replacement: string | (() => string | null),
+) {
+    return (fixer: Rule.RuleFixer): Rule.Fix | null => {
+        const range = getRegexpRange(sourceCode, node, quantifier)
+        if (range == null) {
+            return null
+        }
+
+        let text
+        if (typeof replacement === "string") {
+            text = replacement
+        } else {
+            text = replacement()
+            if (text == null) {
+                return null
+            }
+        }
+
+        const [startOffset, endOffset] = getQuantifierOffsets(quantifier)
+
+        return fixer.replaceTextRange(
+            [range[0] + startOffset, range[0] + endOffset],
+            text,
+        )
+    }
 }
 
 /**

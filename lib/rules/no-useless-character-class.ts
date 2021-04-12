@@ -4,9 +4,8 @@ import {
     canUnwrapped,
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
+    fixReplaceNode,
     getRegexpLocation,
-    getRegexpRange,
 } from "../utils"
 
 export default createRule("no-useless-character-class", {
@@ -113,15 +112,7 @@ export default createRule("no-useless-character-class", {
                                     ? " and range"
                                     : "",
                         },
-                        fix(fixer) {
-                            const range = getRegexpRange(
-                                sourceCode,
-                                node,
-                                ccNode,
-                            )
-                            if (range == null) {
-                                return null
-                            }
+                        fix: fixReplaceNode(sourceCode, node, ccNode, () => {
                             let text: string =
                                 element.type === "CharacterClassRange"
                                     ? element.min.raw
@@ -137,11 +128,8 @@ export default createRule("no-useless-character-class", {
                                     text = `\\${text}`
                                 }
                             }
-                            return fixer.replaceTextRange(
-                                range,
-                                fixerApplyEscape(text, node),
-                            )
-                        },
+                            return text
+                        }),
                     })
                 },
             }

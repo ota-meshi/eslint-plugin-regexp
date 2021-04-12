@@ -4,8 +4,8 @@ import {
     createRule,
     defineRegexpVisitor,
     getRegexpLocation,
-    getRegexpRange,
     getQuantifierOffsets,
+    fixReplaceQuant,
 } from "../utils"
 
 export default createRule("prefer-star-quantifier", {
@@ -49,23 +49,12 @@ export default createRule("prefer-star-quantifier", {
                                 data: {
                                     expr: text,
                                 },
-                                fix(fixer) {
-                                    const range = getRegexpRange(
-                                        sourceCode,
-                                        node,
-                                        qNode,
-                                    )
-                                    if (range == null) {
-                                        return null
-                                    }
-                                    return fixer.replaceTextRange(
-                                        [
-                                            range[0] + startOffset,
-                                            range[0] + endOffset,
-                                        ],
-                                        "*",
-                                    )
-                                },
+                                fix: fixReplaceQuant(
+                                    sourceCode,
+                                    node,
+                                    qNode,
+                                    "*",
+                                ),
                             })
                         }
                     }

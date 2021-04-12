@@ -4,9 +4,8 @@ import type { Character, CharacterClassRange } from "regexpp/ast"
 import {
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
+    fixReplaceNode,
     getRegexpLocation,
-    getRegexpRange,
     isLetter,
     isLowercaseLetter,
     isUppercaseLetter,
@@ -107,17 +106,9 @@ export default createRule("letter-case", {
                     char: reportNode.raw,
                     case: letterCase,
                 },
-                fix(fixer) {
-                    const range = getRegexpRange(sourceCode, node, reportNode)
-                    if (range == null) {
-                        return null
-                    }
-                    const newText = convertText(CONVERTER[letterCase])
-                    return fixer.replaceTextRange(
-                        range,
-                        fixerApplyEscape(newText, node),
-                    )
-                },
+                fix: fixReplaceNode(sourceCode, node, reportNode, () =>
+                    convertText(CONVERTER[letterCase]),
+                ),
             })
         }
 

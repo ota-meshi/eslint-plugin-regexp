@@ -6,8 +6,8 @@ import {
     defineRegexpVisitor,
     getRegexpLocation,
     getQuantifierOffsets,
-    getRegexpRange,
-    fixerApplyEscape,
+    fixReplaceQuant,
+    fixReplaceNode,
 } from "../utils"
 
 export default createRule("prefer-question-quantifier", {
@@ -53,23 +53,12 @@ export default createRule("prefer-question-quantifier", {
                                 data: {
                                     expr: text,
                                 },
-                                fix(fixer) {
-                                    const range = getRegexpRange(
-                                        sourceCode,
-                                        node,
-                                        qNode,
-                                    )
-                                    if (range == null) {
-                                        return null
-                                    }
-                                    return fixer.replaceTextRange(
-                                        [
-                                            range[0] + startOffset,
-                                            range[0] + endOffset,
-                                        ],
-                                        "?",
-                                    )
-                                },
+                                fix: fixReplaceQuant(
+                                    sourceCode,
+                                    node,
+                                    qNode,
+                                    "?",
+                                ),
                             })
                         }
                     }
@@ -125,20 +114,12 @@ export default createRule("prefer-question-quantifier", {
                                 expr: reportNode.raw,
                                 instead,
                             },
-                            fix(fixer) {
-                                const range = getRegexpRange(
-                                    sourceCode,
-                                    node,
-                                    reportNode,
-                                )
-                                if (range == null) {
-                                    return null
-                                }
-                                return fixer.replaceTextRange(
-                                    range,
-                                    fixerApplyEscape(instead, node),
-                                )
-                            },
+                            fix: fixReplaceNode(
+                                sourceCode,
+                                node,
+                                reportNode,
+                                instead,
+                            ),
                         })
                     }
                 },
