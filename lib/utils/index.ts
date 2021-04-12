@@ -18,6 +18,7 @@ import {
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
 import { findVariable } from "./ast-utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 export * from "./unicode"
 
 type RegexpRule = {
@@ -42,6 +43,28 @@ export const FLAG_IGNORECASE = "i"
 export const FLAG_MULTILINE = "m"
 export const FLAG_STICKY = "y"
 export const FLAG_UNICODE = "u"
+
+const flagsCache = new Map<string, ReadonlyFlags>()
+/**
+ * Given some flags, this will return a parsed flags object.
+ *
+ * Non-standard flags will be ignored.
+ */
+export function parseFlags(flags: string): ReadonlyFlags {
+    let cached = flagsCache.get(flags)
+    if (cached === undefined) {
+        cached = {
+            dotAll: flags.includes(FLAG_DOTALL),
+            global: flags.includes(FLAG_GLOBAL),
+            ignoreCase: flags.includes(FLAG_IGNORECASE),
+            multiline: flags.includes(FLAG_MULTILINE),
+            sticky: flags.includes(FLAG_STICKY),
+            unicode: flags.includes(FLAG_UNICODE),
+        }
+        flagsCache.set(flags, cached)
+    }
+    return cached
+}
 
 /**
  * Define the rule.
