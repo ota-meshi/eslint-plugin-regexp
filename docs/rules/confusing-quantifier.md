@@ -2,11 +2,11 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/confusing-quantifier"
-description: "disallow about confusing quantifiers"
+description: "disallow confusing quantifiers"
 ---
 # regexp/confusing-quantifier
 
-> disallow about confusing quantifiers
+> disallow confusing quantifiers
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 

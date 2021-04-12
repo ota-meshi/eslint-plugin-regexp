@@ -12,7 +12,7 @@ import { isPotentiallyEmpty } from "regexp-ast-analysis"
 export default createRule("confusing-quantifier", {
     meta: {
         docs: {
-            description: "disallow about confusing quantifiers",
+            description: "disallow confusing quantifiers",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
