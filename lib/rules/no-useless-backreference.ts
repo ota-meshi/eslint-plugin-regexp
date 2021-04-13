@@ -10,7 +10,6 @@ import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 import {
     getClosestAncestor,
     getMatchingDirection,
-    hasSomeAncestor,
     isEmptyBackreference,
     isZeroLength,
 } from "regexp-ast-analysis"
@@ -42,15 +41,11 @@ function hasNegatedLookaroundInBetween(
 function getUselessMessageId(backRef: Backreference): string | null {
     const group = backRef.resolved
 
-    if (hasSomeAncestor(backRef, (a) => a === group)) {
-        return "nested"
-    } else if (isZeroLength(group)) {
-        return "empty"
-    }
-
     const closestAncestor = getClosestAncestor(backRef, group)
 
-    if (closestAncestor.type !== "Alternative") {
+    if (closestAncestor === group) {
+        return "nested"
+    } else if (closestAncestor.type !== "Alternative") {
         // if the closest common ancestor isn't an alternative => they're disjunctive.
         return "disjunctive"
     }
@@ -72,6 +67,12 @@ function getUselessMessageId(backRef: Backreference): string | null {
         // the opposite of the previous when the regex is matching backwards
         // in a lookbehind context.
         return "backward"
+    }
+
+    if (isZeroLength(group)) {
+        // if the referenced group does not consume characters, then any
+        // backreference will trivially be replaced with the empty string
+        return "empty"
     }
 
     if (isEmptyBackreference(backRef)) {
