@@ -15,7 +15,7 @@ export interface RuleMetaData {
         url: string
         ruleId: string
         ruleName: string
-        replacedBy?: []
+        replacedBy?: string[]
         default?: "error" | "warn"
     }
     messages: { [messageId: string]: string }
@@ -34,7 +34,7 @@ export interface PartialRuleMetaData {
     docs: {
         description: string
         recommended: boolean
-        replacedBy?: []
+        replacedBy?: string[]
         default?: "error" | "warn"
     }
     messages: { [messageId: string]: string }

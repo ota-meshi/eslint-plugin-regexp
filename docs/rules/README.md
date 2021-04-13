@@ -42,8 +42,8 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |
+| [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
-| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
 | [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
@@ -65,3 +65,12 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+## Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md.md) |
