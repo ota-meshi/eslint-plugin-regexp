@@ -37,6 +37,9 @@ const allRules = []
 
 for (const k of Object.keys(plugin.rules)) {
     const rule = plugin.rules[k]
+    if (rule.meta.deprecated) {
+        continue
+    }
     rule.meta.docs.category = rule.meta.docs.recommended
         ? "recommended"
         : "uncategorized"
