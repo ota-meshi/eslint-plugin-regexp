@@ -15,6 +15,25 @@ since: "v0.1.0"
 
 This rule reports empty lookahead assertion or empty lookbehind assertion.
 
+### What are _empty lookarounds_?
+
+An empty lookaround is a lookaround for which at least one path in the lookaround expression contains only elements that do not consume characters and do not assert characters. This means that the lookaround expression will trivially accept any input string.
+
+**Examples:**
+
+-   `(?=)`: One of simplest empty lookarounds.
+-   `(?=a*)`: It is possible for `a*` to not consume characters, therefore the lookahead is _empty_.
+-   `(?=a|b*)`: Only one path has to not consume characters. Since it is possible for `b*` to not consume characters, the lookahead is _empty_.
+-   `(?=a|$)`: This is **not** an empty lookaround. `$` does not _consume_ characters but it does _assert_ characters. Similarly, all other standard assertions (`\b`, `\B`, `^`) are also not empty.
+
+### Why are empty lookarounds a problem?
+
+Because empty lookarounds accept the empty string, they are essentially non-functional. They will always trivially reject/accept.
+
+E.g. `(?=b?)\w` will match `a` just fine. `(?=b?)` will always trivially accept no matter the input string. The same also happens for negated lookarounds but they will trivially reject. E.g. `(?!b?)\w` won't match any input strings.
+
+The only way to fix empty lookarounds is to either remove them or to rewrite the lookaround expression to be non-empty.
+
 <eslint-code-block>
 
 ```js
@@ -31,6 +50,8 @@ var foo = /x(?=)/;
 var foo = /x(?!)/;
 var foo = /(?<=)x/;
 var foo = /(?<!)x/;
+var foo = /(?=b?)\w/;
+var foo = /(?!b?)\w/;
 ```
 
 </eslint-code-block>
