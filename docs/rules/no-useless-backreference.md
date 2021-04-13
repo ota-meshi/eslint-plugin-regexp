@@ -11,6 +11,8 @@ since: "v0.1.0"
 
 ## :book: Rule Details
 
+TODO: This isn't true anymore.
+
 This rule is a copy of the ESLint core [no-useless-backreference] rule.  
 The [no-useless-backreference] rule was added in ESLint 7.x, but this plugin supports ESLint 6.x.
 Copied to this plugin to allow the same [no-useless-backreference] rules to be used in ESLint 6.x.
