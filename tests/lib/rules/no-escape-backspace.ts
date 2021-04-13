@@ -15,7 +15,7 @@ tester.run("no-escape-backspace", rule as any, {
             code: "/[\\b]/",
             errors: [
                 {
-                    message: 'Unexpected "[\\b]". Use "\\u0008" instead.',
+                    message: "Unexpected '[\\b]'. Use '\\u0008' instead.",
                     column: 3,
                     endColumn: 5,
                 },

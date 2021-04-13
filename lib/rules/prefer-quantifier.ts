@@ -141,7 +141,7 @@ export default createRule("prefer-quantifier", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected consecutive same {{type}}. Use "{{quantifier}}" instead.',
+                "Unexpected consecutive same {{type}}. Use '{{quantifier}}' instead.",
         },
         type: "suggestion", // "problem",
     },

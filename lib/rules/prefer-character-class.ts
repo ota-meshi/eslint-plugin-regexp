@@ -29,7 +29,7 @@ export default createRule("prefer-character-class", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
         },
         type: "suggestion", // "problem",
     },

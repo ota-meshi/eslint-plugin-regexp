@@ -10,7 +10,7 @@ export default createRule("no-octal", {
         },
         schema: [],
         messages: {
-            unexpected: 'Unexpected octal escape sequence "{{expr}}".',
+            unexpected: "Unexpected octal escape sequence '{{expr}}'.",
         },
         type: "suggestion", // "problem",
     },

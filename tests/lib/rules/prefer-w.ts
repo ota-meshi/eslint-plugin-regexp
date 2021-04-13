@@ -17,7 +17,7 @@ tester.run("prefer-w", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character class "[0-9a-zA-Z_]". Use "\\w" instead.',
+                        "Unexpected character class '[0-9a-zA-Z_]'. Use '\\w' instead.",
                     column: 2,
                     endColumn: 14,
                 },
@@ -29,7 +29,7 @@ tester.run("prefer-w", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character class ranges "[0-9a-zA-Z_]". Use "\\w" instead.',
+                        "Unexpected character class ranges '[0-9a-zA-Z_]'. Use '\\w' instead.",
                     column: 2,
                     endColumn: 15,
                 },
@@ -39,21 +39,21 @@ tester.run("prefer-w", rule as any, {
             code: "/[0-9a-z_]/i",
             output: "/\\w/i",
             errors: [
-                'Unexpected character class "[0-9a-z_]". Use "\\w" instead.',
+                "Unexpected character class '[0-9a-z_]'. Use '\\w' instead.",
             ],
         },
         {
             code: "/[^0-9a-zA-Z_]/",
             output: "/\\W/",
             errors: [
-                'Unexpected character class "[^0-9a-zA-Z_]". Use "\\W" instead.',
+                "Unexpected character class '[^0-9a-zA-Z_]'. Use '\\W' instead.",
             ],
         },
         {
             code: "/[^0-9A-Z_]/i",
             output: "/\\W/i",
             errors: [
-                'Unexpected character class "[^0-9A-Z_]". Use "\\W" instead.',
+                "Unexpected character class '[^0-9A-Z_]'. Use '\\W' instead.",
             ],
         },
         {
@@ -66,7 +66,7 @@ tester.run("prefer-w", rule as any, {
             new RegExp(s, 'i')
             `,
             errors: [
-                'Unexpected character class "[0-9A-Z_]". Use "\\w" instead.',
+                "Unexpected character class '[0-9A-Z_]'. Use '\\w' instead.",
             ],
         },
         {
@@ -76,7 +76,7 @@ tester.run("prefer-w", rule as any, {
             `,
             output: null,
             errors: [
-                'Unexpected character class "[0-9A-Z_]". Use "\\w" instead.',
+                "Unexpected character class '[0-9A-Z_]'. Use '\\w' instead.",
             ],
         },
         {
@@ -89,7 +89,7 @@ tester.run("prefer-w", rule as any, {
             new RegExp(s, 'i')
             `,
             errors: [
-                'Unexpected character class ranges "[0-9A-Z_]". Use "\\w" instead.',
+                "Unexpected character class ranges '[0-9A-Z_]'. Use '\\w' instead.",
             ],
         },
         {
@@ -99,7 +99,7 @@ tester.run("prefer-w", rule as any, {
             `,
             output: null,
             errors: [
-                'Unexpected character class ranges "[0-9A-Z_]". Use "\\w" instead.',
+                "Unexpected character class ranges '[0-9A-Z_]'. Use '\\w' instead.",
             ],
         },
     ],

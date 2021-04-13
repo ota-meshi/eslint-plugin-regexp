@@ -17,7 +17,7 @@ export default createRule("no-useless-two-nums-quantifier", {
         fixable: "code",
         schema: [],
         messages: {
-            unexpected: 'Unexpected quantifier "{{expr}}".',
+            unexpected: "Unexpected quantifier '{{expr}}'.",
         },
         type: "suggestion", // "problem",
     },

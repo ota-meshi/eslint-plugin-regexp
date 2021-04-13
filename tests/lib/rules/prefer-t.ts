@@ -17,7 +17,7 @@ tester.run("prefer-t", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected character "\\u0009". Use "\\t" instead.',
+                        "Unexpected character '\\u0009'. Use '\\t' instead.",
                     column: 2,
                     endColumn: 8,
                 },
@@ -28,7 +28,7 @@ tester.run("prefer-t", rule as any, {
             output: "/\\t/",
             errors: [
                 {
-                    message: 'Unexpected character "\t". Use "\\t" instead.',
+                    message: "Unexpected character '\t'. Use '\\t' instead.",
                     column: 2,
                     endColumn: 3,
                 },
@@ -43,7 +43,7 @@ tester.run("prefer-t", rule as any, {
             const s = "\\t"
             new RegExp(s)
             `,
-            errors: ['Unexpected character "\\u0009". Use "\\t" instead.'],
+            errors: ["Unexpected character '\\u0009'. Use '\\t' instead."],
         },
         {
             code: String.raw`
@@ -51,7 +51,7 @@ tester.run("prefer-t", rule as any, {
             new RegExp(s)
             `,
             output: null,
-            errors: ['Unexpected character "\\u0009". Use "\\t" instead.'],
+            errors: ["Unexpected character '\\u0009'. Use '\\t' instead."],
         },
     ],
 })

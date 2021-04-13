@@ -17,7 +17,7 @@ export default createRule("prefer-t", {
         fixable: "code",
         schema: [],
         messages: {
-            unexpected: 'Unexpected character "{{expr}}". Use "\\t" instead.',
+            unexpected: "Unexpected character '{{expr}}'. Use '\\t' instead.",
         },
         type: "suggestion", // "problem",
     },
