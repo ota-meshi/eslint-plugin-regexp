@@ -10,7 +10,6 @@ import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 import {
     getClosestAncestor,
     getMatchingDirection,
-    isEmptyBackreference,
     isZeroLength,
 } from "regexp-ast-analysis"
 
@@ -75,12 +74,6 @@ function getUselessMessageId(backRef: Backreference): string | null {
         return "empty"
     }
 
-    if (isEmptyBackreference(backRef)) {
-        // This function does a little more flow analysis and might find some
-        // cases that we missed
-        return "unreachable"
-    }
-
     // not useless
     return null
 }
@@ -106,8 +99,6 @@ export default createRule("no-useless-backreference", {
                 "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which is in a negative lookaround.",
             empty:
                 "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which always captures zero characters.",
-            unreachable:
-                "Backreference '{{ bref }}' will be ignored. The backreference cannot be reached from the referenced group '{{ group }}'.",
         },
         type: "suggestion", // "problem",
     },
