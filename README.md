@@ -67,7 +67,7 @@ module.exports = {
 
 This plugin provides one config:
 
-- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.  
+- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.
   See [lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for details.
 
 <!--USAGE_SECTION_END-->
@@ -76,7 +76,7 @@ This plugin provides one config:
 
 <!--RULES_SECTION_START-->
 
-The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) automatically fixes problems reported by rules which have a wrench :wrench: below.  
+The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) automatically fixes problems reported by rules which have a wrench :wrench: below.
 The rules with the following star :star: are included in the `plugin:regexp/recommended` config.
 
 <!--RULES_TABLE_START-->
@@ -137,8 +137,10 @@ Please use GitHub's Issues/PRs.
 
 ### Development Tools
 
-- `npm test` runs tests and measures coverage.  
-- `npm run update` runs in order to update readme and recommended configuration.  
+- `npm test` runs tests and measures coverage.
+- `npm run update` runs in order to update readme and recommended configuration.
+- `npm run new [new rule name]` runs to create the files needed for the new rule.
+- `npm run docs:watch` starts the website locally.
 
 <!--DOCS_IGNORE_END-->
 

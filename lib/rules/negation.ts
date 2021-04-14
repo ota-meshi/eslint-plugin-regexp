@@ -7,9 +7,8 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
+    fixReplaceNode,
     getRegexpLocation,
-    getRegexpRange,
 } from "../utils"
 
 export default createRule("negation", {
@@ -49,20 +48,12 @@ export default createRule("negation", {
                             loc: getRegexpLocation(sourceCode, node, ccNode),
                             messageId: "unexpected",
                             data: { negatedCharSet },
-                            fix(fixer) {
-                                const range = getRegexpRange(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                )
-                                if (range == null) {
-                                    return null
-                                }
-                                return fixer.replaceTextRange(
-                                    range,
-                                    fixerApplyEscape(negatedCharSet, node),
-                                )
-                            },
+                            fix: fixReplaceNode(
+                                sourceCode,
+                                node,
+                                ccNode,
+                                negatedCharSet,
+                            ),
                         })
                     }
                 },

@@ -10,7 +10,7 @@ export default createRule("no-octal", {
         },
         schema: [],
         messages: {
-            unexpected: 'Unexpected octal escape sequence "{{expr}}".',
+            unexpected: "Unexpected octal escape sequence '{{expr}}'.",
         },
         type: "suggestion", // "problem",
     },
@@ -24,7 +24,26 @@ export default createRule("no-octal", {
         function createVisitor(node: Expression): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
-                    if (cNode.raw.startsWith("\\0") && cNode.raw !== "\\0") {
+                    if (cNode.raw === "\\0") {
+                        // \0 looks like a octal escape but is allowed
+                        return
+                    }
+                    if (!/^\\[0-7]+$/.test(cNode.raw)) {
+                        // not an octal escape
+                        return
+                    }
+
+                    const report =
+                        // always report octal escapes that look like \0
+                        cNode.raw.startsWith("\\0") ||
+                        // don't report octal escapes inside character classes
+                        // (e.g. [\4-\6]).
+                        !(
+                            cNode.parent.type === "CharacterClass" ||
+                            cNode.parent.type === "CharacterClassRange"
+                        )
+
+                    if (report) {
                         context.report({
                             node,
                             loc: getRegexpLocation(sourceCode, node, cNode),

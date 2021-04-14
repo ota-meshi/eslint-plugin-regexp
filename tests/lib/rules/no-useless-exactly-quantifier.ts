@@ -15,12 +15,12 @@ tester.run("no-useless-exactly-quantifier", rule as any, {
             code: "/a{0} a{1}/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0}".',
+                    message: "Unexpected quantifier '{0}'.",
                     column: 3,
                     endColumn: 6,
                 },
                 {
-                    message: 'Unexpected quantifier "{1}".',
+                    message: "Unexpected quantifier '{1}'.",
                     column: 8,
                     endColumn: 11,
                 },

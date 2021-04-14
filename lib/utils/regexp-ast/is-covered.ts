@@ -787,8 +787,8 @@ function isCoveredAltNodes(
     rightNodes: NormalizedNode[],
     options: Options,
 ): boolean {
-    const left = options.canOmitRight ? omitEnds(leftNodes) : leftNodes
-    const right = options.canOmitRight ? omitEnds(rightNodes) : rightNodes
+    const left = options.canOmitRight ? omitEnds(leftNodes) : [...leftNodes]
+    const right = options.canOmitRight ? omitEnds(rightNodes) : [...rightNodes]
     while (left.length && right.length) {
         const le = left.shift()!
         const re = right.shift()!
