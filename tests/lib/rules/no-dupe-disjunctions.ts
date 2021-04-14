@@ -33,6 +33,10 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(?:(a)|(a))/`,
         `/(?:a|ab)/`,
         `/(?:.|a|b)/`,
+        {
+            code: `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
+            options: [{ disallowNeverMatch: true }],
+        },
     ],
     invalid: [
         ...[
