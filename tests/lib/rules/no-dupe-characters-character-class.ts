@@ -374,5 +374,29 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
             ],
         },
+        {
+            code: String.raw`/[\w0-z]/`,
+            errors: [
+                {
+                    message: "The '\\w' is included in '0-z'.",
+                    line: 1,
+                    column: 3,
+                    endLine: 1,
+                    endColumn: 5,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\t-\uFFFF\s]/`,
+            errors: [
+                {
+                    message: "The '\\s' is included in '\\t-\\uFFFF'.",
+                    line: 1,
+                    column: 12,
+                    endLine: 1,
+                    endColumn: 14,
+                },
+            ],
+        },
     ],
 })
