@@ -13,7 +13,7 @@ description: "disallow obscure character ranges"
 
 ## :book: Rule Details
 
-This rule reports ???.
+The character range operator (the `-` inside character classes) can easily be misused (mostly unintentionally) to construct non-obvious character class. This rule will disallow all non-obvious uses of the character range operator.
 
 <eslint-code-block>
 
