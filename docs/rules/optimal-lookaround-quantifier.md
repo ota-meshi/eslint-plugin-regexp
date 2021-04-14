@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/optimal-lookaround-quantifier"
 description: "disallow the alternatives of lookarounds that end with a non-constant quantifier"
+since: "v0.8.0"
 ---
 # regexp/optimal-lookaround-quantifier
 
 > disallow the alternatives of lookarounds that end with a non-constant quantifier
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -67,6 +66,10 @@ This rule is compatible with [clean-regex/optimal-lookaround-quantifier] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/optimal-lookaround-quantifier]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/optimal-lookaround-quantifier.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.8.0
 
 ## :mag: Implementation
 

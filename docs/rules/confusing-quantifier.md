@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/confusing-quantifier"
 description: "disallow confusing quantifiers"
+since: "v0.8.0"
 ---
 # regexp/confusing-quantifier
 
 > disallow confusing quantifiers
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -48,6 +47,10 @@ This rule is compatible with [clean-regex/confusing-quantifier] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/confusing-quantifier]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/confusing-quantifier.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.8.0
 
 ## :mag: Implementation
 
