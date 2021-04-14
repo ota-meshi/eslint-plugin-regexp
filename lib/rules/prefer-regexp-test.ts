@@ -43,11 +43,14 @@ export default createRule("prefer-regexp-test", {
                     }
                     const arg = node.arguments[0]
                     const evaluated = getStaticValue(arg, context.getScope())
-                    if (
-                        evaluated &&
-                        evaluated.value instanceof RegExp &&
-                        evaluated.value.flags.includes("g")
-                    ) {
+                    if (evaluated && evaluated.value instanceof RegExp) {
+                        if (evaluated.value.flags.includes("g")) {
+                            return
+                        }
+                    } else if (!typeTracer.isRegExp(arg)) {
+                        // Not RegExp
+                        // String.prototype.match function allows non-RegExp arguments
+                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match#a_non-regexp_object_as_the_parameter
                         return
                     }
 

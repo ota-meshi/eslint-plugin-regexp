@@ -33,6 +33,19 @@ tester.run("prefer-regexp-test", rule as any, {
         const a = pattern.exec(text)
         const b = text.match(pattern)
         `,
+        `
+        const text = 'something';
+        if (text.match()) {}
+        const pattern1 = 'some';
+        if (text.match(pattern1)) {}
+        const pattern2 = Infinity;
+        if (text.match(pattern2)) {}
+        `,
+        `
+        const text = 'something';
+        const pattern = getPattern();
+        if (text.match(pattern)) {}
+        `,
     ],
     invalid: [
         {
@@ -141,6 +154,23 @@ tester.run("prefer-regexp-test", rule as any, {
             errors: [
                 "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
                 "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
+            ],
+        },
+        {
+            code: `
+            const text = 'something';
+            /** @type {RegExp} */
+            const pattern = getPattern();
+            if (text.match(pattern)) {}
+            `,
+            output: `
+            const text = 'something';
+            /** @type {RegExp} */
+            const pattern = getPattern();
+            if (pattern.test(text)) {}
+            `,
+            errors: [
+                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
             ],
         },
     ],
