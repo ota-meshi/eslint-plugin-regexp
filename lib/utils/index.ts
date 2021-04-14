@@ -668,3 +668,27 @@ export function canUnwrapped(
 
     return true
 }
+
+/**
+ * Returns whether the given raw of a character literal is an octal escape
+ * sequence.
+ */
+export function isOctalEscape(raw: string): boolean {
+    return /^\\[0-7]{1,3}$/.test(raw)
+}
+/**
+ * Returns whether the given raw of a character literal is a control escape
+ * sequence.
+ */
+export function isControlEscape(raw: string): boolean {
+    return /^\\c[A-Za-z]$/.test(raw)
+}
+/**
+ * Returns whether the given raw of a character literal is a hexadecimal escape
+ * sequence.
+ */
+export function isHexadecimalEscape(raw: string): boolean {
+    return /^\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]{1,8}\}))$/.test(
+        raw,
+    )
+}

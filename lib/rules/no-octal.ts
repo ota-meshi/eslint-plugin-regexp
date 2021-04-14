@@ -1,6 +1,11 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    getRegexpLocation,
+    isOctalEscape,
+} from "../utils"
 
 export default createRule("no-octal", {
     meta: {
@@ -28,7 +33,7 @@ export default createRule("no-octal", {
                         // \0 looks like a octal escape but is allowed
                         return
                     }
-                    if (!/^\\[0-7]+$/.test(cNode.raw)) {
+                    if (!isOctalEscape(cNode.raw)) {
                         // not an octal escape
                         return
                     }
