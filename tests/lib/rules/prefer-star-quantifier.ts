@@ -16,7 +16,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             output: "/a*/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,}". Use "*" instead.',
+                    message: "Unexpected quantifier '{0,}'. Use '*' instead.",
                     column: 3,
                     endColumn: 7,
                 },
@@ -27,7 +27,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             output: "/a*?/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,}". Use "*" instead.',
+                    message: "Unexpected quantifier '{0,}'. Use '*' instead.",
                     column: 3,
                     endColumn: 7,
                 },
@@ -38,7 +38,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             output: "/(a)*/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,}". Use "*" instead.',
+                    message: "Unexpected quantifier '{0,}'. Use '*' instead.",
                     column: 5,
                     endColumn: 9,
                 },
@@ -49,7 +49,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             output: "/(a)*?/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,}". Use "*" instead.',
+                    message: "Unexpected quantifier '{0,}'. Use '*' instead.",
                     column: 5,
                     endColumn: 9,
                 },
@@ -64,7 +64,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             const s = "a*"
             new RegExp(s)
             `,
-            errors: ['Unexpected quantifier "{0,}". Use "*" instead.'],
+            errors: ["Unexpected quantifier '{0,}'. Use '*' instead."],
         },
         {
             code: `
@@ -72,7 +72,7 @@ tester.run("prefer-star-quantifier", rule as any, {
             new RegExp(s)
             `,
             output: null,
-            errors: ['Unexpected quantifier "{0,}". Use "*" instead.'],
+            errors: ["Unexpected quantifier '{0,}'. Use '*' instead."],
         },
     ],
 })

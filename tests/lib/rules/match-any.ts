@@ -49,7 +49,7 @@ tester.run("match-any", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected using "[\\S\\s]" to match any character.',
+                        "Unexpected using '[\\S\\s]' to match any character.",
                     column: 2,
                     endColumn: 8,
                 },
@@ -60,7 +60,7 @@ tester.run("match-any", rule as any, {
             output: "/[\\s\\S]/",
             errors: [
                 {
-                    message: 'Unexpected using "[^]" to match any character.',
+                    message: "Unexpected using '[^]' to match any character.",
                     column: 2,
                     endColumn: 5,
                 },
@@ -72,7 +72,7 @@ tester.run("match-any", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected using "[\\d\\D]" to match any character.',
+                        "Unexpected using '[\\d\\D]' to match any character.",
                     column: 2,
                     endColumn: 8,
                 },
@@ -84,7 +84,7 @@ tester.run("match-any", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected using "[\\0-\\uFFFF]" to match any character.',
+                        "Unexpected using '[\\0-\\uFFFF]' to match any character.",
                     column: 2,
                     endColumn: 13,
                 },
@@ -94,8 +94,8 @@ tester.run("match-any", rule as any, {
             code: "/[\\s\\S][\\S\\s][^]./s",
             output: "/[\\s\\S][\\s\\S][\\s\\S]./s",
             errors: [
-                'Unexpected using "[\\S\\s]" to match any character.',
-                'Unexpected using "[^]" to match any character.',
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '[^]' to match any character.",
             ],
         },
         {
@@ -103,9 +103,9 @@ tester.run("match-any", rule as any, {
             output: "/[^][^][^][^]/s",
             options: [{ allows: ["[^]"] }],
             errors: [
-                'Unexpected using "[\\s\\S]" to match any character.',
-                'Unexpected using "[\\S\\s]" to match any character.',
-                'Unexpected using "." to match any character.',
+                "Unexpected using '[\\s\\S]' to match any character.",
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '.' to match any character.",
             ],
         },
         {
@@ -113,9 +113,9 @@ tester.run("match-any", rule as any, {
             output: "/. . . ./s",
             options: [{ allows: ["dotAll"] }],
             errors: [
-                'Unexpected using "[\\s\\S]" to match any character.',
-                'Unexpected using "[\\S\\s]" to match any character.',
-                'Unexpected using "[^]" to match any character.',
+                "Unexpected using '[\\s\\S]' to match any character.",
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '[^]' to match any character.",
             ],
         },
         {
@@ -129,9 +129,9 @@ tester.run("match-any", rule as any, {
             `,
             options: [{ allows: ["[^]"] }],
             errors: [
-                'Unexpected using "[\\s\\S]" to match any character.',
-                'Unexpected using "[\\S\\s]" to match any character.',
-                'Unexpected using "." to match any character.',
+                "Unexpected using '[\\s\\S]' to match any character.",
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '.' to match any character.",
             ],
         },
         {
@@ -142,42 +142,42 @@ tester.run("match-any", rule as any, {
             output: null,
             options: [{ allows: ["[^]"] }],
             errors: [
-                'Unexpected using "[\\s\\S]" to match any character.',
-                'Unexpected using "[\\S\\s]" to match any character.',
-                'Unexpected using "." to match any character.',
+                "Unexpected using '[\\s\\S]' to match any character.",
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '.' to match any character.",
             ],
         },
         {
             code: "/[\\p{ASCII}\\P{ASCII}]/u",
             output: "/[\\s\\S]/u",
             errors: [
-                'Unexpected using "[\\p{ASCII}\\P{ASCII}]" to match any character.',
+                "Unexpected using '[\\p{ASCII}\\P{ASCII}]' to match any character.",
             ],
         },
         {
             code: "/[\\p{Script=Hiragana}\\P{Script=Hiragana}]/u",
             output: "/[\\s\\S]/u",
             errors: [
-                'Unexpected using "[\\p{Script=Hiragana}\\P{Script=Hiragana}]" to match any character.',
+                "Unexpected using '[\\p{Script=Hiragana}\\P{Script=Hiragana}]' to match any character.",
             ],
         },
         {
             code: "/[\\s\\S\\0-\\uFFFF]/",
             output: "/[\\s\\S]/",
             errors: [
-                'Unexpected using "[\\s\\S\\0-\\uFFFF]" to match any character.',
+                "Unexpected using '[\\s\\S\\0-\\uFFFF]' to match any character.",
             ],
         },
         {
             code: "/[\\w\\D]/",
             output: "/[\\s\\S]/",
-            errors: ['Unexpected using "[\\w\\D]" to match any character.'],
+            errors: ["Unexpected using '[\\w\\D]' to match any character."],
         },
         {
             code: "/[\\P{ASCII}\\w\\0-AZ-\\xFF]/u",
             output: "/[\\s\\S]/u",
             errors: [
-                'Unexpected using "[\\P{ASCII}\\w\\0-AZ-\\xFF]" to match any character.',
+                "Unexpected using '[\\P{ASCII}\\w\\0-AZ-\\xFF]' to match any character.",
             ],
         },
     ],

@@ -19,9 +19,9 @@ export default createRule("prefer-question-quantifier", {
         fixable: "code",
         schema: [],
         messages: {
-            unexpected: 'Unexpected quantifier "{{expr}}". Use "?" instead.',
+            unexpected: "Unexpected quantifier '{{expr}}'. Use '?' instead.",
             unexpectedGroup:
-                'Unexpected group "{{expr}}". Use "{{instead}}" instead.',
+                "Unexpected group '{{expr}}'. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },

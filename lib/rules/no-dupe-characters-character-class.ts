@@ -257,10 +257,10 @@ export default createRule("no-dupe-characters-character-class", {
         },
         schema: [],
         messages: {
-            duplicates: 'Unexpected element "{{element}}" duplication.',
-            charIsIncluded: 'The "{{char}}" is included in "{{element}}".',
+            duplicates: "Unexpected element '{{element}}' duplication.",
+            charIsIncluded: "The '{{char}}' is included in '{{element}}'.",
             intersect:
-                'Unexpected intersection of "{{elementA}}" and "{{elementB}}" was found "{{intersection}}".',
+                "Unexpected intersection of '{{elementA}}' and '{{elementB}}' was found '{{intersection}}'.",
         },
     },
     create(context) {

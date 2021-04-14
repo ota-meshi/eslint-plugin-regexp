@@ -15,7 +15,7 @@ export default createRule("no-useless-exactly-quantifier", {
         },
         schema: [],
         messages: {
-            unexpected: 'Unexpected quantifier "{{expr}}".',
+            unexpected: "Unexpected quantifier '{{expr}}'.",
         },
         type: "suggestion", // "problem",
     },

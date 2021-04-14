@@ -89,7 +89,7 @@ export default createRule("prefer-range", {
         ],
         messages: {
             unexpected:
-                'Unexpected multiple adjacent characters. Use "{{range}}" instead.',
+                "Unexpected multiple adjacent characters. Use '{{range}}' instead.",
         },
         type: "suggestion", // "problem",
     },
