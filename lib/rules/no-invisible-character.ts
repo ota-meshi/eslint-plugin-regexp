@@ -20,7 +20,7 @@ export default createRule("no-invisible-character", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected invisible character. Use "{{instead}}" instead.',
+                "Unexpected invisible character. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },

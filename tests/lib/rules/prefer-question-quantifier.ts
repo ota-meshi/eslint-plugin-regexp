@@ -30,7 +30,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             output: "/a?/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,1}". Use "?" instead.',
+                    message: "Unexpected quantifier '{0,1}'. Use '?' instead.",
                     column: 3,
                     endColumn: 8,
                 },
@@ -41,7 +41,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             output: "/a??/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,1}". Use "?" instead.',
+                    message: "Unexpected quantifier '{0,1}'. Use '?' instead.",
                     column: 3,
                     endColumn: 8,
                 },
@@ -52,7 +52,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             output: "/(a)?/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,1}". Use "?" instead.',
+                    message: "Unexpected quantifier '{0,1}'. Use '?' instead.",
                     column: 5,
                     endColumn: 10,
                 },
@@ -63,7 +63,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             output: "/(a)??/",
             errors: [
                 {
-                    message: 'Unexpected quantifier "{0,1}". Use "?" instead.',
+                    message: "Unexpected quantifier '{0,1}'. Use '?' instead.",
                     column: 5,
                     endColumn: 10,
                 },
@@ -75,7 +75,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected group "(?:abc|)". Use "(?:abc)?" instead.',
+                        "Unexpected group '(?:abc|)'. Use '(?:abc)?' instead.",
                     column: 2,
                     endColumn: 10,
                 },
@@ -87,7 +87,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
+                        "Unexpected group '(?:abc|def|)'. Use '(?:abc|def)?' instead.",
                     column: 2,
                     endColumn: 14,
                 },
@@ -97,21 +97,21 @@ tester.run("prefer-question-quantifier", rule as any, {
             code: "/(?:abc||def|)/",
             output: "/(?:abc||def)?/",
             errors: [
-                'Unexpected group "(?:abc||def|)". Use "(?:abc||def)?" instead.',
+                "Unexpected group '(?:abc||def|)'. Use '(?:abc||def)?' instead.",
             ],
         },
         {
             code: "/(?:abc|def||)/",
             output: "/(?:abc|def)?/",
             errors: [
-                'Unexpected group "(?:abc|def||)". Use "(?:abc|def)?" instead.',
+                "Unexpected group '(?:abc|def||)'. Use '(?:abc|def)?' instead.",
             ],
         },
         {
             code: "/(?:abc|def|)?/",
             output: "/(?:abc|def)?/",
             errors: [
-                'Unexpected group "(?:abc|def|)?". Use "(?:abc|def)?" instead.',
+                "Unexpected group '(?:abc|def|)?'. Use '(?:abc|def)?' instead.",
             ],
         },
         {
@@ -123,7 +123,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             const s = "a?"
             new RegExp(s)
             `,
-            errors: ['Unexpected quantifier "{0,1}". Use "?" instead.'],
+            errors: ["Unexpected quantifier '{0,1}'. Use '?' instead."],
         },
         {
             code: `
@@ -131,7 +131,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             new RegExp(s)
             `,
             output: null,
-            errors: ['Unexpected quantifier "{0,1}". Use "?" instead.'],
+            errors: ["Unexpected quantifier '{0,1}'. Use '?' instead."],
         },
         {
             code: `
@@ -143,7 +143,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             new RegExp(s)
             `,
             errors: [
-                'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
+                "Unexpected group '(?:abc|def|)'. Use '(?:abc|def)?' instead.",
             ],
         },
         {
@@ -153,7 +153,7 @@ tester.run("prefer-question-quantifier", rule as any, {
             `,
             output: null,
             errors: [
-                'Unexpected group "(?:abc|def|)". Use "(?:abc|def)?" instead.',
+                "Unexpected group '(?:abc|def|)'. Use '(?:abc|def)?' instead.",
             ],
         },
     ],

@@ -53,7 +53,7 @@ export default createRule("match-any", {
             },
         ],
         messages: {
-            unexpected: 'Unexpected using "{{expr}}" to match any character.',
+            unexpected: "Unexpected using '{{expr}}' to match any character.",
         },
         type: "suggestion", // "problem",
     },

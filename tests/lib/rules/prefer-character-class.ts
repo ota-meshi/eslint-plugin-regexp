@@ -23,7 +23,7 @@ tester.run("prefer-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                        "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -37,7 +37,7 @@ tester.run("prefer-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                        "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -51,7 +51,7 @@ tester.run("prefer-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                        "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -65,7 +65,7 @@ tester.run("prefer-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                        "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -79,7 +79,7 @@ tester.run("prefer-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                        "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -91,21 +91,21 @@ tester.run("prefer-character-class", rule as any, {
             code: String.raw`/a|b|c|\d|[d-f]/`,
             output: String.raw`/[abc\dd-f]/`,
             errors: [
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
             ],
         },
         {
             code: String.raw`/a|-|c|\d|c|[-d-f]/`,
             output: String.raw`/[a\-c\dc\-d-f]/`,
             errors: [
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
             ],
         },
         {
             code: String.raw`/a|[.]|c|\d|c|[-d-f]/`,
             output: String.raw`/[a.c\dc\-d-f]/`,
             errors: [
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
             ],
         },
         {
@@ -114,7 +114,7 @@ tester.run("prefer-character-class", rule as any, {
             output: String.raw`const s = "[ab\\dc]"
             new RegExp(s)`,
             errors: [
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
             ],
         },
         {
@@ -122,7 +122,7 @@ tester.run("prefer-character-class", rule as any, {
             new RegExp(s)`,
             output: null,
             errors: [
-                'Unexpected the disjunction of single element alternatives. Use character class "[...]" instead.',
+                "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
             ],
         },
     ],

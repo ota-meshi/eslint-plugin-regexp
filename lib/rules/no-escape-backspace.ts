@@ -15,7 +15,7 @@ export default createRule("no-escape-backspace", {
         },
         schema: [],
         messages: {
-            unexpected: 'Unexpected "[\\b]". Use "\\u0008" instead.',
+            unexpected: "Unexpected '[\\b]'. Use '\\u0008' instead.",
         },
         type: "suggestion", // "problem",
     },

@@ -50,7 +50,7 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-c" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-c' instead.",
                     line: 1,
                     column: 3,
                     endLine: 1,
@@ -62,8 +62,8 @@ tester.run("prefer-range", rule as any, {
             code: `/[ABC abc]/`,
             output: `/[A-C a-c]/`,
             errors: [
-                'Unexpected multiple adjacent characters. Use "A-C" instead.',
-                'Unexpected multiple adjacent characters. Use "a-c" instead.',
+                "Unexpected multiple adjacent characters. Use 'A-C' instead.",
+                "Unexpected multiple adjacent characters. Use 'a-c' instead.",
             ],
         },
         {
@@ -72,7 +72,7 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 3,
                     endLine: 1,
@@ -86,7 +86,7 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 3,
                     endLine: 1,
@@ -100,14 +100,14 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 3,
                     endColumn: 6,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 7,
                     endColumn: 10,
@@ -120,25 +120,25 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 3,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 7,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "h-m" instead.',
+                        "Unexpected multiple adjacent characters. Use 'h-m' instead.",
                     line: 1,
                     column: 11,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "h-m" instead.',
+                        "Unexpected multiple adjacent characters. Use 'h-m' instead.",
                     line: 1,
                     column: 15,
                 },
@@ -150,25 +150,25 @@ tester.run("prefer-range", rule as any, {
             errors: [
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 3,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "a-f" instead.',
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
                     line: 1,
                     column: 7,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "h-m" instead.',
+                        "Unexpected multiple adjacent characters. Use 'h-m' instead.",
                     line: 1,
                     column: 11,
                 },
                 {
                     message:
-                        'Unexpected multiple adjacent characters. Use "h-m" instead.',
+                        "Unexpected multiple adjacent characters. Use 'h-m' instead.",
                     line: 1,
                     column: 15,
                 },
@@ -178,15 +178,15 @@ tester.run("prefer-range", rule as any, {
             code: String.raw`/[0-2\d3-4]/`,
             output: String.raw`/[0-4\d]/`,
             errors: [
-                'Unexpected multiple adjacent characters. Use "0-4" instead.',
-                'Unexpected multiple adjacent characters. Use "0-4" instead.',
+                "Unexpected multiple adjacent characters. Use '0-4' instead.",
+                "Unexpected multiple adjacent characters. Use '0-4' instead.",
             ],
         },
         {
             code: `/[3-4560-2]/`,
             output: `/[0-6]/`,
             errors: [
-                'Unexpected multiple adjacent characters. Use "0-6" instead.',
+                "Unexpected multiple adjacent characters. Use '0-6' instead.",
             ],
         },
         {
@@ -195,7 +195,7 @@ tester.run("prefer-range", rule as any, {
             output: String.raw`const s = "[0-4\\d]"
             new RegExp(s)`,
             errors: [
-                'Unexpected multiple adjacent characters. Use "0-4" instead.',
+                "Unexpected multiple adjacent characters. Use '0-4' instead.",
             ],
         },
         {
@@ -203,7 +203,7 @@ tester.run("prefer-range", rule as any, {
             new RegExp(s)`,
             output: null,
             errors: [
-                'Unexpected multiple adjacent characters. Use "0-4" instead.',
+                "Unexpected multiple adjacent characters. Use '0-4' instead.",
             ],
         },
         {
@@ -211,7 +211,7 @@ tester.run("prefer-range", rule as any, {
             output: `/[ -$]/`,
             options: [{ target: "all" }],
             errors: [
-                'Unexpected multiple adjacent characters. Use " -$" instead.',
+                "Unexpected multiple adjacent characters. Use ' -$' instead.",
             ],
         },
         {
@@ -219,9 +219,9 @@ tester.run("prefer-range", rule as any, {
             output: `/[a-d ①-⑨10⑪-⑳]/`,
             options: [{ target: ["alphanumeric", "①-⑳"] }],
             errors: [
-                'Unexpected multiple adjacent characters. Use "a-d" instead.',
-                'Unexpected multiple adjacent characters. Use "①-⑨" instead.',
-                'Unexpected multiple adjacent characters. Use "⑪-⑳" instead.',
+                "Unexpected multiple adjacent characters. Use 'a-d' instead.",
+                "Unexpected multiple adjacent characters. Use '①-⑨' instead.",
+                "Unexpected multiple adjacent characters. Use '⑪-⑳' instead.",
             ],
         },
         {
@@ -229,8 +229,8 @@ tester.run("prefer-range", rule as any, {
             output: `/[😀-😄 😆-😊]/u`,
             options: [{ target: ["alphanumeric", "😀-😏"] }],
             errors: [
-                'Unexpected multiple adjacent characters. Use "😀-😄" instead.',
-                'Unexpected multiple adjacent characters. Use "😆-😊" instead.',
+                "Unexpected multiple adjacent characters. Use '😀-😄' instead.",
+                "Unexpected multiple adjacent characters. Use '😆-😊' instead.",
             ],
         },
     ],

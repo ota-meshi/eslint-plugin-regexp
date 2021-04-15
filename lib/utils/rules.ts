@@ -1,16 +1,20 @@
 import type { RuleModule } from "../types"
+import confusingQuantifier from "../rules/confusing-quantifier"
 import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
 import negation from "../rules/negation"
 import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
 import noDupeDisjunctions from "../rules/no-dupe-disjunctions"
+import noEmptyAlternative from "../rules/no-empty-alternative"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noInvisibleCharacter from "../rules/no-invisible-character"
+import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
 import noOctal from "../rules/no-octal"
+import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
@@ -21,6 +25,7 @@ import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
+import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
 import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
@@ -37,18 +42,22 @@ import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-esc
 import preferW from "../rules/prefer-w"
 
 export const rules = [
+    confusingQuantifier,
     letterCase,
     matchAny,
     negation,
     noAssertionCapturingGroup,
     noDupeCharactersCharacterClass,
     noDupeDisjunctions,
+    noEmptyAlternative,
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
     noInvisibleCharacter,
+    noLazyEnds,
     noLegacyFeatures,
     noOctal,
+    noTriviallyNestedAssertion,
     noUnusedCapturingGroup,
     noUselessBackreference,
     noUselessCharacterClass,
@@ -59,6 +68,7 @@ export const rules = [
     noUselessNonGreedy,
     noUselessRange,
     noUselessTwoNumsQuantifier,
+    optimalLookaroundQuantifier,
     orderInCharacterClass,
     preferCharacterClass,
     preferD,

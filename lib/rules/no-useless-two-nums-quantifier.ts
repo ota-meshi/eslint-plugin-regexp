@@ -5,6 +5,7 @@ import {
     defineRegexpVisitor,
     getRegexpLocation,
     getQuantifierOffsets,
+    fixReplaceQuant,
 } from "../utils"
 
 export default createRule("no-useless-two-nums-quantifier", {
@@ -13,9 +14,10 @@ export default createRule("no-useless-two-nums-quantifier", {
             description: "disallow unnecessary `{n,m}` quantifier",
             recommended: true,
         },
+        fixable: "code",
         schema: [],
         messages: {
-            unexpected: 'Unexpected quantifier "{{expr}}".',
+            unexpected: "Unexpected quantifier '{{expr}}'.",
         },
         type: "suggestion", // "problem",
     },
@@ -47,6 +49,12 @@ export default createRule("no-useless-two-nums-quantifier", {
                             data: {
                                 expr: text,
                             },
+                            fix: fixReplaceQuant(
+                                sourceCode,
+                                node,
+                                qNode,
+                                `{${qNode.min}}`,
+                            ),
                         })
                     }
                 },

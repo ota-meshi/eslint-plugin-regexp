@@ -74,7 +74,7 @@ export default createRule("prefer-w", {
         schema: [],
         messages: {
             unexpected:
-                'Unexpected {{type}} "{{expr}}". Use "{{instead}}" instead.',
+                "Unexpected {{type}} '{{expr}}'. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },

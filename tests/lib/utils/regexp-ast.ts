@@ -1,19 +1,3 @@
-/*
-eslint-disable
-    eslint-comments/disable-enable-pair,
-    regexp/no-dupe-characters-character-class,
-    regexp/prefer-question-quantifier,
-    regexp/prefer-star-quantifier,
-    regexp/prefer-character-class,
-    regexp/prefer-range,
-    regexp/order-in-character-class,
-    regexp/no-useless-character-class,
-    regexp/no-useless-non-capturing-group,
-    regexp/no-useless-range,
-    regexp/prefer-quantifier,
-    regexp/letter-case,
-    regexp/no-dupe-disjunctions,
---------------------------------------------- ignore */
 import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
 import { isCoveredNode, isEqualNodes } from "../../../lib/utils/regexp-ast"

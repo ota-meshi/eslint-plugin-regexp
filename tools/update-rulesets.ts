@@ -1,9 +1,7 @@
 import path from "path"
 import fs from "fs"
-import os from "os"
 // import eslint from "eslint"
 import { rules } from "./lib/load-rules"
-const isWin = os.platform().startsWith("win")
 
 const coreRules = [
     // Possible Errors
@@ -19,7 +17,7 @@ const coreRules = [
     // "require-unicode-regexp", // modern
 ]
 
-let content = `
+const content = `
 import eslint from "eslint"
 
 export = {
@@ -47,13 +45,6 @@ export = {
 `
 
 const filePath = path.resolve(__dirname, "../lib/configs/recommended.ts")
-
-if (isWin) {
-    content = content
-        .replace(/\r?\n/gu, "\n")
-        .replace(/\r/gu, "\n")
-        .replace(/\n/gu, "\r\n")
-}
 
 // Update file.
 fs.writeFileSync(filePath, content)
