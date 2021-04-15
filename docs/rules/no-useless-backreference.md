@@ -11,15 +11,34 @@ since: "v0.1.0"
 
 ## :book: Rule Details
 
-TODO: This isn't true anymore.
+Backreferences that will always be replaced with the empty string serve no function and can be removed.
 
-This rule is a copy of the ESLint core [no-useless-backreference] rule.  
-The [no-useless-backreference] rule was added in ESLint 7.x, but this plugin supports ESLint 6.x.
-Copied to this plugin to allow the same [no-useless-backreference] rules to be used in ESLint 6.x.
+This rule is a based on the ESLint core [no-useless-backreference] rule. It reports all the ESLint core rule reports and some more.
+
+<eslint-code-block>
+
+```js
+/* eslint regexp/no-unused-capturing-group: "error" */
+
+/* ✓ GOOD */
+var foo = /(a)b\1/;
+var foo = /(a?)b\1/;
+var foo = /(\b|a)+b\1/;
+var foo = /(a)?(?:a|\1)/;
+
+/* ✗ BAD */
+var foo = /\1(a)/;
+var foo = /(a\1)/;
+var foo = /(a)|\1/;
+var foo = /(?:(a)|\1)+/;
+var foo = /(\b)a\1/;
+```
+
+</eslint-code-block>
 
 ## :wrench: Options
 
-See [no-useless-backreference] document.
+Nothing.
 
 ## :books: Further reading
 
