@@ -20,7 +20,7 @@ This rule is a based on the ESLint core [no-useless-backreference] rule. It repo
 <eslint-code-block>
 
 ```js
-/* eslint regexp/no-unused-capturing-group: "error" */
+/* eslint regexp/no-useless-backreference: "error" */
 
 /* ✓ GOOD */
 var foo = /(a)b\1/;
