@@ -16,6 +16,7 @@ tester.run("prefer-range", rule as any, {
         `/[a-b]/`,
         `/[0-9]/`,
         `/[A-Z]/`,
+        `/[a-zA-ZZ-a]/`,
         `/[ !"#$]/`,
         {
             code: `/[ !"#$]/`,
