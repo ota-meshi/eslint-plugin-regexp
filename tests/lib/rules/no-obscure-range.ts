@@ -10,9 +10,40 @@ const tester = new RuleTester({
 
 tester.run("no-obscure-range", rule as any, {
     valid: [
-        "/[\\d\\0-\\x1f\\cA-\\cZ\\2-\\5\\012-\\123\\x10-\\uffff a-z а-я А-Я]/",
+        "/[\\d\\0-\\x1f\\cA-\\cZ\\2-\\5\\012-\\123\\x10-\\uffff a-z a-f]/",
+        {
+            code: "/[а-я А-Я]/",
+            options: [{ allowed: ["alphanumeric", "а-я", "А-Я"] }],
+        },
+        {
+            code: "/[а-я А-Я]/",
+            settings: {
+                "regexp/allowed-character-ranges": [
+                    "alphanumeric",
+                    "а-я",
+                    "А-Я",
+                ],
+            },
+        },
     ],
     invalid: [
+        {
+            // rule options override settings
+            code: "/[а-я А-Я]/",
+            options: [{ allowed: "alphanumeric" }],
+            errors: [
+                "Unexpected obscure character range. The characters of 'а-я' (U+0430 - U+044f) are not obvious.",
+                "Unexpected obscure character range. The characters of 'А-Я' (U+0410 - U+042f) are not obvious.",
+            ],
+            settings: {
+                "regexp/allowed-character-ranges": [
+                    "alphanumeric",
+                    "а-я",
+                    "А-Я",
+                ],
+            },
+        },
+
         {
             code: "/[\\1-\\x13]/",
             errors: [

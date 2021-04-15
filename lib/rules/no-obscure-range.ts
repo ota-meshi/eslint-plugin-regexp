@@ -1,12 +1,11 @@
 import type { Expression } from "estree"
+import {
+    getAllowedCharRanges,
+    inRange,
+    getAllowedCharValueSchema,
+} from "../utils/char-ranges"
 import type { RegExpVisitor } from "regexpp/visitor"
 import {
-    CP_CAPITAL_A,
-    CP_CAPITAL_Z,
-    CP_DIGIT_NINE,
-    CP_DIGIT_ZERO,
-    CP_SMALL_A,
-    CP_SMALL_Z,
     createRule,
     defineRegexpVisitor,
     getRegexpLocation,
@@ -14,30 +13,6 @@ import {
     isHexadecimalEscape,
     isOctalEscape,
 } from "../utils"
-
-const allowedRanges: readonly { min: number; max: number }[] = [
-    // digits 0-9
-    { min: CP_DIGIT_ZERO, max: CP_DIGIT_NINE },
-    // Latin A-Z
-    { min: CP_CAPITAL_A, max: CP_CAPITAL_Z },
-    // Latin a-z
-    { min: CP_SMALL_A, max: CP_SMALL_Z },
-    // Cyrillic
-    { min: "А".charCodeAt(0), max: "Я".charCodeAt(0) },
-    { min: "а".charCodeAt(0), max: "я".charCodeAt(0) },
-]
-
-/**
- * Returns whether the given range is an allowed one.
- */
-function isAllowedRange(min: number, max: number): boolean {
-    for (const range of allowedRanges) {
-        if (range.min <= min && max <= range.max) {
-            return true
-        }
-    }
-    return false
-}
 
 export default createRule("no-obscure-range", {
     meta: {
@@ -47,7 +22,15 @@ export default createRule("no-obscure-range", {
             // recommended: true,
             recommended: false,
         },
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    allowed: getAllowedCharValueSchema(),
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             unexpected:
                 "Unexpected obscure character range. The characters of '{{range}}' ({{unicode}}) are not obvious.",
@@ -55,6 +38,10 @@ export default createRule("no-obscure-range", {
         type: "suggestion", // "problem",
     },
     create(context) {
+        const allowedRanges = getAllowedCharRanges(
+            context.options[0]?.allowed,
+            context,
+        )
         const sourceCode = context.getSourceCode()
 
         /**
@@ -87,7 +74,7 @@ export default createRule("no-obscure-range", {
                         return
                     }
 
-                    if (isAllowedRange(min.value, max.value)) {
+                    if (inRange(allowedRanges, min.value, max.value)) {
                         return
                     }
 
