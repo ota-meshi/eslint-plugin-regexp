@@ -119,16 +119,16 @@ This rule reports ???.
 \`\`\`json
 {
   "regexp/${ruleId}": ["error", {
-
+   
   }]
 }
 \`\`\`
 
--
+- 
 
 ## :books: Further reading
 
--
+- 
 
 `,
     )
