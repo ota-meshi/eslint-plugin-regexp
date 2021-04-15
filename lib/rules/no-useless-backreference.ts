@@ -83,7 +83,7 @@ export default createRule("no-useless-backreference", {
         docs: {
             description:
                 "disallow useless backreferences in regular expressions",
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {

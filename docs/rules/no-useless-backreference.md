@@ -9,6 +9,8 @@ since: "v0.1.0"
 
 > disallow useless backreferences in regular expressions
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 Backreferences that will always be replaced with the empty string serve no function and can be removed.
