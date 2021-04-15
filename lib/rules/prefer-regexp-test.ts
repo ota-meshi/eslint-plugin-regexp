@@ -43,6 +43,7 @@ export default createRule("prefer-regexp-test", {
                     }
                     const arg = node.arguments[0]
                     const evaluated = getStaticValue(arg, context.getScope())
+                    let argIsRegExp = true
                     if (evaluated && evaluated.value instanceof RegExp) {
                         if (evaluated.value.flags.includes("g")) {
                             return
@@ -50,8 +51,8 @@ export default createRule("prefer-regexp-test", {
                     } else if (!typeTracer.isRegExp(arg)) {
                         // Not RegExp
                         // String.prototype.match function allows non-RegExp arguments
-                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match#a_non-regexp_object_as_the_parameter
-                        return
+                        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match#a_non-regexp_object_as_the_parameter
+                        argIsRegExp = false
                     }
 
                     const memberExpr = node.callee
@@ -60,6 +61,13 @@ export default createRule("prefer-regexp-test", {
                         messageId: "disallow",
                         data: { target: "String#match" },
                         fix(fixer) {
+                            if (!argIsRegExp) {
+                                // If the argument is not RegExp, it will not be autofix.
+                                // Must use `new RegExp()` before fixing it.
+                                // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match#a_non-regexp_object_as_the_parameter
+                                // When the regexp parameter is a string or a number, it is implicitly converted to a RegExp by using new RegExp(regexp).
+                                return null
+                            }
                             if (
                                 node.arguments.length !== 1 ||
                                 hasSideEffect(memberExpr, sourceCode) ||
