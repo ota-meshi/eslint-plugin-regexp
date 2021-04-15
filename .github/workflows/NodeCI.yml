@@ -46,7 +46,7 @@ jobs:
               run: |+
                   npm i -D eslint@6 mocha@7 @typescript-eslint/parser@3
                   npx rimraf node_modules
-                  npm ci
+                  npm install
             - name: Test
               run: npm test
     test-and-coverage:
