@@ -85,5 +85,45 @@ tester.run("no-useless-range", rule as any, {
                 "Unexpected unnecessary range of characters by using a hyphen.",
             ],
         },
+        {
+            code: `
+            /[,--b]/;
+            /[\\c-d]/;
+            /[\\x6-7]/;
+            /[\\u002-3]/;
+            `,
+            output: `
+            /[,\\-b]/;
+            /[\\c-d]/;
+            /[\\x6-7]/;
+            /[\\u002-3]/;
+            `,
+            errors: [
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+            ],
+        },
+        {
+            code: `
+            /[,-\\-b]/;
+            /[c-d]/;
+            /[x6-7]/;
+            /[u002-3]/;
+            `,
+            output: `
+            /[,\\-b]/;
+            /[cd]/;
+            /[x67]/;
+            /[u0023]/;
+            `,
+            errors: [
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+            ],
+        },
     ],
 })
