@@ -88,17 +88,26 @@ tester.run("no-useless-range", rule as any, {
         {
             code: `
             /[,--b]/;
+            /[a-a-z]/;
+            /[a-a--z]/;
             /[\\c-d]/;
             /[\\x6-7]/;
             /[\\u002-3]/;
+            /[A-\\u004-5]/;
             `,
             output: `
             /[,\\-b]/;
+            /[a\\-z]/;
+            /[a\\--z]/;
             /[\\c-d]/;
             /[\\x6-7]/;
             /[\\u002-3]/;
+            /[A-\\u004-5]/;
             `,
             errors: [
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",
@@ -110,15 +119,21 @@ tester.run("no-useless-range", rule as any, {
             /[,-\\-b]/;
             /[c-d]/;
             /[x6-7]/;
+            /[\\x 6-7]/;
             /[u002-3]/;
+            /[\\u 002-3]/;
             `,
             output: `
             /[,\\-b]/;
             /[cd]/;
             /[x67]/;
+            /[\\x 67]/;
             /[u0023]/;
+            /[\\u 0023]/;
             `,
             errors: [
+                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",
                 "Unexpected unnecessary range of characters by using a hyphen.",

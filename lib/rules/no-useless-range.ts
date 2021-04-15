@@ -1,7 +1,6 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import {
-    CP_BACK_SLASH,
     createRule,
     defineRegexpVisitor,
     fixReplaceNode,
@@ -46,56 +45,40 @@ export default createRule("no-useless-range", {
                         messageId: "unexpected",
                         fix: fixReplaceNode(sourceCode, node, ccrNode, () => {
                             const parent = ccrNode.parent
-                            const index = parent.elements.indexOf(ccrNode)
+                            const rawBefore = parent.raw.slice(
+                                0,
+                                ccrNode.start - parent.start,
+                            )
+                            const rawAfter = parent.raw.slice(
+                                ccrNode.end - parent.start,
+                            )
 
                             if (
-                                [
-                                    ...parent.elements.slice(0, index),
-                                    ccrNode.min,
-                                ].some((e) => {
-                                    if (e.type !== "Character") {
-                                        return false
-                                    }
-                                    if (
-                                        e.value === CP_BACK_SLASH &&
-                                        e.raw === "\\"
-                                    ) {
-                                        // If there is a backslash without escaping,
-                                        // it will not autofix as it can break regexp.
-                                        return true
-                                    }
-
-                                    // If there are unnecessary escapes,
-                                    // it will not autofix as it can break regexp.
-                                    return (
-                                        e.raw === "\\x" ||
-                                        e.raw === "\\u" ||
-                                        e.raw === "\\c"
-                                    )
-                                })
+                                /\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})?$/.test(
+                                    rawBefore,
+                                )
                             ) {
-                                // It will not autofix
+                                // It will not autofix because it is preceded
+                                // by an incomplete escape sequence
                                 return null
                             }
 
-                            let text: string
+                            let text = ccrNode.min.raw
                             if (ccrNode.min.value < ccrNode.max.value) {
-                                text = `${ccrNode.min.raw}${ccrNode.max.raw}`
-
                                 if (ccrNode.max.raw === "-") {
-                                    // /[,--b]/ -> /[,\-b]/
-                                    text = `${ccrNode.min.raw}\\-`
+                                    // This "-" might be interpreted as a range
+                                    // operator now, so we have to escape it
+                                    // e.g. /[,--b]/ -> /[,\-b]/
+                                    text += `\\-`
+                                } else {
+                                    text += `${ccrNode.max.raw}`
                                 }
-                            } else {
-                                text = ccrNode.min.raw
                             }
 
-                            const next = parent.elements[index + 1]
-                            if (
-                                next &&
-                                next.type === "Character" &&
-                                next.raw === "-"
-                            ) {
+                            if (rawAfter.startsWith("-")) {
+                                // the next "-" might be interpreted as a range
+                                // operator now, so we have to escape it
+                                // e.g. /[a-a-z]/ -> /[a\-z]/
                                 text += "\\"
                             }
                             return text
