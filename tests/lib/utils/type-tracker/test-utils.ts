@@ -41,7 +41,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                             | ES.Comment
                             | null = sourceCode.getTokenBefore(node, {
                             includeComments: true,
-                        }) as AST.Token | ES.Comment | null
+                        })
                         if (
                             token &&
                             isCommentToken(token) &&

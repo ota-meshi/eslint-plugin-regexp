@@ -1,19 +1,11 @@
 import path from "path"
 import fs from "fs"
-import os from "os"
 import renderRulesTableContent from "./render-rules"
-const isWin = os.platform().startsWith("win")
 
-let insertText = `\n${renderRulesTableContent(
+const insertText = `\n${renderRulesTableContent(
     (name) =>
         `https://ota-meshi.github.io/eslint-plugin-regexp/rules/${name}.html`,
 )}\n`
-if (isWin) {
-    insertText = insertText
-        .replace(/\r?\n/gu, "\n")
-        .replace(/\r/gu, "\n")
-        .replace(/\n/gu, "\r\n")
-}
 
 const readmeFilePath = path.resolve(__dirname, "../README.md")
 const newReadme = fs
