@@ -213,10 +213,7 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
     }
 
     public write() {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires -- tools
-        const isWin = require("os").platform().startsWith("win")
-
-        this.content = this.content.replace(/\r?\n/gu, isWin ? "\r\n" : "\n")
+        this.content = this.content.replace(/\r?\n/gu, "\n")
 
         fs.writeFileSync(this.filePath, this.content)
     }
