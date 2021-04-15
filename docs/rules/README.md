@@ -26,7 +26,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression |  |
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
-| [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :star::wrench: |
+| [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |

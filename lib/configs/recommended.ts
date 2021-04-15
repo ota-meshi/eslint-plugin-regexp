@@ -23,7 +23,6 @@ export = {
         "regexp/no-escape-backspace": "error",
         "regexp/no-invisible-character": "error",
         "regexp/no-octal": "error",
-        "regexp/no-trivially-nested-assertion": "error",
         "regexp/no-useless-exactly-quantifier": "error",
         "regexp/no-useless-two-nums-quantifier": "error",
         "regexp/prefer-d": "error",

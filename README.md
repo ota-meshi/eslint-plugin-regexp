@@ -98,7 +98,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-lazy-ends](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-lazy-ends.html) | disallow lazy quantifiers at the end of an expression |  |
 | [regexp/no-legacy-features](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-legacy-features.html) | disallow legacy RegExp features |  |
 | [regexp/no-octal](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-octal.html) | disallow octal escape sequence | :star: |
-| [regexp/no-trivially-nested-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-assertion.html) | disallow trivially nested assertions | :star::wrench: |
+| [regexp/no-trivially-nested-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-assertion.html) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-unused-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-unused-capturing-group.html) | disallow unused capturing group |  |
 | [regexp/no-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-backreference.html) | disallow useless backreferences in regular expressions |  |
 | [regexp/no-useless-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-character-class.html) | disallow character class with one character | :wrench: |
