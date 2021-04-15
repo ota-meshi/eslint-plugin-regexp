@@ -22,7 +22,6 @@ export = {
         "regexp/no-empty-lookarounds-assertion": "error",
         "regexp/no-escape-backspace": "error",
         "regexp/no-invisible-character": "error",
-        "regexp/no-obscure-range": "error",
         "regexp/no-octal": "error",
         "regexp/no-useless-exactly-quantifier": "error",
         "regexp/no-useless-two-nums-quantifier": "error",
