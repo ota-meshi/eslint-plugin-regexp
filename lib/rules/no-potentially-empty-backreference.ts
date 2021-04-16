@@ -19,7 +19,7 @@ export default createRule("no-potentially-empty-backreference", {
         schema: [],
         messages: {
             potentiallyEmptyBackreference:
-                "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
+                "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
         },
         type: "problem",
     },

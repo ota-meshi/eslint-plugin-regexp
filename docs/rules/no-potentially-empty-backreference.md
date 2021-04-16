@@ -12,13 +12,9 @@ description: "disallow backreferences that reference a group that might not be m
 
 ## :book: Rule Details
 
-If the referenced group of a backreference is not matched because some other
-path leads to the backreference, the backreference will be replaced with the
-empty string. The same will happen if the captured text of the referenced group
-was reset before reaching the backreference.
+If the referenced group of a backreference is not matched because some other path leads to the backreference, the backreference will trivially accept (e.g. `/(?:(a)|b)\1/`). The same will happen if the captured text of the referenced group was reset before reaching the backreference.
 
-This will handle backreferences which will always be replaced with the empty
-string for the above reason. Use [regexp/no-useless-backreference] for that.
+This will not handle backreferences that always trivially accept. Use [regexp/no-useless-backreference] for that.
 
 <eslint-code-block>
 
