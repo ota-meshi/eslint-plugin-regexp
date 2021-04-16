@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/no-potentially-empty-backreference"
+import rule from "../../../lib/rules/no-potentially-useless-backreference"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("no-potentially-empty-backreference", rule as any, {
+tester.run("no-potentially-useless-backreference", rule as any, {
     valid: [
         String.raw`/()\1/`,
         String.raw`/(a*)(?:a|\1)/`,
@@ -21,25 +21,21 @@ tester.run("no-potentially-empty-backreference", rule as any, {
     invalid: [
         {
             code: String.raw`
-            /* ✓ GOOD */
             var foo = /(a+)b\1/;
-            var foo = /(a+)b|\1/;  // this will be done by regexp/no-useless-backreference
 
-
-            /* ✗ BAD */
             var foo = /(a)?b\1/;
             var foo = /((a)|c)+b\2/;`,
             errors: [
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
-                    line: 8,
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
+                    line: 4,
                     column: 29,
                 },
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
-                    line: 9,
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
+                    line: 5,
                     column: 33,
                 },
             ],
@@ -49,7 +45,7 @@ tester.run("no-potentially-empty-backreference", rule as any, {
             errors: [
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
                     line: 1,
                     column: 6,
                 },
@@ -60,7 +56,7 @@ tester.run("no-potentially-empty-backreference", rule as any, {
             errors: [
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
                     line: 1,
                     column: 6,
                 },
@@ -71,7 +67,7 @@ tester.run("no-potentially-empty-backreference", rule as any, {
             errors: [
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
                     line: 1,
                     column: 11,
                 },
@@ -82,7 +78,7 @@ tester.run("no-potentially-empty-backreference", rule as any, {
             errors: [
                 {
                     message:
-                        "Some path leading to the backreference do not go through the referenced capturing group without resetting its text.",
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
                     line: 1,
                     column: 12,
                 },

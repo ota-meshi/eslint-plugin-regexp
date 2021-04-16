@@ -6,7 +6,7 @@ import {
     isStrictBackreference,
 } from "regexp-ast-analysis"
 
-export default createRule("no-potentially-empty-backreference", {
+export default createRule("no-potentially-useless-backreference", {
     meta: {
         docs: {
             description:
@@ -18,7 +18,7 @@ export default createRule("no-potentially-empty-backreference", {
         },
         schema: [],
         messages: {
-            potentiallyEmptyBackreference:
+            potentiallyUselessBackreference:
                 "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
         },
         type: "problem",
@@ -46,7 +46,7 @@ export default createRule("no-potentially-empty-backreference", {
                                 node,
                                 backreference,
                             ),
-                            messageId: "potentiallyEmptyBackreference",
+                            messageId: "potentiallyUselessBackreference",
                         })
                     }
                 },

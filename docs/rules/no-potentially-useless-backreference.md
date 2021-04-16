@@ -1,10 +1,10 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/no-potentially-empty-backreference"
+title: "regexp/no-potentially-useless-backreference"
 description: "disallow backreferences that reference a group that might not be matched"
 ---
-# regexp/no-potentially-empty-backreference
+# regexp/no-potentially-useless-backreference
 
 > disallow backreferences that reference a group that might not be matched
 
@@ -19,7 +19,7 @@ This will not handle backreferences that always trivially accept. Use [regexp/no
 <eslint-code-block>
 
 ```js
-/* eslint regexp/no-potentially-empty-backreference: "error" */
+/* eslint regexp/no-potentially-useless-backreference: "error" */
 
 /* ✓ GOOD */
 var foo = /(a+)b\1/;
@@ -27,6 +27,7 @@ var foo = /(a+)b|\1/;  // this will be done by regexp/no-useless-backreference
 
 
 /* ✗ BAD */
+var foo = /(?:(a)|b)\1/;
 var foo = /(a)?b\1/;
 var foo = /((a)|c)+b\2/;
 ```
@@ -53,5 +54,5 @@ This rule is compatible with [clean-regex/no-potentially-empty-backreference] ru
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-potentially-empty-backreference.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-potentially-empty-backreference.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-potentially-useless-backreference.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-potentially-useless-backreference.ts)
