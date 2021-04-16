@@ -13,6 +13,10 @@ tester.run("no-useless-flag", rule as any, {
         // i
         `/foo/i`,
         `/BAR/i`,
+        `/\\w\\W/iu`,
+        `/\\p{Lu}/i`,
+        `/\u212A/iu`,
+        `/\\b/iu`,
         String.raw`/\x41/i`,
         `/[a-zA-Z]/i`, // in that case you should use the i flag instead of removing it
 
@@ -29,7 +33,7 @@ tester.run("no-useless-flag", rule as any, {
         let c = 0
         for (const regex = /foo/g; c<=5; c++) {
             console.log(c, regex.test(''));
-        } 
+        }
         `,
         `
         const regex = /foo/g;
@@ -81,12 +85,6 @@ tester.run("no-useless-flag", rule as any, {
         } while (foo)
         `,
         `
-        let c = 0
-        for (const regex = /foo/g; c<=5; c++) {
-            console.log(c, regex.test(''));
-        }
-        `,
-        `
         const regex = /foo/g;
         unknown.search(regex)
         'str'.search(regex)
@@ -114,8 +112,18 @@ tester.run("no-useless-flag", rule as any, {
     invalid: [
         // i
         {
-            code: String.raw`/\w/i`,
-            output: String.raw`/\w/`,
+            code: String.raw`/\w \W \s \S \d \D . \b/i`,
+            output: String.raw`/\w \W \s \S \d \D . \b/`,
+            errors: [
+                {
+                    message:
+                        "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+                },
+            ],
+        },
+        {
+            code: `/\u212A/i`,
+            output: `/\u212A/`,
             errors: [
                 {
                     message:
@@ -181,25 +189,25 @@ tester.run("no-useless-flag", rule as any, {
             while ((array = regex1.exec(str)) !== null) {
               //
             }
-            
+
             const regex2 = /foo/g;
             regex2.test(string);
             regex2.test(string);
-            
+
             str.replace(/foo/g, 'bar');
             str.replaceAll(/foo/g, 'bar');
-            
+
             /* ✗ BAD */
             /foo/g.test(string);
             const regex3 = /foo/g;
             regex3.test(string); // You have used it only once.
-            
+
             /foo/g.exec(string);
             const regex4 = /foo/g;
             regex4.exec(string); // You have used it only once.
-            
+
             new RegExp('foo', 'g').test(string);
-            
+
             str.search(/foo/g);
             `,
             output: null,
@@ -347,7 +355,7 @@ tester.run("no-useless-flag", rule as any, {
             const a = /foo/g;
             const b = a;
             const regex = b;
-             
+
             regex.test(bar);
 
             'str'.split(b)
