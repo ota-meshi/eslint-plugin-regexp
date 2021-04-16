@@ -38,7 +38,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
-| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
+| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
 | [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |

@@ -9,14 +9,24 @@ const tester = new RuleTester({
 })
 
 tester.run("no-useless-non-greedy", rule as any, {
-    valid: [`/a*?/`, `/a+?/`, `/a{4,}?/`, `/a{2,4}?/`, `/a{2,2}/`, `/a{3}/`],
+    valid: [
+        `/a*?/`,
+        `/a+?/`,
+        `/a{4,}?/`,
+        `/a{2,4}?/`,
+        `/a{2,2}/`,
+        `/a{3}/`,
+        `/a+?b*/`,
+        `/[\\s\\S]+?bar/`,
+        `/a??a?/`,
+    ],
     invalid: [
         {
             code: `/a{1}?/`,
             output: `/a{1}/`,
             errors: [
                 {
-                    message: "Unexpected quantifier non-greedy.",
+                    messageId: "constant",
                     line: 1,
                     column: 6,
                     endLine: 1,
@@ -29,7 +39,7 @@ tester.run("no-useless-non-greedy", rule as any, {
             output: `/a{4}/`,
             errors: [
                 {
-                    message: "Unexpected quantifier non-greedy.",
+                    messageId: "constant",
                     line: 1,
                     column: 6,
                     endLine: 1,
@@ -40,20 +50,31 @@ tester.run("no-useless-non-greedy", rule as any, {
         {
             code: `/a{2,2}?/`,
             output: `/a{2,2}/`,
-            errors: ["Unexpected quantifier non-greedy."],
+            errors: [{ messageId: "constant" }],
         },
         {
             code: String.raw`const s = "\\d{1}?"
             new RegExp(s)`,
             output: String.raw`const s = "\\d{1}"
             new RegExp(s)`,
-            errors: ["Unexpected quantifier non-greedy."],
+            errors: [{ messageId: "constant" }],
         },
         {
             code: String.raw`const s = "\\d"+"{1}?"
             new RegExp(s)`,
             output: null,
-            errors: ["Unexpected quantifier non-greedy."],
+            errors: [{ messageId: "constant" }],
+        },
+
+        {
+            code: `/a+?b+/`,
+            output: `/a+b+/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
+            code: `/(?:a|cd)+?(?:b+|zzz)/`,
+            output: `/(?:a|cd)+(?:b+|zzz)/`,
+            errors: [{ messageId: "possessive" }],
         },
     ],
 })
