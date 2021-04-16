@@ -35,8 +35,20 @@ fs.writeFileSync(
         )
         .replace(/<!--DOCS_IGNORE_START-->[\s\S]*?<!--DOCS_IGNORE_END-->/gu, "")
         .replace(
-            /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp/gu,
-            "(.",
+            /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp(.*?)([^/]*\.html)?\)/gu,
+            (_ptn, c1: string, c2: string) => {
+                let result = `(.${c1}`
+                if (c2) {
+                    result +=
+                        c2 === "index.html"
+                            ? "README.md"
+                            : c2.replace(/\.html$/, ".md")
+                } else {
+                    result += "README.md"
+                }
+                result += ")"
+                return result
+            },
         )
         .replace(/\n{3,}/gu, "\n\n"),
 )

@@ -20,7 +20,7 @@ This ESLint plugin provides linting rules relate to better ways to help you avoi
 - Enforces a consistent style of regular expressions.
 - Find hints for writing optimized regular expressions.
 
-You can check on the [Online DEMO](./playground/).
+You can check on the [Online DEMO](./playground/README.md).
 
 ## :book: Usage
 

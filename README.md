@@ -132,6 +132,10 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 <!--RULES_TABLE_END-->
 <!--RULES_SECTION_END-->
 
+## :gear: Settings
+
+See [Settings](https://ota-meshi.github.io/eslint-plugin-regexp/settings/).
+
 <!--DOCS_IGNORE_START-->
 
 <!-- ## :traffic_light: Semantic Versioning Policy
