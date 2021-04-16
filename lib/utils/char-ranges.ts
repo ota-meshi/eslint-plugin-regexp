@@ -32,8 +32,7 @@ export function getAllowedCharRanges(
     context: Rule.RuleContext,
 ): readonly CharRange[] {
     let target: string | readonly string[] | undefined =
-        allowedByRuleOption ||
-        context.settings["regexp/allowed-character-ranges"]
+        allowedByRuleOption || context.settings.regexp?.allowedCharacterRanges
 
     if (!target) {
         // defaults to "alphanumeric"

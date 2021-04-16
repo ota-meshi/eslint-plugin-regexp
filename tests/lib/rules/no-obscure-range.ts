@@ -18,11 +18,9 @@ tester.run("no-obscure-range", rule as any, {
         {
             code: "/[а-я А-Я]/",
             settings: {
-                "regexp/allowed-character-ranges": [
-                    "alphanumeric",
-                    "а-я",
-                    "А-Я",
-                ],
+                regexp: {
+                    allowedCharacterRanges: ["alphanumeric", "а-я", "А-Я"],
+                },
             },
         },
     ],
@@ -36,11 +34,9 @@ tester.run("no-obscure-range", rule as any, {
                 "Unexpected obscure character range. The characters of 'А-Я' (U+0410 - U+042f) are not obvious.",
             ],
             settings: {
-                "regexp/allowed-character-ranges": [
-                    "alphanumeric",
-                    "а-я",
-                    "А-Я",
-                ],
+                regexp: {
+                    allowedCharacterRanges: ["alphanumeric", "а-я", "А-Я"],
+                },
             },
         },
 
