@@ -21,7 +21,6 @@ import {
     hasSomeDescendant,
     isPotentiallyEmpty,
 } from "regexp-ast-analysis"
-import { JS } from "refa"
 
 const messages = {
     alwaysRejectByChar:
@@ -117,11 +116,9 @@ export default createRule("no-useless-assertions", {
                         // only if the character is a sub set of /./, will the assertion trivially reject
 
                         // with this little flag hack, we can easily create the dot set.
-
-                        const dot = JS.createCharSet(
-                            [{ kind: "any" }],
+                        const dot = Chars.lineTerminator(
                             flagsWithoutDotAll,
-                        )
+                        ).negate()
 
                         if (next.char.isSubsetOf(dot)) {
                             report(
