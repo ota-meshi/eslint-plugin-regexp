@@ -31,13 +31,13 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
-| [regexp/no-unused-global-flag](./no-unused-global-flag.md) | disallow unused global flag |  |
 | [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
 | [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
+| [regexp/no-useless-flag](./no-useless-flag.md) | disallow unused global flag |  |
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessary quantifier non-greedy (`?`) | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |

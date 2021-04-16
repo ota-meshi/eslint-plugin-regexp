@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/no-unused-global-flag"
+import rule from "../../../lib/rules/no-useless-flag"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("no-unused-global-flag", rule as any, {
+tester.run("no-useless-flag", rule as any, {
     valid: [
         `
         let c = 0

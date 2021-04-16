@@ -1,10 +1,10 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/no-unused-global-flag"
+title: "regexp/no-useless-flag"
 description: "disallow unused global flag"
 ---
-# regexp/no-unused-global-flag
+# regexp/no-useless-flag
 
 > disallow unused global flag
 
@@ -18,7 +18,7 @@ If it is determined that the global flag is unnecessary, it will be reported.
 <eslint-code-block>
 
 ```js
-/* eslint regexp/no-unused-global-flag: "error" */
+/* eslint regexp/no-useless-flag: "error" */
 
 /* ✓ GOOD */
 const regex1 = /foo/g;
@@ -56,5 +56,5 @@ Nothing.
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-unused-global-flag.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-unused-global-flag.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-useless-flag.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-useless-flag.ts)
