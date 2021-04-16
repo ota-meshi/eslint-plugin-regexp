@@ -49,16 +49,17 @@ export function getScope(
     return scopeManager.scopes[0]
 }
 
+export type KnownMethodCall = CallExpression & {
+    callee: MemberExpression & { object: Expression; property: Identifier }
+    arguments: Expression[]
+}
 /**
  * Checks whether given node is expected method call
  */
 export function isKnownMethodCall(
     node: CallExpression,
     methods: Record<string, number>,
-): node is CallExpression & {
-    callee: MemberExpression & { object: Expression; property: Identifier }
-    arguments: Expression[]
-} {
+): node is KnownMethodCall {
     const mem = node.callee
     if (
         mem.type !== "MemberExpression" ||
