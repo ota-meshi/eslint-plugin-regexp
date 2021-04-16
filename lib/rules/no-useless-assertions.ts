@@ -69,7 +69,6 @@ export default createRule("no-useless-assertions", {
             flagsStr: string,
         ): RegExpVisitor.Handlers {
             const flags = parseFlags(flagsStr)
-            const flagsWithoutDotAll = parseFlags(flagsStr.replace(/s/g, ""))
 
             /** Report */
             function report(
@@ -115,18 +114,15 @@ export default createRule("no-useless-assertions", {
                     } else {
                         // only if the character is a sub set of /./, will the assertion trivially reject
 
-                        // with this little flag hack, we can easily create the dot set.
-                        const dot = Chars.lineTerminator(
-                            flagsWithoutDotAll,
-                        ).negate()
+                        const lineTerminator = Chars.lineTerminator(flags)
 
-                        if (next.char.isSubsetOf(dot)) {
+                        if (next.char.isDisjointWith(lineTerminator)) {
                             report(
                                 assertion,
                                 "alwaysRejectByNonLineTerminator",
                                 { followedOrPreceded },
                             )
-                        } else if (next.char.isDisjointWith(dot)) {
+                        } else if (next.char.isSubsetOf(lineTerminator)) {
                             report(assertion, "alwaysAcceptByLineTerminator", {
                                 followedOrPreceded,
                             })
