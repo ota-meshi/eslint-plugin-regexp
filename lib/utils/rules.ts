@@ -19,6 +19,7 @@ import noOptionalAssertion from "../rules/no-optional-assertion"
 import noPotentiallyUselessBackreference from "../rules/no-potentially-useless-backreference"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
+import noUselessAssertions from "../rules/no-useless-assertions"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
@@ -66,6 +67,7 @@ export const rules = [
     noPotentiallyUselessBackreference,
     noTriviallyNestedAssertion,
     noUnusedCapturingGroup,
+    noUselessAssertions,
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessDollarReplacements,
