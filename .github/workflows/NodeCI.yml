@@ -71,6 +71,8 @@ jobs:
                   node-version: 14
             - name: Install Packages
               run: npm ci
+            - name: Build
+              run: npm run build
             - name: Update
               run: npm run update
             - name: Check changes
