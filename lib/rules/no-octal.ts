@@ -5,6 +5,7 @@ import {
     defineRegexpVisitor,
     fixReplaceNode,
     getRegexpLocation,
+    isOctalEscape,
 } from "../utils"
 
 export default createRule("no-octal", {
@@ -35,7 +36,7 @@ export default createRule("no-octal", {
                         // \0 looks like a octal escape but is allowed
                         return
                     }
-                    if (!/^\\[0-7]+$/.test(cNode.raw)) {
+                    if (!isOctalEscape(cNode.raw)) {
                         // not an octal escape
                         return
                     }

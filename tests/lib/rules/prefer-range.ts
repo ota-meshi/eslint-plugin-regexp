@@ -16,6 +16,7 @@ tester.run("prefer-range", rule as any, {
         `/[a-b]/`,
         `/[0-9]/`,
         `/[A-Z]/`,
+        `/[a-zA-ZZ-a]/`,
         `/[ !"#$]/`,
         {
             code: `/[ !"#$]/`,
@@ -37,6 +38,14 @@ tester.run("prefer-range", rule as any, {
         {
             code: `/[ -$]/`,
             options: [{ target: ["all"] }],
+        },
+        {
+            code: `/[ -$]/`,
+            settings: { regexp: { allowedCharacterRanges: "all" } },
+        },
+        {
+            code: `/[ -$]/`,
+            settings: { regexp: { allowedCharacterRanges: ["all"] } },
         },
         {
             code: `/[0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ]/`,
@@ -232,6 +241,17 @@ tester.run("prefer-range", rule as any, {
                 "Unexpected multiple adjacent characters. Use '😀-😄' instead.",
                 "Unexpected multiple adjacent characters. Use '😆-😊' instead.",
             ],
+        },
+        {
+            code: `/[😀😁😂😃😄 😆😇😈😉😊]/u`,
+            output: `/[😀-😄 😆-😊]/u`,
+            errors: [
+                "Unexpected multiple adjacent characters. Use '😀-😄' instead.",
+                "Unexpected multiple adjacent characters. Use '😆-😊' instead.",
+            ],
+            settings: {
+                regexp: { allowedCharacterRanges: ["alphanumeric", "😀-😏"] },
+            },
         },
     ],
 })

@@ -25,6 +25,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression |  |
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
+| [regexp/no-obscure-range](./no-obscure-range.md) | disallow obscure character ranges |  |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |

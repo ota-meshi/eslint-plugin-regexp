@@ -43,14 +43,13 @@ var foo = /[a-cd-f]/
 }
 ```
 
-- `target` ... Specify the range of characters you want to check with this rule.
-  - `"alphanumeric"` ... Check only alphanumeric characters (`0-9`,`a-z` and `A-Z`). This is the default.
-  - `"all"` ... Check all characters. Use `"all"`, if you want to focus on regular expression optimization.
-  - `[...]` (Array) ... Specify as an array of character ranges. List the character ranges that your team is familiar with in this option, and replace redundant contiguous characters with ranges.
-    Specify the range as a three-character string in which the from and to characters are connected with a hyphen (`-`) using. e.g. `"!-/"` (U+0021 - U+002F), `"😀-😏"` (U+1F600 - U+1F60F)  
-    You can also use `"alphanumeric"`.
+This option can be used to override the [allowedCharacterRanges] setting.
 
-### `"target": "alphanumeric"` (Default)
+It allows all values that the [allowedCharacterRanges] setting allows.
+
+[allowedCharacterRanges]: ../settings/README.md#allowedCharacterRanges
+
+### `"target": "alphanumeric"`
 
 <eslint-code-block fix>
 
