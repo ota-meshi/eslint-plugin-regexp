@@ -12,7 +12,8 @@ description: "disallow unused global flag"
 
 ## :book: Rule Details
 
-This rule uses a regular expression with the `g` flag set to check if you are using the global regular expression test. If it is determined that the global flag is unnecessary, it will be reported.
+This rule checks if a regular expression with the `g` flag is used in the global regular expression test.
+If it is determined that the global flag is unnecessary, it will be reported.
 
 <eslint-code-block>
 
