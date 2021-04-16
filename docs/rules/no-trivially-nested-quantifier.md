@@ -13,7 +13,7 @@ description: "disallow nested quantifiers that can be rewritten as one quantifie
 
 ## :book: Rule Details
 
-This rule reports ???.
+In some cases, nested quantifiers can be rewritten as one quantifier (e.g. `(?:a{1,2}){3}` -> `a{3,6}`).
 
 <eslint-code-block fix>
 
@@ -21,29 +21,20 @@ This rule reports ???.
 /* eslint regexp/no-trivially-nested-quantifier: "error" */
 
 /* ✓ GOOD */
-
+var foo = /(a{1,2})+/;  // the rule won't touch capturing groups
+var foo = /(?:a{2})+/;
 
 /* ✗ BAD */
-
+var foo = /(?:a{1,2})+/;
+var foo = /(?:a{1,2}){3,4}/;
+var foo = /(?:a{4,}){5}/;
 ```
 
 </eslint-code-block>
 
 ## :wrench: Options
 
-```json
-{
-  "regexp/no-trivially-nested-quantifier": ["error", {
-   
-  }]
-}
-```
-
-- 
-
-## :books: Further reading
-
--
+Nothing.
 
 ## :mag: Implementation
 
