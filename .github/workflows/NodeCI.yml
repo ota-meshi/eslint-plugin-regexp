@@ -62,3 +62,18 @@ jobs:
               uses: coverallsapp/github-action@v1.1.2
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
+    update:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 14
+            - name: Install Packages
+              run: npm ci
+            - name: Update
+              run: npm run update
+            - name: Check changes
+              run: |
+                  git add --all && \
+                  git diff-index --cached HEAD --stat --exit-code

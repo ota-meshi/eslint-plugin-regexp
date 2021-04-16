@@ -38,5 +38,13 @@ fs.writeFileSync(
             /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp/gu,
             "(.",
         )
+        .replace(
+            /<!--INSERT_SETTINGS_SECTION-->/g,
+            `
+## :gear: Settings
+
+See [Settings](./settings/README.md).
+`,
+        )
         .replace(/\n{3,}/gu, "\n\n"),
 )

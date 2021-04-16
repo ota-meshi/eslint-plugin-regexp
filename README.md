@@ -153,6 +153,8 @@ Please use GitHub's Issues/PRs.
 
 <!--DOCS_IGNORE_END-->
 
+<!--INSERT_SETTINGS_SECTION-->
+
 ## :lock: License
 
 See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
