@@ -2,7 +2,10 @@ import {
     compositingVisitors,
     createRule,
     defineRegexpVisitor,
+    FLAG_DOTALL,
     FLAG_GLOBAL,
+    FLAG_IGNORECASE,
+    FLAG_MULTILINE,
 } from "../utils"
 import type {
     CallExpression,
@@ -16,6 +19,8 @@ import type {
 import type { KnownMethodCall } from "../utils/ast-utils"
 import { findVariable, isKnownMethodCall } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
+import type { RuleListener } from "../types"
+import type { Rule } from "eslint"
 
 type CodePathStack = {
     codePathId: string
@@ -167,223 +172,419 @@ function getVariableId(node: Expression) {
     return null
 }
 
+/**
+ * Gets the location for reporting the flag.
+ */
+function getFlagLocation(
+    context: Rule.RuleContext,
+    node: RegExpExpression,
+    flag: "i" | "m" | "s" | "g",
+) {
+    const sourceCode = context.getSourceCode()
+    if (node.type === "Literal") {
+        const flagIndex =
+            node.range![1] -
+            node.regex.flags.length +
+            node.regex.flags.indexOf(flag)
+        return {
+            start: sourceCode.getLocFromIndex(flagIndex),
+            end: sourceCode.getLocFromIndex(flagIndex + 1),
+        }
+    }
+    return node.arguments[1].loc!
+}
+
+/**
+ * Returns a fixer that removes the given flag.
+ */
+function fixRemoveFlag(
+    fixer: Rule.RuleFixer,
+    node: RegExpExpression,
+    flag: "i" | "m" | "s" | "g",
+) {
+    if (node.type === "Literal") {
+        const flagIndex =
+            node.range![1] -
+            node.regex.flags.length +
+            node.regex.flags.indexOf(flag)
+        return fixer.removeRange([flagIndex, flagIndex + 1])
+    }
+    return null
+}
+
+/**
+ * Create visitor for verify unnecessary i flag
+ */
+function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
+    return defineRegexpVisitor(context, {
+        createVisitor(
+            _node: Expression,
+            _pattern: string,
+            flags: string,
+            regexpNode: RegExpLiteral | NewExpression | CallExpression,
+        ) {
+            if (!flags.includes(FLAG_IGNORECASE)) {
+                return {}
+            }
+            let unnecessary = true
+            return {
+                onCharacterEnter(cNode) {
+                    const value = String.fromCodePoint(cNode.value)
+                    if (value.toLowerCase() !== value.toUpperCase()) {
+                        unnecessary = false
+                    }
+                },
+                onPatternLeave() {
+                    if (unnecessary) {
+                        context.report({
+                            node: regexpNode,
+                            loc: getFlagLocation(context, regexpNode, "i"),
+                            messageId: "uselessIgnoreCaseFlag",
+                            fix(fixer) {
+                                return fixRemoveFlag(fixer, regexpNode, "i")
+                            },
+                        })
+                    }
+                },
+            }
+        },
+    })
+}
+
+/**
+ * Create visitor for verify unnecessary m flag
+ */
+function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
+    return defineRegexpVisitor(context, {
+        createVisitor(
+            _node: Expression,
+            _pattern: string,
+            flags: string,
+            regexpNode: RegExpLiteral | NewExpression | CallExpression,
+        ) {
+            if (!flags.includes(FLAG_MULTILINE)) {
+                return {}
+            }
+            let unnecessary = true
+            return {
+                onAssertionEnter(node) {
+                    if (node.kind === "start" || node.kind === "end") {
+                        unnecessary = false
+                    }
+                },
+                onPatternLeave() {
+                    if (unnecessary) {
+                        context.report({
+                            node: regexpNode,
+                            loc: getFlagLocation(context, regexpNode, "m"),
+                            messageId: "uselessMultilineFlag",
+                            fix(fixer) {
+                                return fixRemoveFlag(fixer, regexpNode, "m")
+                            },
+                        })
+                    }
+                },
+            }
+        },
+    })
+}
+
+/**
+ * Create visitor for verify unnecessary s flag
+ */
+function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
+    return defineRegexpVisitor(context, {
+        createVisitor(
+            _node: Expression,
+            _pattern: string,
+            flags: string,
+            regexpNode: RegExpLiteral | NewExpression | CallExpression,
+        ) {
+            if (!flags.includes(FLAG_DOTALL)) {
+                return {}
+            }
+            let unnecessary = true
+            return {
+                onCharacterSetEnter(node) {
+                    if (node.kind === "any") {
+                        unnecessary = false
+                    }
+                },
+                onPatternLeave() {
+                    if (unnecessary) {
+                        context.report({
+                            node: regexpNode,
+                            loc: getFlagLocation(context, regexpNode, "s"),
+                            messageId: "uselessDotAllFlag",
+                            fix(fixer) {
+                                return fixRemoveFlag(fixer, regexpNode, "s")
+                            },
+                        })
+                    }
+                },
+            }
+        },
+    })
+}
+
+/**
+ * Create visitor for verify unnecessary g flag
+ */
+function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
+    const typeTracer = createTypeTracker(context)
+
+    let stack: CodePathStack | null = null
+
+    const globalRegExpMap = new Map<Node, GlobalRegExpData>()
+    const globalRegExpList: GlobalRegExpData[] = []
+
+    /**
+     * Report for useless global flag
+     */
+    function reportUselessGlobalFlag(globalRegExp: GlobalRegExpData) {
+        const node = globalRegExp.defineNode
+        context.report({
+            node,
+            loc: getFlagLocation(context, node, "g"),
+            messageId: "uselessGlobalFlag",
+        })
+    }
+
+    /**
+     * Extract read references
+     */
+    function extractReadReferences(node: Identifier): Identifier[] {
+        const references: Identifier[] = []
+        const variable = findVariable(context, node)
+        if (!variable) {
+            return references
+        }
+        for (const reference of variable.references) {
+            if (reference.isRead()) {
+                const id = getVariableId(reference.identifier)
+                if (id) {
+                    references.push(...extractReadReferences(id))
+                } else {
+                    references.push(reference.identifier)
+                }
+            }
+        }
+
+        return references
+    }
+
+    /** Verify for String.prototype.search() or String.prototype.split() */
+    function verifyForSearchOrSplit(node: KnownMethodCall) {
+        const globalRegExp = globalRegExpMap.get(node.arguments[0])
+        if (globalRegExp == null || globalRegExp.isUsed()) {
+            return
+        }
+        if (!typeTracer.isString(node.callee.object)) {
+            globalRegExp.markAsCannotTrack()
+            return
+        }
+        // String.prototype.search() or String.prototype.split()
+        globalRegExp.markAsUsedInSearchOrSplit(node.arguments[0])
+    }
+
+    /** Verify for RegExp.prototype.test() */
+    function verifyForExecOrTest(node: KnownMethodCall) {
+        const globalRegExp = globalRegExpMap.get(node.callee.object)
+        if (globalRegExp == null || globalRegExp.isUsed()) {
+            return
+        }
+        // RegExp.prototype.test()
+        globalRegExp.markAsUsedInExecOrTest(
+            node.callee.object,
+            stack!.codePathId,
+            stack!.loopStack[0],
+        )
+    }
+
+    return compositingVisitors(
+        defineRegexpVisitor(context, {
+            createVisitor(
+                _node: Expression,
+                _pattern: string,
+                flags: string,
+                regexpNode: RegExpLiteral | NewExpression | CallExpression,
+            ) {
+                if (flags.includes(FLAG_GLOBAL)) {
+                    const globalRegExp = new GlobalRegExpData(regexpNode)
+                    globalRegExpList.push(globalRegExp)
+                    globalRegExpMap.set(regexpNode, globalRegExp)
+                    const id = getVariableId(regexpNode)
+                    if (id) {
+                        const readReferences = extractReadReferences(id)
+                        for (const ref of readReferences) {
+                            globalRegExpMap.set(ref, globalRegExp)
+                            globalRegExp.pushReadNode(ref)
+                        }
+                    } else {
+                        globalRegExp.pushReadNode(regexpNode)
+                    }
+                }
+                return {} // not visit RegExpNodes
+            },
+        }),
+        {
+            "Program:exit"() {
+                for (const globalRegExp of globalRegExpList) {
+                    if (globalRegExp.isNeedReport()) {
+                        reportUselessGlobalFlag(globalRegExp)
+                    }
+                }
+            },
+            onCodePathStart(codePath) {
+                stack = {
+                    codePathId: codePath.id,
+                    upper: stack,
+                    loopStack: [],
+                }
+            },
+            onCodePathEnd() {
+                stack = stack?.upper ?? null
+            },
+
+            // Stacks the scope of the loop statement. e.g. `for ( target )`
+            ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
+            // Stacks the scope of statement inside the loop statement. e.g. `for (;;) { target }`
+            ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement"](
+                node: Statement,
+            ) {
+                stack?.loopStack.unshift(node)
+            },
+
+            ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
+            ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement" +
+            ":exit"]() {
+                stack?.loopStack.shift()
+            },
+            "Literal, NewExpression, CallExpression:exit"(node: Node) {
+                if (!stack) {
+                    return
+                }
+                const globalRegExp = globalRegExpMap.get(node)
+                if (!globalRegExp || globalRegExp.defineNode !== node) {
+                    return
+                }
+                globalRegExp.setDefineId(stack.codePathId, stack.loopStack[0])
+            },
+            "CallExpression:exit"(node: CallExpression) {
+                if (!stack) {
+                    return
+                }
+                if (
+                    !isKnownMethodCall(node, {
+                        // marked as unused
+                        search: 1,
+                        split: 1,
+
+                        // If called only once, it will be marked as unused.
+                        test: 1,
+                        exec: 1,
+
+                        // marked as used
+                        match: 1,
+                        matchAll: 1,
+                        replace: 2,
+                        replaceAll: 2,
+                    })
+                ) {
+                    return
+                }
+                if (
+                    node.callee.property.name === "search" ||
+                    node.callee.property.name === "split"
+                ) {
+                    verifyForSearchOrSplit(node)
+                } else if (
+                    node.callee.property.name === "test" ||
+                    node.callee.property.name === "exec"
+                ) {
+                    verifyForExecOrTest(node)
+                } else if (
+                    node.callee.property.name === "match" ||
+                    node.callee.property.name === "matchAll" ||
+                    node.callee.property.name === "replace" ||
+                    node.callee.property.name === "replaceAll"
+                ) {
+                    const globalRegExp = globalRegExpMap.get(node.arguments[0])
+                    globalRegExp?.markAsUsed()
+                }
+            },
+        },
+    )
+}
+
 export default createRule("no-useless-flag", {
     meta: {
         docs: {
-            description: "disallow unnecessary flag",
+            description: "disallow unnecessary regex flags",
+            // TODO Switch to recommended in the major version.
+            // recommended: true,
             recommended: false,
+            default: "warn",
         },
-        schema: [],
+        fixable: "code",
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    ignore: {
+                        type: "array",
+                        items: {
+                            enum: ["i", "m", "s", "g"],
+                        },
+                        uniqueItems: true,
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
+            uselessIgnoreCaseFlag:
+                "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+            uselessMultilineFlag:
+                "The 'm' flags is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
+            uselessDotAllFlag:
+                "The 's' flags is unnecessary because the pattern does not contain dots (.).",
             uselessGlobalFlag:
-                "'g' flag has been set, but not using global testing.",
+                "The 'g' flags is unnecessary because not using global testing.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
-        const typeTracer = createTypeTracker(context)
-        const sourceCode = context.getSourceCode()
+        const ignore = new Set<"i" | "m" | "s" | "g">(
+            context.options[0]?.ignore ?? [],
+        )
 
-        let stack: CodePathStack | null = null
-
-        const globalRegExpMap = new Map<Node, GlobalRegExpData>()
-        const globalRegExpList: GlobalRegExpData[] = []
-
-        /**
-         * Report for useless global flag
-         */
-        function reportUselessGlobalFlag(globalRegExp: GlobalRegExpData) {
-            const node = globalRegExp.defineNode
-            let loc
-            if (node.type === "Literal") {
-                const gIndex =
-                    node.range![1] -
-                    node.regex.flags.length +
-                    node.regex.flags.indexOf("g")
-                loc = {
-                    start: sourceCode.getLocFromIndex(gIndex),
-                    end: sourceCode.getLocFromIndex(gIndex + 1),
-                }
-            } else {
-                loc = node.arguments[1].loc!
-            }
-            context.report({
-                node,
-                loc,
-                messageId: "uselessGlobalFlag",
-            })
-        }
-
-        /**
-         * Extract read references
-         */
-        function extractReadReferences(node: Identifier): Identifier[] {
-            const references: Identifier[] = []
-            const variable = findVariable(context, node)
-            if (!variable) {
-                return references
-            }
-            for (const reference of variable.references) {
-                if (reference.isRead()) {
-                    const id = getVariableId(reference.identifier)
-                    if (id) {
-                        references.push(...extractReadReferences(id))
-                    } else {
-                        references.push(reference.identifier)
-                    }
-                }
-            }
-
-            return references
-        }
-
-        /** Verify for String.prototype.search() or String.prototype.split() */
-        function verifyForSearchOrSplit(node: KnownMethodCall) {
-            const globalRegExp = globalRegExpMap.get(node.arguments[0])
-            if (globalRegExp == null || globalRegExp.isUsed()) {
-                return
-            }
-            if (!typeTracer.isString(node.callee.object)) {
-                globalRegExp.markAsCannotTrack()
-                return
-            }
-            // String.prototype.search() or String.prototype.split()
-            globalRegExp.markAsUsedInSearchOrSplit(node.arguments[0])
-        }
-
-        /** Verify for RegExp.prototype.test() */
-        function verifyForExecOrTest(node: KnownMethodCall) {
-            const globalRegExp = globalRegExpMap.get(node.callee.object)
-            if (globalRegExp == null || globalRegExp.isUsed()) {
-                return
-            }
-            // RegExp.prototype.test()
-            globalRegExp.markAsUsedInExecOrTest(
-                node.callee.object,
-                stack!.codePathId,
-                stack!.loopStack[0],
+        let visitor: RuleListener = {}
+        if (!ignore.has("i")) {
+            visitor = compositingVisitors(
+                visitor,
+                createUselessIgnoreCaseFlagVisitor(context),
             )
         }
-
-        return compositingVisitors(
-            defineRegexpVisitor(context, {
-                createVisitor(
-                    _node: Expression,
-                    _pattern: string,
-                    flags: string,
-                    regexpNode: RegExpLiteral | NewExpression | CallExpression,
-                ) {
-                    if (flags.includes(FLAG_GLOBAL)) {
-                        const globalRegExp = new GlobalRegExpData(regexpNode)
-                        globalRegExpList.push(globalRegExp)
-                        globalRegExpMap.set(regexpNode, globalRegExp)
-                        const id = getVariableId(regexpNode)
-                        if (id) {
-                            const readReferences = extractReadReferences(id)
-                            for (const ref of readReferences) {
-                                globalRegExpMap.set(ref, globalRegExp)
-                                globalRegExp.pushReadNode(ref)
-                            }
-                        } else {
-                            globalRegExp.pushReadNode(regexpNode)
-                        }
-                    }
-                    return {} // not visit RegExpNodes
-                },
-            }),
-            {
-                "Program:exit"() {
-                    for (const globalRegExp of globalRegExpList) {
-                        if (globalRegExp.isNeedReport()) {
-                            reportUselessGlobalFlag(globalRegExp)
-                        }
-                    }
-                },
-                onCodePathStart(codePath) {
-                    stack = {
-                        codePathId: codePath.id,
-                        upper: stack,
-                        loopStack: [],
-                    }
-                },
-                onCodePathEnd() {
-                    stack = stack?.upper ?? null
-                },
-
-                // Stacks the scope of the loop statement. e.g. `for ( target )`
-                ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-                // Stacks the scope of statement inside the loop statement. e.g. `for (;;) { target }`
-                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement"](
-                    node: Statement,
-                ) {
-                    stack?.loopStack.unshift(node)
-                },
-
-                ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement" +
-                ":exit"]() {
-                    stack?.loopStack.shift()
-                },
-                "Literal, NewExpression, CallExpression:exit"(node: Node) {
-                    if (!stack) {
-                        return
-                    }
-                    const globalRegExp = globalRegExpMap.get(node)
-                    if (!globalRegExp || globalRegExp.defineNode !== node) {
-                        return
-                    }
-                    globalRegExp.setDefineId(
-                        stack.codePathId,
-                        stack.loopStack[0],
-                    )
-                },
-                "CallExpression:exit"(node: CallExpression) {
-                    if (!stack) {
-                        return
-                    }
-                    if (
-                        !isKnownMethodCall(node, {
-                            // marked as unused
-                            search: 1,
-                            split: 1,
-
-                            // If called only once, it will be marked as unused.
-                            test: 1,
-                            exec: 1,
-
-                            // marked as used
-                            match: 1,
-                            matchAll: 1,
-                            replace: 2,
-                            replaceAll: 2,
-                        })
-                    ) {
-                        return
-                    }
-                    if (
-                        node.callee.property.name === "search" ||
-                        node.callee.property.name === "split"
-                    ) {
-                        verifyForSearchOrSplit(node)
-                    } else if (
-                        node.callee.property.name === "test" ||
-                        node.callee.property.name === "exec"
-                    ) {
-                        verifyForExecOrTest(node)
-                    } else if (
-                        node.callee.property.name === "match" ||
-                        node.callee.property.name === "matchAll" ||
-                        node.callee.property.name === "replace" ||
-                        node.callee.property.name === "replaceAll"
-                    ) {
-                        const globalRegExp = globalRegExpMap.get(
-                            node.arguments[0],
-                        )
-                        globalRegExp?.markAsUsed()
-                    }
-                },
-            },
-        )
+        if (!ignore.has("m")) {
+            visitor = compositingVisitors(
+                visitor,
+                createUselessMultilineFlagVisitor(context),
+            )
+        }
+        if (!ignore.has("s")) {
+            visitor = compositingVisitors(
+                visitor,
+                createUselessDotAllFlagVisitor(context),
+            )
+        }
+        if (!ignore.has("g")) {
+            visitor = compositingVisitors(
+                visitor,
+                createUselessGlobalFlagVisitor(context),
+            )
+        }
+        return visitor
     },
 })
 

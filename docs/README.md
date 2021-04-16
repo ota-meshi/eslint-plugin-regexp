@@ -30,6 +30,10 @@ See [User Guide](./user-guide/README.md).
 
 See [Available Rules](./rules/README.md).
 
+## :gear: Settings
+
+See [Settings](./settings/README.md).
+
 ## :lock: License
 
 See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
