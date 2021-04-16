@@ -80,7 +80,7 @@ export default createRule("no-optional-assertion", {
             optionalAssertion:
                 "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '{{quantifier}}'.",
         },
-        type: "suggestion", // "problem",
+        type: "problem",
     },
     create(context) {
         const sourceCode = context.getSourceCode()
