@@ -1,5 +1,3 @@
-import eslint from "eslint"
-
 export = {
     plugins: ["regexp"],
     rules: {
@@ -9,10 +7,8 @@ export = {
         "no-misleading-character-class": "error",
         "no-regex-spaces": "error",
         "prefer-regex-literals": "error",
-        // If ESLint is 7 or higher, use core rule. If it is 6 or less, use the copied rule.
-        [parseInt(eslint.Linter?.version?.[0] ?? "6", 10) >= 7
-            ? "no-useless-backreference"
-            : "regexp/no-useless-backreference"]: "error",
+        // The ESLint rule will report fewer cases than our rule
+        "no-useless-backreference": "off",
 
         // eslint-plugin-regexp rules
         "regexp/match-any": "error",
@@ -23,6 +19,7 @@ export = {
         "regexp/no-escape-backspace": "error",
         "regexp/no-invisible-character": "error",
         "regexp/no-octal": "error",
+        "regexp/no-useless-backreference": "error",
         "regexp/no-useless-exactly-quantifier": "error",
         "regexp/no-useless-two-nums-quantifier": "error",
         "regexp/prefer-d": "error",

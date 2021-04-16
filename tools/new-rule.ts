@@ -32,7 +32,9 @@ export default createRule("${ruleId}", {
     meta: {
         docs: {
             description: "",
-            recommended: true,
+            // TODO Switch to recommended in the major version.
+            // recommended: true,
+            recommended: false,
         },
         schema: [],
         messages: {},

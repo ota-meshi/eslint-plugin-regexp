@@ -3,6 +3,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import {
     createRule,
     defineRegexpVisitor,
+    fixReplaceNode,
     getRegexpLocation,
     isOctalEscape,
 } from "../utils"
@@ -16,6 +17,8 @@ export default createRule("no-octal", {
         schema: [],
         messages: {
             unexpected: "Unexpected octal escape sequence '{{expr}}'.",
+            replaceHex:
+                "Replace the octal escape sequence with a hexadecimal escape sequence.",
         },
         type: "suggestion", // "problem",
     },
@@ -56,6 +59,21 @@ export default createRule("no-octal", {
                             data: {
                                 expr: cNode.raw,
                             },
+                            suggest: [
+                                {
+                                    messageId: "replaceHex",
+                                    fix: fixReplaceNode(
+                                        sourceCode,
+                                        node,
+                                        cNode,
+                                        () => {
+                                            return `\\x${cNode.value
+                                                .toString(16)
+                                                .padStart(2, "0")}`
+                                        },
+                                    ),
+                                },
+                            ],
                         })
                     }
                 },

@@ -15,7 +15,7 @@ jobs:
               with:
                   registry-url: "https://registry.npmjs.org"
             - name: Install Packages
-              run: npm install
+              run: npm ci
             - name: test
               run: npm run test
             - name: check can npm-publish

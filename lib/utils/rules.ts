@@ -15,6 +15,7 @@ import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
 import noObscureRange from "../rules/no-obscure-range"
 import noOctal from "../rules/no-octal"
+import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
@@ -58,6 +59,7 @@ export const rules = [
     noLegacyFeatures,
     noObscureRange,
     noOctal,
+    noTriviallyNestedAssertion,
     noUnusedCapturingGroup,
     noUselessBackreference,
     noUselessCharacterClass,

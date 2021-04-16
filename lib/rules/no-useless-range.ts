@@ -44,21 +44,41 @@ export default createRule("no-useless-range", {
                         loc: getRegexpLocation(sourceCode, node, ccrNode),
                         messageId: "unexpected",
                         fix: fixReplaceNode(sourceCode, node, ccrNode, () => {
-                            let text =
-                                ccrNode.min.value < ccrNode.max.value
-                                    ? ccrNode.min.raw + ccrNode.max.raw
-                                    : ccrNode.min.raw
-
                             const parent = ccrNode.parent
-                            const next =
-                                parent.elements[
-                                    parent.elements.indexOf(ccrNode) + 1
-                                ]
+                            const rawBefore = parent.raw.slice(
+                                0,
+                                ccrNode.start - parent.start,
+                            )
+                            const rawAfter = parent.raw.slice(
+                                ccrNode.end - parent.start,
+                            )
+
                             if (
-                                next &&
-                                next.type === "Character" &&
-                                next.raw === "-"
+                                /\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})?$/.test(
+                                    rawBefore,
+                                )
                             ) {
+                                // It will not autofix because it is preceded
+                                // by an incomplete escape sequence
+                                return null
+                            }
+
+                            let text = ccrNode.min.raw
+                            if (ccrNode.min.value < ccrNode.max.value) {
+                                if (ccrNode.max.raw === "-") {
+                                    // This "-" might be interpreted as a range
+                                    // operator now, so we have to escape it
+                                    // e.g. /[,--b]/ -> /[,\-b]/
+                                    text += `\\-`
+                                } else {
+                                    text += `${ccrNode.max.raw}`
+                                }
+                            }
+
+                            if (rawAfter.startsWith("-")) {
+                                // the next "-" might be interpreted as a range
+                                // operator now, so we have to escape it
+                                // e.g. /[a-a-z]/ -> /[a\-z]/
                                 text += "\\"
                             }
                             return text
