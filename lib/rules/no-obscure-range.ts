@@ -10,6 +10,7 @@ import {
     defineRegexpVisitor,
     getRegexpLocation,
     isControlEscape,
+    isEscapeSequence,
     isHexadecimalEscape,
     isOctalEscape,
 } from "../utils"
@@ -74,7 +75,11 @@ export default createRule("no-obscure-range", {
                         return
                     }
 
-                    if (inRange(allowedRanges, min.value, max.value)) {
+                    if (
+                        !isEscapeSequence(min.raw) &&
+                        !isEscapeSequence(max.raw) &&
+                        inRange(allowedRanges, min.value, max.value)
+                    ) {
                         return
                     }
 

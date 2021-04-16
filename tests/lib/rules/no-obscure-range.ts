@@ -106,6 +106,15 @@ tester.run("no-obscure-range", rule as any, {
                 },
             ],
         },
+        {
+            code: "/[A-\\x43]/",
+            errors: [
+                {
+                    message:
+                        "Unexpected obscure character range. The characters of 'A-\\x43' (U+0041 - U+0043) are not obvious.",
+                },
+            ],
+        },
 
         {
             code: "/[*+-/]/",

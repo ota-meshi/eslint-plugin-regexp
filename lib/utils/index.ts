@@ -692,3 +692,13 @@ export function isHexadecimalEscape(raw: string): boolean {
         raw,
     )
 }
+/**
+ * Returns whether the given raw of a character literal is an octal escape
+ * sequence, a control escape sequence, or a hexadecimal escape sequence.
+ */
+export function isEscapeSequence(raw: string): boolean {
+    return (
+        raw.startsWith("\\") &&
+        (isOctalEscape(raw) || isControlEscape(raw) || isHexadecimalEscape(raw))
+    )
+}
