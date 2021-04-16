@@ -57,14 +57,9 @@ describe("Don't crash even if with unknown flag.", () => {
             }
             // @ts-expect-error -- ignore
             linter.defineParser("@typescript-eslint/parser", parser)
-            // @ts-expect-error -- ignore
             linter.defineRule(ruleId, rule)
 
-            linter.defineRule(
-                "regexp/test",
-                // @ts-expect-error -- ignore
-                TEST_RULE,
-            )
+            linter.defineRule("regexp/test", TEST_RULE)
             const resultVue = linter.verifyAndFix(code, config, "test.js")
 
             assert.deepStrictEqual(
