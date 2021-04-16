@@ -18,6 +18,7 @@ import noOctal from "../rules/no-octal"
 import noOptionalAssertion from "../rules/no-optional-assertion"
 import noPotentiallyUselessBackreference from "../rules/no-potentially-useless-backreference"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
+import noTriviallyNestedQuantifier from "../rules/no-trivially-nested-quantifier"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
 import noUselessAssertions from "../rules/no-useless-assertions"
 import noUselessBackreference from "../rules/no-useless-backreference"
@@ -66,6 +67,7 @@ export const rules = [
     noOptionalAssertion,
     noPotentiallyUselessBackreference,
     noTriviallyNestedAssertion,
+    noTriviallyNestedQuantifier,
     noUnusedCapturingGroup,
     noUselessAssertions,
     noUselessBackreference,
