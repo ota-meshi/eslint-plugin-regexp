@@ -27,6 +27,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features |  |
 | [regexp/no-obscure-range](./no-obscure-range.md) | disallow obscure character ranges |  |
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
+| [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions |  |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
