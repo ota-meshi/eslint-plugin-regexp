@@ -28,7 +28,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
-| [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions |  |
+| [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
 | [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
