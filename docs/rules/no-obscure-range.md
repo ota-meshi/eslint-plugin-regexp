@@ -59,7 +59,7 @@ It allows all values that the [allowedCharacterRanges] setting allows.
 
 ### `"allowed": "alphanumeric"`
 
-<eslint-code-block fix>
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-obscure-range: ["error", { "allowed": "alphanumeric" }] */
@@ -80,7 +80,7 @@ var foo = /[😀-😄]/u;
 
 ### `"allowed": "all"`
 
-<eslint-code-block fix>
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-obscure-range: ["error", { "allowed": "all" }] */
@@ -101,7 +101,7 @@ var foo = /[\41-\x45]/;
 
 ### `"allowed": [ "alphanumeric", "😀-😏" ]`
 
-<eslint-code-block fix>
+<eslint-code-block>
 
 ```js
 /* eslint regexp/no-obscure-range: ["error", { "allowed": [ "alphanumeric", "😀-😏" ] }] */
