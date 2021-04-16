@@ -44,6 +44,7 @@ module.exports = {
             { text: "Introduction", link: "/" },
             { text: "User Guide", link: "/user-guide/" },
             { text: "Rules", link: "/rules/" },
+            { text: "Settings", link: "/settings/" },
             { text: "Playground", link: "/playground/" },
         ],
 
@@ -93,7 +94,7 @@ module.exports = {
                       ]
                     : []),
             ],
-            "/": ["/", "/user-guide/", "/rules/", "/playground/"],
+            "/": ["/", "/user-guide/", "/rules/", "/settings/", "/playground/"],
         },
     },
 }

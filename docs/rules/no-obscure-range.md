@@ -32,14 +32,93 @@ var foo = /[\cA-\cZ]/;
 /* ✗ BAD */
 var foo = /[A-\x43]/;
 var foo = /[\41-\x45]/;
-var foo = /[*/+-^&|]/;
+var foo = /[!-$]/;
+var foo = /[😀-😄]/u;
 ```
 
 </eslint-code-block>
 
 ## :wrench: Options
 
-Nothing.
+
+```json5
+{
+  "regexp/no-obscure-range": ["error",
+    {
+      "allowed": "alphanumeric" // or "all" or [...]
+    }
+  ]
+}
+```
+
+This option can be used to override the [allowedCharacterRanges] setting.
+
+It allows all values that the [allowedCharacterRanges] setting allows.
+
+[allowedCharacterRanges]: ../settings/README.md#allowedCharacterRanges
+
+### `"allowed": "alphanumeric"`
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/no-obscure-range: ["error", { "allowed": "alphanumeric" }] */
+
+/* ✓ GOOD */
+var foo = /[a-z]/;
+var foo = /[J-O]/;
+var foo = /[1-9]/;
+
+/* ✗ BAD */
+var foo = /[A-\x43]/;
+var foo = /[\41-\x45]/;
+var foo = /[!-$]/;
+var foo = /[😀-😄]/u;
+```
+
+</eslint-code-block>
+
+### `"allowed": "all"`
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/no-obscure-range: ["error", { "allowed": "all" }] */
+
+/* ✓ GOOD */
+var foo = /[a-z]/;
+var foo = /[J-O]/;
+var foo = /[1-9]/;
+var foo = /[!-$]/;
+var foo = /[😀-😄]/u;
+
+/* ✗ BAD */
+var foo = /[A-\x43]/;
+var foo = /[\41-\x45]/;
+```
+
+</eslint-code-block>
+
+### `"allowed": [ "alphanumeric", "😀-😏" ]`
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/no-obscure-range: ["error", { "allowed": [ "alphanumeric", "😀-😏" ] }] */
+
+/* ✓ GOOD */
+var foo = /[a-z]/;
+var foo = /[J-O]/;
+var foo = /[1-9]/;
+var foo = /[😀-😄]/u;
+
+/* ✗ BAD */
+var foo = /[A-\x43]/;
+var foo = /[\41-\x45]/;
+var foo = /[!-$]/;
+```
+
+</eslint-code-block>
 
 ## :mag: Implementation
 
