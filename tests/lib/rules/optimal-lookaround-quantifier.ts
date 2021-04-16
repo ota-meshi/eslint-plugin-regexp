@@ -9,14 +9,14 @@ const tester = new RuleTester({
 })
 
 tester.run("optimal-lookaround-quantifier", rule as any, {
-    valid: [String.raw`/(?=(a*))\w+\1/`, `/(?<=a{4})/`],
+    valid: [String.raw`/(?=(a*))\w+\1/`, `/(?<=a{4})/`, `/(?=a(?:(a)|b)*)/`],
     invalid: [
         {
             code: `/(?=ba*)/`,
             errors: [
                 {
                     message:
-                        "The quantified expression a* at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                        "The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     line: 1,
                     column: 6,
                 },
@@ -27,7 +27,7 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        "The quantified expression c* at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                        "The quantified expression 'c*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     line: 1,
                     column: 14,
                 },
@@ -38,7 +38,7 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        "The quantified expression c+ at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with c (no quantifier) without affecting the lookaround.",
+                        "The quantified expression 'c+' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c' (no quantifier) without affecting the lookaround.",
                     line: 1,
                     column: 14,
                 },
@@ -49,7 +49,7 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        "The quantified expression c{4,9} at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with c{4} without affecting the lookaround.",
+                        "The quantified expression 'c{4,9}' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c{4}' without affecting the lookaround.",
                     line: 1,
                     column: 14,
                 },
@@ -60,18 +60,18 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
             errors: [
                 {
                     message:
-                        "The quantified expression [a-c]* at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                        "The quantified expression '[a-c]*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     line: 1,
                     column: 6,
                 },
             ],
         },
         {
-            code: `/(?<=(c)*ab)/`,
+            code: `/(?<=(?:d|c)*ab)/`,
             errors: [
                 {
                     message:
-                        "The quantified expression (c)* at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                        "The quantified expression '(?:d|c)*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     line: 1,
                     column: 6,
                 },
