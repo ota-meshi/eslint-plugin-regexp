@@ -16,6 +16,7 @@ import noLegacyFeatures from "../rules/no-legacy-features"
 import noOctal from "../rules/no-octal"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
+import noUselessAssertions from "../rules/no-useless-assertions"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
@@ -59,6 +60,7 @@ export const rules = [
     noOctal,
     noTriviallyNestedAssertion,
     noUnusedCapturingGroup,
+    noUselessAssertions,
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessDollarReplacements,
