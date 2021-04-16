@@ -19,13 +19,13 @@ import noOptionalAssertion from "../rules/no-optional-assertion"
 import noPotentiallyUselessBackreference from "../rules/no-potentially-useless-backreference"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
-import noUnusedGlobalFlag from "../rules/no-unused-global-flag"
 import noUselessAssertions from "../rules/no-useless-assertions"
 import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
 import noUselessEscape from "../rules/no-useless-escape"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
+import noUselessFlag from "../rules/no-useless-flag"
 import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
@@ -68,13 +68,13 @@ export const rules = [
     noPotentiallyUselessBackreference,
     noTriviallyNestedAssertion,
     noUnusedCapturingGroup,
-    noUnusedGlobalFlag,
     noUselessAssertions,
     noUselessBackreference,
     noUselessCharacterClass,
     noUselessDollarReplacements,
     noUselessEscape,
     noUselessExactlyQuantifier,
+    noUselessFlag,
     noUselessNonCapturingGroup,
     noUselessNonGreedy,
     noUselessRange,

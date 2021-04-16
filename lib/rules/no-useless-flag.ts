@@ -167,15 +167,15 @@ function getVariableId(node: Expression) {
     return null
 }
 
-export default createRule("no-unused-global-flag", {
+export default createRule("no-useless-flag", {
     meta: {
         docs: {
-            description: "disallow unused global flag",
+            description: "disallow unnecessary flag",
             recommended: false,
         },
         schema: [],
         messages: {
-            unusedGlobalFlag:
+            uselessGlobalFlag:
                 "'g' flag has been set, but not using global testing.",
         },
         type: "suggestion", // "problem",
@@ -190,9 +190,9 @@ export default createRule("no-unused-global-flag", {
         const globalRegExpList: GlobalRegExpData[] = []
 
         /**
-         * Report for unused
+         * Report for useless global flag
          */
-        function reportUnused(globalRegExp: GlobalRegExpData) {
+        function reportUselessGlobalFlag(globalRegExp: GlobalRegExpData) {
             const node = globalRegExp.defineNode
             let loc
             if (node.type === "Literal") {
@@ -210,7 +210,7 @@ export default createRule("no-unused-global-flag", {
             context.report({
                 node,
                 loc,
-                messageId: "unusedGlobalFlag",
+                messageId: "uselessGlobalFlag",
             })
         }
 
@@ -295,7 +295,7 @@ export default createRule("no-unused-global-flag", {
                 "Program:exit"() {
                     for (const globalRegExp of globalRegExpList) {
                         if (globalRegExp.isNeedReport()) {
-                            reportUnused(globalRegExp)
+                            reportUselessGlobalFlag(globalRegExp)
                         }
                     }
                 },
