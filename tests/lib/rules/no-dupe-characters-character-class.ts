@@ -14,8 +14,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         "/[abc]/",
         "/[a][a][a]/",
         "/[0-9\\D]/",
-        "/[\\S \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
-        "/\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff/",
+        "/[\\S \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
+        "/\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff/",
         "/[\\WA-Za-z0-9_]/",
         "/[\\w \\/-:]/",
         // dont check
@@ -61,9 +61,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[0-9\\d]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '\\d' was found '0-9'.",
-                    column: 3,
+                    message: "The '\\d' is included in '0-9'.",
+                    column: 6,
                 },
             ],
         },
@@ -89,7 +88,6 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 { message: "The '\\v' is included in '\\s'.", column: 14 },
                 { message: "The '\\u00a0' is included in '\\s'.", column: 16 },
                 { message: "The '\\u1680' is included in '\\s'.", column: 22 },
-                { message: "The '\\u180e' is included in '\\s'.", column: 28 },
                 {
                     message:
                         "Unexpected intersection of '\\u2000-\\u200a' and '\\s' was found '\\u2000-\\u200a'.",
@@ -271,24 +269,22 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\d 0-9_!-z]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '!-z' was found '0-9'.",
-                    column: 6,
+                    message: "The '\\d' is included in '0-9'.",
+                    column: 3,
+                },
+                {
+                    message: "The '\\d' is included in '!-z'.",
+                    column: 3,
                 },
                 {
                     message:
-                        "Unexpected intersection of '0-9' and '\\d' was found '0-9'.",
+                        "Unexpected intersection of '0-9' and '!-z' was found '0-9'.",
                     column: 6,
                 },
                 { message: "The '_' is included in '!-z'.", column: 9 },
                 {
                     message:
                         "Unexpected intersection of '!-z' and '0-9' was found '0-9'.",
-                    column: 10,
-                },
-                {
-                    message:
-                        "Unexpected intersection of '!-z' and '\\d' was found '0-9'.",
                     column: 10,
                 },
             ],
@@ -332,6 +328,38 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                         "Unexpected element '\\p{Script=Hiragana}' duplication.",
                     column: 68,
                 },
+                {
+                    message: "The ' ' is included in '\\p{ASCII}'.",
+                    column: 87,
+                },
+                {
+                    message: "The ' ' is included in '\\P{Script=Hiragana}'.",
+                    column: 87,
+                },
+                {
+                    message: "The 'a' is included in '\\p{ASCII}'.",
+                    column: 88,
+                },
+                {
+                    message: "The 'a' is included in '\\P{Script=Hiragana}'.",
+                    column: 88,
+                },
+                {
+                    message: "The 'b' is included in '\\p{ASCII}'.",
+                    column: 89,
+                },
+                {
+                    message: "The 'b' is included in '\\P{Script=Hiragana}'.",
+                    column: 89,
+                },
+                {
+                    message: "The 'c' is included in '\\p{ASCII}'.",
+                    column: 90,
+                },
+                {
+                    message: "The 'c' is included in '\\P{Script=Hiragana}'.",
+                    column: 90,
+                },
             ],
         },
         {
@@ -364,12 +392,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found 'A-Z'.",
+                        "Unexpected intersection of 'A-_' and '\\w' was found '_'.",
                     column: 5,
                 },
                 {
                     message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found '_'.",
+                        "Unexpected intersection of 'A-_' and '\\w' was found 'A-Z'.",
                     column: 5,
                 },
             ],
@@ -395,6 +423,15 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 12,
                     endLine: 1,
                     endColumn: 14,
+                },
+            ],
+        },
+        {
+            code: "/[\\Sa]/",
+            errors: [
+                {
+                    message: "The 'a' is included in '\\S'.",
+                    column: 5,
                 },
             ],
         },

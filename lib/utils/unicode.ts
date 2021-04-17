@@ -1,3 +1,5 @@
+import { Chars } from "regexp-ast-analysis"
+
 export const CP_BACKSPACE = 8
 export const CP_TAB = 9
 export const CP_LF = 10
@@ -52,34 +54,8 @@ export const CP_CAPITAL_A = "A".codePointAt(0)!
 export const CP_CAPITAL_Z = "Z".codePointAt(0)!
 export const CP_LOW_LINE = "_".codePointAt(0)!
 
-export const CPS_SINGLE_SPACES = new Set<number>([
-    CP_SPACE,
-    CP_TAB,
-    CP_CR,
-    CP_LF,
-    CP_VT,
-    CP_FF,
-    CP_NBSP,
-    CP_OGHAM_SPACE_MARK,
-    CP_MONGOLIAN_VOWEL_SEPARATOR,
-    CP_LINE_SEPARATOR,
-    CP_PARAGRAPH_SEPARATOR,
-    CP_NNBSP,
-    CP_MMSP,
-    CP_IDEOGRAPHIC_SPACE,
-    CP_BOM,
-])
-
-export const CP_RANGE_DIGIT = [CP_DIGIT_ZERO, CP_DIGIT_NINE] as const
 export const CP_RANGE_SMALL_LETTER = [CP_SMALL_A, CP_SMALL_Z] as const
 export const CP_RANGE_CAPITAL_LETTER = [CP_CAPITAL_A, CP_CAPITAL_Z] as const
-export const CP_RANGE_SPACES = [CP_EN_QUAD, CP_HAIR_SPACE] as const
-
-export const CP_RANGES_WORDS = [
-    CP_RANGE_SMALL_LETTER,
-    CP_RANGE_CAPITAL_LETTER,
-    CP_RANGE_DIGIT,
-]
 
 /**
  * Checks if the given code point is within the code point range.
@@ -100,7 +76,7 @@ function isCodePointInRange(
  * @returns {boolean} `true` if the given code point is digit.
  */
 export function isDigit(codePoint: number): boolean {
-    return isCodePointInRange(codePoint, CP_RANGE_DIGIT)
+    return Chars.digit({}).has(codePoint)
 }
 /**
  * Checks if the given code point is lowercase.
@@ -168,10 +144,7 @@ export function isSymbol(codePoint: number): boolean {
  * @returns {boolean} `true` if the given code point is space.
  */
 export function isSpace(codePoint: number): boolean {
-    return (
-        CPS_SINGLE_SPACES.has(codePoint) ||
-        isCodePointInRange(codePoint, CP_RANGE_SPACES)
-    )
+    return Chars.space({}).has(codePoint)
 }
 
 /**
@@ -180,10 +153,7 @@ export function isSpace(codePoint: number): boolean {
  * @returns {boolean} `true` if the given code point is word.
  */
 export function isWord(codePoint: number): boolean {
-    return (
-        CP_RANGES_WORDS.some((range) => isCodePointInRange(codePoint, range)) ||
-        CP_LOW_LINE === codePoint
-    )
+    return Chars.word({}).has(codePoint)
 }
 
 /**
@@ -196,6 +166,7 @@ export function isInvisible(codePoint: number): boolean {
         return true
     }
     return (
+        codePoint === CP_MONGOLIAN_VOWEL_SEPARATOR ||
         codePoint === CP_NEL ||
         codePoint === CP_ZWSP ||
         codePoint === CP_ZWNJ ||
