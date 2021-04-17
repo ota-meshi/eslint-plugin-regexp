@@ -308,7 +308,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         },
         {
             code:
-                "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana} abc]/u",
+                "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana}]/u",
             errors: [
                 {
                     message: "Unexpected element '\\p{ASCII}' duplication.",
@@ -328,37 +328,47 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                         "Unexpected element '\\p{Script=Hiragana}' duplication.",
                     column: 68,
                 },
+            ],
+        },
+        {
+            code: "/[\\p{ASCII} abc\\P{ASCII}]/u",
+            errors: [
                 {
                     message: "The ' ' is included in '\\p{ASCII}'.",
-                    column: 87,
-                },
-                {
-                    message: "The ' ' is included in '\\P{Script=Hiragana}'.",
-                    column: 87,
+                    column: 12,
                 },
                 {
                     message: "The 'a' is included in '\\p{ASCII}'.",
-                    column: 88,
-                },
-                {
-                    message: "The 'a' is included in '\\P{Script=Hiragana}'.",
-                    column: 88,
+                    column: 13,
                 },
                 {
                     message: "The 'b' is included in '\\p{ASCII}'.",
-                    column: 89,
-                },
-                {
-                    message: "The 'b' is included in '\\P{Script=Hiragana}'.",
-                    column: 89,
+                    column: 14,
                 },
                 {
                     message: "The 'c' is included in '\\p{ASCII}'.",
-                    column: 90,
+                    column: 15,
+                },
+            ],
+        },
+        {
+            code: "/[\\P{Script=Hiragana} abc\\p{Script=Hiragana}]/u",
+            errors: [
+                {
+                    message: "The ' ' is included in '\\P{Script=Hiragana}'.",
+                    column: 22,
+                },
+                {
+                    message: "The 'a' is included in '\\P{Script=Hiragana}'.",
+                    column: 23,
+                },
+                {
+                    message: "The 'b' is included in '\\P{Script=Hiragana}'.",
+                    column: 24,
                 },
                 {
                     message: "The 'c' is included in '\\P{Script=Hiragana}'.",
-                    column: 90,
+                    column: 25,
                 },
             ],
         },
