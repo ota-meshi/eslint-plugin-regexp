@@ -9,6 +9,7 @@ import {
     getRegexpRange,
     fixerApplyEscape,
     parseFlags,
+    isRegexpLiteral,
 } from "../utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { matchesAllCharacters } from "regexp-ast-analysis"
@@ -71,22 +72,28 @@ export default createRule("match-any", {
          * Fix source code
          * @param fixer
          */
-        function fix(
+        function* fix(
             fixer: Rule.RuleFixer,
             node: Expression,
             regexpNode: RegExpNode,
             flags: ReadonlyFlags,
         ) {
             if (!preference) {
-                return null
+                return
             }
-            if (preference === OPTION_DOTALL && !flags.dotAll) {
-                // since we can't just add flags, we cannot fix this
-                return null
+            if (preference === OPTION_DOTALL) {
+                if (!flags.dotAll) {
+                    // since we can't just add flags, we cannot fix this
+                    return
+                }
+                if (!isRegexpLiteral(node)) {
+                    // Flag conflicts may be unavoidable and will not be autofix.
+                    return
+                }
             }
             const range = getRegexpRange(sourceCode, node, regexpNode)
             if (range == null) {
-                return null
+                return
             }
 
             if (
@@ -94,17 +101,33 @@ export default createRule("match-any", {
                 preference.startsWith("[") &&
                 preference.endsWith("]")
             ) {
-                return fixer.replaceTextRange(
+                yield fixer.replaceTextRange(
                     [range[0] + 1, range[1] - 1],
                     fixerApplyEscape(preference.slice(1, -1), node),
                 )
+                return
             }
 
             const replacement = preference === OPTION_DOTALL ? "." : preference
-            return fixer.replaceTextRange(
+            yield fixer.replaceTextRange(
                 range,
                 fixerApplyEscape(replacement, node),
             )
+
+            if (preference === OPTION_DOTALL) {
+                // Autofix to dotAll depends on the flag.
+                // Modify the entire regular expression literal to avoid conflicts due to flag changes.
+
+                // Mark regular expression flag changes to avoid conflicts due to flag changes.
+                const rangeOfRegExpLast: [number, number] = [
+                    node.range![1] - 1,
+                    node.range![1],
+                ]
+                yield fixer.replaceTextRange(
+                    rangeOfRegExpLast,
+                    sourceCode.text.slice(...rangeOfRegExpLast),
+                )
+            }
         }
 
         /**

@@ -110,13 +110,34 @@ tester.run("match-any", rule as any, {
         },
         {
             code: "/[\\s\\S] [\\S\\s] [^] ./s",
-            output: "/. . . ./s",
+            output: "/. [\\S\\s] [^] ./s",
             options: [{ allows: ["dotAll"] }],
             errors: [
                 "Unexpected using '[\\s\\S]' to match any character.",
                 "Unexpected using '[\\S\\s]' to match any character.",
                 "Unexpected using '[^]' to match any character.",
             ],
+        },
+        {
+            code: "/. [\\S\\s] [^] ./s",
+            output: "/. . [^] ./s",
+            options: [{ allows: ["dotAll"] }],
+            errors: [
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '[^]' to match any character.",
+            ],
+        },
+        {
+            code: "/. . [^] ./s",
+            output: "/. . . ./s",
+            options: [{ allows: ["dotAll"] }],
+            errors: ["Unexpected using '[^]' to match any character."],
+        },
+        {
+            code: "new RegExp('[^]', 's')",
+            output: null,
+            options: [{ allows: ["dotAll"] }],
+            errors: ["Unexpected using '[^]' to match any character."],
         },
         {
             code: String.raw`

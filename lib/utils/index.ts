@@ -447,7 +447,7 @@ export function getRegexpLocation(
 /**
  * Check if the given expression node is regexp literal.
  */
-function isRegexpLiteral(
+export function isRegexpLiteral(
     node: ESTree.Expression,
 ): node is ESTree.RegExpLiteral {
     if (node.type !== "Literal") {
