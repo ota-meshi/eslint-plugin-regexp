@@ -1,6 +1,6 @@
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Node as RegExpNode, Quantifier } from "regexpp/ast"
+import type { Group, Quantifier } from "regexpp/ast"
 import type { Quant } from "../utils"
 import {
     fixReplaceNode,
@@ -10,7 +10,6 @@ import {
     defineRegexpVisitor,
     getRegexpLocation,
 } from "../utils"
-import { hasSomeAncestor } from "regexp-ast-analysis"
 
 /**
  * Returns a new quant which is the combination of both given quantifiers.
@@ -121,6 +120,29 @@ function getSimplifiedChildQuant(
     return { min, max, greedy: child.greedy }
 }
 
+/**
+ * Returns whether the given quantifier is a trivial constant zero or constant
+ * one quantifier.
+ */
+function isTrivialQuantifier(quant: Quantifier): boolean {
+    return quant.min === quant.max && (quant.min === 0 || quant.min === 1)
+}
+
+/**
+ * Iterates over the alternatives of the given group and yields all quantifiers
+ * that are the only element of their respective alternative.
+ */
+function* iterateSingleQuantifiers(group: Group): Iterable<Quantifier> {
+    for (const { elements } of group.alternatives) {
+        if (elements.length === 1) {
+            const single = elements[0]
+            if (single.type === "Quantifier") {
+                yield single
+            }
+        }
+    }
+}
+
 export default createRule("no-trivially-nested-quantifier", {
     meta: {
         docs: {
@@ -149,126 +171,100 @@ export default createRule("no-trivially-nested-quantifier", {
          * @param node
          */
         function createVisitor(node: Expression): RegExpVisitor.Handlers {
-            const ignore: Set<RegExpNode> = new Set()
-
             return {
                 onQuantifierEnter(qNode) {
-                    if (hasSomeAncestor(qNode, (a) => ignore.has(a))) {
-                        return
-                    }
-                    if (qNode.max === 0) {
-                        // this rule does not handle this case
-                        ignore.add(qNode)
+                    if (isTrivialQuantifier(qNode)) {
                         return
                     }
 
                     const element = qNode.element
-
                     if (element.type !== "Group") {
                         return
                     }
 
-                    if (
-                        element.alternatives.length === 1 &&
-                        element.alternatives[0].elements.length === 1
-                    ) {
-                        // this is a special case, so we can do some more advanced optimization
-                        const nested = element.alternatives[0].elements[0]
-                        if (nested.type === "Quantifier") {
-                            // found a nested quantifier
-                            // let's see whether we can rewrite it them
+                    for (const child of iterateSingleQuantifiers(element)) {
+                        if (isTrivialQuantifier(child)) {
+                            continue
+                        }
 
-                            const newQuant = getCombinedQuant(qNode, nested)
-                            if (newQuant) {
-                                const quantStr = quantToString(newQuant)
-                                const replacement =
-                                    nested.element.raw + quantStr
+                        if (element.alternatives.length === 1) {
+                            // only one alternative
+                            // let's see whether we can rewrite the quantifier
 
-                                ignore.add(qNode)
+                            const quant = getCombinedQuant(qNode, child)
+                            if (!quant) {
+                                continue
+                            }
+
+                            const quantStr = quantToString(quant)
+                            const replacement = child.element.raw + quantStr
+
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(sourceCode, node, qNode),
+                                messageId: "nested",
+                                data: { quant: quantStr },
+                                fix: fixReplaceNode(
+                                    sourceCode,
+                                    node,
+                                    qNode,
+                                    replacement,
+                                ),
+                            })
+                        } else {
+                            // this isn't the only child of the parent quantifier
+
+                            const quant = getSimplifiedChildQuant(qNode, child)
+                            if (!quant) {
+                                continue
+                            }
+
+                            if (
+                                quant.min === child.min &&
+                                quant.max === child.max
+                            ) {
+                                // quantifier could not be simplified
+                                continue
+                            }
+
+                            if (quant.min === 1 && quant.max === 1) {
+                                context.report({
+                                    node,
+                                    loc: getRegexpLocation(
+                                        sourceCode,
+                                        node,
+                                        child,
+                                    ),
+                                    messageId: "childOne",
+                                    // TODO: This fix depends on `qNode`
+                                    fix: fixReplaceNode(
+                                        sourceCode,
+                                        node,
+                                        child,
+                                        child.element.raw,
+                                    ),
+                                })
+                            } else {
+                                quant.greedy = undefined
 
                                 context.report({
                                     node,
                                     loc: getRegexpLocation(
                                         sourceCode,
                                         node,
-                                        qNode,
+                                        child,
                                     ),
-                                    messageId: "nested",
-                                    data: { quant: quantStr },
-                                    fix: fixReplaceNode(
+                                    messageId: "childSimpler",
+                                    data: { quant: quantToString(quant) },
+                                    // TODO: This fix depends on `qNode`
+                                    fix: fixReplaceQuant(
                                         sourceCode,
                                         node,
-                                        qNode,
-                                        replacement,
+                                        child,
+                                        quant,
                                     ),
                                 })
-                                return
                             }
-                        }
-                    }
-
-                    for (const alternative of element.alternatives) {
-                        const nested = alternative.elements[0]
-                        if (
-                            !(
-                                alternative.elements.length === 1 &&
-                                nested.type === "Quantifier"
-                            )
-                        ) {
-                            continue
-                        }
-
-                        const newQuant = getSimplifiedChildQuant(qNode, nested)
-                        if (
-                            !newQuant ||
-                            (newQuant.min === nested.min &&
-                                newQuant.max === nested.max)
-                        ) {
-                            // quantifier could not be simplified
-                            continue
-                        }
-
-                        ignore.add(qNode)
-
-                        if (newQuant.min === 1 && newQuant.max === 1) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    nested,
-                                ),
-                                messageId: "childOne",
-                                // TODO: This fix depends on `qNode`
-                                fix: fixReplaceNode(
-                                    sourceCode,
-                                    node,
-                                    nested,
-                                    nested.element.raw,
-                                ),
-                            })
-                        } else {
-                            newQuant.greedy = undefined
-
-                            ignore.add(qNode)
-
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    nested,
-                                ),
-                                messageId: "childSimpler",
-                                data: { quant: quantToString(newQuant) },
-                                // TODO: This fix depends on `qNode`
-                                fix: fixReplaceQuant(
-                                    sourceCode,
-                                    node,
-                                    nested,
-                                    newQuant,
-                                ),
-                            })
                         }
                     }
                 },
