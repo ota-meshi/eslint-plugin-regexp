@@ -6,7 +6,7 @@ import {
 } from "eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import { isKnownMethodCall } from "../utils/ast-utils"
+import { getParent, isKnownMethodCall } from "../utils/ast-utils"
 
 // Inspired by https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-regexp-test.md
 export default createRule("prefer-regexp-test", {
@@ -151,13 +151,4 @@ function isUseBoolean(node: ES.Expression): boolean {
         }
     }
     return false
-}
-
-/** Get a parent node */
-function getParent<E extends ES.Node>(node: ES.Node | null): E | null {
-    if (!node) {
-        return null
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    return (node as any).parent
 }

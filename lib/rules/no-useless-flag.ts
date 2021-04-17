@@ -18,7 +18,7 @@ import type {
     Statement,
 } from "estree"
 import type { KnownMethodCall } from "../utils/ast-utils"
-import { findVariable, isKnownMethodCall } from "../utils/ast-utils"
+import { findVariable, isKnownMethodCall, getParent } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
@@ -586,9 +586,9 @@ export default createRule("no-useless-flag", {
             uselessMultilineFlag:
                 "The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
             uselessDotAllFlag:
-                "The 's' flags is unnecessary because the pattern does not contain dots (.).",
+                "The 's' flag is unnecessary because the pattern does not contain dots (.).",
             uselessGlobalFlag:
-                "The 'g' flags is unnecessary because not using global testing.",
+                "The 'g' flag is unnecessary because not using global testing.",
         },
         type: "suggestion", // "problem",
     },
@@ -625,12 +625,3 @@ export default createRule("no-useless-flag", {
         return visitor
     },
 })
-
-/** Get a parent node */
-function getParent<E extends Node>(node: Node | null): E | null {
-    if (!node) {
-        return null
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    return (node as any).parent
-}

@@ -117,7 +117,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
                 },
             ],
         },
@@ -127,7 +127,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
                 },
             ],
         },
@@ -139,7 +139,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'm' flags is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
+                        "The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
                 },
             ],
         },
@@ -151,7 +151,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 's' flags is unnecessary because the pattern does not contain dots (.).",
+                        "The 's' flag is unnecessary because the pattern does not contain dots (.).",
                 },
             ],
         },
@@ -163,19 +163,19 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
                     line: 1,
                     column: 5,
                 },
                 {
                     message:
-                        "The 'm' flags is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
+                        "The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
                     line: 1,
                     column: 6,
                 },
                 {
                     message:
-                        "The 's' flags is unnecessary because the pattern does not contain dots (.).",
+                        "The 's' flag is unnecessary because the pattern does not contain dots (.).",
                     line: 1,
                     column: 7,
                 },
@@ -214,7 +214,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 17,
                     column: 18,
                     endLine: 17,
@@ -222,7 +222,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 18,
                     column: 33,
                     endLine: 18,
@@ -230,7 +230,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 21,
                     column: 18,
                     endLine: 21,
@@ -238,7 +238,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 22,
                     column: 33,
                     endLine: 22,
@@ -246,7 +246,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 25,
                     column: 31,
                     endLine: 25,
@@ -254,7 +254,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 27,
                     column: 29,
                     endLine: 27,
@@ -270,7 +270,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 18,
                 },
@@ -284,7 +284,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 18,
                 },
@@ -298,7 +298,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 31,
                 },
@@ -312,7 +312,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 35,
                 },
@@ -327,7 +327,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 32,
                 },
@@ -344,7 +344,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 3,
                     column: 36,
                 },
@@ -364,7 +364,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flags is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 28,
                 },
