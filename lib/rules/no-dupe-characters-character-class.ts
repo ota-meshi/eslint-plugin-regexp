@@ -243,7 +243,8 @@ export default createRule("no-dupe-characters-character-class", {
         messages: {
             duplicates: "Unexpected element '{{element}}' duplication.",
             charIsIncluded: "The '{{char}}' is included in '{{element}}'.",
-            charSetIsInRange: "The '{{charSet}}' is included in '{{range}}'.",
+            elementIsInElement:
+                "The '{{reportElement}}' is included in '{{element}}'.",
             intersect:
                 "Unexpected intersection of '{{elementA}}' and '{{elementB}}' was found '{{intersection}}'.",
         },
@@ -332,20 +333,24 @@ export default createRule("no-dupe-characters-character-class", {
         }
 
         /**
-         * Report the character set included in the range.
+         * Report the element included in the element.
          */
-        function reportCharSetInRange(
+        function reportElementInElement(
             node: Expression,
-            set: NodeAndCharSet<Exclude<CharacterSet, AnyCharacterSet>>,
-            range: NodeAndCharSet<CharacterClassRange>,
+            reportElement: NodeAndCharSet<
+                Exclude<CharacterSet, AnyCharacterSet> | CharacterClassRange
+            >,
+            element: NodeAndCharSet<
+                Exclude<CharacterSet, AnyCharacterSet> | CharacterClassRange
+            >,
         ) {
             context.report({
                 node,
-                loc: getRegexpLocation(sourceCode, node, set.node),
-                messageId: "charSetIsInRange",
+                loc: getRegexpLocation(sourceCode, node, reportElement.node),
+                messageId: "elementIsInElement",
                 data: {
-                    charSet: set.node.raw,
-                    range: range.node.raw,
+                    reportElement: reportElement.node.raw,
+                    element: element.node.raw,
                 },
             })
         }
@@ -418,7 +423,7 @@ export default createRule("no-dupe-characters-character-class", {
                                 set,
                             )
                             if (reportSet) {
-                                reportCharSetInRange(node, reportSet, range)
+                                reportElementInElement(node, reportSet, range)
                             }
                             for (const intersection of intersections) {
                                 reportIntersect(
@@ -433,6 +438,13 @@ export default createRule("no-dupe-characters-character-class", {
                     for (const [set, ...dupeSets] of characterSets) {
                         if (dupeSets.length) {
                             reportDuplicates(node, [set, ...dupeSets])
+                        }
+                        for (const [otherSet] of characterSets.filter(
+                            ([o]) => o !== set,
+                        )) {
+                            if (otherSet.charSet.isSupersetOf(set.charSet)) {
+                                reportElementInElement(node, set, otherSet)
+                            }
                         }
                     }
                 },

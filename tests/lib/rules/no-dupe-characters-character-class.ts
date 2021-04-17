@@ -293,11 +293,19 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\W\\W\\w \\d\\d\\D]/",
             errors: [
                 { message: "Unexpected element '\\W' duplication.", column: 3 },
+                {
+                    message: "The '\\W' is included in '\\D'.",
+                    column: 3,
+                },
                 { message: "Unexpected element '\\W' duplication.", column: 5 },
                 { message: "The ' ' is included in '\\W'.", column: 9 },
                 { message: "The ' ' is included in '\\D'.", column: 9 },
                 {
                     message: "Unexpected element '\\d' duplication.",
+                    column: 10,
+                },
+                {
+                    message: "The '\\d' is included in '\\w'.",
                     column: 10,
                 },
                 {
@@ -316,7 +324,17 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
                 {
                     message:
+                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
+                    column: 3,
+                },
+                {
+                    message:
                         "Unexpected element '\\p{Script=Hiragana}' duplication.",
+                    column: 21,
+                },
+                {
+                    message:
+                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
                     column: 21,
                 },
                 {
@@ -442,6 +460,34 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 {
                     message: "The 'a' is included in '\\S'.",
                     column: 5,
+                },
+            ],
+        },
+        {
+            code: "/[a-z\\p{L}]/u",
+            errors: [
+                {
+                    message:
+                        "Unexpected intersection of 'a-z' and '\\p{L}' was found 'a-z'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: "/[\\d\\p{ASCII}]/u",
+            errors: [
+                {
+                    message: "The '\\d' is included in '\\p{ASCII}'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: "/[\\t\\s]/",
+            errors: [
+                {
+                    message: "The '\\t' is included in '\\s'.",
+                    column: 3,
                 },
             ],
         },
