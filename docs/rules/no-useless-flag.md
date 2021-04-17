@@ -18,7 +18,7 @@ This will point out present regex flags that do not change the pattern.
 ### `i` flag (ignoreCase)
 
 The `i` flag is only necessary if the pattern contains any characters with case
-variations. If no such characters are part of the pattern, the flag is
+variations. If the pattern contains no such characters, the flag will be
 unnecessary. E.g. `/\.{3}/i`
 
 <eslint-code-block fix>
@@ -38,8 +38,8 @@ var foo = /\w+/i;
 
 ### `m` flag (multiline)
 
-The `m` flag changes the meaning of the `^` and `$` anchors, so if the pattern
-doesn't contain these anchors, it's unnecessary. E.g. `/foo|[^\r\n]*/m`
+The `m` flag changes the behavior of the `^` and `$` assertions. If the pattern
+doesn't contain these anchors, the `m` flag will be unnecessary. E.g. `/foo|[^\r\n]*/m`
 
 <eslint-code-block fix>
 
@@ -59,8 +59,8 @@ var foo = /a|b/m;
 ### `s` flag (dotAll)
 
 The `s` flag makes the dot (`.`) match all characters instead of the usually
-non-line-terminator characters, so if the pattern doesn't contain a dot
-character set, it will be unnecessary. E.g. `/[.:]/s`
+non-line-terminator characters. If the pattern doesn't contain a dot
+character set, the `s` flag will be unnecessary. E.g. `/[.:]/s`
 
 <eslint-code-block fix>
 
