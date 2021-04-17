@@ -209,7 +209,11 @@ function fixRemoveFlag(
             node.range![1] -
             node.regex.flags.length +
             node.regex.flags.indexOf(flag)
-        return fixer.removeRange([flagIndex, flagIndex + 1])
+        return [
+            // Replace the range of regular expression literals to avoid conflicts.
+            fixer.replaceTextRange([node.range![0], node.range![0] + 1], "/"),
+            fixer.removeRange([flagIndex, flagIndex + 1]),
+        ]
     }
     return null
 }

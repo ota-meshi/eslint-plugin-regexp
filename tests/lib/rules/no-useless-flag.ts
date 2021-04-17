@@ -1,5 +1,8 @@
-import { RuleTester } from "eslint"
+import type { Rule } from "eslint"
+import { RuleTester, Linter } from "eslint"
+import assert from "assert"
 import rule from "../../../lib/rules/no-useless-flag"
+import { rules } from "../../../lib/utils/rules"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -159,7 +162,7 @@ tester.run("no-useless-flag", rule as any, {
         // i & m & s
         {
             code: String.raw`/\w/ims`,
-            output: String.raw`/\w/m`,
+            output: String.raw`/\w/ms`,
             errors: [
                 {
                     message:
@@ -181,6 +184,26 @@ tester.run("no-useless-flag", rule as any, {
                 },
             ],
         },
+        {
+            code: String.raw`/\w/ms`,
+            output: String.raw`/\w/s`,
+            errors: [
+                {
+                    message:
+                        "The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
+                    line: 1,
+                    column: 5,
+                },
+                {
+                    message:
+                        "The 's' flag is unnecessary because the pattern does not contain dots (.).",
+                    line: 1,
+                    column: 6,
+                },
+            ],
+        },
+
+        // g
         {
             code: `
             /* ✓ GOOD */
@@ -371,4 +394,130 @@ tester.run("no-useless-flag", rule as any, {
             ],
         },
     ],
+})
+
+// Check that autofix of rules does not conflict.
+describe("Don't conflict even if using the rules together.", () => {
+    type RulesConfig = Exclude<Linter.Config["rules"], undefined>
+    const testCases: {
+        code: string
+        rulesConfig: RulesConfig
+        output: string
+        messages: {
+            ruleId: string
+            message: string
+        }[]
+        messagesAfterFix: {
+            ruleId: string
+            message: string
+        }[]
+    }[] = [
+        {
+            code: String.raw`/[\s\S]*/s;`,
+            output: String.raw`/[\s\S]*/;`,
+            rulesConfig: {
+                "regexp/no-useless-flag": ["error"],
+                "regexp/match-any": ["error", { allows: ["dotAll"] }],
+            },
+            messages: [
+                {
+                    ruleId: "regexp/match-any",
+                    message:
+                        "Unexpected using '[\\s\\S]' to match any character.",
+                },
+                {
+                    ruleId: "regexp/no-useless-flag",
+                    message:
+                        "The 's' flag is unnecessary because the pattern does not contain dots (.).",
+                },
+            ],
+            messagesAfterFix: [
+                {
+                    ruleId: "regexp/match-any",
+                    message:
+                        "Unexpected using '[\\s\\S]' to match any character.",
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\s\S]*/s;`,
+            output: String.raw`/[\s\S]*/;`,
+            rulesConfig: {
+                "regexp/match-any": ["error", { allows: ["dotAll"] }],
+                "regexp/no-useless-flag": ["error"],
+            },
+            messages: [
+                {
+                    ruleId: "regexp/match-any",
+                    message:
+                        "Unexpected using '[\\s\\S]' to match any character.",
+                },
+                {
+                    ruleId: "regexp/no-useless-flag",
+                    message:
+                        "The 's' flag is unnecessary because the pattern does not contain dots (.).",
+                },
+            ],
+            messagesAfterFix: [
+                {
+                    ruleId: "regexp/match-any",
+                    message:
+                        "Unexpected using '[\\s\\S]' to match any character.",
+                },
+            ],
+        },
+    ]
+
+    const linter = new Linter()
+    const configAllRules = rules.reduce((p, r) => {
+        p[r.meta.docs.ruleId] = "error"
+        return p
+    }, {} as Exclude<Linter.Config["rules"], undefined>)
+    linter.defineRules(
+        rules.reduce((p, r) => {
+            p[r.meta.docs.ruleId] = r
+            return p
+        }, {} as { [name: string]: Rule.RuleModule }),
+    )
+    for (const {
+        code,
+        output,
+        rulesConfig,
+        messages,
+        messagesAfterFix,
+    } of testCases) {
+        it(code, () => {
+            const config: Linter.Config = {
+                parserOptions: {
+                    ecmaVersion: 2020,
+                    sourceType: "module",
+                },
+                rules: {
+                    ...configAllRules,
+                    ...rulesConfig,
+                },
+            }
+
+            const result = linter.verify(code, config, "test.js")
+            assert.deepStrictEqual(
+                result.map((m) => ({
+                    ruleId: m.ruleId,
+                    message: m.message,
+                })),
+                messages,
+            )
+
+            const resultFix = linter.verifyAndFix(code, config, "test.js")
+
+            assert.strictEqual(resultFix.output, output)
+
+            assert.deepStrictEqual(
+                resultFix.messages.map((m) => ({
+                    ruleId: m.ruleId,
+                    message: m.message,
+                })),
+                messagesAfterFix,
+            )
+        })
+    }
 })
