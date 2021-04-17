@@ -18,7 +18,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         "/\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff/",
         "/[\\WA-Za-z0-9_]/",
         "/[\\w \\/-:]/",
-        // dont check
+        "/[\\w\\p{L}]/u",
         "/\\p{ASCII}abc/u",
         // error
         "var r = new RegExp('[\\\\wA-Za-z0-9_][invalid');",
