@@ -582,9 +582,9 @@ export default createRule("no-useless-flag", {
         ],
         messages: {
             uselessIgnoreCaseFlag:
-                "The 'i' flags is unnecessary because the pattern does not contain case-variant characters.",
+                "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
             uselessMultilineFlag:
-                "The 'm' flags is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
+                "The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.",
             uselessDotAllFlag:
                 "The 's' flags is unnecessary because the pattern does not contain dots (.).",
             uselessGlobalFlag:
