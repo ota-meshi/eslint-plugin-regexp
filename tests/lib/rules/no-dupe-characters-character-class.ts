@@ -20,6 +20,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         "/[\\w \\/-:]/",
         "/[\\w\\p{L}]/u",
         "/\\p{ASCII}abc/u",
+        String.raw`/[\u1fff-\u2020\s]/`,
         // error
         "var r = new RegExp('[\\\\wA-Za-z0-9_][invalid');",
     ],
@@ -492,6 +493,26 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message: "The 'A-Z' is included in 'a-\\uFFFF'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\xA0-\uFFFF\s]/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected intersection of '\\xA0-\\uFFFF' and '\\s' was found '\\xa0'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\u1fff-\u2005\s]/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected intersection of '\\u1fff-\\u2005' and '\\s' was found '[\\u2000-\\u2005]'.",
                     column: 3,
                 },
             ],

@@ -305,14 +305,23 @@ export default createRule("no-dupe-characters-character-class", {
                                 if (
                                     intersection.has(range.min.value) ||
                                     intersection.has(range.max.value)
-                                )
+                                ) {
+                                    const reportRanges = intersection.ranges.filter(
+                                        ({ min, max }) => {
+                                            return (
+                                                min === range.min.value ||
+                                                max === range.max.value
+                                            )
+                                        },
+                                    )
                                     reportIntersect(
                                         node,
                                         [range, ...dupeRanges],
                                         other,
-                                        intersection,
+                                        intersection.intersect(reportRanges),
                                         flags,
                                     )
+                                }
                             }
                         }
                     }
@@ -320,10 +329,9 @@ export default createRule("no-dupe-characters-character-class", {
                         if (dupeSets.length) {
                             reportDuplicates(node, [set, ...dupeSets])
                         }
-                        for (const [other] of [
-                            ...characterSets.filter(([o]) => o !== set),
-                            ...characterClassRanges,
-                        ]) {
+                        for (const [other] of characterSets.filter(
+                            ([o]) => o !== set,
+                        )) {
                             if (isElementInElementReported(set, other)) {
                                 continue
                             }
