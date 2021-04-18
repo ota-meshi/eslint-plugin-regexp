@@ -110,6 +110,8 @@ tester.run("match-any", rule as any, {
         },
         {
             code: "/[\\s\\S] [\\S\\s] [^] ./s",
+            // Only one character class gets fixed because they all depend on the `s` flag.
+            // This shared dependency causes all of their fixes to conflict, so only one fix can be applied.
             output: "/. [\\S\\s] [^] ./s",
             options: [{ allows: ["dotAll"] }],
             errors: [
