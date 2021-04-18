@@ -1,12 +1,7 @@
 import type { Rule } from "eslint"
 import type * as TS from "typescript"
 import type * as ES from "estree"
-import {
-    findVariable,
-    getParent,
-    getPropertyName,
-    isParenthesized,
-} from "./utils"
+import { findVariable, getPropertyName, isParenthesized } from "./utils"
 import type { TypeInfo } from "./type-data"
 import {
     TypeFunction,
@@ -34,6 +29,7 @@ import {
 import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
 import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
+import { getParent } from "../ast-utils"
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
 const ts: typeof import("typescript") = (() => {

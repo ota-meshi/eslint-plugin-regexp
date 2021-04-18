@@ -202,19 +202,21 @@ function buildRegexpVisitor(
 
     return {
         "Program:exit": programExit,
-        "Literal[regex]"(node: ESTree.RegExpLiteral) {
-            verify(node.regex.pattern, node.regex.flags, function* () {
-                for (const rule of rules) {
-                    if (rule.createLiteralVisitor) {
-                        yield rule.createLiteralVisitor(
-                            node,
-                            node.regex.pattern,
-                            node.regex.flags,
-                            node,
-                        )
+        Literal(node: ESTree.Literal & Rule.NodeParentExtension) {
+            if ("regex" in node) {
+                verify(node.regex.pattern, node.regex.flags, function* () {
+                    for (const rule of rules) {
+                        if (rule.createLiteralVisitor) {
+                            yield rule.createLiteralVisitor(
+                                node,
+                                node.regex.pattern,
+                                node.regex.flags,
+                                node,
+                            )
+                        }
                     }
-                }
-            })
+                })
+            }
         },
         // eslint-disable-next-line complexity -- X(
         Program() {
@@ -315,6 +317,31 @@ function buildRegexpVisitor(
             }
         },
     }
+}
+
+/**
+ * Composite all given visitors.
+ */
+export function compositingVisitors(
+    visitor: RuleListener,
+    ...visitors: RuleListener[]
+): RuleListener {
+    for (const v of visitors) {
+        for (const key in v) {
+            const orig = visitor[key]
+            if (orig) {
+                visitor[key] = (...args: unknown[]) => {
+                    // @ts-expect-error -- ignore
+                    orig(...args)
+                    // @ts-expect-error -- ignore
+                    v[key](...args)
+                }
+            } else {
+                visitor[key] = v[key]
+            }
+        }
+    }
+    return visitor
 }
 
 export function getRegexpRange(
@@ -420,7 +447,7 @@ export function getRegexpLocation(
 /**
  * Check if the given expression node is regexp literal.
  */
-function isRegexpLiteral(
+export function isRegexpLiteral(
     node: ESTree.Expression,
 ): node is ESTree.RegExpLiteral {
     if (node.type !== "Literal") {

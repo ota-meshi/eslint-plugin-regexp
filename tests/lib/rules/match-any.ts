@@ -110,13 +110,36 @@ tester.run("match-any", rule as any, {
         },
         {
             code: "/[\\s\\S] [\\S\\s] [^] ./s",
-            output: "/. . . ./s",
+            // Only one character class gets fixed because they all depend on the `s` flag.
+            // This shared dependency causes all of their fixes to conflict, so only one fix can be applied.
+            output: "/. [\\S\\s] [^] ./s",
             options: [{ allows: ["dotAll"] }],
             errors: [
                 "Unexpected using '[\\s\\S]' to match any character.",
                 "Unexpected using '[\\S\\s]' to match any character.",
                 "Unexpected using '[^]' to match any character.",
             ],
+        },
+        {
+            code: "/. [\\S\\s] [^] ./s",
+            output: "/. . [^] ./s",
+            options: [{ allows: ["dotAll"] }],
+            errors: [
+                "Unexpected using '[\\S\\s]' to match any character.",
+                "Unexpected using '[^]' to match any character.",
+            ],
+        },
+        {
+            code: "/. . [^] ./s",
+            output: "/. . . ./s",
+            options: [{ allows: ["dotAll"] }],
+            errors: ["Unexpected using '[^]' to match any character."],
+        },
+        {
+            code: "new RegExp('[^]', 's')",
+            output: null,
+            options: [{ allows: ["dotAll"] }],
+            errors: ["Unexpected using '[^]' to match any character."],
         },
         {
             code: String.raw`

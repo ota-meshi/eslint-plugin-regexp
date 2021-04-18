@@ -25,6 +25,7 @@ import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
 import noUselessEscape from "../rules/no-useless-escape"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
+import noUselessFlag from "../rules/no-useless-flag"
 import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessRange from "../rules/no-useless-range"
@@ -73,6 +74,7 @@ export const rules = [
     noUselessDollarReplacements,
     noUselessEscape,
     noUselessExactlyQuantifier,
+    noUselessFlag,
     noUselessNonCapturingGroup,
     noUselessNonGreedy,
     noUselessRange,

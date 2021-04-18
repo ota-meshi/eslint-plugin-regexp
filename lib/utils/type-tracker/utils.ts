@@ -1,5 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- ignore
-/* eslint-disable @typescript-eslint/no-explicit-any -- ignore */
 import * as eslintUtils from "eslint-utils"
 import type { Variable } from "eslint-scope"
 import type { Rule } from "eslint"
@@ -32,12 +30,4 @@ export function isParenthesized(
     node: ES.Node,
 ): boolean {
     return eslintUtils.isParenthesized(node, context.getSourceCode())
-}
-
-/** Get parent node */
-export function getParent<E extends ES.Node>(node: ES.Node | null): E | null {
-    if (!node) {
-        return null
-    }
-    return (node as any).parent
 }

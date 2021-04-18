@@ -3,7 +3,6 @@ import type {
     CallExpression,
     Expression,
     FunctionExpression,
-    Identifier,
     MemberExpression,
     NewExpression,
     RegExpLiteral,
@@ -12,7 +11,13 @@ import type {
     Property,
 } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import {
+    compositingVisitors,
+    createRule,
+    defineRegexpVisitor,
+    getRegexpLocation,
+} from "../utils"
+import type { KnownMethodCall } from "../utils/ast-utils"
 import { findVariable, isKnownMethodCall } from "../utils/ast-utils"
 import { getStaticValue } from "eslint-utils"
 import { createTypeTracker } from "../utils/type-tracker"
@@ -140,10 +145,6 @@ class CapturingData {
             },
         }
     }
-}
-type KnownCall = CallExpression & {
-    callee: MemberExpression & { object: Expression; property: Identifier }
-    arguments: Expression[]
 }
 
 /**
@@ -377,7 +378,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for String.prototype.match() */
-        function verifyForMatch(node: KnownCall) {
+        function verifyForMatch(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -396,7 +397,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for String.prototype.search() */
-        function verifyForSearch(node: KnownCall) {
+        function verifyForSearch(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -410,7 +411,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for RegExp.prototype.test() */
-        function verifyForTest(node: KnownCall) {
+        function verifyForTest(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.callee.object)
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -420,7 +421,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for String.prototype.replace() and String.prototype.replaceAll() */
-        function verifyForReplace(node: KnownCall) {
+        function verifyForReplace(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -495,7 +496,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for RegExp.prototype.exec() */
-        function verifyForExec(node: KnownCall) {
+        function verifyForExec(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.callee.object)
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -506,7 +507,7 @@ export default createRule("no-unused-capturing-group", {
 
         /** Verify for RegExp.prototype.exec() and String.prototype.match() result */
         function verifyForExecResult(
-            node: KnownCall,
+            node: KnownMethodCall,
             capturingData: CapturingData,
         ) {
             const refs = extractUsedReferencesFromExpression(node, context)
@@ -532,7 +533,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for String.prototype.matchAll() */
-        function verifyForMatchAll(node: KnownCall) {
+        function verifyForMatchAll(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -627,7 +628,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         /** Verify for String.prototype.split() */
-        function verifyForSplit(node: KnownCall) {
+        function verifyForSplit(node: KnownMethodCall) {
             const capturingData = getCapturingData(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -655,51 +656,53 @@ export default createRule("no-unused-capturing-group", {
             return capturingData.visitor()
         }
 
-        return {
-            ...defineRegexpVisitor(context, {
+        return compositingVisitors(
+            defineRegexpVisitor(context, {
                 createVisitor,
             }),
-            "Program:exit"() {
-                for (const capturingData of capturingDataMap.values()) {
-                    if (capturingData.isNeedReport()) {
-                        reportUnused(capturingData)
+            {
+                "Program:exit"() {
+                    for (const capturingData of capturingDataMap.values()) {
+                        if (capturingData.isNeedReport()) {
+                            reportUnused(capturingData)
+                        }
                     }
-                }
+                },
+                "CallExpression:exit"(node: CallExpression) {
+                    if (
+                        !isKnownMethodCall(node, {
+                            match: 1,
+                            test: 1,
+                            search: 1,
+                            replace: 2,
+                            replaceAll: 2,
+                            matchAll: 1,
+                            exec: 1,
+                            split: 1,
+                        })
+                    ) {
+                        return
+                    }
+                    if (node.callee.property.name === "match") {
+                        verifyForMatch(node)
+                    } else if (node.callee.property.name === "test") {
+                        verifyForTest(node)
+                    } else if (node.callee.property.name === "search") {
+                        verifyForSearch(node)
+                    } else if (
+                        node.callee.property.name === "replace" ||
+                        node.callee.property.name === "replaceAll"
+                    ) {
+                        verifyForReplace(node)
+                    } else if (node.callee.property.name === "exec") {
+                        verifyForExec(node)
+                    } else if (node.callee.property.name === "matchAll") {
+                        verifyForMatchAll(node)
+                    } else if (node.callee.property.name === "split") {
+                        verifyForSplit(node)
+                    }
+                },
             },
-            "CallExpression:exit"(node: CallExpression) {
-                if (
-                    !isKnownMethodCall(node, {
-                        match: 1,
-                        test: 1,
-                        search: 1,
-                        replace: 2,
-                        replaceAll: 2,
-                        matchAll: 1,
-                        exec: 1,
-                        split: 1,
-                    })
-                ) {
-                    return
-                }
-                if (node.callee.property.name === "match") {
-                    verifyForMatch(node)
-                } else if (node.callee.property.name === "test") {
-                    verifyForTest(node)
-                } else if (node.callee.property.name === "search") {
-                    verifyForSearch(node)
-                } else if (
-                    node.callee.property.name === "replace" ||
-                    node.callee.property.name === "replaceAll"
-                ) {
-                    verifyForReplace(node)
-                } else if (node.callee.property.name === "exec") {
-                    verifyForExec(node)
-                } else if (node.callee.property.name === "matchAll") {
-                    verifyForMatchAll(node)
-                } else if (node.callee.property.name === "split") {
-                    verifyForSplit(node)
-                }
-            },
-        }
+        )
     },
 })

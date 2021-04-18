@@ -8,10 +8,23 @@ import type {
     MemberExpression,
     MethodDefinition,
     Property,
+    Node,
 } from "estree"
 import { parseStringLiteral } from "./string-literal-parser"
 import { baseParseReplacements } from "./replacements-utils"
 import type { Scope, Variable } from "eslint-scope"
+
+/**
+ * Get a parent node
+ * The AST node used by ESLint always has a `parent`, but since there is no `parent` on Types, use this function.
+ */
+export function getParent<E extends Node>(node: Node | null): E | null {
+    if (!node) {
+        return null
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+    return (node as any).parent
+}
 
 /**
  * Find the variable of a given name.
@@ -49,16 +62,17 @@ export function getScope(
     return scopeManager.scopes[0]
 }
 
+export type KnownMethodCall = CallExpression & {
+    callee: MemberExpression & { object: Expression; property: Identifier }
+    arguments: Expression[]
+}
 /**
  * Checks whether given node is expected method call
  */
 export function isKnownMethodCall(
     node: CallExpression,
     methods: Record<string, number>,
-): node is CallExpression & {
-    callee: MemberExpression & { object: Expression; property: Identifier }
-    arguments: Expression[]
-} {
+): node is KnownMethodCall {
     const mem = node.callee
     if (
         mem.type !== "MemberExpression" ||

@@ -1,8 +1,7 @@
 import type { JSONSchema4 } from "json-schema"
 import type { Rule } from "eslint"
-export interface RuleListener {
-    [key: string]: (node: never) => void
-}
+
+export type RuleListener = Rule.RuleListener
 
 export interface RuleModule {
     meta: RuleMetaData
