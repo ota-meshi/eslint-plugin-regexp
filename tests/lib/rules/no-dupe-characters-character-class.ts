@@ -61,8 +61,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[0-9\\d]/",
             errors: [
                 {
-                    message: "The '\\d' is included in '0-9'.",
-                    column: 6,
+                    message: "The '0-9' is included in '\\d'.",
+                    column: 3,
                 },
             ],
         },
@@ -89,8 +89,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 { message: "The '\\u00a0' is included in '\\s'.", column: 16 },
                 { message: "The '\\u1680' is included in '\\s'.", column: 22 },
                 {
-                    message:
-                        "Unexpected intersection of '\\u2000-\\u200a' and '\\s' was found '\\u2000-\\u200a'.",
+                    message: "The '\\u2000-\\u200a' is included in '\\s'.",
                     column: 34,
                 },
                 { message: "The '\\u2028' is included in '\\s'.", column: 47 },
@@ -116,18 +115,15 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\wA-Za-z0-9_]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of 'A-Z' and '\\w' was found 'A-Z'.",
+                    message: "The 'A-Z' is included in '\\w'.",
                     column: 5,
                 },
                 {
-                    message:
-                        "Unexpected intersection of 'a-z' and '\\w' was found 'a-z'.",
+                    message: "The 'a-z' is included in '\\w'.",
                     column: 8,
                 },
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '\\w' was found '0-9'.",
+                    message: "The '0-9' is included in '\\w'.",
                     column: 11,
                 },
                 { message: "The '_' is included in '\\w'.", column: 14 },
@@ -175,11 +171,6 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
                 {
                     message:
-                        "Unexpected intersection of 'a-d' and 'c-d' was found 'c-d'.",
-                    column: 3,
-                },
-                {
-                    message:
                         "Unexpected intersection of 'e-h' and 'd-e' was found 'e'.",
                     column: 7,
                 },
@@ -199,8 +190,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 11,
                 },
                 {
-                    message:
-                        "Unexpected intersection of 'c-d' and 'a-d' was found 'c-d'.",
+                    message: "The 'c-d' is included in 'a-d'.",
                     column: 15,
                 },
                 {
@@ -269,24 +259,18 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\d 0-9_!-z]/",
             errors: [
                 {
-                    message: "The '\\d' is included in '0-9'.",
-                    column: 3,
-                },
-                {
                     message: "The '\\d' is included in '!-z'.",
                     column: 3,
                 },
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '!-z' was found '0-9'.",
+                    message: "The '0-9' is included in '!-z'.",
+                    column: 6,
+                },
+                {
+                    message: "The '0-9' is included in '\\d'.",
                     column: 6,
                 },
                 { message: "The '_' is included in '!-z'.", column: 9 },
-                {
-                    message:
-                        "Unexpected intersection of '!-z' and '0-9' was found '0-9'.",
-                    column: 10,
-                },
             ],
         },
         {
@@ -298,6 +282,10 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 3,
                 },
                 { message: "Unexpected element '\\W' duplication.", column: 5 },
+                {
+                    message: "The '\\W' is included in '\\D'.",
+                    column: 5,
+                },
                 { message: "The ' ' is included in '\\W'.", column: 9 },
                 { message: "The ' ' is included in '\\D'.", column: 9 },
                 {
@@ -310,6 +298,10 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
                 {
                     message: "Unexpected element '\\d' duplication.",
+                    column: 12,
+                },
+                {
+                    message: "The '\\d' is included in '\\w'.",
                     column: 12,
                 },
             ],
@@ -343,7 +335,17 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
                 {
                     message:
+                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
+                    column: 59,
+                },
+                {
+                    message:
                         "Unexpected element '\\p{Script=Hiragana}' duplication.",
+                    column: 68,
+                },
+                {
+                    message:
+                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
                     column: 68,
                 },
             ],
@@ -467,8 +469,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[a-z\\p{L}]/u",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of 'a-z' and '\\p{L}' was found 'a-z'.",
+                    message: "The 'a-z' is included in '\\p{L}'.",
                     column: 3,
                 },
             ],
@@ -487,6 +488,15 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message: "The '\\t' is included in '\\s'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[A-Z a-\uFFFF]/i`,
+            errors: [
+                {
+                    message: "The 'A-Z' is included in 'a-\\uFFFF'.",
                     column: 3,
                 },
             ],

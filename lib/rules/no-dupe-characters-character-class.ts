@@ -18,6 +18,7 @@ import {
     invisibleEscape,
 } from "../utils"
 import type { CharRange } from "../utils/char-ranges"
+import type { CharSet } from "refa"
 
 /**
  * Gets the two given range intersection.
@@ -34,78 +35,95 @@ function getRangesIntersection(a: CharRange, b: CharRange): CharRange | null {
 }
 
 /**
- * Gets the two given character class range intersection.
- * @param a The first character class range.
- * @param b The second character class range.
- * @returns the two given character class range is intersect.
+ * Gets the two given CharRanges intersections.
  */
-function getCharacterClassRangesIntersection(
-    a: CharacterClassRange,
-    b: CharacterClassRange,
-    { toCharSet }: RegExpContext,
-) {
-    return getRangesIntersection(toCharSet(a).ranges[0], toCharSet(b).ranges[0])
+function getCharRangesIntersections(
+    rangesA: readonly CharRange[],
+    rangesB: readonly CharRange[],
+): {
+    a: CharRange
+    b: CharRange
+    intersection: CharRange
+}[] {
+    const intersections = []
+    for (const a of rangesA) {
+        for (const b of rangesB) {
+            const intersection = getRangesIntersection(a, b)
+            if (intersection) {
+                intersections.push({ a, b, intersection })
+            }
+        }
+    }
+    return intersections
 }
 
 /**
- * Gets the two given character class range ans character set intersections.
+ * Gets the given character class range and other intersection.
  * @param range The character class range.
- * @param set The character set.
- * @returns the two given character class range ans character set intersections.
+ * @param other The character class range or character set.
  */
-function getCharacterClassRangeAndCharacterSetIntersections(
+function getCharacterClassRangeAndCharacterClassRangeOrCharacterSetIntersections(
     range: CharacterClassRange,
-    set: EscapeCharacterSet | UnicodePropertyCharacterSet,
+    other:
+        | CharacterClassRange
+        | EscapeCharacterSet
+        | UnicodePropertyCharacterSet,
     { toCharSet }: RegExpContext,
-): {
-    intersections: (number | CharRange)[]
-    set?: EscapeCharacterSet | UnicodePropertyCharacterSet
-} {
-    const codePointRange = {
-        min: range.min.value,
-        max: range.max.value,
+): (number | CharRange)[] {
+    if (other.type === "CharacterClassRange") {
+        return getCharRangesIntersections(
+            toCharSet(range).ranges,
+            toCharSet(other).ranges,
+        ).map(({ intersection }) => intersection)
     }
 
+    const minCodePoints = toCharSet(range.min).ranges.map(({ min: cp }) => cp)
+    const maxCodePoints = toCharSet(range.max).ranges.map(({ min: cp }) => cp)
+
     /**
-     * Checks if the given code point is at the edge of the range.
-     * @param codePoint The code point to check
-     * @returns `true` if the given code point is at the edge of the range.
+     * Gets the min and max that match the code points.
+     * @param codePoints The code points to check
      */
-    function isCodePointIsRangeEdge(codePoint: number) {
-        return (
-            codePointRange.min === codePoint || codePointRange.max === codePoint
-        )
+    function getMinAndMaxMatchCodePoints(codePoints: number[]) {
+        const result: number[] = []
+        if (minCodePoints.every((cp) => codePoints.includes(cp))) {
+            result.push(...minCodePoints)
+        }
+        if (maxCodePoints.every((cp) => codePoints.includes(cp))) {
+            result.push(...maxCodePoints)
+        }
+        return result
     }
 
     /**
      * Gets the intersections that do not separate the range.
-     * @param otherRange the range to check
-     * @returns intersection
+     * @param otherRanges the range to check
+     * @returns intersections
      */
-    function getIntersectionAndNotSeparate(otherRange: CharRange) {
-        const intersection = getRangesIntersection(codePointRange, otherRange)
-        if (intersection) {
+    function getIntersectionAndNotSeparate(otherRanges: CharRange[]) {
+        const intersections = []
+        for (const result of getCharRangesIntersections(
+            toCharSet(range).ranges,
+            otherRanges,
+        )) {
+            const codePointRange = result.a
+            const intersection = result.intersection
+
             if (
                 codePointRange.min < intersection.min &&
                 intersection.max < codePointRange.max
             ) {
                 // When separating the range, the intersection is not returned.
-                return null
+                continue
             }
+            intersections.push(intersection)
         }
-        return intersection
-    }
-
-    if (toCharSet(range).isSupersetOf(toCharSet(set))) {
-        return {
-            intersections: [],
-            set,
-        }
+        return intersections
     }
 
     const ranges: CharRange[] = []
     const codePoints: number[] = []
-    for (const r of toCharSet(set).ranges) {
+    for (const r of toCharSet(other).ranges) {
         if (r.min === r.max) {
             codePoints.push(r.min)
         } else {
@@ -113,17 +131,9 @@ function getCharacterClassRangeAndCharacterSetIntersections(
         }
     }
 
-    const result: number[] = codePoints.filter(isCodePointIsRangeEdge)
-    const intersections: CharRange[] = []
-    for (const r of ranges) {
-        const intersection = getIntersectionAndNotSeparate(r)
-        if (intersection) {
-            intersections.push(intersection)
-        }
-    }
-    return {
-        intersections: [...result, ...intersections],
-    }
+    const result = getMinAndMaxMatchCodePoints(codePoints)
+    const intersections = getIntersectionAndNotSeparate(ranges)
+    return [...result, ...intersections]
 }
 
 /**
@@ -152,8 +162,7 @@ function groupingElements(
                 characters.set(key, [e])
             }
         } else if (e.type === "CharacterClassRange") {
-            const range = charSet.ranges[0]
-            const key = String.fromCodePoint(range.min, range.max)
+            const key = buildRangeKey(charSet)
             const list = characterClassRanges.get(key)
             if (list) {
                 list.push(e)
@@ -176,6 +185,15 @@ function groupingElements(
         characterClassRanges: [...characterClassRanges.values()],
         characterSets: [...characterSets.values()],
     }
+
+    /**
+     * Build key of range
+     */
+    function buildRangeKey(rangeCharSet: CharSet) {
+        return rangeCharSet.ranges
+            .map((r) => String.fromCodePoint(r.min, r.max))
+            .join(",")
+    }
 }
 
 export default createRule("no-dupe-characters-character-class", {
@@ -189,7 +207,6 @@ export default createRule("no-dupe-characters-character-class", {
         schema: [],
         messages: {
             duplicates: "Unexpected element '{{element}}' duplication.",
-            charIsIncluded: "The '{{char}}' is included in '{{element}}'.",
             elementIsInElement:
                 "The '{{reportElement}}' is included in '{{element}}'.",
             intersect:
@@ -198,6 +215,11 @@ export default createRule("no-dupe-characters-character-class", {
     },
     create(context) {
         const sourceCode = context.getSourceCode()
+
+        const elementInElementReported = new Map<
+            CharacterClassElement,
+            CharacterClassElement[]
+        >()
 
         /**
          * Report duplicate elements.
@@ -214,30 +236,6 @@ export default createRule("no-dupe-characters-character-class", {
                     loc: getRegexpLocation(sourceCode, node, element),
                     messageId: "duplicates",
                     data: {
-                        element: element.raw,
-                    },
-                })
-            }
-        }
-
-        /**
-         * Report the character included in the element.
-         * @param node The node to report.
-         * @param characters The characters to report
-         * @param element The element
-         */
-        function reportCharIncluded(
-            node: Expression,
-            characters: Character[],
-            element: CharacterClassElement,
-        ) {
-            for (const char of characters) {
-                context.report({
-                    node,
-                    loc: getRegexpLocation(sourceCode, node, char),
-                    messageId: "charIsIncluded",
-                    data: {
-                        char: char.raw,
                         element: element.raw,
                     },
                 })
@@ -280,26 +278,51 @@ export default createRule("no-dupe-characters-character-class", {
         }
 
         /**
+         * Checks if it was reported as the element included in the element.
+         */
+        function isElementInElementReported(
+            a: CharacterClassElement,
+            b: CharacterClassElement,
+        ) {
+            return (
+                elementInElementReported.get(a)?.includes(b) ||
+                elementInElementReported.get(b)?.includes(a)
+            )
+        }
+
+        /**
          * Report the element included in the element.
          */
         function reportElementInElement(
             node: Expression,
-            reportElement:
-                | Exclude<CharacterSet, AnyCharacterSet>
-                | CharacterClassRange,
+            reportElements: CharacterClassElement[],
             element:
                 | Exclude<CharacterSet, AnyCharacterSet>
                 | CharacterClassRange,
         ) {
-            context.report({
-                node,
-                loc: getRegexpLocation(sourceCode, node, reportElement),
-                messageId: "elementIsInElement",
-                data: {
-                    reportElement: reportElement.raw,
-                    element: element.raw,
-                },
-            })
+            for (const reportElement of reportElements) {
+                context.report({
+                    node,
+                    loc: getRegexpLocation(sourceCode, node, reportElement),
+                    messageId: "elementIsInElement",
+                    data: {
+                        reportElement: reportElement.raw,
+                        element: element.raw,
+                    },
+                })
+            }
+            let reportedList = elementInElementReported.get(reportElements[0])
+            if (reportedList) {
+                reportedList.push(element)
+            } else {
+                elementInElementReported.set(reportElements[0], [element])
+            }
+            reportedList = elementInElementReported.get(element)
+            if (reportedList) {
+                reportedList.push(reportElements[0])
+            } else {
+                elementInElementReported.set(element, [reportElements[0]])
+            }
         }
 
         /**
@@ -314,6 +337,7 @@ export default createRule("no-dupe-characters-character-class", {
         ): RegExpVisitor.Handlers {
             const { toCharSet, node } = regexpContext
             return {
+                // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const {
                         characters,
@@ -335,7 +359,7 @@ export default createRule("no-dupe-characters-character-class", {
                                     toCharSet(char),
                                 )
                             ) {
-                                reportCharIncluded(
+                                reportElementInElement(
                                     node,
                                     [char, ...dupeChars],
                                     rangeOrSet,
@@ -349,41 +373,45 @@ export default createRule("no-dupe-characters-character-class", {
                             reportDuplicates(node, [range, ...dupeRanges])
                         }
 
-                        for (const [rangeOther] of characterClassRanges.filter(
-                            ([ccr]) => ccr !== range,
-                        )) {
-                            const intersection = getCharacterClassRangesIntersection(
-                                range,
-                                rangeOther,
-                                regexpContext,
-                            )
-                            if (intersection) {
-                                reportIntersect(
+                        for (const [other, ...others] of [
+                            ...characterClassRanges.filter(
+                                ([ccr]) => ccr !== range,
+                            ),
+                            ...characterSets,
+                        ]) {
+                            if (isElementInElementReported(range, other)) {
+                                continue
+                            }
+                            if (
+                                toCharSet(other).isSupersetOf(toCharSet(range))
+                            ) {
+                                reportElementInElement(
                                     node,
                                     [range, ...dupeRanges],
-                                    rangeOther,
-                                    intersection,
+                                    other,
                                 )
+                                continue
                             }
-                        }
-
-                        for (const [set] of characterSets) {
-                            const {
-                                set: reportSet,
-                                intersections,
-                            } = getCharacterClassRangeAndCharacterSetIntersections(
+                            if (
+                                toCharSet(range).isSupersetOf(toCharSet(other))
+                            ) {
+                                reportElementInElement(
+                                    node,
+                                    [other, ...others],
+                                    range,
+                                )
+                                continue
+                            }
+                            const intersections = getCharacterClassRangeAndCharacterClassRangeOrCharacterSetIntersections(
                                 range,
-                                set,
+                                other,
                                 regexpContext,
                             )
-                            if (reportSet) {
-                                reportElementInElement(node, reportSet, range)
-                            }
                             for (const intersection of intersections) {
                                 reportIntersect(
                                     node,
                                     [range, ...dupeRanges],
-                                    set,
+                                    other,
                                     intersection,
                                 )
                             }
@@ -393,13 +421,19 @@ export default createRule("no-dupe-characters-character-class", {
                         if (dupeSets.length) {
                             reportDuplicates(node, [set, ...dupeSets])
                         }
-                        for (const [otherSet] of characterSets.filter(
-                            ([o]) => o !== set,
-                        )) {
-                            if (
-                                toCharSet(otherSet).isSupersetOf(toCharSet(set))
-                            ) {
-                                reportElementInElement(node, set, otherSet)
+                        for (const [other] of [
+                            ...characterSets.filter(([o]) => o !== set),
+                            ...characterClassRanges,
+                        ]) {
+                            if (isElementInElementReported(set, other)) {
+                                continue
+                            }
+                            if (toCharSet(other).isSupersetOf(toCharSet(set))) {
+                                reportElementInElement(
+                                    node,
+                                    [set, ...dupeSets],
+                                    other,
+                                )
                             }
                         }
                     }
