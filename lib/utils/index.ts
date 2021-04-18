@@ -248,15 +248,15 @@ function buildRegexpVisitor(
             }
             const flags = parseFlags(node.regex.flags)
             verify(node.regex.pattern, flags, function* (helpers) {
+                const regexpContext: RegExpContextForLiteral = {
+                    node,
+                    pattern: node.regex.pattern,
+                    flags,
+                    regexpNode: node,
+                    ...helpers,
+                }
                 for (const rule of rules) {
                     if (rule.createLiteralVisitor) {
-                        const regexpContext: RegExpContextForLiteral = {
-                            node,
-                            pattern: node.regex.pattern,
-                            flags,
-                            regexpNode: node,
-                            ...helpers,
-                        }
                         yield rule.createLiteralVisitor(
                             node,
                             node.regex.pattern,
@@ -353,14 +353,14 @@ function buildRegexpVisitor(
                     }
                     const flags = parseFlags(flagsStr || "")
                     verify(pattern, flags, function* (helpers) {
+                        const regexpContext: RegExpContextForSource = {
+                            node: verifyPatternNode,
+                            pattern,
+                            flags,
+                            regexpNode: newOrCall,
+                            ...helpers,
+                        }
                         for (const rule of rules) {
-                            const regexpContext: RegExpContextForSource = {
-                                node: verifyPatternNode,
-                                pattern,
-                                flags,
-                                regexpNode: newOrCall,
-                                ...helpers,
-                            }
                             if (rule.createSourceVisitor) {
                                 yield rule.createSourceVisitor(
                                     verifyPatternNode,
