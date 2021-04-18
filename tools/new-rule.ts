@@ -45,9 +45,14 @@ export default createRule("${ruleId}", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            _node: Expression,
+            _pattern: string,
+            _flagsStr: string,
+            _regexpNode: Expression,
+            regexpContext: RegExpContext
+        ): RegExpVisitor.Handlers {
         }
         return defineRegexpVisitor(context, {
             createVisitor,

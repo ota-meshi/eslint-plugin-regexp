@@ -18,21 +18,45 @@ import {
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
 import { findVariable } from "./ast-utils"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
+import { toCharSet } from "regexp-ast-analysis"
+import type { CharSet } from "refa"
 export * from "./unicode"
+
+export type ToCharSet = (node: ToCharSetElement) => CharSet
+export type RegExpHelpers = {
+    toCharSet: ToCharSet
+}
+export type RegExpContextForLiteral = {
+    node: ESTree.RegExpLiteral
+    pattern: string
+    flags: ReadonlyFlags
+    regexpNode: ESTree.RegExpLiteral
+} & RegExpHelpers
+export type RegExpContextForSource = {
+    node: ESTree.Expression
+    pattern: string
+    flags: ReadonlyFlags
+    regexpNode: ESTree.NewExpression | ESTree.CallExpression
+} & RegExpHelpers
+export type RegExpContext = RegExpContextForLiteral | RegExpContextForSource
 
 type RegexpRule = {
     createLiteralVisitor?: (
+        // TODO Remove the three arguments and change it to use only the context.
         node: ESTree.RegExpLiteral,
         pattern: string,
         flags: string,
         regexpNode: ESTree.RegExpLiteral,
+        context: RegExpContextForLiteral,
     ) => RegExpVisitor.Handlers
     createSourceVisitor?: (
+        // TODO Remove the three arguments and change it to use only the context.
         node: ESTree.Expression,
         pattern: string,
         flags: string,
         regexpNode: ESTree.NewExpression | ESTree.CallExpression,
+        context: RegExpContextForSource,
     ) => RegExpVisitor.Handlers
 }
 const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
@@ -105,6 +129,7 @@ export function defineRegexpVisitor(
                       | ESTree.RegExpLiteral
                       | ESTree.NewExpression
                       | ESTree.CallExpression,
+                  context: RegExpContext,
               ) => RegExpVisitor.Handlers
           },
 ): RuleListener {
@@ -155,8 +180,10 @@ function buildRegexpVisitor(
      */
     function verify(
         pattern: string,
-        flags: string,
-        createVisitors: () => IterableIterator<RegExpVisitor.Handlers>,
+        flags: ReadonlyFlags,
+        createVisitors: (
+            helpers: RegExpHelpers,
+        ) => IterableIterator<RegExpVisitor.Handlers>,
     ) {
         let patternNode
 
@@ -165,15 +192,28 @@ function buildRegexpVisitor(
                 pattern,
                 0,
                 pattern.length,
-                flags.includes("u"),
+                flags.unicode,
             )
         } catch {
             // Ignore regular expressions with syntax errors
             return
         }
 
+        const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
+        const helpers: RegExpHelpers = {
+            toCharSet: (node) => {
+                let charSet = cacheCharSet.get(node)
+                if (charSet) {
+                    return charSet
+                }
+                charSet = toCharSet(node, flags)
+                cacheCharSet.set(node, charSet)
+                return charSet
+            },
+        }
+
         const handler: RegExpVisitor.Handlers = {}
-        for (const visitor of createVisitors()) {
+        for (const visitor of createVisitors(helpers)) {
             for (const [key, fn] of Object.entries(visitor) as [
                 keyof RegExpVisitor.Handlers,
                 RegExpVisitor.Handlers[keyof RegExpVisitor.Handlers],
@@ -202,21 +242,31 @@ function buildRegexpVisitor(
 
     return {
         "Program:exit": programExit,
-        Literal(node: ESTree.Literal & Rule.NodeParentExtension) {
-            if ("regex" in node) {
-                verify(node.regex.pattern, node.regex.flags, function* () {
-                    for (const rule of rules) {
-                        if (rule.createLiteralVisitor) {
-                            yield rule.createLiteralVisitor(
-                                node,
-                                node.regex.pattern,
-                                node.regex.flags,
-                                node,
-                            )
-                        }
-                    }
-                })
+        Literal(node: ESTree.Literal) {
+            if (!isRegexpLiteral(node)) {
+                return
             }
+            const flags = parseFlags(node.regex.flags)
+            verify(node.regex.pattern, flags, function* (helpers) {
+                for (const rule of rules) {
+                    if (rule.createLiteralVisitor) {
+                        const regexpContext: RegExpContextForLiteral = {
+                            node,
+                            pattern: node.regex.pattern,
+                            flags,
+                            regexpNode: node,
+                            ...helpers,
+                        }
+                        yield rule.createLiteralVisitor(
+                            node,
+                            node.regex.pattern,
+                            node.regex.flags,
+                            node,
+                            regexpContext,
+                        )
+                    }
+                }
+            })
         },
         // eslint-disable-next-line complexity -- X(
         Program() {
@@ -260,7 +310,7 @@ function buildRegexpVisitor(
                 newOrCall,
                 patternNode,
                 pattern,
-                flags,
+                flags: flagsStr,
             } of regexpDataList) {
                 if (typeof pattern === "string") {
                     let verifyPatternNode = patternNode
@@ -285,7 +335,7 @@ function buildRegexpVisitor(
                                                 (r) =>
                                                     r.patternNode ===
                                                         ref.identifier &&
-                                                    r.flags === flags,
+                                                    r.flags === flagsStr,
                                             )
                                         })
                                     ) {
@@ -301,14 +351,23 @@ function buildRegexpVisitor(
                             }
                         }
                     }
-                    verify(pattern, flags || "", function* () {
+                    const flags = parseFlags(flagsStr || "")
+                    verify(pattern, flags, function* (helpers) {
                         for (const rule of rules) {
+                            const regexpContext: RegExpContextForSource = {
+                                node: verifyPatternNode,
+                                pattern,
+                                flags,
+                                regexpNode: newOrCall,
+                                ...helpers,
+                            }
                             if (rule.createSourceVisitor) {
                                 yield rule.createSourceVisitor(
                                     verifyPatternNode,
                                     pattern,
-                                    flags || "",
+                                    flagsStr || "",
                                     newOrCall,
+                                    regexpContext,
                                 )
                             }
                         }
