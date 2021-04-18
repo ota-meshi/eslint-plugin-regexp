@@ -11,130 +11,10 @@ import type {
     AnyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    invisibleEscape,
-} from "../utils"
-import type { CharRange } from "../utils/char-ranges"
+import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
 import type { CharSet } from "refa"
-
-/**
- * Gets the two given range intersection.
- * @param a The first range.
- * @param b The second range.
- * @returns the two given range intersection.
- */
-function getRangesIntersection(a: CharRange, b: CharRange): CharRange | null {
-    if (b.max < a.min || a.max < b.min) {
-        return null
-    }
-
-    return { min: Math.max(a.min, b.min), max: Math.min(a.max, b.max) }
-}
-
-/**
- * Gets the two given CharRanges intersections.
- */
-function getCharRangesIntersections(
-    rangesA: readonly CharRange[],
-    rangesB: readonly CharRange[],
-): {
-    a: CharRange
-    b: CharRange
-    intersection: CharRange
-}[] {
-    const intersections = []
-    for (const a of rangesA) {
-        for (const b of rangesB) {
-            const intersection = getRangesIntersection(a, b)
-            if (intersection) {
-                intersections.push({ a, b, intersection })
-            }
-        }
-    }
-    return intersections
-}
-
-/**
- * Gets the given character class range and other intersection.
- * @param range The character class range.
- * @param other The character class range or character set.
- */
-function getCharacterClassRangeAndCharacterClassRangeOrCharacterSetIntersections(
-    range: CharacterClassRange,
-    other:
-        | CharacterClassRange
-        | EscapeCharacterSet
-        | UnicodePropertyCharacterSet,
-    { toCharSet }: RegExpContext,
-): (number | CharRange)[] {
-    if (other.type === "CharacterClassRange") {
-        return getCharRangesIntersections(
-            toCharSet(range).ranges,
-            toCharSet(other).ranges,
-        ).map(({ intersection }) => intersection)
-    }
-
-    const minCodePoints = toCharSet(range.min).ranges.map(({ min: cp }) => cp)
-    const maxCodePoints = toCharSet(range.max).ranges.map(({ min: cp }) => cp)
-
-    /**
-     * Gets the min and max that match the code points.
-     * @param codePoints The code points to check
-     */
-    function getMinAndMaxMatchCodePoints(codePoints: number[]) {
-        const result: number[] = []
-        if (minCodePoints.every((cp) => codePoints.includes(cp))) {
-            result.push(...minCodePoints)
-        }
-        if (maxCodePoints.every((cp) => codePoints.includes(cp))) {
-            result.push(...maxCodePoints)
-        }
-        return result
-    }
-
-    /**
-     * Gets the intersections that do not separate the range.
-     * @param otherRanges the range to check
-     * @returns intersections
-     */
-    function getIntersectionAndNotSeparate(otherRanges: CharRange[]) {
-        const intersections = []
-        for (const result of getCharRangesIntersections(
-            toCharSet(range).ranges,
-            otherRanges,
-        )) {
-            const codePointRange = result.a
-            const intersection = result.intersection
-
-            if (
-                codePointRange.min < intersection.min &&
-                intersection.max < codePointRange.max
-            ) {
-                // When separating the range, the intersection is not returned.
-                continue
-            }
-            intersections.push(intersection)
-        }
-        return intersections
-    }
-
-    const ranges: CharRange[] = []
-    const codePoints: number[] = []
-    for (const r of toCharSet(other).ranges) {
-        if (r.min === r.max) {
-            codePoints.push(r.min)
-        } else {
-            ranges.push(r)
-        }
-    }
-
-    const result = getMinAndMaxMatchCodePoints(codePoints)
-    const intersections = getIntersectionAndNotSeparate(ranges)
-    return [...result, ...intersections]
-}
+import { JS } from "refa"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 
 /**
  * Grouping the given character class elements.
@@ -196,6 +76,22 @@ function groupingElements(
     }
 }
 
+/**
+ * Returns a readable representation of the given char set.
+ */
+function charSetToReadableString(
+    charSet: CharSet,
+    flags: ReadonlyFlags,
+): string {
+    return JS.toLiteral(
+        {
+            type: "Concatenation",
+            elements: [{ type: "CharacterClass", characters: charSet }],
+        },
+        { flags },
+    ).source
+}
+
 export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
@@ -253,16 +149,9 @@ export default createRule("no-dupe-characters-character-class", {
             node: Expression,
             elements: CharacterClassElement[],
             intersectElement: CharacterClassElement,
-            intersection: CharRange | number,
+            intersection: CharSet,
+            flags: ReadonlyFlags,
         ) {
-            const intersectionText =
-                typeof intersection === "number"
-                    ? invisibleEscape(intersection)
-                    : intersection.min === intersection.max
-                    ? invisibleEscape(intersection.min)
-                    : `${invisibleEscape(intersection.min)}-${invisibleEscape(
-                          intersection.max,
-                      )}`
             for (const element of elements) {
                 context.report({
                     node,
@@ -271,7 +160,10 @@ export default createRule("no-dupe-characters-character-class", {
                     data: {
                         elementA: element.raw,
                         elementB: intersectElement.raw,
-                        intersection: intersectionText,
+                        intersection: charSetToReadableString(
+                            intersection,
+                            flags,
+                        ),
                     },
                 })
             }
@@ -335,7 +227,7 @@ export default createRule("no-dupe-characters-character-class", {
             _regexpNode: Expression,
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { toCharSet, node } = regexpContext
+            const { toCharSet, node, flags } = regexpContext
             return {
                 // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode: CharacterClass) {
@@ -402,18 +294,25 @@ export default createRule("no-dupe-characters-character-class", {
                                 )
                                 continue
                             }
-                            const intersections = getCharacterClassRangeAndCharacterClassRangeOrCharacterSetIntersections(
-                                range,
-                                other,
-                                regexpContext,
+
+                            const intersection = toCharSet(range).intersect(
+                                toCharSet(other),
                             )
-                            for (const intersection of intersections) {
-                                reportIntersect(
-                                    node,
-                                    [range, ...dupeRanges],
-                                    other,
-                                    intersection,
+
+                            if (!intersection.isEmpty) {
+                                // only report if it includes the ends of the range.
+                                // there is no point in reporting overlaps that can't be fixed.
+                                if (
+                                    intersection.has(range.min.value) ||
+                                    intersection.has(range.max.value)
                                 )
+                                    reportIntersect(
+                                        node,
+                                        [range, ...dupeRanges],
+                                        other,
+                                        intersection,
+                                        flags,
+                                    )
                             }
                         }
                     }

@@ -206,33 +206,33 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 { message: "Unexpected element '3-6' duplication.", column: 3 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '3-4'.",
+                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
                     column: 3,
                 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '5-6'.",
+                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
                     column: 3,
                 },
                 { message: "Unexpected element '3-6' duplication.", column: 7 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '3-4'.",
+                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
                     column: 7,
                 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '5-6'.",
+                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
                     column: 7,
                 },
                 {
                     message:
-                        "Unexpected intersection of '2-4' and '3-6' was found '3-4'.",
+                        "Unexpected intersection of '2-4' and '3-6' was found '[34]'.",
                     column: 11,
                 },
                 {
                     message:
-                        "Unexpected intersection of '5-7' and '3-6' was found '5-6'.",
+                        "Unexpected intersection of '5-7' and '3-6' was found '[56]'.",
                     column: 15,
                 },
             ],
@@ -397,12 +397,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected intersection of '/-7' and '\\w' was found '0-7'.",
+                        "Unexpected intersection of '/-7' and '\\w' was found '[0-7]'.",
                     column: 6,
                 },
                 {
                     message:
-                        "Unexpected intersection of '8-:' and '\\w' was found '8-9'.",
+                        "Unexpected intersection of '8-:' and '\\w' was found '[89]'.",
                     column: 10,
                 },
             ],
@@ -422,12 +422,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found '_'.",
-                    column: 5,
-                },
-                {
-                    message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found 'A-Z'.",
+                        "Unexpected intersection of 'A-_' and '\\w' was found '[A-Z_]'.",
                     column: 5,
                 },
             ],
