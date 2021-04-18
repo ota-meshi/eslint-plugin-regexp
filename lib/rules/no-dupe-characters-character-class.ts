@@ -45,20 +45,20 @@ function getRangesIntersection(a: CharRange, b: CharRange): CharRange | null {
  * Gets the two given character class range intersection.
  * @param a The first character class range.
  * @param b The second character class range.
- * @returns { CharRange | null } the two given character class range is intersect.
+ * @returns the two given character class range is intersect.
  */
 function getCharacterClassRangesIntersection(
     a: NodeAndCharSet<CharacterClassRange>,
     b: NodeAndCharSet<CharacterClassRange>,
 ) {
-    return getRangesIntersection(getMinimumRange(a), getMinimumRange(b))
+    return getRangesIntersection(a.charSet.ranges[0], b.charSet.ranges[0])
 }
 
 /**
  * Gets the two given character class range ans character set intersections.
  * @param range The character class range.
  * @param set The character set.
- * @returns { (number | CharRange)[] } the two given character class range ans character set intersections.
+ * @returns the two given character class range ans character set intersections.
  */
 function getCharacterClassRangeAndCharacterSetIntersections(
     range: NodeAndCharSet<CharacterClassRange>,
@@ -75,7 +75,7 @@ function getCharacterClassRangeAndCharacterSetIntersections(
     /**
      * Checks if the given code point is at the edge of the range.
      * @param codePoint The code point to check
-     * @returns {boolean} `true` if the given code point is at the edge of the range.
+     * @returns `true` if the given code point is at the edge of the range.
      */
     function isCodePointIsRangeEdge(codePoint: number) {
         return (
@@ -133,19 +133,6 @@ function getCharacterClassRangeAndCharacterSetIntersections(
 }
 
 /**
- * Build key from CharacterClassRange
- */
-function getMinimumRange(classRange: NodeAndCharSet<CharacterClassRange>) {
-    let range: CharRange | null = null
-    for (const r of classRange.charSet.ranges) {
-        if (!range || range.min > r.min) {
-            range = r
-        }
-    }
-    return range!
-}
-
-/**
  * Grouping the given character class elements.
  * @param elements The elements to grouping.
  */
@@ -167,10 +154,7 @@ function groupingElements(
         const charSet = toCharSet(e, flags)
         if (e.type === "Character") {
             const nodeAndCharSet = { node: e, charSet }
-            const key = charSet.ranges.reduce(
-                (v, { min }) => Math.min(v, min),
-                Infinity,
-            )
+            const key = charSet.ranges[0].min
             const list = characters.get(key)
             if (list) {
                 list.push(nodeAndCharSet)
@@ -179,7 +163,7 @@ function groupingElements(
             }
         } else if (e.type === "CharacterClassRange") {
             const nodeAndCharSet = { node: e, charSet }
-            const range = getMinimumRange(nodeAndCharSet)
+            const range = charSet.ranges[0]
             const key = String.fromCodePoint(range.min, range.max)
             const list = characterClassRanges.get(key)
             if (list) {
@@ -189,7 +173,7 @@ function groupingElements(
             }
         } else if (e.type === "CharacterSet") {
             const nodeAndCharSet = { node: e, charSet }
-            const key = buildCharacterSetKey(e)
+            const key = e.raw
             const list = characterSets.get(key)
             if (list) {
                 list.push(nodeAndCharSet)
@@ -203,31 +187,6 @@ function groupingElements(
         characters: [...characters.values()],
         characterClassRanges: [...characterClassRanges.values()],
         characterSets: [...characterSets.values()],
-    }
-
-    /**
-     * Build key from CharacterSet
-     */
-    function buildCharacterSetKey(
-        characterSet: EscapeCharacterSet | UnicodePropertyCharacterSet,
-    ): string {
-        if (characterSet.kind === "digit") {
-            return characterSet.negate ? "D" : "d"
-        }
-        if (characterSet.kind === "space") {
-            return characterSet.negate ? "S" : "s"
-        }
-        if (characterSet.kind === "word") {
-            return characterSet.negate ? "W" : "w"
-        }
-        if (characterSet.kind === "property") {
-            return `${`${characterSet.negate ? "P" : "p"}{${
-                characterSet.value != null
-                    ? `${characterSet.key}=${characterSet.value}`
-                    : characterSet.key
-            }`}}`
-        }
-        return Symbol("unknown CharacterSet") as never
     }
 }
 

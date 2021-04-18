@@ -61,7 +61,7 @@ export const CP_RANGE_CAPITAL_LETTER = [CP_CAPITAL_A, CP_CAPITAL_Z] as const
  * Checks if the given code point is within the code point range.
  * @param codePoint The code point to check.
  * @param range The range of code points of the range.
- * @returns {boolean} `true` if the given character is within the character class range.
+ * @returns `true` if the given character is within the character class range.
  */
 function isCodePointInRange(
     codePoint: number,
@@ -73,7 +73,7 @@ function isCodePointInRange(
 /**
  * Checks if the given code point is digit.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is digit.
+ * @returns `true` if the given code point is digit.
  */
 export function isDigit(codePoint: number): boolean {
     return Chars.digit({}).has(codePoint)
@@ -81,7 +81,7 @@ export function isDigit(codePoint: number): boolean {
 /**
  * Checks if the given code point is lowercase.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is lowercase.
+ * @returns `true` if the given code point is lowercase.
  */
 export function isLowercaseLetter(codePoint: number): boolean {
     return isCodePointInRange(codePoint, CP_RANGE_SMALL_LETTER)
@@ -89,7 +89,7 @@ export function isLowercaseLetter(codePoint: number): boolean {
 /**
  * Checks if the given code point is uppercase.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is uppercase.
+ * @returns `true` if the given code point is uppercase.
  */
 export function isUppercaseLetter(codePoint: number): boolean {
     return isCodePointInRange(codePoint, CP_RANGE_CAPITAL_LETTER)
@@ -97,7 +97,7 @@ export function isUppercaseLetter(codePoint: number): boolean {
 /**
  * Checks if the given code point is letter.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is letter.
+ * @returns `true` if the given code point is letter.
  */
 export function isLetter(codePoint: number): boolean {
     return isLowercaseLetter(codePoint) || isUppercaseLetter(codePoint)
@@ -105,7 +105,7 @@ export function isLetter(codePoint: number): boolean {
 /**
  * Convert the given character to lowercase.
  * @param codePoint The code point to convert.
- * @returns {number} Converted code point.
+ * @returns Converted code point.
  */
 export function toLowerCodePoint(codePoint: number): number {
     if (isUppercaseLetter(codePoint)) {
@@ -116,7 +116,7 @@ export function toLowerCodePoint(codePoint: number): number {
 /**
  * Convert the given character to uppercase.
  * @param codePoint The code point to convert.
- * @returns {number} Converted code point.
+ * @returns Converted code point.
  */
 export function toUpperCodePoint(codePoint: number): number {
     if (isLowercaseLetter(codePoint)) {
@@ -127,7 +127,7 @@ export function toUpperCodePoint(codePoint: number): number {
 /**
  * Checks if the given code point is symbol.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is symbol.
+ * @returns `true` if the given code point is symbol.
  */
 export function isSymbol(codePoint: number): boolean {
     return (
@@ -141,7 +141,7 @@ export function isSymbol(codePoint: number): boolean {
 /**
  * Checks if the given code point is space.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is space.
+ * @returns `true` if the given code point is space.
  */
 export function isSpace(codePoint: number): boolean {
     return Chars.space({}).has(codePoint)
@@ -150,7 +150,7 @@ export function isSpace(codePoint: number): boolean {
 /**
  * Checks if the given code point is word.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is word.
+ * @returns `true` if the given code point is word.
  */
 export function isWord(codePoint: number): boolean {
     return Chars.word({}).has(codePoint)
@@ -159,7 +159,7 @@ export function isWord(codePoint: number): boolean {
 /**
  * Checks if the given code point is invisible character.
  * @param codePoint The code point to check
- * @returns {boolean} `true` if the given code point is invisible character.
+ * @returns `true` if the given code point is invisible character.
  */
 export function isInvisible(codePoint: number): boolean {
     if (isSpace(codePoint)) {
