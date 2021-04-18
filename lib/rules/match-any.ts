@@ -119,13 +119,10 @@ export default createRule("match-any", {
                 // Modify the entire regular expression literal to avoid conflicts due to flag changes.
 
                 // Mark regular expression flag changes to avoid conflicts due to flag changes.
-                const rangeOfRegExpLast: [number, number] = [
-                    node.range![1] - 1,
-                    node.range![1],
-                ]
+                const afterRange: [number, number] = [range[1], node.range![1]]
                 yield fixer.replaceTextRange(
-                    rangeOfRegExpLast,
-                    sourceCode.text.slice(...rangeOfRegExpLast),
+                    afterRange,
+                    sourceCode.text.slice(...afterRange),
                 )
             }
         }
