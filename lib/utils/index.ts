@@ -530,7 +530,7 @@ export function fixReplaceQuant(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     quantifier: Quantifier,
-    replacement: string | (() => string | null),
+    replacement: string | Quant | (() => string | Quant | null),
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix | null => {
         const range = getRegexpRange(sourceCode, node, quantifier)
@@ -539,7 +539,7 @@ export function fixReplaceQuant(
         }
 
         let text
-        if (typeof replacement === "string") {
+        if (typeof replacement !== "function") {
             text = replacement
         } else {
             text = replacement()
@@ -548,10 +548,21 @@ export function fixReplaceQuant(
             }
         }
 
-        const [startOffset, endOffset] = getQuantifierOffsets(quantifier)
+        const offset = getQuantifierOffsets(quantifier)
+
+        if (typeof text !== "string") {
+            if (
+                text.greedy !== undefined &&
+                text.greedy !== quantifier.greedy
+            ) {
+                // we also change the greediness of the quantifier
+                offset[1] += 1
+            }
+            text = quantToString(text)
+        }
 
         return fixer.replaceTextRange(
-            [range[0] + startOffset, range[0] + endOffset],
+            [range[0] + offset[0], range[0] + offset[1]],
             text,
         )
     }
@@ -602,7 +613,7 @@ export function quantToString(quant: Readonly<Quant>): string {
         value = `{${quant.min},${quant.max}}`
     }
 
-    if (!quant.greedy) {
+    if (quant.greedy === false) {
         return `${value}?`
     }
     return value
