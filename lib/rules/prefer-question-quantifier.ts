@@ -1,14 +1,7 @@
-import type { Expression } from "estree"
 import type { Group, Quantifier } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getQuantifierOffsets,
-    fixReplaceQuant,
-    fixReplaceNode,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, getQuantifierOffsets } from "../utils"
 
 export default createRule("prefer-question-quantifier", {
     meta: {
@@ -26,13 +19,15 @@ export default createRule("prefer-question-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            fixReplaceQuant,
+            fixReplaceNode,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === 0 && qNode.max === 1) {
@@ -43,22 +38,15 @@ export default createRule("prefer-question-quantifier", {
                         if (text !== "?") {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    qNode,
-                                    [startOffset, endOffset],
-                                ),
+                                loc: getRegexpLocation(qNode, [
+                                    startOffset,
+                                    endOffset,
+                                ]),
                                 messageId: "unexpected",
                                 data: {
                                     expr: text,
                                 },
-                                fix: fixReplaceQuant(
-                                    sourceCode,
-                                    node,
-                                    qNode,
-                                    "?",
-                                ),
+                                fix: fixReplaceQuant(qNode, "?"),
                             })
                         }
                     }
@@ -104,22 +92,13 @@ export default createRule("prefer-question-quantifier", {
                         }
                         context.report({
                             node,
-                            loc: getRegexpLocation(
-                                sourceCode,
-                                node,
-                                reportNode,
-                            ),
+                            loc: getRegexpLocation(reportNode),
                             messageId: "unexpectedGroup",
                             data: {
                                 expr: reportNode.raw,
                                 instead,
                             },
-                            fix: fixReplaceNode(
-                                sourceCode,
-                                node,
-                                reportNode,
-                                instead,
-                            ),
+                            fix: fixReplaceNode(reportNode, instead),
                         })
                     }
                 },

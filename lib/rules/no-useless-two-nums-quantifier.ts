@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getQuantifierOffsets,
-    fixReplaceQuant,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, getQuantifierOffsets } from "../utils"
 
 export default createRule("no-useless-two-nums-quantifier", {
     meta: {
@@ -22,13 +16,14 @@ export default createRule("no-useless-two-nums-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            fixReplaceQuant,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === qNode.max) {
@@ -41,7 +36,7 @@ export default createRule("no-useless-two-nums-quantifier", {
                         }
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, qNode, [
+                            loc: getRegexpLocation(qNode, [
                                 startOffset,
                                 endOffset,
                             ]),
@@ -49,12 +44,7 @@ export default createRule("no-useless-two-nums-quantifier", {
                             data: {
                                 expr: text,
                             },
-                            fix: fixReplaceQuant(
-                                sourceCode,
-                                node,
-                                qNode,
-                                `{${qNode.min}}`,
-                            ),
+                            fix: fixReplaceQuant(qNode, `{${qNode.min}}`),
                         })
                     }
                 },

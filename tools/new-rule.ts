@@ -26,7 +26,7 @@ const logger = console
 import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { CharacterClass } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import { createRule, defineRegexpVisitor, RegExpContext } from "../utils"
 
 export default createRule("${ruleId}", {
     meta: {
@@ -41,18 +41,11 @@ export default createRule("${ruleId}", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
          */
-        function createVisitor(
-            _node: Expression,
-            _pattern: string,
-            _flagsStr: string,
-            _regexpNode: Expression,
-            regexpContext: RegExpContext
-        ): RegExpVisitor.Handlers {
+        function createVisitor(regexpContext: RegExpContext): RegExpVisitor.Handlers {
+            const { node, flags, getRegexpLocation } = regexpContext
         }
         return defineRegexpVisitor(context, {
             createVisitor,

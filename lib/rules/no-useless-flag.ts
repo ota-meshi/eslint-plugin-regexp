@@ -1,13 +1,5 @@
-import {
-    compositingVisitors,
-    createRule,
-    defineRegexpVisitor,
-    FLAG_DOTALL,
-    FLAG_GLOBAL,
-    FLAG_IGNORECASE,
-    FLAG_MULTILINE,
-    parseFlags,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type {
     CallExpression,
     Expression,
@@ -22,7 +14,6 @@ import { findVariable, isKnownMethodCall, getParent } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule, SourceCode } from "eslint"
-import { toCharSet } from "regexp-ast-analysis"
 
 type CodePathStack = {
     codePathId: string
@@ -229,17 +220,11 @@ function fixRemoveFlag(
  */
 function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor(
-            _node: Expression,
-            _pattern: string,
-            flagsStr: string,
-            regexpNode: RegExpLiteral | NewExpression | CallExpression,
-        ) {
-            if (!flagsStr.includes(FLAG_IGNORECASE)) {
+        createVisitor({ flags, regexpNode, toCharSet }: RegExpContext) {
+            if (!flags.ignoreCase) {
                 return {}
             }
 
-            const flags = parseFlags(flagsStr)
             const flagsNoI = { ...flags, ignoreCase: false }
 
             let unnecessary = true
@@ -257,7 +242,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                     if (unnecessary) {
                         // all characters only accept themselves except if they
                         // are case sensitive
-                        if (toCharSet(cNode, flags).size > 1) {
+                        if (toCharSet(cNode).size > 1) {
                             unnecessary = false
                         }
                     }
@@ -273,7 +258,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                             unnecessary = false
                         }
                         if (cNode.kind === "property") {
-                            const caseInsensitive = toCharSet(cNode, flags)
+                            const caseInsensitive = toCharSet(cNode)
                             const caseSensitive = toCharSet(cNode, flagsNoI)
 
                             if (!caseInsensitive.equals(caseSensitive)) {
@@ -309,13 +294,8 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
  */
 function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor(
-            _node: Expression,
-            _pattern: string,
-            flags: string,
-            regexpNode: RegExpLiteral | NewExpression | CallExpression,
-        ) {
-            if (!flags.includes(FLAG_MULTILINE)) {
+        createVisitor({ flags, regexpNode }: RegExpContext) {
+            if (!flags.multiline) {
                 return {}
             }
             let unnecessary = true
@@ -352,13 +332,8 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
  */
 function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor(
-            _node: Expression,
-            _pattern: string,
-            flags: string,
-            regexpNode: RegExpLiteral | NewExpression | CallExpression,
-        ) {
-            if (!flags.includes(FLAG_DOTALL)) {
+        createVisitor({ flags, regexpNode }: RegExpContext) {
+            if (!flags.dotAll) {
                 return {}
             }
             let unnecessary = true
@@ -466,13 +441,8 @@ function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
 
     return compositingVisitors(
         defineRegexpVisitor(context, {
-            createVisitor(
-                _node: Expression,
-                _pattern: string,
-                flags: string,
-                regexpNode: RegExpLiteral | NewExpression | CallExpression,
-            ) {
-                if (flags.includes(FLAG_GLOBAL)) {
+            createVisitor({ flags, regexpNode }: RegExpContext) {
+                if (flags.global) {
                     const globalRegExp = new GlobalRegExpData(regexpNode)
                     globalRegExpList.push(globalRegExp)
                     globalRegExpMap.set(regexpNode, globalRegExp)

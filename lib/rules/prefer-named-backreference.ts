@@ -1,11 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("prefer-named-backreference", {
     meta: {
@@ -21,25 +16,24 @@ export default createRule("prefer-named-backreference", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixReplaceNode,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(bNode) {
                     if (bNode.resolved.name && !bNode.raw.startsWith("\\k<")) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, bNode),
+                            loc: getRegexpLocation(bNode),
                             messageId: "unexpected",
                             fix: fixReplaceNode(
-                                sourceCode,
-                                node,
                                 bNode,
-                                () => `\\k<${bNode.resolved.name}>`,
+                                `\\k<${bNode.resolved.name}>`,
                             ),
                         })
                     }

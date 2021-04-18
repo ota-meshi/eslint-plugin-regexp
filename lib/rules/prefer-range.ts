@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character, CharacterClassRange } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpRange } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
     getAllowedCharRanges,
     getAllowedCharValueSchema,
@@ -47,20 +47,19 @@ export default createRule("prefer-range", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            regexpContext: RegExpContext,
+        ): RegExpVisitor.Handlers {
+            const { node, getRegexpRange } = regexpContext
+
             /** Get report location ranges */
             function getReportRanges(
                 nodes: (Character | CharacterClassRange)[],
             ): [number, number][] | null {
                 const ranges: [number, number][] = []
                 for (const reportNode of nodes) {
-                    const reportRange = getRegexpRange(
-                        sourceCode,
-                        node,
-                        reportNode,
-                    )
+                    const reportRange = getRegexpRange(reportNode)
                     if (!reportRange) {
                         return null
                     }

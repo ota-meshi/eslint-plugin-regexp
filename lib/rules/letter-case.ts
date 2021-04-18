@@ -1,11 +1,9 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character, CharacterClassRange } from "regexpp/ast"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
     isLetter,
     isLowercaseLetter,
     isUppercaseLetter,
@@ -87,26 +85,25 @@ export default createRule("letter-case", {
     },
     create(context) {
         const options = parseOptions(context.options[0])
-        const sourceCode = context.getSourceCode()
 
         /**
          * Report
          */
         function report(
-            node: Expression,
+            { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             reportNode: CharacterClassRange | Character,
             letterCase: "lowercase" | "uppercase",
             convertText: (converter: (s: string) => string) => string,
         ) {
             context.report({
                 node,
-                loc: getRegexpLocation(sourceCode, node, reportNode),
+                loc: getRegexpLocation(reportNode),
                 messageId: "unexpected",
                 data: {
                     char: reportNode.raw,
                     case: letterCase,
                 },
-                fix: fixReplaceNode(sourceCode, node, reportNode, () =>
+                fix: fixReplaceNode(reportNode, () =>
                     convertText(CONVERTER[letterCase]),
                 ),
             })
@@ -114,7 +111,7 @@ export default createRule("letter-case", {
 
         /** Verify for Character in case insensitive */
         function verifyCharacterInCaseInsensitive(
-            node: Expression,
+            regexpContext: RegExpContext,
             cNode: Character,
         ) {
             if (
@@ -130,14 +127,14 @@ export default createRule("letter-case", {
                 return
             }
 
-            report(node, cNode, options.caseInsensitive, (converter) =>
+            report(regexpContext, cNode, options.caseInsensitive, (converter) =>
                 converter(String.fromCodePoint(cNode.value)),
             )
         }
 
         /** Verify for CharacterClassRange in case insensitive */
         function verifyCharacterClassRangeInCaseInsensitive(
-            node: Expression,
+            regexpContext: RegExpContext,
             ccrNode: CharacterClassRange,
         ) {
             if (options.caseInsensitive === "ignore") {
@@ -156,7 +153,7 @@ export default createRule("letter-case", {
                 return
             }
             report(
-                node,
+                regexpContext,
                 ccrNode,
                 options.caseInsensitive,
                 (converter) =>
@@ -168,7 +165,7 @@ export default createRule("letter-case", {
 
         /** Verify for Character in unicode escape */
         function verifyCharacterInUnicodeEscape(
-            node: Expression,
+            regexpContext: RegExpContext,
             cNode: Character,
         ) {
             if (options.unicodeEscape === "ignore") {
@@ -179,7 +176,7 @@ export default createRule("letter-case", {
                 return
             }
             report(
-                node,
+                regexpContext,
                 cNode,
                 options.unicodeEscape,
                 (converter) => `${parts[1]}${converter(parts[2])}${parts[3]}`,
@@ -188,7 +185,7 @@ export default createRule("letter-case", {
 
         /** Verify for Character in hexadecimal escape */
         function verifyCharacterInHexadecimalEscape(
-            node: Expression,
+            regexpContext: RegExpContext,
             cNode: Character,
         ) {
             if (options.hexadecimalEscape === "ignore") {
@@ -199,7 +196,7 @@ export default createRule("letter-case", {
                 return
             }
             report(
-                node,
+                regexpContext,
                 cNode,
                 options.hexadecimalEscape,
                 (converter) => `\\x${converter(parts[1])}`,
@@ -207,7 +204,10 @@ export default createRule("letter-case", {
         }
 
         /** Verify for Character in control escape */
-        function verifyCharacterInControl(node: Expression, cNode: Character) {
+        function verifyCharacterInControl(
+            regexpContext: RegExpContext,
+            cNode: Character,
+        ) {
             if (options.controlEscape === "ignore") {
                 return
             }
@@ -216,7 +216,7 @@ export default createRule("letter-case", {
                 return
             }
             report(
-                node,
+                regexpContext,
                 cNode,
                 options.controlEscape,
                 (converter) => `\\c${converter(parts[1])}`,
@@ -225,33 +225,31 @@ export default createRule("letter-case", {
 
         /**
          * Create visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flags: string,
+            regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
+            const { flags } = regexpContext
             return {
                 onCharacterEnter(cNode) {
-                    if (flags.includes("i")) {
-                        verifyCharacterInCaseInsensitive(node, cNode)
+                    if (flags.ignoreCase) {
+                        verifyCharacterInCaseInsensitive(regexpContext, cNode)
                     }
                     if (cNode.raw.startsWith("\\u")) {
-                        verifyCharacterInUnicodeEscape(node, cNode)
+                        verifyCharacterInUnicodeEscape(regexpContext, cNode)
                     }
                     if (/^\\x.+$/u.test(cNode.raw)) {
-                        verifyCharacterInHexadecimalEscape(node, cNode)
+                        verifyCharacterInHexadecimalEscape(regexpContext, cNode)
                     }
                     if (/^\\c[A-Za-z]$/u.test(cNode.raw)) {
-                        verifyCharacterInControl(node, cNode)
+                        verifyCharacterInControl(regexpContext, cNode)
                     }
                 },
-                ...(flags.includes("i")
+                ...(flags.ignoreCase
                     ? {
                           onCharacterClassRangeEnter(ccrNode) {
                               verifyCharacterClassRangeInCaseInsensitive(
-                                  node,
+                                  regexpContext,
                                   ccrNode,
                               )
                           },

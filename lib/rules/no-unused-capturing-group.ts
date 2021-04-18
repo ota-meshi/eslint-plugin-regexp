@@ -4,19 +4,13 @@ import type {
     Expression,
     FunctionExpression,
     MemberExpression,
-    NewExpression,
-    RegExpLiteral,
     Node as ESTreeNode,
     Pattern,
     Property,
 } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    compositingVisitors,
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, compositingVisitors } from "../utils"
 import type { KnownMethodCall } from "../utils/ast-utils"
 import { findVariable, isKnownMethodCall } from "../utils/ast-utils"
 import { getStaticValue } from "eslint-utils"
@@ -34,18 +28,15 @@ class CapturingData {
 
     public countOfCapturingGroup = 0
 
-    public readonly node: Expression
-
-    public readonly flags: string
+    public readonly regexpContext: RegExpContext
 
     private readonly state = {
         used: false,
         track: true,
     }
 
-    public constructor(node: Expression, flags: string) {
-        this.node = node
-        this.flags = flags
+    public constructor(regexpContext: RegExpContext) {
+        this.regexpContext = regexpContext
     }
 
     public getUnused(): {
@@ -313,7 +304,6 @@ export default createRule("no-unused-capturing-group", {
     },
     create(context) {
         const typeTracer = createTypeTracker(context)
-        const sourceCode = context.getSourceCode()
         const capturingDataMap = new Map<Expression, CapturingData>()
 
         /**
@@ -345,18 +335,15 @@ export default createRule("no-unused-capturing-group", {
          * Report for unused
          */
         function reportUnused(capturingData: CapturingData) {
+            const { node, getRegexpLocation } = capturingData.regexpContext
             const {
                 unusedCapturingGroups,
                 unusedNames,
             } = capturingData.getUnused()
             for (const cgNode of unusedCapturingGroups) {
                 context.report({
-                    node: capturingData.node,
-                    loc: getRegexpLocation(
-                        sourceCode,
-                        capturingData.node,
-                        cgNode,
-                    ),
+                    node,
+                    loc: getRegexpLocation(cgNode),
                     messageId: cgNode.name
                         ? "unusedNamedCapturingGroup"
                         : "unusedCapturingGroup",
@@ -365,12 +352,8 @@ export default createRule("no-unused-capturing-group", {
             }
             for (const cgNode of unusedNames) {
                 context.report({
-                    node: capturingData.node,
-                    loc: getRegexpLocation(
-                        sourceCode,
-                        capturingData.node,
-                        cgNode,
-                    ),
+                    node,
+                    loc: getRegexpLocation(cgNode),
                     messageId: "unusedName",
                     data: { name: cgNode.name },
                 })
@@ -387,7 +370,7 @@ export default createRule("no-unused-capturing-group", {
                 capturingData.markAsCannotTrack()
                 return
             }
-            if (capturingData.flags.includes("g")) {
+            if (capturingData.regexpContext.flags.global) {
                 // String.prototype.match() with g flag
                 capturingData.markAsUsed()
             } else {
@@ -643,15 +626,12 @@ export default createRule("no-unused-capturing-group", {
 
         /**
          * Create RegExp visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flags: string,
-            regexpNode: RegExpLiteral | NewExpression | CallExpression,
+            regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const capturingData = new CapturingData(node, flags)
+            const { regexpNode } = regexpContext
+            const capturingData = new CapturingData(regexpContext)
             capturingDataMap.set(regexpNode, capturingData)
             return capturingData.visitor()
         }

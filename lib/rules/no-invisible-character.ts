@@ -1,12 +1,10 @@
-import type { RegExpLiteral, Literal } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { AST } from "eslint"
+import type { RegExpContextForLiteral, RegExpContextForSource } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    getRegexpLocation,
     invisibleEscape,
-    getRegexpRange,
     isInvisible,
 } from "../utils"
 
@@ -29,11 +27,12 @@ export default createRule("no-invisible-character", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createLiteralVisitor(
-            node: RegExpLiteral,
-        ): RegExpVisitor.Handlers {
+        function createLiteralVisitor({
+            node,
+            getRegexpLocation,
+            getRegexpRange,
+        }: RegExpContextForLiteral): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
                     if (cNode.raw === " ") {
@@ -45,17 +44,13 @@ export default createRule("no-invisible-character", {
                         )
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, cNode),
+                            loc: getRegexpLocation(cNode),
                             messageId: "unexpected",
                             data: {
                                 instead,
                             },
                             fix(fixer) {
-                                const range = getRegexpRange(
-                                    sourceCode,
-                                    node,
-                                    cNode,
-                                )
+                                const range = getRegexpRange(cNode)
 
                                 return fixer.replaceTextRange(range, instead)
                             },
@@ -67,9 +62,8 @@ export default createRule("no-invisible-character", {
 
         /**
          * Verify a given string literal.
-         * @param node
          */
-        function verifyString(node: Literal): void {
+        function verifyString({ node }: RegExpContextForSource): void {
             const text = sourceCode.getText(node)
 
             let index = 0
@@ -102,9 +96,9 @@ export default createRule("no-invisible-character", {
 
         return defineRegexpVisitor(context, {
             createLiteralVisitor,
-            createSourceVisitor(node) {
-                if (node.type === "Literal") {
-                    verifyString(node)
+            createSourceVisitor(regexpContext) {
+                if (regexpContext.node.type === "Literal") {
+                    verifyString(regexpContext)
                 }
                 return {} // no visit
             },

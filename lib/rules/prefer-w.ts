@@ -1,12 +1,10 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { CharacterClass, CharacterClassElement } from "regexpp/ast"
 import type { Rule } from "eslint"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    getRegexpLocation,
-    getRegexpRange,
     CP_SMALL_A,
     CP_SMALL_Z,
     CP_CAPITAL_A,
@@ -14,9 +12,6 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
     CP_LOW_LINE,
-    FLAG_IGNORECASE,
-    fixerApplyEscape,
-    fixReplaceNode,
 } from "../utils"
 
 /**
@@ -79,17 +74,17 @@ export default createRule("prefer-w", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flags: string,
-        ): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            flags,
+            getRegexpLocation,
+            fixReplaceNode,
+            getRegexpRange,
+            fixerApplyEscape,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const lowerAToZ: CharacterClassElement[] = []
@@ -99,14 +94,14 @@ export default createRule("prefer-w", {
                     for (const element of ccNode.elements) {
                         if (isSmallLetterCharacterClassRange(element)) {
                             lowerAToZ.push(element)
-                            if (flags.includes(FLAG_IGNORECASE)) {
+                            if (flags.ignoreCase) {
                                 capitalAToZ.push(element)
                             }
                         } else if (
                             isCapitalLetterCharacterClassRange(element)
                         ) {
                             capitalAToZ.push(element)
-                            if (flags.includes(FLAG_IGNORECASE)) {
+                            if (flags.ignoreCase) {
                                 lowerAToZ.push(element)
                             }
                         } else if (isDigitCharacterClass(element)) {
@@ -136,32 +131,19 @@ export default createRule("prefer-w", {
                             const instead = ccNode.negate ? "\\W" : "\\w"
                             context.report({
                                 node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                ),
+                                loc: getRegexpLocation(ccNode),
                                 messageId: "unexpected",
                                 data: {
                                     type: "character class",
                                     expr: ccNode.raw,
                                     instead,
                                 },
-                                fix: fixReplaceNode(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                    instead,
-                                ),
+                                fix: fixReplaceNode(ccNode, instead),
                             })
                         } else {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    ccNode,
-                                ),
+                                loc: getRegexpLocation(ccNode),
                                 messageId: "unexpected",
                                 data: {
                                     type: "character class ranges",
@@ -171,29 +153,19 @@ export default createRule("prefer-w", {
                                     instead: "\\w",
                                 },
                                 *fix(fixer: Rule.RuleFixer) {
-                                    const range = getRegexpRange(
-                                        sourceCode,
-                                        node,
-                                        ccNode,
-                                    )
+                                    const range = getRegexpRange(ccNode)
                                     if (range == null) {
                                         return
                                     }
                                     yield fixer.replaceTextRange(
                                         getRegexpRange(
-                                            sourceCode,
-                                            node,
                                             unexpectedElements.shift()!,
                                         )!,
-                                        fixerApplyEscape("\\w", node),
+                                        fixerApplyEscape("\\w"),
                                     )
                                     for (const element of unexpectedElements) {
                                         yield fixer.removeRange(
-                                            getRegexpRange(
-                                                sourceCode,
-                                                node,
-                                                element,
-                                            )!,
+                                            getRegexpRange(element)!,
                                         )
                                     }
                                 },

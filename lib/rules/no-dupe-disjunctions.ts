@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     CapturingGroup,
@@ -7,7 +6,8 @@ import type {
     Pattern,
     Quantifier,
 } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 
 export default createRule("no-dupe-disjunctions", {
@@ -38,7 +38,6 @@ export default createRule("no-dupe-disjunctions", {
         const disallowNeverMatch = Boolean(
             context.options[0]?.disallowNeverMatch,
         )
-        const sourceCode = context.getSourceCode()
 
         /**
          * Check has after pattern
@@ -74,13 +73,12 @@ export default createRule("no-dupe-disjunctions", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(
-            node: Expression,
-            _p: string,
-            flags: string,
-        ): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            flags,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             /** Verify group node */
             function verify(
                 regexpNode:
@@ -111,7 +109,7 @@ export default createRule("no-dupe-disjunctions", {
                     if (dupeAlt) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, alt),
+                            loc: getRegexpLocation(alt),
                             messageId:
                                 disallowNeverMatch &&
                                 !isEqualNodes(dupeAlt, alt)

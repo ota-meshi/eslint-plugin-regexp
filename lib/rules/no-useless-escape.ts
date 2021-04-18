@@ -1,10 +1,9 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character } from "regexpp/ast"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    getRegexpLocation,
     CP_BACK_SLASH,
     CP_STAR,
     CP_CLOSING_BRACKET,
@@ -62,13 +61,13 @@ export default createRule("no-useless-escape", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             /** Report */
             function report(
                 cNode: Character,
@@ -77,10 +76,7 @@ export default createRule("no-useless-escape", {
             ) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, cNode, [
-                        offset,
-                        offset + 1,
-                    ]),
+                    loc: getRegexpLocation(cNode, [offset, offset + 1]),
                     messageId: "unnecessary",
                     data: {
                         character,

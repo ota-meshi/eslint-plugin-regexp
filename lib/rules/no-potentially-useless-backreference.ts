@@ -1,6 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
     isEmptyBackreference,
     isStrictBackreference,
@@ -24,13 +24,13 @@ export default createRule("no-potentially-useless-backreference", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(backreference) {
                     if (isEmptyBackreference(backreference)) {
@@ -41,11 +41,7 @@ export default createRule("no-potentially-useless-backreference", {
                     if (!isStrictBackreference(backreference)) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(
-                                sourceCode,
-                                node,
-                                backreference,
-                            ),
+                            loc: getRegexpLocation(backreference),
                             messageId: "potentiallyUselessBackreference",
                         })
                     }

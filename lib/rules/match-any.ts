@@ -1,17 +1,8 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Rule } from "eslint"
 import type { CharacterClass, Node as RegExpNode } from "regexpp/ast"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getRegexpRange,
-    fixerApplyEscape,
-    parseFlags,
-    isRegexpLiteral,
-} from "../utils"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, isRegexpLiteral } from "../utils"
 import { matchesAllCharacters } from "regexp-ast-analysis"
 
 const OPTION_SS1 = "[\\s\\S]" as const
@@ -74,9 +65,8 @@ export default createRule("match-any", {
          */
         function* fix(
             fixer: Rule.RuleFixer,
-            node: Expression,
+            { node, flags, getRegexpRange, fixerApplyEscape }: RegExpContext,
             regexpNode: RegExpNode,
-            flags: ReadonlyFlags,
         ) {
             if (!preference) {
                 return
@@ -91,7 +81,7 @@ export default createRule("match-any", {
                     return
                 }
             }
-            const range = getRegexpRange(sourceCode, node, regexpNode)
+            const range = getRegexpRange(regexpNode)
             if (range == null) {
                 return
             }
@@ -103,16 +93,13 @@ export default createRule("match-any", {
             ) {
                 yield fixer.replaceTextRange(
                     [range[0] + 1, range[1] - 1],
-                    fixerApplyEscape(preference.slice(1, -1), node),
+                    fixerApplyEscape(preference.slice(1, -1)),
                 )
                 return
             }
 
             const replacement = preference === OPTION_DOTALL ? "." : preference
-            yield fixer.replaceTextRange(
-                range,
-                fixerApplyEscape(replacement, node),
-            )
+            yield fixer.replaceTextRange(range, fixerApplyEscape(replacement))
 
             if (preference === OPTION_DOTALL) {
                 // Autofix to dotAll depends on the flag.
@@ -129,14 +116,11 @@ export default createRule("match-any", {
 
         /**
          * Create visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flagsStr: string,
+            regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const flags = parseFlags(flagsStr)
+            const { node, flags, getRegexpLocation } = regexpContext
 
             return {
                 onCharacterSetEnter(csNode) {
@@ -147,13 +131,13 @@ export default createRule("match-any", {
                     ) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, csNode),
+                            loc: getRegexpLocation(csNode),
                             messageId: "unexpected",
                             data: {
                                 expr: ".",
                             },
                             fix(fixer) {
-                                return fix(fixer, node, csNode, flags)
+                                return fix(fixer, regexpContext, csNode)
                             },
                         })
                     }
@@ -165,13 +149,13 @@ export default createRule("match-any", {
                     ) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, ccNode),
+                            loc: getRegexpLocation(ccNode),
                             messageId: "unexpected",
                             data: {
                                 expr: ccNode.raw,
                             },
                             fix(fixer) {
-                                return fix(fixer, node, ccNode, flags)
+                                return fix(fixer, regexpContext, ccNode)
                             },
                         })
                     }

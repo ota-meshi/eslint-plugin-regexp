@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     CharacterClass,
@@ -11,7 +10,7 @@ import type {
     AnyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
@@ -110,8 +109,6 @@ export default createRule("no-dupe-characters-character-class", {
         },
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         const elementInElementReported = new Map<
             CharacterClassElement,
             CharacterClassElement[]
@@ -119,17 +116,16 @@ export default createRule("no-dupe-characters-character-class", {
 
         /**
          * Report duplicate elements.
-         * @param node The node to report.
          * @param elements The elements to report
          */
         function reportDuplicates(
-            node: Expression,
+            { node, getRegexpLocation }: RegExpContext,
             elements: CharacterClassElement[],
         ) {
             for (const element of elements) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, element),
+                    loc: getRegexpLocation(element),
                     messageId: "duplicates",
                     data: {
                         element: element.raw,
@@ -140,13 +136,12 @@ export default createRule("no-dupe-characters-character-class", {
 
         /**
          * Reports that the elements intersect.
-         * @param node The node to report.
          * @param elements The elements to report
          * @param intersectElement The intersecting element.
          * @param intersection the intersection
          */
         function reportIntersect(
-            node: Expression,
+            { node, getRegexpLocation }: RegExpContext,
             elements: CharacterClassElement[],
             intersectElement: CharacterClassElement,
             intersection: CharSet,
@@ -155,7 +150,7 @@ export default createRule("no-dupe-characters-character-class", {
             for (const element of elements) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, element),
+                    loc: getRegexpLocation(element),
                     messageId: "intersect",
                     data: {
                         elementA: element.raw,
@@ -186,7 +181,7 @@ export default createRule("no-dupe-characters-character-class", {
          * Report the element included in the element.
          */
         function reportElementInElement(
-            node: Expression,
+            { node, getRegexpLocation }: RegExpContext,
             reportElements: CharacterClassElement[],
             element:
                 | Exclude<CharacterSet, AnyCharacterSet>
@@ -195,7 +190,7 @@ export default createRule("no-dupe-characters-character-class", {
             for (const reportElement of reportElements) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, reportElement),
+                    loc: getRegexpLocation(reportElement),
                     messageId: "elementIsInElement",
                     data: {
                         reportElement: reportElement.raw,
@@ -221,13 +216,9 @@ export default createRule("no-dupe-characters-character-class", {
          * Create visitor
          */
         function createVisitor(
-            _node: Expression,
-            _pattern: string,
-            _flagsStr: string,
-            _regexpNode: Expression,
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { toCharSet, node, flags } = regexpContext
+            const { toCharSet, flags } = regexpContext
             return {
                 // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode: CharacterClass) {
@@ -239,7 +230,10 @@ export default createRule("no-dupe-characters-character-class", {
 
                     for (const [char, ...dupeChars] of characters) {
                         if (dupeChars.length) {
-                            reportDuplicates(node, [char, ...dupeChars])
+                            reportDuplicates(regexpContext, [
+                                char,
+                                ...dupeChars,
+                            ])
                         }
 
                         for (const [rangeOrSet] of [
@@ -252,7 +246,7 @@ export default createRule("no-dupe-characters-character-class", {
                                 )
                             ) {
                                 reportElementInElement(
-                                    node,
+                                    regexpContext,
                                     [char, ...dupeChars],
                                     rangeOrSet,
                                 )
@@ -262,7 +256,10 @@ export default createRule("no-dupe-characters-character-class", {
 
                     for (const [range, ...dupeRanges] of characterClassRanges) {
                         if (dupeRanges.length) {
-                            reportDuplicates(node, [range, ...dupeRanges])
+                            reportDuplicates(regexpContext, [
+                                range,
+                                ...dupeRanges,
+                            ])
                         }
 
                         for (const [other, ...others] of [
@@ -278,7 +275,7 @@ export default createRule("no-dupe-characters-character-class", {
                                 toCharSet(other).isSupersetOf(toCharSet(range))
                             ) {
                                 reportElementInElement(
-                                    node,
+                                    regexpContext,
                                     [range, ...dupeRanges],
                                     other,
                                 )
@@ -288,7 +285,7 @@ export default createRule("no-dupe-characters-character-class", {
                                 toCharSet(range).isSupersetOf(toCharSet(other))
                             ) {
                                 reportElementInElement(
-                                    node,
+                                    regexpContext,
                                     [other, ...others],
                                     range,
                                 )
@@ -315,7 +312,7 @@ export default createRule("no-dupe-characters-character-class", {
                                         },
                                     )
                                     reportIntersect(
-                                        node,
+                                        regexpContext,
                                         [range, ...dupeRanges],
                                         other,
                                         intersection.intersect(reportRanges),
@@ -327,7 +324,7 @@ export default createRule("no-dupe-characters-character-class", {
                     }
                     for (const [set, ...dupeSets] of characterSets) {
                         if (dupeSets.length) {
-                            reportDuplicates(node, [set, ...dupeSets])
+                            reportDuplicates(regexpContext, [set, ...dupeSets])
                         }
                         for (const [other] of characterSets.filter(
                             ([o]) => o !== set,
@@ -337,7 +334,7 @@ export default createRule("no-dupe-characters-character-class", {
                             }
                             if (toCharSet(other).isSupersetOf(toCharSet(set))) {
                                 reportElementInElement(
-                                    node,
+                                    regexpContext,
                                     [set, ...dupeSets],
                                     other,
                                 )

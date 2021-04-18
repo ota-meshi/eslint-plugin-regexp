@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     CapturingGroup,
@@ -9,13 +8,8 @@ import type {
     LookaroundAssertion,
     Pattern,
 } from "regexpp/ast"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixerApplyEscape,
-    getRegexpLocation,
-    getRegexpRange,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("prefer-character-class", {
     meta: {
@@ -34,13 +28,15 @@ export default createRule("prefer-character-class", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixerApplyEscape,
+            getRegexpLocation,
+            getRegexpRange,
+        }: RegExpContext): RegExpVisitor.Handlers {
             /** Verify alternatives */
             function verify(
                 regexpNode:
@@ -77,17 +73,13 @@ export default createRule("prefer-character-class", {
 
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, regexpNode),
+                    loc: getRegexpLocation(regexpNode),
                     messageId: "unexpected",
                     fix(fixer) {
                         let replaceRange: [number, number] | null = null
                         let newText = ""
                         for (const element of elements) {
-                            const range = getRegexpRange(
-                                sourceCode,
-                                node,
-                                element,
-                            )
+                            const range = getRegexpRange(element)
                             if (!range) {
                                 return null
                             }
@@ -101,9 +93,9 @@ export default createRule("prefer-character-class", {
                                     ? element.raw.slice(1, -1)
                                     : element.raw
                             if (text.startsWith("-")) {
-                                newText += fixerApplyEscape("\\", node)
+                                newText += fixerApplyEscape("\\")
                             }
-                            newText += fixerApplyEscape(text, node)
+                            newText += fixerApplyEscape(text)
                         }
                         return fixer.replaceTextRange(
                             replaceRange!,

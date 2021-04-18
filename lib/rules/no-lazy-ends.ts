@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Alternative, Quantifier } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 /**
  * Extract lazy end quantifiers
@@ -63,13 +63,13 @@ export default createRule("no-lazy-ends", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onPatternEnter(pNode) {
                     for (const lazy of extractLazyEndQuantifiers(
@@ -78,19 +78,19 @@ export default createRule("no-lazy-ends", {
                         if (lazy.min === 0) {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, lazy),
+                                loc: getRegexpLocation(lazy),
                                 messageId: "uselessElement",
                             })
                         } else if (lazy.min === 1) {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, lazy),
+                                loc: getRegexpLocation(lazy),
                                 messageId: "uselessQuantifier",
                             })
                         } else {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, lazy),
+                                loc: getRegexpLocation(lazy),
                                 messageId: "uselessRange",
                                 data: {
                                     min: String(lazy.min),

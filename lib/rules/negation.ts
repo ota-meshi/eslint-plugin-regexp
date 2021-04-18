@@ -1,15 +1,10 @@
-import type { Expression } from "estree"
 import type {
     EscapeCharacterSet,
     UnicodePropertyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("negation", {
     meta: {
@@ -28,13 +23,14 @@ export default createRule("negation", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            fixReplaceNode,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
                     if (!ccNode.negate || ccNode.elements.length !== 1) {
@@ -45,15 +41,10 @@ export default createRule("negation", {
                         const negatedCharSet = getNegationText(element)
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, ccNode),
+                            loc: getRegexpLocation(ccNode),
                             messageId: "unexpected",
                             data: { negatedCharSet },
-                            fix: fixReplaceNode(
-                                sourceCode,
-                                node,
-                                ccNode,
-                                negatedCharSet,
-                            ),
+                            fix: fixReplaceNode(ccNode, negatedCharSet),
                         })
                     }
                 },

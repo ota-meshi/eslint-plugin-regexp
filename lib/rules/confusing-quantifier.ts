@@ -1,10 +1,9 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
     getQuantifierOffsets,
-    getRegexpLocation,
     quantToString,
 } from "../utils"
 import { isPotentiallyEmpty } from "regexp-ast-analysis"
@@ -26,13 +25,13 @@ export default createRule("confusing-quantifier", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min > 0 && isPotentiallyEmpty(qNode.element)) {
@@ -40,8 +39,6 @@ export default createRule("confusing-quantifier", {
                         context.report({
                             node,
                             loc: getRegexpLocation(
-                                sourceCode,
-                                node,
                                 qNode,
                                 getQuantifierOffsets(qNode),
                             ),

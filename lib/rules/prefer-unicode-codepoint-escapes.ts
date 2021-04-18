@@ -1,11 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("prefer-unicode-codepoint-escapes", {
     meta: {
@@ -23,18 +18,19 @@ export default createRule("prefer-unicode-codepoint-escapes", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flags: string,
+            regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            if (!flags.includes("u")) {
+            const {
+                node,
+                flags,
+                getRegexpLocation,
+                fixReplaceNode,
+            } = regexpContext
+            if (!flags.unicode) {
                 return {}
             }
             return {
@@ -43,24 +39,17 @@ export default createRule("prefer-unicode-codepoint-escapes", {
                         if (/^(?:\\u[\dA-Fa-f]{4}){2}$/.test(cNode.raw)) {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, cNode),
+                                loc: getRegexpLocation(cNode),
                                 messageId: "disallowSurrogatePair",
-                                fix: fixReplaceNode(
-                                    sourceCode,
-                                    node,
-                                    cNode,
-                                    () => {
-                                        let text = String.fromCodePoint(
-                                            cNode.value,
-                                        )
-                                            .codePointAt(0)!
-                                            .toString(16)
-                                        if (/[A-F]/.test(cNode.raw)) {
-                                            text = text.toUpperCase()
-                                        }
-                                        return `\\u{${text}}`
-                                    },
-                                ),
+                                fix: fixReplaceNode(cNode, () => {
+                                    let text = String.fromCodePoint(cNode.value)
+                                        .codePointAt(0)!
+                                        .toString(16)
+                                    if (/[A-F]/.test(cNode.raw)) {
+                                        text = text.toUpperCase()
+                                    }
+                                    return `\\u{${text}}`
+                                }),
                             })
                         }
                     }

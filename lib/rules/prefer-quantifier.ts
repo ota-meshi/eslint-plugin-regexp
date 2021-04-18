@@ -1,11 +1,9 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Character, CharacterSet, Quantifier } from "regexpp/ast"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
-    getRegexpRange,
     isDigit,
     isLetter,
     isSymbol,
@@ -143,9 +141,12 @@ export default createRule("prefer-quantifier", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixerApplyEscape,
+            getRegexpRange,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAlternativeEnter(aNode) {
                     let charBuffer: CharBuffer | null = null
@@ -205,14 +206,8 @@ export default createRule("prefer-quantifier", {
                         if (buffer.isValid()) {
                             return
                         }
-                        const firstRange = getRegexpRange(
-                            sourceCode,
-                            node,
-                            buffer.elements[0],
-                        )
+                        const firstRange = getRegexpRange(buffer.elements[0])
                         const lastRange = getRegexpRange(
-                            sourceCode,
-                            node,
                             buffer.elements[buffer.elements.length - 1],
                         )
                         let range: [number, number] | null = null
@@ -245,7 +240,7 @@ export default createRule("prefer-quantifier", {
                                 }
                                 return fixer.replaceTextRange(
                                     range,
-                                    fixerApplyEscape(buffer.target.raw, node) +
+                                    fixerApplyEscape(buffer.target.raw) +
                                         buffer.getQuantifier(),
                                 )
                             },

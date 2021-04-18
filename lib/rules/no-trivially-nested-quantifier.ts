@@ -1,15 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Group, Quantifier } from "regexpp/ast"
-import type { Quant } from "../utils"
-import {
-    fixReplaceNode,
-    fixReplaceQuant,
-    quantToString,
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-} from "../utils"
+import type { Quant, RegExpContext } from "../utils"
+import { quantToString, createRule, defineRegexpVisitor } from "../utils"
 
 /**
  * Returns a new quant which is the combination of both given quantifiers.
@@ -164,13 +156,15 @@ export default createRule("no-trivially-nested-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixReplaceNode,
+            fixReplaceQuant,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (isTrivialQuantifier(qNode)) {
@@ -201,15 +195,10 @@ export default createRule("no-trivially-nested-quantifier", {
 
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, qNode),
+                                loc: getRegexpLocation(qNode),
                                 messageId: "nested",
                                 data: { quant: quantStr },
-                                fix: fixReplaceNode(
-                                    sourceCode,
-                                    node,
-                                    qNode,
-                                    replacement,
-                                ),
+                                fix: fixReplaceNode(qNode, replacement),
                             })
                         } else {
                             // this isn't the only child of the parent quantifier
@@ -230,16 +219,10 @@ export default createRule("no-trivially-nested-quantifier", {
                             if (quant.min === 1 && quant.max === 1) {
                                 context.report({
                                     node,
-                                    loc: getRegexpLocation(
-                                        sourceCode,
-                                        node,
-                                        child,
-                                    ),
+                                    loc: getRegexpLocation(child),
                                     messageId: "childOne",
                                     // TODO: This fix depends on `qNode`
                                     fix: fixReplaceNode(
-                                        sourceCode,
-                                        node,
                                         child,
                                         child.element.raw,
                                     ),
@@ -249,20 +232,11 @@ export default createRule("no-trivially-nested-quantifier", {
 
                                 context.report({
                                     node,
-                                    loc: getRegexpLocation(
-                                        sourceCode,
-                                        node,
-                                        child,
-                                    ),
+                                    loc: getRegexpLocation(child),
                                     messageId: "childSimpler",
                                     data: { quant: quantToString(quant) },
                                     // TODO: This fix depends on `qNode`
-                                    fix: fixReplaceQuant(
-                                        sourceCode,
-                                        node,
-                                        child,
-                                        quant,
-                                    ),
+                                    fix: fixReplaceQuant(child, quant),
                                 })
                             }
                         }

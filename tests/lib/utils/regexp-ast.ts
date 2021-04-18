@@ -1,5 +1,6 @@
 import assert from "assert"
 import { parseRegExpLiteral } from "regexpp"
+import { parseFlags } from "../../../lib/utils"
 import { isCoveredNode, isEqualNodes } from "../../../lib/utils/regexp-ast"
 type TestCase = {
     a: RegExp | string
@@ -510,7 +511,10 @@ describe("regexp-ast isCoveredNode", () => {
 
             assert.deepStrictEqual(
                 isCoveredNode(ast1, ast2, {
-                    flags: { left: ast1.flags.raw, right: ast2.flags.raw },
+                    flags: {
+                        left: parseFlags(ast1.flags.raw),
+                        right: parseFlags(ast2.flags.raw),
+                    },
                     canOmitRight: true,
                 }),
                 testCase.result,

@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    canUnwrapped,
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getRegexpRange,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-useless-non-capturing-group", {
     meta: {
@@ -24,13 +18,14 @@ export default createRule("no-useless-non-capturing-group", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            getRegexpRange,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onGroupEnter(gNode) {
                     if (gNode.alternatives.length !== 1) {
@@ -59,19 +54,11 @@ export default createRule("no-useless-non-capturing-group", {
 
                     context.report({
                         node,
-                        loc: getRegexpLocation(sourceCode, node, gNode),
+                        loc: getRegexpLocation(gNode),
                         messageId: "unexpected",
                         fix(fixer) {
-                            const groupRange = getRegexpRange(
-                                sourceCode,
-                                node,
-                                gNode,
-                            )
-                            const altRange = getRegexpRange(
-                                sourceCode,
-                                node,
-                                alt,
-                            )
+                            const groupRange = getRegexpRange(gNode)
+                            const altRange = getRegexpRange(alt)
                             if (!groupRange || !altRange) {
                                 return null
                             }

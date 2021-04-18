@@ -19,43 +19,97 @@ import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
 import { findVariable } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
+// eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 export * from "./unicode"
 
-export type ToCharSet = (node: ToCharSetElement) => CharSet
-export type RegExpHelpers = {
+export type ToCharSet = (
+    node: ToCharSetElement,
+    flags?: ReadonlyFlags,
+) => CharSet
+type RegExpHelpersBase = {
     toCharSet: ToCharSet
+
+    /**
+     * Creates SourceLocation from the given regexp node
+     * @see getRegexpLocation
+     *
+     * @param regexpNode The regexp node to report.
+     * @param offsets The report location offsets.
+     * @returns The SourceLocation
+     */
+    getRegexpLocation: (
+        regexpNode: RegExpNode,
+        offsets?: [number, number],
+    ) => AST.SourceLocation
+
+    /**
+     * Escape depending on which node the string applied to fixer is applied.
+     * @see fixerApplyEscape
+     */
+    fixerApplyEscape: (text: string) => string
+
+    /**
+     * Creates a new fix that replaces the given node with a given string.
+     *
+     * The string will automatically be escaped if necessary.
+     * @see fixReplaceNode
+     */
+    fixReplaceNode: (
+        regexpNode: Node,
+        replacement: string | (() => string | null),
+    ) => (fixer: Rule.RuleFixer) => Rule.Fix | null
+
+    /**
+     * Creates a new fix that replaces the given quantifier (but not the quantified
+     * element) with a given string.
+     *
+     * This will not change the greediness of the quantifier.
+     * @see fixReplaceQuant
+     */
+    fixReplaceQuant: (
+        quantifier: Quantifier,
+        replacement: string | Quant | (() => string | Quant | null),
+    ) => (fixer: Rule.RuleFixer) => Rule.Fix | null
 }
+export type RegExpHelpersForLiteral = {
+    /**
+     * Creates source range from the given regexp node
+     * @param regexpNode The regexp node to report.
+     * @returns The SourceLocation
+     */
+    getRegexpRange: (regexpNode: RegExpNode) => AST.Range
+} & RegExpHelpersBase
+export type RegExpHelpersForSource = {
+    /**
+     * Creates source range from the given regexp node
+     * @param regexpNode The regexp node to report.
+     * @returns The SourceLocation
+     */
+    getRegexpRange: (regexpNode: RegExpNode) => AST.Range | null
+} & RegExpHelpersBase
+export type RegExpHelpers = RegExpHelpersForLiteral & RegExpHelpersForSource
+
 export type RegExpContextForLiteral = {
     node: ESTree.RegExpLiteral
     pattern: string
     flags: ReadonlyFlags
     regexpNode: ESTree.RegExpLiteral
-} & RegExpHelpers
+} & RegExpHelpersForLiteral
 export type RegExpContextForSource = {
     node: ESTree.Expression
     pattern: string
     flags: ReadonlyFlags
     regexpNode: ESTree.NewExpression | ESTree.CallExpression
-} & RegExpHelpers
+} & RegExpHelpersForSource
 export type RegExpContext = RegExpContextForLiteral | RegExpContextForSource
 
 type RegexpRule = {
     createLiteralVisitor?: (
-        // TODO Remove the three arguments and change it to use only the context.
-        node: ESTree.RegExpLiteral,
-        pattern: string,
-        flags: string,
-        regexpNode: ESTree.RegExpLiteral,
         context: RegExpContextForLiteral,
     ) => RegExpVisitor.Handlers
     createSourceVisitor?: (
-        // TODO Remove the three arguments and change it to use only the context.
-        node: ESTree.Expression,
-        pattern: string,
-        flags: string,
-        regexpNode: ESTree.NewExpression | ESTree.CallExpression,
         context: RegExpContextForSource,
     ) => RegExpVisitor.Handlers
 }
@@ -69,6 +123,7 @@ export const FLAG_STICKY = "y"
 export const FLAG_UNICODE = "u"
 
 const flagsCache = new Map<string, ReadonlyFlags>()
+
 /**
  * Given some flags, this will return a parsed flags object.
  *
@@ -121,16 +176,7 @@ export function defineRegexpVisitor(
     rule:
         | RegexpRule
         | {
-              createVisitor?: (
-                  node: ESTree.Expression,
-                  pattern: string,
-                  flags: string,
-                  regexpNode:
-                      | ESTree.RegExpLiteral
-                      | ESTree.NewExpression
-                      | ESTree.CallExpression,
-                  context: RegExpContext,
-              ) => RegExpVisitor.Handlers
+              createVisitor?: (context: RegExpContext) => RegExpVisitor.Handlers
           },
 ): RuleListener {
     const programNode = context.getSourceCode().ast
@@ -171,6 +217,7 @@ function buildRegexpVisitor(
     rules: RegexpRule[],
     programExit: (node: ESTree.Program) => void,
 ): RuleListener {
+    const sourceCode = context.getSourceCode()
     const parser = new RegExpParser()
 
     /**
@@ -179,10 +226,11 @@ function buildRegexpVisitor(
      * @param flags The flags of the regular expression.
      */
     function verify(
+        exprNode: ESTree.Expression,
         pattern: string,
         flags: ReadonlyFlags,
         createVisitors: (
-            helpers: RegExpHelpers,
+            helpers: RegExpHelpersBase,
         ) => IterableIterator<RegExpVisitor.Handlers>,
     ) {
         let patternNode
@@ -199,18 +247,7 @@ function buildRegexpVisitor(
             return
         }
 
-        const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
-        const helpers: RegExpHelpers = {
-            toCharSet: (node) => {
-                let charSet = cacheCharSet.get(node)
-                if (charSet) {
-                    return charSet
-                }
-                charSet = toCharSet(node, flags)
-                cacheCharSet.set(node, charSet)
-                return charSet
-            },
-        }
+        const helpers = buildRegExpHelperBase({ exprNode, context, flags })
 
         const handler: RegExpVisitor.Handlers = {}
         for (const visitor of createVisitors(helpers)) {
@@ -247,23 +284,19 @@ function buildRegexpVisitor(
                 return
             }
             const flags = parseFlags(node.regex.flags)
-            verify(node.regex.pattern, flags, function* (helpers) {
+            verify(node, node.regex.pattern, flags, function* (helpers) {
                 const regexpContext: RegExpContextForLiteral = {
                     node,
                     pattern: node.regex.pattern,
                     flags,
                     regexpNode: node,
                     ...helpers,
+                    getRegexpRange: (regexpNode) =>
+                        getRegexpRange(sourceCode, node, regexpNode),
                 }
                 for (const rule of rules) {
                     if (rule.createLiteralVisitor) {
-                        yield rule.createLiteralVisitor(
-                            node,
-                            node.regex.pattern,
-                            node.regex.flags,
-                            node,
-                            regexpContext,
-                        )
+                        yield rule.createLiteralVisitor(regexpContext)
                     }
                 }
             })
@@ -352,26 +385,33 @@ function buildRegexpVisitor(
                         }
                     }
                     const flags = parseFlags(flagsStr || "")
-                    verify(pattern, flags, function* (helpers) {
-                        const regexpContext: RegExpContextForSource = {
-                            node: verifyPatternNode,
-                            pattern,
-                            flags,
-                            regexpNode: newOrCall,
-                            ...helpers,
-                        }
-                        for (const rule of rules) {
-                            if (rule.createSourceVisitor) {
-                                yield rule.createSourceVisitor(
-                                    verifyPatternNode,
-                                    pattern,
-                                    flagsStr || "",
-                                    newOrCall,
-                                    regexpContext,
-                                )
+                    verify(
+                        verifyPatternNode,
+                        pattern,
+                        flags,
+                        function* (helpers) {
+                            const regexpContext: RegExpContextForSource = {
+                                node: verifyPatternNode,
+                                pattern,
+                                flags,
+                                regexpNode: newOrCall,
+                                ...helpers,
+                                getRegexpRange: (regexpNode) =>
+                                    getRegexpRange(
+                                        sourceCode,
+                                        verifyPatternNode,
+                                        regexpNode,
+                                    ),
                             }
-                        }
-                    })
+                            for (const rule of rules) {
+                                if (rule.createSourceVisitor) {
+                                    yield rule.createSourceVisitor(
+                                        regexpContext,
+                                    )
+                                }
+                            }
+                        },
+                    )
                 }
             }
         },
@@ -403,12 +443,52 @@ export function compositingVisitors(
     return visitor
 }
 
-export function getRegexpRange(
+/**
+ * Build RegExpHelperBase
+ */
+function buildRegExpHelperBase({
+    exprNode,
+    context,
+    flags,
+}: {
+    exprNode: ESTree.Expression
+    context: Rule.RuleContext
+    flags: ReadonlyFlags
+}): RegExpHelpersBase {
+    const sourceCode = context.getSourceCode()
+
+    const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
+    return {
+        toCharSet: (node, optionFlags) => {
+            if (optionFlags) {
+                // Ignore the cache if the flag is specified.
+                return toCharSet(node, flags)
+            }
+
+            let charSet = cacheCharSet.get(node)
+            if (charSet) {
+                return charSet
+            }
+            charSet = toCharSet(node, flags)
+            cacheCharSet.set(node, charSet)
+            return charSet
+        },
+        getRegexpLocation: (node, offsets) =>
+            getRegexpLocation(sourceCode, exprNode, node, offsets),
+        fixerApplyEscape: (text) => fixerApplyEscape(text, exprNode),
+        fixReplaceNode: (node, replacement) =>
+            fixReplaceNode(sourceCode, exprNode, node, replacement),
+        fixReplaceQuant: (qNode, replacement) =>
+            fixReplaceQuant(sourceCode, exprNode, qNode, replacement),
+    }
+}
+
+function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.RegExpLiteral,
     regexpNode: RegExpNode,
 ): AST.Range
-export function getRegexpRange(
+function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: RegExpNode,
@@ -420,7 +500,7 @@ export function getRegexpRange(
  * @param regexpNode The regexp node to report.
  * @returns The SourceLocation
  */
-export function getRegexpRange(
+function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: RegExpNode,
@@ -481,7 +561,7 @@ export function getRegexpRange(
  * @param offsets The report location offsets.
  * @returns The SourceLocation
  */
-export function getRegexpLocation(
+function getRegexpLocation(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: RegExpNode,
@@ -536,10 +616,7 @@ function isStringLiteral(
 /**
  * Escape depending on which node the string applied to fixer is applied.
  */
-export function fixerApplyEscape(
-    text: string,
-    node: ESTree.Expression,
-): string {
+function fixerApplyEscape(text: string, node: ESTree.Expression): string {
     if (node.type !== "Literal") {
         throw new Error(`illegal node type:${node.type}`)
     }
@@ -554,7 +631,7 @@ export function fixerApplyEscape(
  *
  * The string will automatically be escaped if necessary.
  */
-export function fixReplaceNode(
+function fixReplaceNode(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     regexpNode: Node,
@@ -579,13 +656,14 @@ export function fixReplaceNode(
         return fixer.replaceTextRange(range, fixerApplyEscape(text, node))
     }
 }
+
 /**
  * Creates a new fix that replaces the given quantifier (but not the quantified
  * element) with a given string.
  *
  * This will not change the greediness of the quantifier.
  */
-export function fixReplaceQuant(
+function fixReplaceQuant(
     sourceCode: SourceCode,
     node: ESTree.Expression,
     quantifier: Quantifier,

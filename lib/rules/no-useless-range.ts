@@ -1,11 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-useless-range", {
     meta: {
@@ -24,13 +19,14 @@ export default createRule("no-useless-range", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixReplaceNode,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassRangeEnter(ccrNode) {
                     if (
@@ -41,9 +37,9 @@ export default createRule("no-useless-range", {
                     }
                     context.report({
                         node,
-                        loc: getRegexpLocation(sourceCode, node, ccrNode),
+                        loc: getRegexpLocation(ccrNode),
                         messageId: "unexpected",
-                        fix: fixReplaceNode(sourceCode, node, ccrNode, () => {
+                        fix: fixReplaceNode(ccrNode, () => {
                             const parent = ccrNode.parent
                             const rawBefore = parent.raw.slice(
                                 0,

@@ -1,11 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getQuantifierOffsets,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, getQuantifierOffsets } from "../utils"
 
 export default createRule("no-useless-exactly-quantifier", {
     meta: {
@@ -20,13 +15,13 @@ export default createRule("no-useless-exactly-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (
@@ -39,7 +34,7 @@ export default createRule("no-useless-exactly-quantifier", {
                         const text = qNode.raw.slice(startOffset, endOffset)
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, qNode, [
+                            loc: getRegexpLocation(qNode, [
                                 startOffset,
                                 endOffset,
                             ]),

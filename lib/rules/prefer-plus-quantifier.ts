@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getQuantifierOffsets,
-    fixReplaceQuant,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, getQuantifierOffsets } from "../utils"
 
 export default createRule("prefer-plus-quantifier", {
     meta: {
@@ -22,13 +16,14 @@ export default createRule("prefer-plus-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            fixReplaceQuant,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === 1 && qNode.max === Infinity) {
@@ -39,22 +34,15 @@ export default createRule("prefer-plus-quantifier", {
                         if (text !== "+") {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(
-                                    sourceCode,
-                                    node,
-                                    qNode,
-                                    [startOffset, endOffset],
-                                ),
+                                loc: getRegexpLocation(qNode, [
+                                    startOffset,
+                                    endOffset,
+                                ]),
                                 messageId: "unexpected",
                                 data: {
                                     expr: text,
                                 },
-                                fix: fixReplaceQuant(
-                                    sourceCode,
-                                    node,
-                                    qNode,
-                                    "+",
-                                ),
+                                fix: fixReplaceQuant(qNode, "+"),
                             })
                         }
                     }

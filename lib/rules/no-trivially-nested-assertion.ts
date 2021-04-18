@@ -1,16 +1,11 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Node as RegExpNode,
     Assertion,
     LookaroundAssertion,
 } from "regexpp/ast"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { hasSomeDescendant } from "regexp-ast-analysis"
 
 /**
@@ -74,13 +69,14 @@ export default createRule("no-trivially-nested-assertion", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixReplaceNode,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAssertionEnter(aNode) {
                     if (aNode.parent.type === "Quantifier") {
@@ -121,14 +117,9 @@ export default createRule("no-trivially-nested-assertion", {
 
                     context.report({
                         node,
-                        loc: getRegexpLocation(sourceCode, node, aNode),
+                        loc: getRegexpLocation(aNode),
                         messageId: "unexpected",
-                        fix: fixReplaceNode(
-                            sourceCode,
-                            node,
-                            aNode,
-                            replacement,
-                        ),
+                        fix: fixReplaceNode(aNode, replacement),
                     })
                 },
             }
