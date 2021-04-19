@@ -1,13 +1,7 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type {
-    Alternative,
-    Element,
-    Node,
-    Node as RegExpNode,
-    Quantifier,
-} from "regexpp/ast"
+import type { Alternative, Element, Node, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import {
     CALL,
@@ -40,7 +34,7 @@ type RegExpHelpersBase = {
      * @returns The SourceLocation
      */
     getRegexpLocation: (
-        regexpNode: RegExpNode,
+        regexpNode: Node,
         offsets?: [number, number],
     ) => AST.SourceLocation
 
@@ -79,7 +73,7 @@ export type RegExpHelpersForLiteral = {
      * @param regexpNode The regexp node to report.
      * @returns The SourceLocation
      */
-    getRegexpRange: (regexpNode: RegExpNode) => AST.Range
+    getRegexpRange: (regexpNode: Node) => AST.Range
 } & RegExpHelpersBase
 export type RegExpHelpersForSource = {
     /**
@@ -87,7 +81,7 @@ export type RegExpHelpersForSource = {
      * @param regexpNode The regexp node to report.
      * @returns The SourceLocation
      */
-    getRegexpRange: (regexpNode: RegExpNode) => AST.Range | null
+    getRegexpRange: (regexpNode: Node) => AST.Range | null
 } & RegExpHelpersBase
 export type RegExpHelpers = RegExpHelpersForLiteral & RegExpHelpersForSource
 
@@ -486,12 +480,12 @@ function buildRegExpHelperBase({
 function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.RegExpLiteral,
-    regexpNode: RegExpNode,
+    regexpNode: Node,
 ): AST.Range
 function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.Expression,
-    regexpNode: RegExpNode,
+    regexpNode: Node,
 ): AST.Range | null
 /**
  * Creates source range from the given regexp node
@@ -503,7 +497,7 @@ function getRegexpRange(
 function getRegexpRange(
     sourceCode: SourceCode,
     node: ESTree.Expression,
-    regexpNode: RegExpNode,
+    regexpNode: Node,
     offsets?: [number, number],
 ): AST.Range | null {
     const startOffset = regexpNode.start + (offsets?.[0] ?? 0)
@@ -564,7 +558,7 @@ function getRegexpRange(
 function getRegexpLocation(
     sourceCode: SourceCode,
     node: ESTree.Expression,
-    regexpNode: RegExpNode,
+    regexpNode: Node,
     offsets?: [number, number],
 ): AST.SourceLocation {
     const range = getRegexpRange(sourceCode, node, regexpNode)
