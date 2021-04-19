@@ -66,7 +66,7 @@
         "eslint-plugin-json-schema-validator": "^1.0.9",
         "eslint-plugin-jsonc": "^1.0.0",
         "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-prettier": "^3.3.1",
+        "eslint-plugin-prettier": "^3.4.0",
         "eslint-plugin-regexp": "^0.8.0",
         "eslint-plugin-vue": "^7.5.0",
         "eslint-plugin-yml": "^0.9.0",
