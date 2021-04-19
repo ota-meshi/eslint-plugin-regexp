@@ -1,7 +1,7 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Alternative, Element, Node, Quantifier } from "regexpp/ast"
+import type { Element, Node, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import {
     CALL,
@@ -752,90 +752,111 @@ export function quantToString(quant: Readonly<Quant>): string {
 
 /* eslint-disable complexity -- X( */
 /**
+ * Returns whether the concatenation of the two string might create new escape
+ * sequences or elements.
+ */
+function mightCreateNewElement(
+    /* eslint-enable complexity -- X( */
+    before: string,
+    after: string,
+): boolean {
+    // control
+    // \cA
+    if (before.endsWith("\\c") && /^[a-z]/i.test(after)) {
+        return true
+    }
+
+    // hexadecimal
+    // \xFF \uFFFF
+    if (
+        /(?:^|[^\\])(?:\\{2})*\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})$/.test(
+            before,
+        ) &&
+        /^[\da-f]/i.test(after)
+    ) {
+        return true
+    }
+
+    // unicode
+    // \u{FFFF}
+    if (
+        (/(?:^|[^\\])(?:\\{2})*\\u$/.test(before) &&
+            /^\{[\da-f]*(?:\}[\s\S]*)?$/i.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\u\{[\da-f]*$/.test(before) &&
+            /^(?:[\da-f]+\}?|\})/i.test(after))
+    ) {
+        return true
+    }
+
+    // octal
+    // \077 \123
+    if (
+        (/(?:^|[^\\])(?:\\{2})*\\0[0-7]?$/.test(before) &&
+            /^[0-7]/.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\[1-7]$/.test(before) && /^[0-7]/.test(after))
+    ) {
+        return true
+    }
+
+    // backreference
+    // \12 \k<foo>
+    if (
+        (/(?:^|[^\\])(?:\\{2})*\\[1-9]\d*$/.test(before) &&
+            /^\d/.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\k$/.test(before) && after.startsWith("<")) ||
+        /(?:^|[^\\])(?:\\{2})*\\k<[^<>]*$/.test(before)
+    ) {
+        return true
+    }
+
+    // property
+    // \p{L} \P{L}
+    if (
+        (/(?:^|[^\\])(?:\\{2})*\\p$/i.test(before) &&
+            /^\{[\w=]*(?:\}[\s\S]*)?$/.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\p\{[\w=]*$/i.test(before) &&
+            /^[\w=]+(?:\}[\s\S]*)?$|^\}/.test(after))
+    ) {
+        return true
+    }
+
+    // quantifier
+    // {1} {2,} {2,3}
+    if (
+        (/(?:^|[^\\])(?:\\{2})*\{\d*$/.test(before) && /^[\d,}]/.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\{\d+,$/.test(before) &&
+            /^(?:\d+(?:\}|$)|\})/.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\{\d+,\d*$/.test(before) &&
+            after.startsWith("}"))
+    ) {
+        return true
+    }
+
+    return false
+}
+
+/**
  * Check the siblings to see if the regex doesn't change when unwrapped.
  */
-export function canUnwrapped(
-    /* eslint-enable complexity -- X( */
-    node: Element,
-    text: string,
-): boolean {
+export function canUnwrapped(node: Element, text: string): boolean {
+    let textBefore, textAfter
+
     const parent = node.parent
-    let target: Element, alternative: Alternative
-    if (parent.type === "Quantifier") {
-        alternative = parent.parent
-        target = parent
-    } else if (parent.type === "Alternative") {
-        alternative = parent
-        target = node
+    if (parent.type === "Alternative") {
+        textBefore = parent.raw.slice(0, node.start - parent.start)
+        textAfter = parent.raw.slice(node.end - parent.start)
+    } else if (parent.type === "Quantifier") {
+        const alt = parent.parent
+        textBefore = alt.raw.slice(0, node.start - alt.start)
+        textAfter = alt.raw.slice(node.end - alt.start)
     } else {
         return true
     }
-    const index = alternative.elements.indexOf(target)
-    if (index === 0) {
-        return true
-    }
-    if (/^\d+$/u.test(text)) {
-        let prevIndex = index - 1
-        let prev = alternative.elements[prevIndex]
-        if (prev.type === "Backreference") {
-            // e.g. /()\1[0]/ -> /()\10/
-            return false
-        }
 
-        while (
-            prev.type === "Character" &&
-            /^\d+$/u.test(prev.raw) &&
-            prevIndex > 0
-        ) {
-            prevIndex--
-            prev = alternative.elements[prevIndex]
-        }
-        if (prev.type === "Character" && prev.raw === "{") {
-            // e.g. /a{[0]}/ -> /a{0}/
-            return false
-        }
-    }
-    if (/^[0-7]+$/u.test(text)) {
-        const prev = alternative.elements[index - 1]
-        if (prev.type === "Character" && /^\\[0-7]+$/u.test(prev.raw)) {
-            // e.g. /\0[1]/ -> /\01/
-            return false
-        }
-    }
-    if (/^[\da-f]+$/iu.test(text)) {
-        let prevIndex = index - 1
-        let prev = alternative.elements[prevIndex]
-        while (
-            prev.type === "Character" &&
-            /^[\da-f]+$/iu.test(prev.raw) &&
-            prevIndex > 0
-        ) {
-            prevIndex--
-            prev = alternative.elements[prevIndex]
-        }
-        if (
-            prev.type === "Character" &&
-            (prev.raw === "\\x" || prev.raw === "\\u")
-        ) {
-            // e.g. /\xF[F]/ -> /\xFF/
-            // e.g. /\uF[F]FF/ -> /\xFFFF/
-            return false
-        }
-    }
-    if (/^[a-z]+$/iu.test(text)) {
-        if (index > 1) {
-            const prev = alternative.elements[index - 1]
-            if (prev.type === "Character" && prev.raw === "c") {
-                const prev2 = alternative.elements[index - 2]
-                if (prev2.type === "Character" && prev2.raw === "\\") {
-                    // e.g. /\c[M]/ -> /\cM/
-                    return false
-                }
-            }
-        }
-    }
-
-    return true
+    return (
+        !mightCreateNewElement(textBefore, text) &&
+        !mightCreateNewElement(text, textAfter)
+    )
 }
 
 /**
