@@ -14,12 +14,13 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         "/[abc]/",
         "/[a][a][a]/",
         "/[0-9\\D]/",
-        "/[\\S \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
-        "/\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff/",
+        "/[\\S \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
+        "/\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff/",
         "/[\\WA-Za-z0-9_]/",
         "/[\\w \\/-:]/",
-        // dont check
+        "/[\\w\\p{L}]/u",
         "/\\p{ASCII}abc/u",
+        String.raw`/[\u1fff-\u2020\s]/`,
         // error
         "var r = new RegExp('[\\\\wA-Za-z0-9_][invalid');",
     ],
@@ -61,8 +62,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[0-9\\d]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '\\d' was found '0-9'.",
+                    message: "The '0-9' is included in '\\d'.",
                     column: 3,
                 },
             ],
@@ -89,10 +89,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 { message: "The '\\v' is included in '\\s'.", column: 14 },
                 { message: "The '\\u00a0' is included in '\\s'.", column: 16 },
                 { message: "The '\\u1680' is included in '\\s'.", column: 22 },
-                { message: "The '\\u180e' is included in '\\s'.", column: 28 },
                 {
-                    message:
-                        "Unexpected intersection of '\\u2000-\\u200a' and '\\s' was found '\\u2000-\\u200a'.",
+                    message: "The '\\u2000-\\u200a' is included in '\\s'.",
                     column: 34,
                 },
                 { message: "The '\\u2028' is included in '\\s'.", column: 47 },
@@ -118,18 +116,15 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\wA-Za-z0-9_]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of 'A-Z' and '\\w' was found 'A-Z'.",
+                    message: "The 'A-Z' is included in '\\w'.",
                     column: 5,
                 },
                 {
-                    message:
-                        "Unexpected intersection of 'a-z' and '\\w' was found 'a-z'.",
+                    message: "The 'a-z' is included in '\\w'.",
                     column: 8,
                 },
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '\\w' was found '0-9'.",
+                    message: "The '0-9' is included in '\\w'.",
                     column: 11,
                 },
                 { message: "The '_' is included in '\\w'.", column: 14 },
@@ -177,11 +172,6 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 },
                 {
                     message:
-                        "Unexpected intersection of 'a-d' and 'c-d' was found 'c-d'.",
-                    column: 3,
-                },
-                {
-                    message:
                         "Unexpected intersection of 'e-h' and 'd-e' was found 'e'.",
                     column: 7,
                 },
@@ -201,8 +191,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 11,
                 },
                 {
-                    message:
-                        "Unexpected intersection of 'c-d' and 'a-d' was found 'c-d'.",
+                    message: "The 'c-d' is included in 'a-d'.",
                     column: 15,
                 },
                 {
@@ -218,33 +207,33 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 { message: "Unexpected element '3-6' duplication.", column: 3 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '3-4'.",
+                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
                     column: 3,
                 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '5-6'.",
+                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
                     column: 3,
                 },
                 { message: "Unexpected element '3-6' duplication.", column: 7 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '3-4'.",
+                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
                     column: 7,
                 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '5-6'.",
+                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
                     column: 7,
                 },
                 {
                     message:
-                        "Unexpected intersection of '2-4' and '3-6' was found '3-4'.",
+                        "Unexpected intersection of '2-4' and '3-6' was found '[34]'.",
                     column: 11,
                 },
                 {
                     message:
-                        "Unexpected intersection of '5-7' and '3-6' was found '5-6'.",
+                        "Unexpected intersection of '5-7' and '3-6' was found '[56]'.",
                     column: 15,
                 },
             ],
@@ -271,33 +260,33 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\d 0-9_!-z]/",
             errors: [
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '!-z' was found '0-9'.",
+                    message: "The '\\d' is included in '!-z'.",
+                    column: 3,
+                },
+                {
+                    message: "The '0-9' is included in '!-z'.",
                     column: 6,
                 },
                 {
-                    message:
-                        "Unexpected intersection of '0-9' and '\\d' was found '0-9'.",
+                    message: "The '0-9' is included in '\\d'.",
                     column: 6,
                 },
                 { message: "The '_' is included in '!-z'.", column: 9 },
-                {
-                    message:
-                        "Unexpected intersection of '!-z' and '0-9' was found '0-9'.",
-                    column: 10,
-                },
-                {
-                    message:
-                        "Unexpected intersection of '!-z' and '\\d' was found '0-9'.",
-                    column: 10,
-                },
             ],
         },
         {
             code: "/[\\W\\W\\w \\d\\d\\D]/",
             errors: [
                 { message: "Unexpected element '\\W' duplication.", column: 3 },
+                {
+                    message: "The '\\W' is included in '\\D'.",
+                    column: 3,
+                },
                 { message: "Unexpected element '\\W' duplication.", column: 5 },
+                {
+                    message: "The '\\W' is included in '\\D'.",
+                    column: 5,
+                },
                 { message: "The ' ' is included in '\\W'.", column: 9 },
                 { message: "The ' ' is included in '\\D'.", column: 9 },
                 {
@@ -305,17 +294,30 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 10,
                 },
                 {
+                    message: "The '\\d' is included in '\\w'.",
+                    column: 10,
+                },
+                {
                     message: "Unexpected element '\\d' duplication.",
+                    column: 12,
+                },
+                {
+                    message: "The '\\d' is included in '\\w'.",
                     column: 12,
                 },
             ],
         },
         {
             code:
-                "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana} abc]/u",
+                "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana}]/u",
             errors: [
                 {
                     message: "Unexpected element '\\p{ASCII}' duplication.",
+                    column: 3,
+                },
+                {
+                    message:
+                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
                     column: 3,
                 },
                 {
@@ -324,13 +326,70 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 21,
                 },
                 {
+                    message:
+                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
+                    column: 21,
+                },
+                {
                     message: "Unexpected element '\\p{ASCII}' duplication.",
+                    column: 59,
+                },
+                {
+                    message:
+                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
                     column: 59,
                 },
                 {
                     message:
                         "Unexpected element '\\p{Script=Hiragana}' duplication.",
                     column: 68,
+                },
+                {
+                    message:
+                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
+                    column: 68,
+                },
+            ],
+        },
+        {
+            code: "/[\\p{ASCII} abc\\P{ASCII}]/u",
+            errors: [
+                {
+                    message: "The ' ' is included in '\\p{ASCII}'.",
+                    column: 12,
+                },
+                {
+                    message: "The 'a' is included in '\\p{ASCII}'.",
+                    column: 13,
+                },
+                {
+                    message: "The 'b' is included in '\\p{ASCII}'.",
+                    column: 14,
+                },
+                {
+                    message: "The 'c' is included in '\\p{ASCII}'.",
+                    column: 15,
+                },
+            ],
+        },
+        {
+            code: "/[\\P{Script=Hiragana} abc\\p{Script=Hiragana}]/u",
+            errors: [
+                {
+                    message: "The ' ' is included in '\\P{Script=Hiragana}'.",
+                    column: 22,
+                },
+                {
+                    message: "The 'a' is included in '\\P{Script=Hiragana}'.",
+                    column: 23,
+                },
+                {
+                    message: "The 'b' is included in '\\P{Script=Hiragana}'.",
+                    column: 24,
+                },
+                {
+                    message: "The 'c' is included in '\\P{Script=Hiragana}'.",
+                    column: 25,
                 },
             ],
         },
@@ -339,12 +398,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected intersection of '/-7' and '\\w' was found '0-7'.",
+                        "Unexpected intersection of '/-7' and '\\w' was found '[0-7]'.",
                     column: 6,
                 },
                 {
                     message:
-                        "Unexpected intersection of '8-:' and '\\w' was found '8-9'.",
+                        "Unexpected intersection of '8-:' and '\\w' was found '[89]'.",
                     column: 10,
                 },
             ],
@@ -364,12 +423,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found 'A-Z'.",
-                    column: 5,
-                },
-                {
-                    message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found '_'.",
+                        "Unexpected intersection of 'A-_' and '\\w' was found '[A-Z_]'.",
                     column: 5,
                 },
             ],
@@ -395,6 +449,71 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 12,
                     endLine: 1,
                     endColumn: 14,
+                },
+            ],
+        },
+        {
+            code: "/[\\Sa]/",
+            errors: [
+                {
+                    message: "The 'a' is included in '\\S'.",
+                    column: 5,
+                },
+            ],
+        },
+        {
+            code: "/[a-z\\p{L}]/u",
+            errors: [
+                {
+                    message: "The 'a-z' is included in '\\p{L}'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: "/[\\d\\p{ASCII}]/u",
+            errors: [
+                {
+                    message: "The '\\d' is included in '\\p{ASCII}'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: "/[\\t\\s]/",
+            errors: [
+                {
+                    message: "The '\\t' is included in '\\s'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[A-Z a-\uFFFF]/i`,
+            errors: [
+                {
+                    message: "The 'A-Z' is included in 'a-\\uFFFF'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\xA0-\uFFFF\s]/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected intersection of '\\xA0-\\uFFFF' and '\\s' was found '\\xa0'.",
+                    column: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\u1fff-\u2005\s]/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected intersection of '\\u1fff-\\u2005' and '\\s' was found '[\\u2000-\\u2005]'.",
+                    column: 3,
                 },
             ],
         },

@@ -12,20 +12,15 @@ import type {
 } from "regexpp/ast"
 import { isEqualNodes } from "./is-equals"
 import {
-    CPS_SINGLE_SPACES,
-    CP_CR,
-    CP_LF,
-    CP_LINE_SEPARATOR,
-    CP_LOW_LINE,
-    CP_PARAGRAPH_SEPARATOR,
-    CP_RANGES_WORDS,
     CP_RANGE_CAPITAL_LETTER,
-    CP_RANGE_DIGIT,
     CP_RANGE_SMALL_LETTER,
-    CP_RANGE_SPACES,
     toLowerCodePoint,
     toUpperCodePoint,
 } from "../unicode"
+import { Chars } from "regexp-ast-analysis"
+import { FLAG_DOTALL, FLAG_IGNORECASE } from ".."
+
+const MAX_CODE_POINT = 1114111
 
 type Options = {
     flags: {
@@ -79,9 +74,13 @@ class NormalizedRange implements NormalizedCharacterRangeBase {
 
     public max: number
 
+    public static fromRange(range: { min: number; max: number }) {
+        return new NormalizedRange(range.min, range.max)
+    }
+
     public constructor(min: number, max?: number) {
-        this.min = min
-        this.max = max ?? min
+        this.min = Math.max(min, 0)
+        this.max = Math.min(max ?? min, MAX_CODE_POINT)
     }
 
     public isCovered(right: NormalizedCharacterRange) {
@@ -89,7 +88,7 @@ class NormalizedRange implements NormalizedCharacterRangeBase {
             return this.min <= right.min && right.max <= this.max
         }
         // dotAll covers everything.
-        return this.min === -Infinity && this.max === Infinity
+        return this.min === 0 && this.max === MAX_CODE_POINT
     }
 }
 /**
@@ -148,43 +147,35 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
     public readonly ranges: NormalizedCharacterRange[] = []
 
     private static readonly ALL = new NormalizedCharacterRanges(
-        [new NormalizedRange(-Infinity, Infinity)],
+        Chars.all({ dotAll: true, unicode: true }).ranges.map(
+            NormalizedRange.fromRange,
+        ),
         ".",
     )
 
     private static readonly DOT = new NormalizedCharacterRanges(
-        [
-            new NormalizedRange(CP_CR),
-            new NormalizedRange(CP_LF),
-            new NormalizedRange(CP_LINE_SEPARATOR, CP_PARAGRAPH_SEPARATOR),
-        ],
-        "",
+        Chars.lineTerminator({ dotAll: false, unicode: true }).ranges.map(
+            NormalizedRange.fromRange,
+        ),
+        ".",
     ).negate(".")
 
     private static readonly D = new NormalizedCharacterRanges(
-        [new NormalizedRange(...CP_RANGE_DIGIT)],
+        Chars.digit({}).ranges.map(NormalizedRange.fromRange),
         "\\d",
     )
 
     private static readonly ND = NormalizedCharacterRanges.D.negate("\\D")
 
     private static readonly W = new NormalizedCharacterRanges(
-        [
-            ...CP_RANGES_WORDS.map(
-                ([min, max]) => new NormalizedRange(min, max),
-            ),
-            new NormalizedRange(CP_LOW_LINE),
-        ],
+        Chars.word({}).ranges.map(NormalizedRange.fromRange),
         "\\w",
     )
 
     private static readonly NW = NormalizedCharacterRanges.W.negate("\\W")
 
     private static readonly S = new NormalizedCharacterRanges(
-        [
-            ...[...CPS_SINGLE_SPACES].map((num) => new NormalizedRange(num)),
-            new NormalizedRange(...CP_RANGE_SPACES),
-        ],
+        Chars.space({}).ranges.map(NormalizedRange.fromRange),
         "\\s",
     )
 
@@ -214,7 +205,7 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
         flags: string,
     ): NormalizedCharacterRanges {
         if (node.kind === "any") {
-            return flags.includes("s")
+            return flags.includes(FLAG_DOTALL)
                 ? NormalizedCharacterRanges.ALL
                 : NormalizedCharacterRanges.DOT
         }
@@ -255,7 +246,7 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
             }
             const ranges: NormalizedRange[] = [baseRange]
 
-            if (flags.includes("i")) {
+            if (flags.includes(FLAG_IGNORECASE)) {
                 const capitalIntersection = getIntersection(
                     CP_RANGE_CAPITAL_LETTER,
                     [baseRange.min, baseRange.max],
@@ -339,17 +330,17 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
             (range): range is NormalizedRange =>
                 range.type === "NormalizedRange",
         )
-        let start = -Infinity
+        let start = 0
         for (const range of normalizedRanges) {
             const newRange = new NormalizedRange(start, range.min - 1)
-            if (newRange.max === -Infinity) {
+            if (newRange.max <= 0) {
                 continue
             }
             newRanges.push(newRange)
             start = range.max + 1
         }
-        if (start < Infinity) {
-            newRanges.push(new NormalizedRange(start, Infinity))
+        if (start < MAX_CODE_POINT) {
+            newRanges.push(new NormalizedRange(start, MAX_CODE_POINT))
         }
         if (this.ranges.some((range) => range.type !== "NormalizedRange")) {
             newRanges.push(new NormalizedUnknownRange())
