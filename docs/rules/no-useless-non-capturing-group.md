@@ -13,7 +13,7 @@ since: "v0.4.0"
 
 ## :book: Rule Details
 
-This rule reports unnecessary Non-capturing group
+This rule reports unnecessary non-capturing group
 
 <eslint-code-block fix>
 
@@ -22,18 +22,50 @@ This rule reports unnecessary Non-capturing group
 
 /* ✓ GOOD */
 var foo = /(?:abcd)?/
-var foo = /(?:ab|cd)/
+var foo = /a(?:ab|cd)/
 
 /* ✗ BAD */
+var foo = /(?:ab|cd)/
 var foo = /(?:abcd)/
 var foo = /(?:[a-d])/
+var foo = /(?:[a-d])|e/
+var foo = /(?:a|(?:b|c)|d)/
 ```
 
 </eslint-code-block>
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/no-useless-non-capturing-group": ["error", {
+    "allowTop": true
+  }]
+}
+```
+
+- `"allowTop"`:
+  Whether a top-level non-capturing group is allowed. Defaults to `false`.
+
+  Sometimes it's useful to wrap a whole pattern into a non-capturing group (e.g. when the pattern is used as a building block to construct more complex patterns). Use this option to allow top-level non-capturing groups.
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: true }] */
+
+/* ✓ GOOD */
+var foo = /(?:abcd)/
+var foo = /(?:ab|cd)/
+var foo = /(?:abcd)/
+var foo = /(?:[a-d])/
+
+/* ✗ BAD */
+var foo = /(?:[a-d])|e/
+var foo = /(?:a|(?:b|c)|d)/
+```
+
+</eslint-code-block>
 
 ## :rocket: Version
 
