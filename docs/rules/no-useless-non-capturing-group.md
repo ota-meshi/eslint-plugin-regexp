@@ -47,6 +47,8 @@ var foo = /(?:a|(?:b|c)|d)/
 - `"allowTop"`:
   Whether a top-level non-capturing group is allowed. Defaults to `false`.
 
+  Sometimes it's useful to wrap a whole pattern into a non-capturing group (e.g. when the pattern is used as a building block to construct more complex patterns). Use this option to allow top-level non-capturing groups.
+
 <eslint-code-block fix>
 
 ```js
