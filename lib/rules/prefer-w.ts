@@ -13,12 +13,13 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
+import { Chars } from "regexp-ast-analysis"
 
 /**
  * Checks if small letter char class range
  * @param node The node to check
  */
-function isSmallLetterCharacterClassRange(node: CharacterClassElement) {
+function isSmallLetterRange(node: CharacterClassElement) {
     return (
         node.type === "CharacterClassRange" &&
         node.min.value === CP_SMALL_A &&
@@ -30,7 +31,7 @@ function isSmallLetterCharacterClassRange(node: CharacterClassElement) {
  * Checks if capital letter char class range
  * @param node The node to check
  */
-function isCapitalLetterCharacterClassRange(node: CharacterClassElement) {
+function isCapitalLetterRange(node: CharacterClassElement) {
     return (
         node.type === "CharacterClassRange" &&
         node.min.value === CP_CAPITAL_A &&
@@ -42,7 +43,7 @@ function isCapitalLetterCharacterClassRange(node: CharacterClassElement) {
  * Checks if digit char class
  * @param node The node to check
  */
-function isDigitCharacterClass(node: CharacterClassElement) {
+function isDigitRangeOrSet(node: CharacterClassElement) {
     return (
         (node.type === "CharacterClassRange" &&
             node.min.value === CP_DIGIT_ZERO &&
@@ -55,7 +56,7 @@ function isDigitCharacterClass(node: CharacterClassElement) {
  * Checks if includes `_`
  * @param node The node to check
  */
-function includesLowLineCharacterClass(node: CharacterClassElement) {
+function isUnderscoreCharacter(node: CharacterClassElement) {
     return node.type === "Character" && node.value === CP_LOW_LINE
 }
 
@@ -84,93 +85,100 @@ export default createRule("prefer-w", {
             fixReplaceNode,
             getRegexpRange,
             fixerApplyEscape,
+            toCharSet,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
+                    const charSet = toCharSet(ccNode)
+
+                    let predefined: string | undefined = undefined
+                    if (charSet.equals(Chars.word(flags))) {
+                        predefined = "\\w"
+                    } else if (charSet.equals(Chars.word(flags).negate())) {
+                        predefined = "\\W"
+                    }
+
+                    if (predefined) {
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(ccNode),
+                            messageId: "unexpected",
+                            data: {
+                                type: "character class",
+                                expr: ccNode.raw,
+                                instead: predefined,
+                            },
+                            fix: fixReplaceNode(ccNode, predefined),
+                        })
+                        return
+                    }
+
                     const lowerAToZ: CharacterClassElement[] = []
                     const capitalAToZ: CharacterClassElement[] = []
                     const digit: CharacterClassElement[] = []
-                    const lowLine: CharacterClassElement[] = []
+                    const underscore: CharacterClassElement[] = []
                     for (const element of ccNode.elements) {
-                        if (isSmallLetterCharacterClassRange(element)) {
+                        if (isSmallLetterRange(element)) {
                             lowerAToZ.push(element)
                             if (flags.ignoreCase) {
                                 capitalAToZ.push(element)
                             }
-                        } else if (
-                            isCapitalLetterCharacterClassRange(element)
-                        ) {
+                        } else if (isCapitalLetterRange(element)) {
                             capitalAToZ.push(element)
                             if (flags.ignoreCase) {
                                 lowerAToZ.push(element)
                             }
-                        } else if (isDigitCharacterClass(element)) {
+                        } else if (isDigitRangeOrSet(element)) {
                             digit.push(element)
-                        } else if (includesLowLineCharacterClass(element)) {
-                            lowLine.push(element)
+                        } else if (isUnderscoreCharacter(element)) {
+                            underscore.push(element)
                         }
                     }
+
                     if (
                         lowerAToZ.length &&
                         capitalAToZ.length &&
                         digit.length &&
-                        lowLine.length
+                        underscore.length
                     ) {
                         const unexpectedElements = [
                             ...new Set([
                                 ...lowerAToZ,
                                 ...capitalAToZ,
                                 ...digit,
-                                ...lowLine,
+                                ...underscore,
                             ]),
                         ].sort((a, b) => a.start - b.start)
 
-                        if (
-                            ccNode.elements.length === unexpectedElements.length
-                        ) {
-                            const instead = ccNode.negate ? "\\W" : "\\w"
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(ccNode),
-                                messageId: "unexpected",
-                                data: {
-                                    type: "character class",
-                                    expr: ccNode.raw,
-                                    instead,
-                                },
-                                fix: fixReplaceNode(ccNode, instead),
-                            })
-                        } else {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(ccNode),
-                                messageId: "unexpected",
-                                data: {
-                                    type: "character class ranges",
-                                    expr: `[${unexpectedElements
-                                        .map((e) => e.raw)
-                                        .join("")}]`,
-                                    instead: "\\w",
-                                },
-                                *fix(fixer: Rule.RuleFixer) {
-                                    const range = getRegexpRange(ccNode)
-                                    if (range == null) {
-                                        return
-                                    }
-                                    yield fixer.replaceTextRange(
-                                        getRegexpRange(
-                                            unexpectedElements.shift()!,
-                                        )!,
-                                        fixerApplyEscape("\\w"),
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(ccNode),
+                            messageId: "unexpected",
+                            data: {
+                                type: "character class ranges",
+                                expr: `[${unexpectedElements
+                                    .map((e) => e.raw)
+                                    .join("")}]`,
+                                instead: "\\w",
+                            },
+                            *fix(fixer: Rule.RuleFixer) {
+                                const range = getRegexpRange(ccNode)
+                                if (range == null) {
+                                    return
+                                }
+                                yield fixer.replaceTextRange(
+                                    getRegexpRange(
+                                        unexpectedElements.shift()!,
+                                    )!,
+                                    fixerApplyEscape("\\w"),
+                                )
+                                for (const element of unexpectedElements) {
+                                    yield fixer.removeRange(
+                                        getRegexpRange(element)!,
                                     )
-                                    for (const element of unexpectedElements) {
-                                        yield fixer.removeRange(
-                                            getRegexpRange(element)!,
-                                        )
-                                    }
-                                },
-                            })
-                        }
+                                }
+                            },
+                        })
                     }
                 },
             }
