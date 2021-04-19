@@ -1,5 +1,4 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { CharacterClass, CharacterClassRange } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -7,6 +6,7 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
 } from "../utils"
+import { Chars } from "regexp-ast-analysis"
 
 export default createRule("prefer-d", {
     meta: {
@@ -28,38 +28,64 @@ export default createRule("prefer-d", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
             fixReplaceNode,
+            toCharSet,
         }: RegExpContext): RegExpVisitor.Handlers {
+            let reportedCharacterClass = false
+
             return {
-                onCharacterClassRangeEnter(ccrNode: CharacterClassRange) {
+                onCharacterClassEnter(ccNode) {
+                    const charSet = toCharSet(ccNode)
+
+                    let predefined: string | undefined = undefined
+                    if (charSet.equals(Chars.digit(flags))) {
+                        predefined = "\\d"
+                    } else if (charSet.equals(Chars.digit(flags).negate())) {
+                        predefined = "\\D"
+                    }
+
+                    if (predefined) {
+                        reportedCharacterClass = true
+
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(ccNode),
+                            messageId: "unexpected",
+                            data: {
+                                type: "character class",
+                                expr: ccNode.raw,
+                                instead: predefined,
+                            },
+                            fix: fixReplaceNode(ccNode, predefined),
+                        })
+                    }
+                },
+                onCharacterClassLeave() {
+                    reportedCharacterClass = false
+                },
+                onCharacterClassRangeEnter(ccrNode) {
+                    if (reportedCharacterClass) {
+                        return
+                    }
+
                     if (
                         ccrNode.min.value === CP_DIGIT_ZERO &&
                         ccrNode.max.value === CP_DIGIT_NINE
                     ) {
-                        let reportNode: CharacterClass | CharacterClassRange,
-                            instead: string
-                        const ccNode = ccrNode.parent
-                        if (ccNode.elements.length === 1) {
-                            reportNode = ccNode
-                            instead = ccNode.negate ? "\\D" : "\\d"
-                        } else {
-                            reportNode = ccrNode
-                            instead = "\\d"
-                        }
+                        const instead = "\\d"
+
                         context.report({
                             node,
-                            loc: getRegexpLocation(reportNode),
+                            loc: getRegexpLocation(ccrNode),
                             messageId: "unexpected",
                             data: {
-                                type:
-                                    reportNode.type === "CharacterClass"
-                                        ? "character class"
-                                        : "character class range",
-                                expr: reportNode.raw,
+                                type: "character class range",
+                                expr: ccrNode.raw,
                                 instead,
                             },
-                            fix: fixReplaceNode(reportNode, instead),
+                            fix: fixReplaceNode(ccrNode, instead),
                         })
                     }
                 },
