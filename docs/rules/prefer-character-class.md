@@ -13,7 +13,15 @@ since: "v0.4.0"
 
 ## :book: Rule Details
 
-This rule is aimed to use character classes instead of the disjunction of single element alternatives.
+Instead of single-character alternatives (e.g. `(?:a|b|c)`), character classes (e.g. `[abc]`) should be preferred.
+
+The main reason for doing this is performance. Character classes don't require backtracking and are heavily optimized by the regex engine. On the other hand, alternatives are usually quite tricky to optimize.
+
+Character classes are also safer than alternatives because they don't require backtracking. While `^(?:\w|a)+b$` will take _O(2^n)_ time to reject a string of _n_ many `a`s, the regex `^[\wa]+b$` will reject a string of _n_ many `a`s in _O(n)_.
+
+### Limitations
+
+This rule might not be able to merge all single-character alternatives.
 
 <eslint-code-block fix>
 
@@ -22,9 +30,13 @@ This rule is aimed to use character classes instead of the disjunction of single
 
 /* ✓ GOOD */
 var foo = /[abc]/
+var foo = /(?:a|b)/
 
 /* ✗ BAD */
 var foo = /a|b|c/
+var foo = /(a|b|c)c/
+var foo = /.|\s/
+var foo = /(\w|\d)+:/
 ```
 
 </eslint-code-block>
