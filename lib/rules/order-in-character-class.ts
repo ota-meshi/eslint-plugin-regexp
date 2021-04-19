@@ -1,18 +1,15 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
     UnicodePropertyCharacterSet,
 } from "regexpp/ast"
+import type { RegExpContext } from "../utils"
 import {
     CP_DIGIT_ZERO,
     CP_SPACE,
     createRule,
     defineRegexpVisitor,
-    fixerApplyEscape,
-    getRegexpLocation,
-    getRegexpRange,
 } from "../utils"
 
 type CharacterClassElementKind = "\\w" | "\\d" | "\\s" | "\\p" | "*"
@@ -68,7 +65,6 @@ export default createRule("order-in-character-class", {
         type: "layout",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
         const orderOption: {
             "*": number
             "\\w"?: number
@@ -84,9 +80,13 @@ export default createRule("order-in-character-class", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixerApplyEscape,
+            getRegexpLocation,
+            getRegexpRange,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
                     const prevList: CharacterClassElement[] = []
@@ -104,25 +104,15 @@ export default createRule("order-in-character-class", {
                                 }
                                 context.report({
                                     node,
-                                    loc: getRegexpLocation(
-                                        sourceCode,
-                                        node,
-                                        next,
-                                    ),
+                                    loc: getRegexpLocation(next),
                                     messageId: "sortElements",
                                     data: {
                                         next: next.raw,
                                         prev: moveTarget.raw,
                                     },
                                     *fix(fixer) {
-                                        const nextRange = getRegexpRange(
-                                            sourceCode,
-                                            node,
-                                            next,
-                                        )
+                                        const nextRange = getRegexpRange(next)
                                         const targetRange = getRegexpRange(
-                                            sourceCode,
-                                            node,
                                             moveTarget,
                                         )
                                         if (!targetRange || !nextRange) {
@@ -133,7 +123,6 @@ export default createRule("order-in-character-class", {
                                             targetRange,
                                             fixerApplyEscape(
                                                 escapeRaw(next, moveTarget),
-                                                node,
                                             ),
                                         )
 

@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { CapturingGroup, Group, Pattern } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-empty-alternative", {
     meta: {
@@ -19,13 +19,13 @@ export default createRule("no-empty-alternative", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             /**
              * Verify alternatives
              */
@@ -40,7 +40,7 @@ export default createRule("no-empty-alternative", {
                         if (alt.elements.length === 0) {
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, alt),
+                                loc: getRegexpLocation(alt),
                                 messageId: "empty",
                             })
                             // don't report the same node multiple times

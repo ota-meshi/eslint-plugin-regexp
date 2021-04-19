@@ -17,15 +17,15 @@ import {
     toLowerCodePoint,
     toUpperCodePoint,
 } from "../unicode"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { Chars } from "regexp-ast-analysis"
-import { FLAG_DOTALL, FLAG_IGNORECASE } from ".."
 
 const MAX_CODE_POINT = 1114111
 
 type Options = {
     flags: {
-        left: string
-        right: string
+        left: ReadonlyFlags
+        right: ReadonlyFlags
     }
     canOmitRight: boolean
 }
@@ -183,7 +183,7 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
 
     public static fromCharacterClass(
         node: CharacterClass,
-        flags: string,
+        flags: ReadonlyFlags,
     ): NormalizedCharacterRanges {
         const ranges: NormalizedCharacterRange[] = []
         for (const element of node.elements) {
@@ -202,10 +202,10 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
 
     public static fromCharacterSet(
         node: CharacterSet,
-        flags: string,
+        flags: ReadonlyFlags,
     ): NormalizedCharacterRanges {
         if (node.kind === "any") {
-            return flags.includes(FLAG_DOTALL)
+            return flags.dotAll
                 ? NormalizedCharacterRanges.ALL
                 : NormalizedCharacterRanges.DOT
         }
@@ -235,7 +235,7 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
 
     public static fromCharacterClassElement(
         node: CharacterClassElement,
-        flags: string,
+        flags: ReadonlyFlags,
     ) {
         if (node.type === "Character" || node.type === "CharacterClassRange") {
             let baseRange: NormalizedRange
@@ -246,7 +246,7 @@ class NormalizedCharacterRanges implements NormalizedNodeBase {
             }
             const ranges: NormalizedRange[] = [baseRange]
 
-            if (flags.includes(FLAG_IGNORECASE)) {
+            if (flags.ignoreCase) {
                 const capitalIntersection = getIntersection(
                     CP_RANGE_CAPITAL_LETTER,
                     [baseRange.min, baseRange.max],
@@ -361,7 +361,7 @@ class NormalizedAlternative implements NormalizedNodeBase {
 
     public readonly elements: NormalizedNode[]
 
-    public static fromAlternative(node: Alternative, flags: string) {
+    public static fromAlternative(node: Alternative, flags: ReadonlyFlags) {
         const normalizeElements = [
             ...NormalizedAlternative.normalizedElements(function* () {
                 for (const element of node.elements) {
@@ -380,7 +380,7 @@ class NormalizedAlternative implements NormalizedNodeBase {
         return new NormalizedAlternative(normalizeElements, node)
     }
 
-    public static fromQuantifier(node: Quantifier, flags: string) {
+    public static fromQuantifier(node: Quantifier, flags: ReadonlyFlags) {
         const normalizeElements = [
             ...NormalizedAlternative.normalizedElements(function* () {
                 const normalizeElement = normalizeNode(node.element, flags)
@@ -440,13 +440,13 @@ class NormalizedDisjunctions implements NormalizedNodeBase {
 
     public readonly node: CapturingGroup | Group | Pattern
 
-    private readonly flags: string
+    private readonly flags: ReadonlyFlags
 
     public normalizedAlternatives?: NormalizedAlternative[]
 
     public static fromNode(
         node: CapturingGroup | Group | Pattern,
-        flags: string,
+        flags: ReadonlyFlags,
     ) {
         if (node.alternatives.length === 1) {
             return NormalizedAlternative.fromAlternative(
@@ -457,7 +457,10 @@ class NormalizedDisjunctions implements NormalizedNodeBase {
         return new NormalizedDisjunctions(node, flags)
     }
 
-    private constructor(node: CapturingGroup | Group | Pattern, flags: string) {
+    private constructor(
+        node: CapturingGroup | Group | Pattern,
+        flags: ReadonlyFlags,
+    ) {
         this.raw = node.raw
         this.node = node
         this.flags = flags
@@ -493,15 +496,15 @@ class NormalizedLookaroundAssertion implements NormalizedNodeBase {
 
     public readonly node: LookaroundAssertion
 
-    private readonly flags: string
+    private readonly flags: ReadonlyFlags
 
     public normalizedAlternatives?: NormalizedAlternative[]
 
-    public static fromNode(node: LookaroundAssertion, flags: string) {
+    public static fromNode(node: LookaroundAssertion, flags: ReadonlyFlags) {
         return new NormalizedLookaroundAssertion(node, flags)
     }
 
-    private constructor(node: LookaroundAssertion, flags: string) {
+    private constructor(node: LookaroundAssertion, flags: ReadonlyFlags) {
         this.raw = node.raw
         this.node = node
         this.flags = flags
@@ -548,11 +551,11 @@ class NormalizedOptional implements NormalizedNodeBase {
 
     public readonly node: Quantifier
 
-    private readonly flags: string
+    private readonly flags: ReadonlyFlags
 
     private normalizedElement?: NormalizedNode
 
-    public static fromQuantifier(node: Quantifier, flags: string) {
+    public static fromQuantifier(node: Quantifier, flags: ReadonlyFlags) {
         let alt: NormalizedNode | null = null
         if (node.min > 0) {
             alt = NormalizedAlternative.fromQuantifier(node, flags)
@@ -577,7 +580,7 @@ class NormalizedOptional implements NormalizedNodeBase {
         return NormalizedOther.fromNode(node)
     }
 
-    private constructor(node: Quantifier, flags: string, max: number) {
+    private constructor(node: Quantifier, flags: ReadonlyFlags, max: number) {
         this.raw = node.raw
         this.max = max
         this.node = node
@@ -709,7 +712,7 @@ function isCoveredForNormalizedNode(
 const cacheNormalizeNode = new WeakMap<Node, NormalizedNode>()
 
 /** Normalize node */
-function normalizeNode(node: Node, flags: string): NormalizedNode {
+function normalizeNode(node: Node, flags: ReadonlyFlags): NormalizedNode {
     let n = cacheNormalizeNode.get(node)
     if (n) {
         return n
@@ -721,7 +724,10 @@ function normalizeNode(node: Node, flags: string): NormalizedNode {
 }
 
 /** Normalize node without cache */
-function normalizeNodeWithoutCache(node: Node, flags: string): NormalizedNode {
+function normalizeNodeWithoutCache(
+    node: Node,
+    flags: ReadonlyFlags,
+): NormalizedNode {
     if (node.type === "CharacterSet") {
         return NormalizedCharacterRanges.fromCharacterSet(node, flags)
     }

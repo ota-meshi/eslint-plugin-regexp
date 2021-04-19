@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    canUnwrapped,
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-useless-character-class", {
     meta: {
@@ -40,18 +34,17 @@ export default createRule("no-useless-character-class", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
         const ignores: string[] = context.options[0]?.ignores ?? ["="]
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flags: string,
-        ): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            flags,
+            fixReplaceNode,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode) {
@@ -98,7 +91,7 @@ export default createRule("no-useless-character-class", {
 
                     context.report({
                         node,
-                        loc: getRegexpLocation(sourceCode, node, ccNode),
+                        loc: getRegexpLocation(ccNode),
                         messageId: "unexpected",
                         data: {
                             type:
@@ -112,7 +105,7 @@ export default createRule("no-useless-character-class", {
                                     ? " and range"
                                     : "",
                         },
-                        fix: fixReplaceNode(sourceCode, node, ccNode, () => {
+                        fix: fixReplaceNode(ccNode, () => {
                             let text: string =
                                 element.type === "CharacterClassRange"
                                     ? element.min.raw
@@ -123,7 +116,7 @@ export default createRule("no-useless-character-class", {
                             ) {
                                 if (
                                     /^[$(-+./?[{|]$/u.test(text) ||
-                                    (flags.includes("u") && text === "}")
+                                    (flags.unicode && text === "}")
                                 ) {
                                     text = `\\${text}`
                                 }

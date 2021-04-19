@@ -1,5 +1,5 @@
-import type { Rule, SourceCode } from "eslint"
-import type { Expression, SourceLocation } from "estree"
+import type { Rule } from "eslint"
+import type { SourceLocation } from "estree"
 import {
     getMatchingDirection,
     getFirstConsumedChar,
@@ -7,24 +7,15 @@ import {
 } from "regexp-ast-analysis"
 import type { Quantifier } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    getRegexpRange,
-    parseFlags,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 /**
  * Returns a fix that makes the given quantifier greedy.
  */
-function makeGreedy(
-    sourceCode: SourceCode,
-    node: Expression,
-    qNode: Quantifier,
-) {
+function makeGreedy({ getRegexpRange }: RegExpContext, qNode: Quantifier) {
     return (fixer: Rule.RuleFixer): Rule.Fix | null => {
-        const range = getRegexpRange(sourceCode, node, qNode)
+        const range = getRegexpRange(qNode)
         if (range == null) {
             return null
         }
@@ -36,12 +27,11 @@ function makeGreedy(
  * Returns the source location of the lazy modifier of the given quantifier.
  */
 function getLazyLoc(
-    sourceCode: SourceCode,
-    node: Expression,
+    { getRegexpLocation }: RegExpContext,
     qNode: Quantifier,
 ): SourceLocation {
     const offset = qNode.raw.length - 1
-    return getRegexpLocation(sourceCode, node, qNode, [offset, offset + 1])
+    return getRegexpLocation(qNode, [offset, offset + 1])
 }
 
 export default createRule("no-useless-non-greedy", {
@@ -62,19 +52,13 @@ export default createRule("no-useless-non-greedy", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flagsStr: string,
+            regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const flags = parseFlags(flagsStr)
-
+            const { node, flags } = regexpContext
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.greedy) {
@@ -86,9 +70,9 @@ export default createRule("no-useless-non-greedy", {
 
                         context.report({
                             node,
-                            loc: getLazyLoc(sourceCode, node, qNode),
+                            loc: getLazyLoc(regexpContext, qNode),
                             messageId: "constant",
-                            fix: makeGreedy(sourceCode, node, qNode),
+                            fix: makeGreedy(regexpContext, qNode),
                         })
                         return
                     }
@@ -118,9 +102,9 @@ export default createRule("no-useless-non-greedy", {
                         ) {
                             context.report({
                                 node,
-                                loc: getLazyLoc(sourceCode, node, qNode),
+                                loc: getLazyLoc(regexpContext, qNode),
                                 messageId: "possessive",
-                                fix: makeGreedy(sourceCode, node, qNode),
+                                fix: makeGreedy(regexpContext, qNode),
                             })
                         }
                     }

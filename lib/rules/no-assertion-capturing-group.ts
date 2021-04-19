@@ -1,6 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-assertion-capturing-group", {
     meta: {
@@ -15,13 +15,13 @@ export default createRule("no-assertion-capturing-group", {
         type: "suggestion",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCapturingGroupEnter(cgNode) {
                     if (
@@ -31,7 +31,7 @@ export default createRule("no-assertion-capturing-group", {
                     ) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, cgNode),
+                            loc: getRegexpLocation(cgNode),
                             messageId: "unexpected",
                         })
                     }

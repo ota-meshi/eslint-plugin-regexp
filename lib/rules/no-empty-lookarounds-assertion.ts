@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import { isPotentiallyEmpty } from "regexp-ast-analysis"
 import type { RegExpVisitor } from "regexpp/visitor"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-empty-lookarounds-assertion", {
     meta: {
@@ -18,13 +18,13 @@ export default createRule("no-empty-lookarounds-assertion", {
         type: "suggestion",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAssertionEnter(aNode) {
                     if (
@@ -37,7 +37,7 @@ export default createRule("no-empty-lookarounds-assertion", {
                     if (isPotentiallyEmpty(aNode.alternatives)) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, aNode),
+                            loc: getRegexpLocation(aNode),
                             messageId: "unexpected",
                             data: {
                                 kind: aNode.kind,

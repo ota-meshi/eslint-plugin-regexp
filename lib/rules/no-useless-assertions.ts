@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Assertion,
@@ -6,12 +5,8 @@ import type {
     LookaroundAssertion,
     WordBoundaryAssertion,
 } from "regexpp/ast"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    parseFlags,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
     Chars,
     getFirstCharAfter,
@@ -57,19 +52,14 @@ export default createRule("no-useless-assertions", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(
-            node: Expression,
-            _pattern: string,
-            flagsStr: string,
-        ): RegExpVisitor.Handlers {
-            const flags = parseFlags(flagsStr)
-
+        function createVisitor({
+            node,
+            flags,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             /** Report */
             function report(
                 assertion: Assertion,
@@ -78,7 +68,7 @@ export default createRule("no-useless-assertions", {
             ) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, assertion),
+                    loc: getRegexpLocation(assertion),
                     messageId,
                     data: {
                         assertion: assertion.raw,

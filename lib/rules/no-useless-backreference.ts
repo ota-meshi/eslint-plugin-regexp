@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Node as RegExpNode,
@@ -6,7 +5,8 @@ import type {
     Alternative,
     CapturingGroup,
 } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
     getClosestAncestor,
     getMatchingDirection,
@@ -103,13 +103,13 @@ export default createRule("no-useless-backreference", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(backRef) {
                     const messageId = getUselessMessageId(backRef)
@@ -117,7 +117,7 @@ export default createRule("no-useless-backreference", {
                     if (messageId) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, backRef),
+                            loc: getRegexpLocation(backRef),
                             messageId,
                             data: {
                                 bref: backRef.raw,

@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixReplaceNode,
-    getRegexpLocation,
-    isOctalEscape,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, isOctalEscape } from "../utils"
 
 export default createRule("no-octal", {
     meta: {
@@ -23,13 +17,14 @@ export default createRule("no-octal", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            fixReplaceNode,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
                     if (cNode.raw === "\\0") {
@@ -54,7 +49,7 @@ export default createRule("no-octal", {
                     if (report) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, cNode),
+                            loc: getRegexpLocation(cNode),
                             messageId: "unexpected",
                             data: {
                                 expr: cNode.raw,
@@ -62,16 +57,11 @@ export default createRule("no-octal", {
                             suggest: [
                                 {
                                     messageId: "replaceHex",
-                                    fix: fixReplaceNode(
-                                        sourceCode,
-                                        node,
-                                        cNode,
-                                        () => {
-                                            return `\\x${cNode.value
-                                                .toString(16)
-                                                .padStart(2, "0")}`
-                                        },
-                                    ),
+                                    fix: fixReplaceNode(cNode, () => {
+                                        return `\\x${cNode.value
+                                            .toString(16)
+                                            .padStart(2, "0")}`
+                                    }),
                                 },
                             ],
                         })

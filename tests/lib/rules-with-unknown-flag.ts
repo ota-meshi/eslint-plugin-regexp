@@ -3,9 +3,9 @@ import * as parser from "@typescript-eslint/parser"
 // @ts-expect-error -- ignore
 import { rules } from "../../lib/index"
 import assert from "assert"
+import type { RegExpContext } from "../../lib/utils"
 import { createRule, defineRegexpVisitor } from "../../lib/utils"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Expression } from "estree"
 
 const TEST_RULE = createRule("test", {
     meta: {
@@ -19,7 +19,9 @@ const TEST_RULE = createRule("test", {
     },
 
     create(context) {
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onPatternEnter() {
                     context.report({

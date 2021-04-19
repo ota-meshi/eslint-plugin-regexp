@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Alternative, LookaroundAssertion, Quantifier } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { hasSomeDescendant } from "regexp-ast-analysis"
 
 /**
@@ -71,13 +71,13 @@ export default createRule("optimal-lookaround-quantifier", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAssertionEnter(aNode) {
                     if (
@@ -100,7 +100,7 @@ export default createRule("optimal-lookaround-quantifier", {
 
                             context.report({
                                 node,
-                                loc: getRegexpLocation(sourceCode, node, q),
+                                loc: getRegexpLocation(q),
                                 messageId:
                                     q.min === 0 ? "remove" : "replacedWith",
                                 data: {

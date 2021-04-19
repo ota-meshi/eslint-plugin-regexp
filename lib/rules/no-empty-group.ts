@@ -1,7 +1,7 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Group, CapturingGroup } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-empty-group", {
     meta: {
@@ -16,16 +16,17 @@ export default createRule("no-empty-group", {
         type: "suggestion",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * verify group node
          */
-        function verifyGroup(node: Expression, gNode: Group | CapturingGroup) {
+        function verifyGroup(
+            { node, getRegexpLocation }: RegExpContext,
+            gNode: Group | CapturingGroup,
+        ) {
             if (gNode.alternatives.every((alt) => alt.elements.length === 0)) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(sourceCode, node, gNode),
+                    loc: getRegexpLocation(gNode),
                     messageId: "unexpected",
                 })
             }
@@ -33,15 +34,16 @@ export default createRule("no-empty-group", {
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor(
+            regexpContext: RegExpContext,
+        ): RegExpVisitor.Handlers {
             return {
                 onGroupEnter(gNode) {
-                    verifyGroup(node, gNode)
+                    verifyGroup(regexpContext, gNode)
                 },
                 onCapturingGroupEnter(cgNode) {
-                    verifyGroup(node, cgNode)
+                    verifyGroup(regexpContext, cgNode)
                 },
             }
         }

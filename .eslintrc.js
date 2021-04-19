@@ -27,6 +27,21 @@ module.exports = {
         "no-shadow": "off", // ts bug?
         "@typescript-eslint/no-shadow": "error",
 
+        // Rules for implementing this plugin.
+        "no-restricted-imports": [
+            "error",
+            {
+                paths: [
+                    {
+                        name: "regexp-ast-analysis",
+                        importNames: ["toCharSet"],
+                        message:
+                            "Please use toCharSet from RegExpContext instead.",
+                    },
+                ],
+            },
+        ],
+
         // https://github.com/ota-meshi/eslint-plugin-regexp/pull/49
         "no-empty-character-class": "error",
         "regexp/negation": "error",

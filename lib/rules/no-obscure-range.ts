@@ -1,14 +1,13 @@
-import type { Expression } from "estree"
 import {
     getAllowedCharRanges,
     inRange,
     getAllowedCharValueSchema,
 } from "../utils/char-ranges"
 import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    getRegexpLocation,
     isControlEscape,
     isEscapeSequence,
     isHexadecimalEscape,
@@ -43,13 +42,14 @@ export default createRule("no-obscure-range", {
             context.options[0]?.allowed,
             context,
         )
-        const sourceCode = context.getSourceCode()
 
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassRangeEnter(rNode) {
                     const { min, max } = rNode
@@ -88,7 +88,7 @@ export default createRule("no-obscure-range", {
 
                     context.report({
                         node,
-                        loc: getRegexpLocation(sourceCode, node, rNode),
+                        loc: getRegexpLocation(rNode),
                         messageId: "unexpected",
                         data: {
                             range: rNode.raw,

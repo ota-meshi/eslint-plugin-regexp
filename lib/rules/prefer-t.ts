@@ -1,12 +1,6 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getRegexpLocation,
-    CP_TAB,
-    fixReplaceNode,
-} from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor, CP_TAB } from "../utils"
 
 export default createRule("prefer-t", {
     meta: {
@@ -22,16 +16,14 @@ export default createRule("prefer-t", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
         function createVisitor(
-            node: Expression,
+            regexpContext: RegExpContext,
             arrows: string[],
         ): RegExpVisitor.Handlers {
+            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
             return {
                 onCharacterEnter(cNode) {
                     if (
@@ -41,12 +33,12 @@ export default createRule("prefer-t", {
                     ) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, cNode),
+                            loc: getRegexpLocation(cNode),
                             messageId: "unexpected",
                             data: {
                                 expr: cNode.raw,
                             },
-                            fix: fixReplaceNode(sourceCode, node, cNode, "\\t"),
+                            fix: fixReplaceNode(cNode, "\\t"),
                         })
                     }
                 },
@@ -54,11 +46,11 @@ export default createRule("prefer-t", {
         }
 
         return defineRegexpVisitor(context, {
-            createLiteralVisitor(node) {
-                return createVisitor(node, [])
+            createLiteralVisitor(regexpContext) {
+                return createVisitor(regexpContext, [])
             },
-            createSourceVisitor(node) {
-                return createVisitor(node, ["\t"])
+            createSourceVisitor(regexpContext) {
+                return createVisitor(regexpContext, ["\t"])
             },
         })
     },

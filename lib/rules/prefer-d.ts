@@ -1,13 +1,11 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { CharacterClass, CharacterClassRange } from "regexpp/ast"
+import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
-    getRegexpLocation,
-    fixReplaceNode,
 } from "../utils"
 
 export default createRule("prefer-d", {
@@ -25,13 +23,14 @@ export default createRule("prefer-d", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+            fixReplaceNode,
+        }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassRangeEnter(ccrNode: CharacterClassRange) {
                     if (
@@ -50,11 +49,7 @@ export default createRule("prefer-d", {
                         }
                         context.report({
                             node,
-                            loc: getRegexpLocation(
-                                sourceCode,
-                                node,
-                                reportNode,
-                            ),
+                            loc: getRegexpLocation(reportNode),
                             messageId: "unexpected",
                             data: {
                                 type:
@@ -64,12 +59,7 @@ export default createRule("prefer-d", {
                                 expr: reportNode.raw,
                                 instead,
                             },
-                            fix: fixReplaceNode(
-                                sourceCode,
-                                node,
-                                reportNode,
-                                instead,
-                            ),
+                            fix: fixReplaceNode(reportNode, instead),
                         })
                     }
                 },

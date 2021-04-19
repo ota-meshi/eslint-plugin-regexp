@@ -1,4 +1,3 @@
-import type { Expression } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Alternative,
@@ -7,7 +6,8 @@ import type {
     Group,
     Quantifier,
 } from "regexpp/ast"
-import { createRule, defineRegexpVisitor, getRegexpLocation } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { isZeroLength } from "regexp-ast-analysis"
 
 type ZeroQuantifier = Quantifier & { min: 0 }
@@ -83,13 +83,13 @@ export default createRule("no-optional-assertion", {
         type: "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
-         * @param node
          */
-        function createVisitor(node: Expression): RegExpVisitor.Handlers {
+        function createVisitor({
+            node,
+            getRegexpLocation,
+        }: RegExpContext): RegExpVisitor.Handlers {
             // The closest quantifier with a minimum of 0 is stored at index = 0.
             const zeroQuantifierStack: ZeroQuantifier[] = []
             return {
@@ -109,7 +109,7 @@ export default createRule("no-optional-assertion", {
                     if (q && isOptional(assertion, q)) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(sourceCode, node, assertion),
+                            loc: getRegexpLocation(assertion),
                             messageId: "optionalAssertion",
                             data: {
                                 quantifier: q.raw.substr(q.element.raw.length),
