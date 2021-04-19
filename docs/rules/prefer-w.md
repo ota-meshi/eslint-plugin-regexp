@@ -29,6 +29,7 @@ var foo = /\W/;
 var foo = /[0-9a-zA-Z_]/;
 var foo = /[^0-9a-zA-Z_]/;
 var foo = /[0-9a-z_]/i;
+var foo = /[0-9a-z_-]/i;
 ```
 
 </eslint-code-block>

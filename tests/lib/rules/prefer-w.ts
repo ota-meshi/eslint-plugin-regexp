@@ -85,11 +85,11 @@ tester.run("prefer-w", rule as any, {
             new RegExp(s, 'i')
             `,
             output: `
-            const s = "[\\\\wc]"
+            const s = "\\\\w"
             new RegExp(s, 'i')
             `,
             errors: [
-                "Unexpected character class ranges '[0-9A-Z_]'. Use '\\w' instead.",
+                "Unexpected character class '[0-9A-Z_c]'. Use '\\w' instead.",
             ],
         },
         {
@@ -98,6 +98,19 @@ tester.run("prefer-w", rule as any, {
             new RegExp(s, 'i')
             `,
             output: null,
+            errors: [
+                "Unexpected character class '[0-9A-Z_c]'. Use '\\w' instead.",
+            ],
+        },
+        {
+            code: `
+            const s = "[0-9A-Z_-]"
+            new RegExp(s, 'i')
+            `,
+            output: `
+            const s = "[\\\\w-]"
+            new RegExp(s, 'i')
+            `,
             errors: [
                 "Unexpected character class ranges '[0-9A-Z_]'. Use '\\w' instead.",
             ],
