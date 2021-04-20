@@ -1,4 +1,3 @@
-import type { Literal } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
@@ -21,30 +20,6 @@ export default createRule("sort-flags", {
     },
     create(context) {
         /**
-         * Report
-         */
-        function report(
-            node: Literal,
-            flags: string,
-            sortedFlags: string,
-            flagsRange: [number, number],
-        ) {
-            const sourceCode = context.getSourceCode()
-            context.report({
-                node,
-                loc: {
-                    start: sourceCode.getLocFromIndex(flagsRange[0]),
-                    end: sourceCode.getLocFromIndex(flagsRange[1]),
-                },
-                messageId: "sortFlags",
-                data: { flags, sortedFlags },
-                fix(fixer) {
-                    return fixer.replaceTextRange(flagsRange, sortedFlags)
-                },
-            })
-        }
-
-        /**
          * Sort regexp flags
          */
         function sortFlags(flagsStr: string): string {
@@ -58,30 +33,21 @@ export default createRule("sort-flags", {
          */
         function createVisitor({
             regexpNode,
+            flagsString,
+            ownsFlags,
+            getFlagsLocation,
+            fixReplaceFlags,
         }: RegExpContext): RegExpVisitor.Handlers {
-            if (regexpNode.type === "Literal") {
-                const flags = regexpNode.regex.flags
-                const sortedFlags = sortFlags(flags)
-                if (flags !== sortedFlags) {
-                    report(regexpNode, flags, sortedFlags, [
-                        regexpNode.range![1] - regexpNode.regex.flags.length,
-                        regexpNode.range![1],
-                    ])
-                }
-            } else {
-                const flagsArg = regexpNode.arguments[1]
-                if (
-                    flagsArg.type === "Literal" &&
-                    typeof flagsArg.value === "string"
-                ) {
-                    const flags = flagsArg.value
-                    const sortedFlags = sortFlags(flags)
-                    if (flags !== sortedFlags) {
-                        report(flagsArg, flags, sortedFlags, [
-                            flagsArg.range![0] + 1,
-                            flagsArg.range![1] - 1,
-                        ])
-                    }
+            if (flagsString && ownsFlags) {
+                const sortedFlags = sortFlags(flagsString)
+                if (flagsString !== sortedFlags) {
+                    context.report({
+                        node: regexpNode,
+                        loc: getFlagsLocation(),
+                        messageId: "sortFlags",
+                        data: { flags: flagsString, sortedFlags },
+                        fix: fixReplaceFlags(sortedFlags),
+                    })
                 }
             }
 

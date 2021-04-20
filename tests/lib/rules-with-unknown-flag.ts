@@ -41,6 +41,24 @@ const TEST_RULE = createRule("test", {
 describe("Don't crash even if with unknown flag.", () => {
     const code = "var foo = /a/abcdefgg; new RegExp('a', 'abcdefgg')"
 
+    const RULE_SPECIFIC: Record<
+        string,
+        { ruleId: string; message: string }[] | undefined
+    > = {
+        "regexp/no-non-standard-flag": [
+            { ruleId: "regexp/test", message: "Foo" },
+            {
+                ruleId: "regexp/no-non-standard-flag",
+                message: "Unexpected non-standard flag 'a'.",
+            },
+            { ruleId: "regexp/test", message: "Foo" },
+            {
+                ruleId: "regexp/no-non-standard-flag",
+                message: "Unexpected non-standard flag 'a'.",
+            },
+        ],
+    }
+
     for (const key of Object.keys(rules)) {
         const rule = rules[key]
         const ruleId = rule.meta.docs.ruleId
@@ -69,7 +87,7 @@ describe("Don't crash even if with unknown flag.", () => {
                     ruleId: m.ruleId,
                     message: m.message,
                 })),
-                [
+                RULE_SPECIFIC[ruleId] ?? [
                     { ruleId: "regexp/test", message: "Foo" },
                     { ruleId: "regexp/test", message: "Foo" },
                 ],
