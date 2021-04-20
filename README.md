@@ -84,6 +84,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | Rule ID | Description |    |
 |:--------|:------------|:---|
 | [regexp/confusing-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/confusing-quantifier.html) | disallow confusing quantifiers |  |
+| [regexp/control-character-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/control-character-escape.html) | enforce consistent escaping of control characters | :wrench: |
 | [regexp/hexadecimal-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/hexadecimal-escape.html) | enforce consistent usage of hexadecimal escape | :wrench: |
 | [regexp/letter-case](https://ota-meshi.github.io/eslint-plugin-regexp/rules/letter-case.html) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](https://ota-meshi.github.io/eslint-plugin-regexp/rules/match-any.html) | enforce match any character style | :star::wrench: |
