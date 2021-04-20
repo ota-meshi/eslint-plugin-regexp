@@ -4,7 +4,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 
 const STANDARD_FLAGS = "gimsuy"
 
-export default createRule("no-non-standard-flags", {
+export default createRule("no-non-standard-flag", {
     meta: {
         docs: {
             description: "disallow non-standard flags",

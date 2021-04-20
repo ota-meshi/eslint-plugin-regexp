@@ -1,10 +1,10 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/no-non-standard-flags"
+title: "regexp/no-non-standard-flag"
 description: "disallow non-standard flags"
 ---
-# regexp/no-non-standard-flags
+# regexp/no-non-standard-flag
 
 > disallow non-standard flags
 
@@ -19,7 +19,7 @@ Some JavaScript runtime implementations allow special flags not defined in the E
 <eslint-code-block>
 
 ```js
-/* eslint regexp/no-non-standard-flags: "error" */
+/* eslint regexp/no-non-standard-flag: "error" */
 
 /* ✓ GOOD */
 var foo = /a*b*c/guy;
@@ -36,5 +36,5 @@ Nothing.
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-non-standard-flags.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-non-standard-flags.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-non-standard-flag.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-non-standard-flag.ts)

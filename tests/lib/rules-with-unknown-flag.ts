@@ -45,15 +45,15 @@ describe("Don't crash even if with unknown flag.", () => {
         string,
         { ruleId: string; message: string }[] | undefined
     > = {
-        "regexp/no-non-standard-flags": [
+        "regexp/no-non-standard-flag": [
             { ruleId: "regexp/test", message: "Foo" },
             {
-                ruleId: "regexp/no-non-standard-flags",
+                ruleId: "regexp/no-non-standard-flag",
                 message: "Unexpected non-standard flag 'a'.",
             },
             { ruleId: "regexp/test", message: "Foo" },
             {
-                ruleId: "regexp/no-non-standard-flags",
+                ruleId: "regexp/no-non-standard-flag",
                 message: "Unexpected non-standard flag 'a'.",
             },
         ],

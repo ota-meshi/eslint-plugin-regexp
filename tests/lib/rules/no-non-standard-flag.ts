@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/no-non-standard-flags"
+import rule from "../../../lib/rules/no-non-standard-flag"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -9,7 +9,7 @@ const tester = new RuleTester({
     parser: require.resolve("@typescript-eslint/parser"),
 })
 
-tester.run("no-non-standard-flags", rule as any, {
+tester.run("no-non-standard-flag", rule as any, {
     valid: [`/foo/gimsuy`],
     invalid: [
         {

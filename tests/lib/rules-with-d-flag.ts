@@ -45,15 +45,15 @@ describe("Don't crash even if with d flag.", () => {
         string,
         { ruleId: string; message: string }[] | undefined
     > = {
-        "regexp/no-non-standard-flags": [
+        "regexp/no-non-standard-flag": [
             { ruleId: "regexp/test", message: "Foo" },
             {
-                ruleId: "regexp/no-non-standard-flags",
+                ruleId: "regexp/no-non-standard-flag",
                 message: "Unexpected non-standard flag 'd'.",
             },
             { ruleId: "regexp/test", message: "Foo" },
             {
-                ruleId: "regexp/no-non-standard-flags",
+                ruleId: "regexp/no-non-standard-flag",
                 message: "Unexpected non-standard flag 'd'.",
             },
         ],

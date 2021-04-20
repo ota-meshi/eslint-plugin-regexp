@@ -13,7 +13,7 @@ import noEscapeBackspace from "../rules/no-escape-backspace"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
-import noNonStandardFlags from "../rules/no-non-standard-flags"
+import noNonStandardFlag from "../rules/no-non-standard-flag"
 import noObscureRange from "../rules/no-obscure-range"
 import noOctal from "../rules/no-octal"
 import noOptionalAssertion from "../rules/no-optional-assertion"
@@ -65,7 +65,7 @@ export const rules = [
     noInvisibleCharacter,
     noLazyEnds,
     noLegacyFeatures,
-    noNonStandardFlags,
+    noNonStandardFlag,
     noObscureRange,
     noOctal,
     noOptionalAssertion,
