@@ -13,7 +13,7 @@ description: "enforce consistent escaping of control characters"
 
 ## :book: Rule Details
 
-This rule reports ???.
+This rule reports control characters that were not escaped using a control escape (`\0`, `t`, `\n`, `\v`, `f`, `\r`).
 
 <eslint-code-block fix>
 
