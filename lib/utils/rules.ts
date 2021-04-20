@@ -47,6 +47,7 @@ import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
+import sortFlags from "../rules/sort-flags"
 
 export const rules = [
     confusingQuantifier,
@@ -97,4 +98,5 @@ export const rules = [
     preferT,
     preferUnicodeCodepointEscapes,
     preferW,
+    sortFlags,
 ] as RuleModule[]
