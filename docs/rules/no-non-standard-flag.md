@@ -25,7 +25,7 @@ Some JavaScript runtime implementations allow special flags not defined in the E
 var foo = /a*b*c/guy;
 
 /* ✗ BAD */
-var foo = /(?:a|a)*b/l;
+var foo = RegExp("(?:a|a)*b", "l");
 ```
 
 </eslint-code-block>
