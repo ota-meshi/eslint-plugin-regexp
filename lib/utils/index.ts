@@ -752,12 +752,18 @@ export function quantToString(quant: Readonly<Quant>): string {
 }
 
 /**
- * Returns a regexp literal text of the given char set.
+ * Returns a regexp literal source of the given char set or char.
  */
-export function charSetToRegExpText(
-    charSet: CharSet,
+export function toCharSetSource(
+    charSetOrChar: CharSet | number,
     flags: ReadonlyFlags,
 ): string {
+    let charSet
+    if (typeof charSetOrChar === "number") {
+        charSet = JS.createCharSet([charSetOrChar], flags)
+    } else {
+        charSet = charSetOrChar
+    }
     return JS.toLiteral(
         {
             type: "Concatenation",
@@ -765,13 +771,6 @@ export function charSetToRegExpText(
         },
         { flags },
     ).source
-}
-
-/**
- * Returns a regexp literal text of the given char set.
- */
-export function charToRegExpText(char: number, flags: ReadonlyFlags): string {
-    return charSetToRegExpText(JS.createCharSet([char], flags), flags)
 }
 
 /* eslint-disable complexity -- X( */

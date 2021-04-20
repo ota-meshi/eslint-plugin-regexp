@@ -5,7 +5,7 @@ import {
     createRule,
     defineRegexpVisitor,
     isInvisible,
-    charToRegExpText,
+    toCharSetSource,
 } from "../utils"
 
 export default createRule("no-invisible-character", {
@@ -40,7 +40,7 @@ export default createRule("no-invisible-character", {
                         return
                     }
                     if (cNode.raw.length === 1 && isInvisible(cNode.value)) {
-                        const instead = charToRegExpText(cNode.value, flags)
+                        const instead = toCharSetSource(cNode.value, flags)
                         context.report({
                             node,
                             loc: getRegexpLocation(cNode),
@@ -69,7 +69,7 @@ export default createRule("no-invisible-character", {
             for (const c of text) {
                 const cp = c.codePointAt(0)!
                 if (isInvisible(cp)) {
-                    const instead = charToRegExpText(cp, flags)
+                    const instead = toCharSetSource(cp, flags)
                     const range: AST.Range = [
                         node.range![0] + index,
                         node.range![0] + index + c.length,

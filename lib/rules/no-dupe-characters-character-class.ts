@@ -10,7 +10,7 @@ import type {
     AnyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, charSetToRegExpText } from "../utils"
+import { createRule, defineRegexpVisitor, toCharSetSource } from "../utils"
 import type { CharSet } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 
@@ -138,7 +138,7 @@ export default createRule("no-dupe-characters-character-class", {
                     data: {
                         elementA: element.raw,
                         elementB: intersectElement.raw,
-                        intersection: charSetToRegExpText(intersection, flags),
+                        intersection: toCharSetSource(intersection, flags),
                     },
                 })
             }
