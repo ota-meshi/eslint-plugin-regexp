@@ -41,7 +41,7 @@ export default createRule("hexadecimal-escape", {
             kind: EscapeSequenceKind,
             cNode: Character,
         ) {
-            if (kind === EscapeSequenceKind.hexadecimal) {
+            if (kind !== EscapeSequenceKind.unicode && kind !== EscapeSequenceKind.unicodeCodePoint) {
                 return
             }
 
