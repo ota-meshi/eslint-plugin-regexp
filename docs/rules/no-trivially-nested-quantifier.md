@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-trivially-nested-quantifier"
 description: "disallow nested quantifiers that can be rewritten as one quantifier"
+since: "v0.9.0"
 ---
 # regexp/no-trivially-nested-quantifier
 
 > disallow nested quantifiers that can be rewritten as one quantifier
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -35,6 +35,10 @@ var foo = /(?:a{4,}){5}/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 
