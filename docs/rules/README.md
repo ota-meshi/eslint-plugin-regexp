@@ -61,3 +61,4 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
+| [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |

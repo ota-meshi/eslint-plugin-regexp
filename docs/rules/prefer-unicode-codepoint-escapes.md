@@ -15,6 +15,8 @@ since: "v0.3.0"
 
 This rule enforces the use of Unicode codepoint escapes instead of Unicode escapes using surrogate pairs.
 
+If you want to enforce characters that do not use surrogate pairs into unicode escapes or unicode code point escapes, use the [regexp/unicode-escape] rule.
+
 <eslint-code-block fix>
 
 ```js
@@ -33,6 +35,12 @@ var foo = /\ud83d\ude00/u
 ## :wrench: Options
 
 Nothing.
+
+## :couple: Related rules
+
+- [regexp/unicode-escape]
+
+[regexp/unicode-escape]: ./unicode-escape.md
 
 ## :rocket: Version
 

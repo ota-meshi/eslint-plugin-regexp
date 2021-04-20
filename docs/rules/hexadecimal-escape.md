@@ -63,6 +63,10 @@ var foo = /\x0a/;
 
 </eslint-code-block>
 
+## :couple: Related rules
+
+- [regexp/unicode-escape](./unicode-escape.md)
+
 ## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/hexadecimal-escape.ts)

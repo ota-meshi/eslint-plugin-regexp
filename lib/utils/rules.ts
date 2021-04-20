@@ -49,6 +49,7 @@ import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
 import sortFlags from "../rules/sort-flags"
+import unicodeEscape from "../rules/unicode-escape"
 
 export const rules = [
     confusingQuantifier,
@@ -101,4 +102,5 @@ export const rules = [
     preferUnicodeCodepointEscapes,
     preferW,
     sortFlags,
+    unicodeEscape,
 ] as RuleModule[]
