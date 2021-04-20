@@ -37,7 +37,7 @@ var foo = /\u0041/u;
 
 ## :wrench: Options
 
-```json
+```json5
 {
   "regexp/unicode-escape": [
     "error",
