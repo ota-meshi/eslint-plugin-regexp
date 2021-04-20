@@ -81,7 +81,7 @@ tester.run("hexadecimal-escape", rule as any, {
         },
         {
             code: String.raw`/\x0a \x0b \x41/u`,
-            output: String.raw`/\n \u000b A/u`,
+            output: String.raw`/\u000a \u000b \u0041/u`,
             options: ["never"],
             errors: [
                 {

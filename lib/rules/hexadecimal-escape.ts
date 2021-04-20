@@ -6,8 +6,6 @@ import {
     createRule,
     getEscapeSequenceKind,
     EscapeSequenceKind,
-    toCharSetSource,
-    isHexadecimalEscape,
 } from "../utils"
 
 export default createRule("hexadecimal-escape", {
@@ -41,7 +39,10 @@ export default createRule("hexadecimal-escape", {
             kind: EscapeSequenceKind,
             cNode: Character,
         ) {
-            if (kind !== EscapeSequenceKind.unicode && kind !== EscapeSequenceKind.unicodeCodePoint) {
+            if (
+                kind !== EscapeSequenceKind.unicode &&
+                kind !== EscapeSequenceKind.unicodeCodePoint
+            ) {
                 return
             }
 
@@ -64,7 +65,7 @@ export default createRule("hexadecimal-escape", {
          * Verify for never
          */
         function verifyForNever(
-            { node, getRegexpLocation, fixReplaceNode, flags }: RegExpContext,
+            { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             kind: EscapeSequenceKind,
             cNode: Character,
         ) {
@@ -78,13 +79,7 @@ export default createRule("hexadecimal-escape", {
                 data: {
                     hexEscape: cNode.raw,
                 },
-                fix: fixReplaceNode(cNode, () => {
-                    let text = toCharSetSource(cNode.value, flags)
-                    if (isHexadecimalEscape(text)) {
-                        text = `\\u00${cNode.raw.slice(2)}`
-                    }
-                    return text
-                }),
+                fix: fixReplaceNode(cNode, () => `\\u00${cNode.raw.slice(2)}`),
             })
         }
 
@@ -103,13 +98,6 @@ export default createRule("hexadecimal-escape", {
                     }
                     const kind = getEscapeSequenceKind(cNode.raw)
                     if (!kind) {
-                        return
-                    }
-                    if (
-                        kind === EscapeSequenceKind.octal ||
-                        kind === EscapeSequenceKind.control
-                    ) {
-                        // ignore octal escape and control escape
                         return
                     }
 
