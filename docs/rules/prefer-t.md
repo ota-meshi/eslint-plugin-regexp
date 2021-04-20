@@ -9,7 +9,7 @@ since: "v0.1.0"
 
 > enforce using `\t`
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+- :warning: This rule was **deprecated** and replaced by [regexp/control-character-escape](control-character-escape.md) rule.
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
