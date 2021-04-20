@@ -6,7 +6,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 export default createRule("sort-flags", {
     meta: {
         docs: {
-            description: "require the regex flags to be sorted",
+            description: "require regex flags to be sorted",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
