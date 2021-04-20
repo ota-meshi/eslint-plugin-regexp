@@ -37,33 +37,7 @@ var foo = /abc/us
 
 ## :wrench: Options
 
-```json
-{
-  "regexp/sort-flags": ["error", {
-    "order": ["g", "i", "m", "s", "u", "y"]
-  }]
-}
-```
-
-- `"order"` ... An array of your preferred order. If not specified, it will be sorted alphabetically.
-
-### `"order": ["g", "i", "m", "u", "y", "s", "d"]`
-
-<eslint-code-block fix>
-
-```js
-/* eslint regexp/sort-flags: ["error", { order: ["g", "i", "m", "u", "y", "s", "d"] }] */
-
-/* ✓ GOOD */
-var foo = /abc/gimuys
-new RegExp("abc", "gimuysd")
-
-/* ✗ BAD */
-var foo = /abc/gimsuy
-new RegExp("abc", "dgimsuy")
-```
-
-</eslint-code-block>
+Nothing.
 
 ## :heart: Compatibility
 
