@@ -36,15 +36,15 @@ var foo = /\ud83d\ude00/u
 
 Nothing.
 
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.3.0
-
 ## :couple: Related rules
 
 - [regexp/unicode-escape]
 
 [regexp/unicode-escape]: ./unicode-escape.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.3.0
 
 ## :mag: Implementation
 
