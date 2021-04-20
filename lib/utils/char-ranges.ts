@@ -8,11 +8,7 @@ import {
     CP_SMALL_Z,
 } from "./unicode"
 import type { JSONSchema4 } from "json-schema"
-
-export interface CharRange {
-    readonly min: number
-    readonly max: number
-}
+import type { CharRange } from "refa"
 
 const ALL_RANGES: readonly CharRange[] = [{ min: 0, max: 0x10ffff }]
 const ALPHANUMERIC_RANGES: readonly CharRange[] = [
