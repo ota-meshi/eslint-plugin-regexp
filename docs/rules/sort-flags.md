@@ -2,11 +2,11 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/sort-flags"
-description: "require the regex flags to be sorted"
+description: "require regex flags to be sorted"
 ---
 # regexp/sort-flags
 
-> require the regex flags to be sorted
+> require regex flags to be sorted
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
