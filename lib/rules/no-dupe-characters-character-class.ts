@@ -10,9 +10,8 @@ import type {
     AnyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import { createRule, defineRegexpVisitor, charSetToRegExpText } from "../utils"
 import type { CharSet } from "refa"
-import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 
 /**
@@ -73,22 +72,6 @@ function groupingElements(
             .map((r) => String.fromCodePoint(r.min, r.max))
             .join(",")
     }
-}
-
-/**
- * Returns a readable representation of the given char set.
- */
-function charSetToReadableString(
-    charSet: CharSet,
-    flags: ReadonlyFlags,
-): string {
-    return JS.toLiteral(
-        {
-            type: "Concatenation",
-            elements: [{ type: "CharacterClass", characters: charSet }],
-        },
-        { flags },
-    ).source
 }
 
 export default createRule("no-dupe-characters-character-class", {
@@ -155,10 +138,7 @@ export default createRule("no-dupe-characters-character-class", {
                     data: {
                         elementA: element.raw,
                         elementB: intersectElement.raw,
-                        intersection: charSetToReadableString(
-                            intersection,
-                            flags,
-                        ),
+                        intersection: charSetToRegExpText(intersection, flags),
                     },
                 })
             }

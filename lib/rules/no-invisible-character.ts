@@ -4,8 +4,8 @@ import type { RegExpContextForLiteral, RegExpContextForSource } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    invisibleEscape,
     isInvisible,
+    charToRegExpText,
 } from "../utils"
 
 export default createRule("no-invisible-character", {
@@ -30,6 +30,7 @@ export default createRule("no-invisible-character", {
          */
         function createLiteralVisitor({
             node,
+            flags,
             getRegexpLocation,
             getRegexpRange,
         }: RegExpContextForLiteral): RegExpVisitor.Handlers {
@@ -39,9 +40,7 @@ export default createRule("no-invisible-character", {
                         return
                     }
                     if (cNode.raw.length === 1 && isInvisible(cNode.value)) {
-                        const instead = invisibleEscape(
-                            String.fromCodePoint(cNode.value),
-                        )
+                        const instead = charToRegExpText(cNode.value, flags)
                         context.report({
                             node,
                             loc: getRegexpLocation(cNode),
@@ -63,14 +62,14 @@ export default createRule("no-invisible-character", {
         /**
          * Verify a given string literal.
          */
-        function verifyString({ node }: RegExpContextForSource): void {
+        function verifyString({ node, flags }: RegExpContextForSource): void {
             const text = sourceCode.getText(node)
 
             let index = 0
             for (const c of text) {
                 const cp = c.codePointAt(0)!
                 if (isInvisible(cp)) {
-                    const instead = invisibleEscape(cp)
+                    const instead = charToRegExpText(cp, flags)
                     const range: AST.Range = [
                         node.range![0] + index,
                         node.range![0] + index + c.length,

@@ -1,8 +1,8 @@
 import assert from "assert"
+import { charToRegExpText } from "../../../lib/utils"
 import {
     isSpace,
     isInvisible,
-    invisibleEscape,
     CP_NEL,
     CP_ZWSP,
 } from "../../../lib/utils/unicode"
@@ -12,13 +12,13 @@ const SPACES =
 
 describe("isSpace", () => {
     for (const c of SPACES) {
-        it(`${invisibleEscape(c)} is space`, () => {
+        it(`${charToRegExpText(c.codePointAt(0)!, {})} is space`, () => {
             assert.ok(isSpace(c.codePointAt(0)!))
         })
     }
 
     for (const c of [CP_NEL, CP_ZWSP]) {
-        it(`${invisibleEscape(c)} is not space`, () => {
+        it(`${charToRegExpText(c, {})} is not space`, () => {
             assert.ok(!isSpace(c))
         })
     }
@@ -28,7 +28,7 @@ describe("isInvisible", () => {
     const str = `${SPACES}\u0085\u200b\u200c\u200d\u200e\u200f\u2800`
 
     for (const c of str) {
-        it(`${invisibleEscape(c)} is invisible`, () => {
+        it(`${charToRegExpText(c.codePointAt(0)!, {})} is invisible`, () => {
             assert.ok(isInvisible(c.codePointAt(0)!))
         })
     }
