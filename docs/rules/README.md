@@ -12,6 +12,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | Rule ID | Description |    |
 |:--------|:------------|:---|
 | [regexp/confusing-quantifier](./confusing-quantifier.md) | disallow confusing quantifiers |  |
+| [regexp/hexadecimal-escape](./hexadecimal-escape.md) | enforce consistent usage of hexadecimal escape | :wrench: |
 | [regexp/letter-case](./letter-case.md) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/negation](./negation.md) | enforce use of escapes on negation | :wrench: |
@@ -61,3 +62,4 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
+| [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |

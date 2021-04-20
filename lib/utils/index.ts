@@ -1058,17 +1058,72 @@ export function isControlEscape(raw: string): boolean {
  * sequence.
  */
 export function isHexadecimalEscape(raw: string): boolean {
-    return /^\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]{1,8}\}))$/.test(
-        raw,
-    )
+    return /^\\x[\dA-Fa-f]{2}$/.test(raw)
 }
 /**
+ * Returns whether the given raw of a character literal is a unicode escape
+ * sequence.
+ */
+export function isUnicodeEscape(raw: string): boolean {
+    return /^\\u[\dA-Fa-f]{4}$/.test(raw)
+}
+/**
+ * Returns whether the given raw of a character literal is a unicode code point
+ * escape sequence.
+ */
+export function isUnicodeCodePointEscape(raw: string): boolean {
+    return /^\\u\{[\dA-Fa-f]{1,8}\}$/.test(raw)
+}
+
+export enum EscapeSequenceKind {
+    octal = "octal",
+    control = "control",
+    hexadecimal = "hexadecimal",
+    unicode = "unicode",
+    unicodeCodePoint = "unicode code point",
+}
+/**
+ * Returns which escape sequence kind was used for the given raw of a character literal.
+ */
+export function getEscapeSequenceKind(raw: string): EscapeSequenceKind | null {
+    if (!raw.startsWith("\\")) {
+        return null
+    }
+    if (isOctalEscape(raw)) {
+        return EscapeSequenceKind.octal
+    }
+    if (isControlEscape(raw)) {
+        return EscapeSequenceKind.control
+    }
+    if (isHexadecimalEscape(raw)) {
+        return EscapeSequenceKind.hexadecimal
+    }
+    if (isUnicodeEscape(raw)) {
+        return EscapeSequenceKind.unicode
+    }
+    if (isUnicodeCodePointEscape(raw)) {
+        return EscapeSequenceKind.unicodeCodePoint
+    }
+    return null
+}
+/**
+ * Returns whether the given raw of a character literal is a hexadecimal escape
+ * sequence, a unicode escape sequence, or a unicode code point escape sequence.
+ */
+export function isUseHexEscape(raw: string): boolean {
+    const kind = getEscapeSequenceKind(raw)
+    return (
+        kind === EscapeSequenceKind.hexadecimal ||
+        kind === EscapeSequenceKind.unicode ||
+        kind === EscapeSequenceKind.unicodeCodePoint
+    )
+}
+
+/**
  * Returns whether the given raw of a character literal is an octal escape
- * sequence, a control escape sequence, or a hexadecimal escape sequence.
+ * sequence, a control escape sequence, a hexadecimal escape sequence, a unicode
+ * escape sequence, or a unicode code point escape sequence.
  */
 export function isEscapeSequence(raw: string): boolean {
-    return (
-        raw.startsWith("\\") &&
-        (isOctalEscape(raw) || isControlEscape(raw) || isHexadecimalEscape(raw))
-    )
+    return Boolean(getEscapeSequenceKind(raw))
 }

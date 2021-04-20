@@ -1,5 +1,6 @@
 import type { RuleModule } from "../types"
 import confusingQuantifier from "../rules/confusing-quantifier"
+import hexadecimalEscape from "../rules/hexadecimal-escape"
 import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
 import negation from "../rules/negation"
@@ -49,9 +50,11 @@ import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
 import sortFlags from "../rules/sort-flags"
+import unicodeEscape from "../rules/unicode-escape"
 
 export const rules = [
     confusingQuantifier,
+    hexadecimalEscape,
     letterCase,
     matchAny,
     negation,
@@ -101,4 +104,5 @@ export const rules = [
     preferUnicodeCodepointEscapes,
     preferW,
     sortFlags,
+    unicodeEscape,
 ] as RuleModule[]
