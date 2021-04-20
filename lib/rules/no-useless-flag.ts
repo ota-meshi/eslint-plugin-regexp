@@ -13,7 +13,7 @@ import type { KnownMethodCall } from "../utils/ast-utils"
 import { findVariable, isKnownMethodCall, getParent } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
-import type { Rule, SourceCode } from "eslint"
+import type { Rule } from "eslint"
 
 type CodePathStack = {
     codePathId: string
@@ -191,26 +191,11 @@ function getFlagLocation(
  * Returns a fixer that removes the given flag.
  */
 function fixRemoveFlag(
-    fixer: Rule.RuleFixer,
-    node: RegExpExpression,
+    { flagsString, fixReplaceFlags }: RegExpContext,
     flag: "i" | "m" | "s" | "g",
-    sourceCode: SourceCode,
 ) {
-    if (node.type === "Literal") {
-        const flagIndex =
-            node.range![1] -
-            node.regex.flags.length +
-            node.regex.flags.indexOf(flag)
-        const beforeRange: [number, number] = [node.range![0], flagIndex]
-        return [
-            // Replace the range of regular expression literals to avoid conflicts.
-            fixer.replaceTextRange(
-                beforeRange,
-                sourceCode.text.slice(...beforeRange),
-            ),
-            // Remove flag
-            fixer.removeRange([flagIndex, flagIndex + 1]),
-        ]
+    if (flagsString) {
+        return fixReplaceFlags(flagsString.replace(flag, ""))
     }
     return null
 }
@@ -220,8 +205,10 @@ function fixRemoveFlag(
  */
 function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor({ flags, regexpNode, toCharSet }: RegExpContext) {
-            if (!flags.ignoreCase) {
+        createVisitor(regExpContext: RegExpContext) {
+            const { flags, regexpNode, toCharSet, ownsFlags } = regExpContext
+
+            if (!flags.ignoreCase || !ownsFlags) {
                 return {}
             }
 
@@ -273,14 +260,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                             node: regexpNode,
                             loc: getFlagLocation(context, regexpNode, "i"),
                             messageId: "uselessIgnoreCaseFlag",
-                            fix(fixer) {
-                                return fixRemoveFlag(
-                                    fixer,
-                                    regexpNode,
-                                    "i",
-                                    context.getSourceCode(),
-                                )
-                            },
+                            fix: fixRemoveFlag(regExpContext, "i"),
                         })
                     }
                 },
@@ -294,8 +274,10 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
  */
 function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor({ flags, regexpNode }: RegExpContext) {
-            if (!flags.multiline) {
+        createVisitor(regExpContext: RegExpContext) {
+            const { flags, regexpNode, ownsFlags } = regExpContext
+
+            if (!flags.multiline || !ownsFlags) {
                 return {}
             }
             let unnecessary = true
@@ -311,14 +293,7 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
                             node: regexpNode,
                             loc: getFlagLocation(context, regexpNode, "m"),
                             messageId: "uselessMultilineFlag",
-                            fix(fixer) {
-                                return fixRemoveFlag(
-                                    fixer,
-                                    regexpNode,
-                                    "m",
-                                    context.getSourceCode(),
-                                )
-                            },
+                            fix: fixRemoveFlag(regExpContext, "m"),
                         })
                     }
                 },
@@ -332,8 +307,10 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
  */
 function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
-        createVisitor({ flags, regexpNode }: RegExpContext) {
-            if (!flags.dotAll) {
+        createVisitor(regExpContext: RegExpContext) {
+            const { flags, regexpNode, ownsFlags } = regExpContext
+
+            if (!flags.dotAll || !ownsFlags) {
                 return {}
             }
             let unnecessary = true
@@ -349,14 +326,7 @@ function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
                             node: regexpNode,
                             loc: getFlagLocation(context, regexpNode, "s"),
                             messageId: "uselessDotAllFlag",
-                            fix(fixer) {
-                                return fixRemoveFlag(
-                                    fixer,
-                                    regexpNode,
-                                    "s",
-                                    context.getSourceCode(),
-                                )
-                            },
+                            fix: fixRemoveFlag(regExpContext, "s"),
                         })
                     }
                 },
