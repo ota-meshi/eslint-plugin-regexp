@@ -1,5 +1,6 @@
 import type { RuleModule } from "../types"
 import confusingQuantifier from "../rules/confusing-quantifier"
+import controlCharacterEscape from "../rules/control-character-escape"
 import hexadecimalEscape from "../rules/hexadecimal-escape"
 import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
@@ -54,6 +55,7 @@ import unicodeEscape from "../rules/unicode-escape"
 
 export const rules = [
     confusingQuantifier,
+    controlCharacterEscape,
     hexadecimalEscape,
     letterCase,
     matchAny,
