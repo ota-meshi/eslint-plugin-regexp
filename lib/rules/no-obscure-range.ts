@@ -10,7 +10,7 @@ import {
     defineRegexpVisitor,
     isControlEscape,
     isEscapeSequence,
-    isHexadecimalEscape,
+    isUseHexEscape,
     isOctalEscape,
 } from "../utils"
 
@@ -68,8 +68,8 @@ export default createRule("no-obscure-range", {
                         return
                     }
                     if (
-                        (isHexadecimalEscape(min.raw) || min.value === 0) &&
-                        isHexadecimalEscape(max.raw)
+                        (isUseHexEscape(min.raw) || min.value === 0) &&
+                        isUseHexEscape(max.raw)
                     ) {
                         // both min and max are hexadecimal (with a small exception for \0)
                         return

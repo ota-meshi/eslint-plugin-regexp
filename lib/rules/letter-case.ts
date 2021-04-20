@@ -7,6 +7,8 @@ import {
     isLetter,
     isLowercaseLetter,
     isUppercaseLetter,
+    EscapeSequenceKind,
+    getEscapeSequenceKind,
 } from "../utils"
 
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
@@ -235,13 +237,17 @@ export default createRule("letter-case", {
                     if (flags.ignoreCase) {
                         verifyCharacterInCaseInsensitive(regexpContext, cNode)
                     }
-                    if (cNode.raw.startsWith("\\u")) {
+                    const escapeKind = getEscapeSequenceKind(cNode.raw)
+                    if (
+                        escapeKind === EscapeSequenceKind.unicode ||
+                        escapeKind === EscapeSequenceKind.unicodeCodePoint
+                    ) {
                         verifyCharacterInUnicodeEscape(regexpContext, cNode)
                     }
-                    if (/^\\x.+$/u.test(cNode.raw)) {
+                    if (escapeKind === EscapeSequenceKind.hexadecimal) {
                         verifyCharacterInHexadecimalEscape(regexpContext, cNode)
                     }
-                    if (/^\\c[A-Za-z]$/u.test(cNode.raw)) {
+                    if (escapeKind === EscapeSequenceKind.control) {
                         verifyCharacterInControl(regexpContext, cNode)
                     }
                 },
