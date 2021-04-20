@@ -23,8 +23,8 @@ tester.run("no-invisible-character", rule as any, {
     invalid: [
         {
             code: "/\u00a0/",
-            output: "/\\u00a0/",
-            errors: ["Unexpected invisible character. Use '\\u00a0' instead."],
+            output: "/\\xa0/",
+            errors: ["Unexpected invisible character. Use '\\xa0' instead."],
         },
         {
             code: "/[\t]/",
@@ -35,10 +35,10 @@ tester.run("no-invisible-character", rule as any, {
             code:
                 "/[\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b]/",
             output:
-                "/[\\t\u00a0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\u0085\\u200b]/",
+                "/[\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b]/",
             errors: [
                 "Unexpected invisible character. Use '\\t' instead.",
-                "Unexpected invisible character. Use '\\u00a0' instead.",
+                "Unexpected invisible character. Use '\\xa0' instead.",
                 "Unexpected invisible character. Use '\\u1680' instead.",
                 "Unexpected invisible character. Use '\\u180e' instead.",
                 "Unexpected invisible character. Use '\\u2000' instead.",
@@ -56,7 +56,7 @@ tester.run("no-invisible-character", rule as any, {
                 "Unexpected invisible character. Use '\\u205f' instead.",
                 "Unexpected invisible character. Use '\\u3000' instead.",
                 "Unexpected invisible character. Use '\\ufeff' instead.",
-                "Unexpected invisible character. Use '\\u0085' instead.",
+                "Unexpected invisible character. Use '\\x85' instead.",
                 "Unexpected invisible character. Use '\\u200b' instead.",
             ],
         },
@@ -64,9 +64,9 @@ tester.run("no-invisible-character", rule as any, {
             code:
                 "/[\\t\u00a0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\u0085\\u200b]/",
             output:
-                "/[\\t\\u00a0\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000\\ufeff\\u0085\\u200b]/",
+                "/[\\t\\xa0\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000\\ufeff\\x85\\u200b]/",
             errors: [
-                "Unexpected invisible character. Use '\\u00a0' instead.",
+                "Unexpected invisible character. Use '\\xa0' instead.",
                 "Unexpected invisible character. Use '\\u180e' instead.",
                 "Unexpected invisible character. Use '\\u2001' instead.",
                 "Unexpected invisible character. Use '\\u2003' instead.",
@@ -75,17 +75,17 @@ tester.run("no-invisible-character", rule as any, {
                 "Unexpected invisible character. Use '\\u2009' instead.",
                 "Unexpected invisible character. Use '\\u202f' instead.",
                 "Unexpected invisible character. Use '\\u3000' instead.",
-                "Unexpected invisible character. Use '\\u0085' instead.",
+                "Unexpected invisible character. Use '\\x85' instead.",
             ],
         },
         {
             code:
                 "new RegExp('\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b')",
             output:
-                "new RegExp('\\t\u00a0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\u0085\\u200b')",
+                "new RegExp('\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b')",
             errors: [
                 "Unexpected invisible character. Use '\\t' instead.",
-                "Unexpected invisible character. Use '\\u00a0' instead.",
+                "Unexpected invisible character. Use '\\xa0' instead.",
                 "Unexpected invisible character. Use '\\u1680' instead.",
                 "Unexpected invisible character. Use '\\u180e' instead.",
                 "Unexpected invisible character. Use '\\u2000' instead.",
@@ -103,7 +103,7 @@ tester.run("no-invisible-character", rule as any, {
                 "Unexpected invisible character. Use '\\u205f' instead.",
                 "Unexpected invisible character. Use '\\u3000' instead.",
                 "Unexpected invisible character. Use '\\ufeff' instead.",
-                "Unexpected invisible character. Use '\\u0085' instead.",
+                "Unexpected invisible character. Use '\\x85' instead.",
                 "Unexpected invisible character. Use '\\u200b' instead.",
             ],
         },

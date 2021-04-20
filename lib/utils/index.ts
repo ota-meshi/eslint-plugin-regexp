@@ -16,6 +16,7 @@ import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
+import { JS } from "refa"
 export * from "./unicode"
 
 export type ToCharSet = (
@@ -748,6 +749,28 @@ export function quantToString(quant: Readonly<Quant>): string {
         return `${value}?`
     }
     return value
+}
+
+/**
+ * Returns a regexp literal source of the given char set or char.
+ */
+export function toCharSetSource(
+    charSetOrChar: CharSet | number,
+    flags: ReadonlyFlags,
+): string {
+    let charSet
+    if (typeof charSetOrChar === "number") {
+        charSet = JS.createCharSet([charSetOrChar], flags)
+    } else {
+        charSet = charSetOrChar
+    }
+    return JS.toLiteral(
+        {
+            type: "Concatenation",
+            elements: [{ type: "CharacterClass", characters: charSet }],
+        },
+        { flags },
+    ).source
 }
 
 /* eslint-disable complexity -- X( */
