@@ -121,24 +121,6 @@ export default createRule("no-useless-escape", {
                             }
                             report(cNode, 0, char)
                         }
-                        // else if (cNode.value === CP_BACK_SLASH) {
-                        //     // Invalid escape for /\c/
-                        //     if (cNode.raw === "\\") {
-                        //         const parent = cNode.parent
-                        //         if (
-                        //             parent.type === "Alternative" ||
-                        //             parent.type === "CharacterClass"
-                        //         ) {
-                        //             const next =
-                        //                 parent.elements[
-                        //                     parent.elements.indexOf(cNode) + 1
-                        //                 ]
-                        //             if (next && next.raw.length === 1) {
-                        //                 report(cNode, 0, next.raw)
-                        //             }
-                        //         }
-                        //     }
-                        // }
                     }
                 },
             }

@@ -32,6 +32,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
 | [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions |  |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
+| [regexp/no-standalone-reverse-solidus](./no-standalone-reverse-solidus.md) | disallow standalone reverse solidus (`\`) |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |

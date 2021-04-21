@@ -54,10 +54,12 @@ var foo = /\u{[41]}/
 
 Nothing.
 
-## :books: Further reading
+## :couple: Related rules
 
+- [regexp/no-standalone-reverse-solidus]
 - [no-useless-escape]
 
+[regexp/no-standalone-reverse-solidus]: ./no-standalone-reverse-solidus.md
 [no-useless-escape]: https://eslint.org/docs/rules/no-useless-escape
 
 ## :rocket: Version
