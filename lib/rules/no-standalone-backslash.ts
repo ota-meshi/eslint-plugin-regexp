@@ -2,10 +2,10 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, CP_BACK_SLASH } from "../utils"
 
-export default createRule("no-standalone-reverse-solidus", {
+export default createRule("no-standalone-backslash", {
     meta: {
         docs: {
-            description: "disallow standalone reverse solidus (`\\`)",
+            description: "disallow standalone backslash (`\\`)",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
@@ -13,7 +13,7 @@ export default createRule("no-standalone-reverse-solidus", {
         schema: [],
         messages: {
             unexpected:
-                "Unexpected standalone reverse solidus (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
+                "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
         },
         type: "suggestion", // "problem",
     },

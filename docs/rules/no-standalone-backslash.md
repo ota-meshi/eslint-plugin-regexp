@@ -1,18 +1,18 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/no-standalone-reverse-solidus"
-description: "disallow standalone reverse solidus (`\\`)"
+title: "regexp/no-standalone-backslash"
+description: "disallow standalone backslash (`\\`)"
 ---
-# regexp/no-standalone-reverse-solidus
+# regexp/no-standalone-backslash
 
-> disallow standalone reverse solidus (`\`)
+> disallow standalone backslash (`\`)
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
-This rule disallows reverse solidus (`\`) without escape.
+This rule disallows backslash (`\`) without escape.
 
 E.g. the regular expression `/\c/` without the unicode (`u`) flag is the same pattern as `/\\c/`.
 
@@ -25,7 +25,7 @@ This behavior is described in [Annex B] of the ECMAScript specification.
 <eslint-code-block>
 
 ```js
-/* eslint regexp/no-standalone-reverse-solidus: "error" */
+/* eslint regexp/no-standalone-backslash: "error" */
 
 /* ✓ GOOD */
 var foo = /\cX/;
@@ -52,5 +52,5 @@ Nothing.
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-standalone-reverse-solidus.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-standalone-reverse-solidus.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-standalone-backslash.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-standalone-backslash.ts)

@@ -56,10 +56,10 @@ Nothing.
 
 ## :couple: Related rules
 
-- [regexp/no-standalone-reverse-solidus]
+- [regexp/no-standalone-backslash]
 - [no-useless-escape]
 
-[regexp/no-standalone-reverse-solidus]: ./no-standalone-reverse-solidus.md
+[regexp/no-standalone-backslash]: ./no-standalone-backslash.md
 [no-useless-escape]: https://eslint.org/docs/rules/no-useless-escape
 
 ## :rocket: Version

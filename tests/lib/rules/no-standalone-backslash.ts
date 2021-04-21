@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/no-standalone-reverse-solidus"
+import rule from "../../../lib/rules/no-standalone-backslash"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("no-standalone-reverse-solidus", rule as any, {
+tester.run("no-standalone-backslash", rule as any, {
     valid: [String.raw`/\cX/`],
     invalid: [
         {
@@ -16,7 +16,7 @@ tester.run("no-standalone-reverse-solidus", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected standalone reverse solidus (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
+                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
                     column: 2,
                 },
             ],
@@ -26,7 +26,7 @@ tester.run("no-standalone-reverse-solidus", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected standalone reverse solidus (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
+                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
                     column: 2,
                 },
             ],
@@ -36,7 +36,7 @@ tester.run("no-standalone-reverse-solidus", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected standalone reverse solidus (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
+                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
                     column: 2,
                 },
             ],
@@ -46,7 +46,7 @@ tester.run("no-standalone-reverse-solidus", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected standalone reverse solidus (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
+                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
                     column: 3,
                 },
             ],
