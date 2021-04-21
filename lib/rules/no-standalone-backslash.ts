@@ -5,7 +5,7 @@ import { createRule, defineRegexpVisitor, CP_BACK_SLASH } from "../utils"
 export default createRule("no-standalone-backslash", {
     meta: {
         docs: {
-            description: "disallow standalone backslash (`\\`)",
+            description: "disallow standalone backslashes (`\\`)",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
