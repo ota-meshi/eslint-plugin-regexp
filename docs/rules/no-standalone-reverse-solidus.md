@@ -14,10 +14,11 @@ description: "disallow standalone reverse solidus (`\\`)"
 
 This rule disallows reverse solidus (`\`) without escape.
 
-The regular expression `/\c/` without the unicode (`u`) flag has the same pattern as `/\\c/`.
+E.g. the regular expression `/\c/` without the unicode (`u`) flag is the same pattern as `/\\c/`.
 
-This is the specification described in [Annex B] of ECMAScript. But very confusing and you should not use it intentionally.
-In most cases you intended the control escape sequence (`\cX`) or another escape, but you maybe made a mistake.
+In most cases, standalone backslashes are used by accident when a control escape sequence (`\cX`) or another escape sequence was intended. They are very confusing and should not be used intentionally.
+
+This behavior is described in [Annex B] of the ECMAScript specification.
 
 [Annex B]: https://tc39.es/ecma262/#sec-regular-expressions-patterns
 
