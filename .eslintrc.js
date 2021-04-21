@@ -1,6 +1,13 @@
 "use strict"
 
-// const version = require("./package.json").version
+const { rules } = require("eslint-plugin-regexp")
+
+const enableAllRules = Object.keys(rules)
+    .map((name) => `regexp/${name}`)
+    .reduce((p, c) => {
+        p[c] = "error"
+        return p
+    }, {})
 
 module.exports = {
     parserOptions: {
@@ -18,6 +25,8 @@ module.exports = {
         "plugin:@ota-meshi/+prettier",
     ],
     rules: {
+        // eslint-disable-next-line node/no-unsupported-features/es-syntax -- Lint only
+        ...enableAllRules,
         "require-jsdoc": "error",
         "no-warning-comments": "warn",
         "no-lonely-if": "off",
@@ -42,29 +51,13 @@ module.exports = {
             },
         ],
 
-        // https://github.com/ota-meshi/eslint-plugin-regexp/pull/49
         "no-empty-character-class": "error",
-        "regexp/negation": "error",
-        "regexp/no-dupe-disjunctions": "error",
-        "regexp/no-useless-character-class": "error",
-        "regexp/no-useless-escape": "error",
-        "regexp/no-useless-non-capturing-group": "error",
-        "regexp/no-useless-non-greedy": "error",
-        "regexp/no-useless-range": "error",
-        "regexp/prefer-character-class": "error",
-        "regexp/prefer-range": "error",
-        "regexp/prefer-unicode-codepoint-escapes": "error",
 
+        "regexp/no-dupe-disjunctions": ["error", { disallowNeverMatch: true }],
         "regexp/letter-case": [
             "error",
             { hexadecimalEscape: "lowercase", controlEscape: "uppercase" },
         ],
-
-        // others
-        "regexp/order-in-character-class": "error",
-        "regexp/prefer-quantifier": "error",
-        "regexp/prefer-regexp-exec": "error",
-        "regexp/prefer-regexp-test": "error",
     },
     overrides: [
         {

@@ -115,7 +115,7 @@ export default createRule("no-useless-character-class", {
                                 element.type === "CharacterClassRange"
                             ) {
                                 if (
-                                    /^[$(-+./?[{|]$/u.test(text) ||
+                                    /^[$()*+./?[{|]$/u.test(text) ||
                                     (flags.unicode && text === "}")
                                 ) {
                                     text = `\\${text}`
