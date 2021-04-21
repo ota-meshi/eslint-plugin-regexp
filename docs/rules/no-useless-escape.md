@@ -54,10 +54,12 @@ var foo = /\u{[41]}/
 
 Nothing.
 
-## :books: Further reading
+## :couple: Related rules
 
+- [regexp/no-standalone-backslash]
 - [no-useless-escape]
 
+[regexp/no-standalone-backslash]: ./no-standalone-backslash.md
 [no-useless-escape]: https://eslint.org/docs/rules/no-useless-escape
 
 ## :rocket: Version
