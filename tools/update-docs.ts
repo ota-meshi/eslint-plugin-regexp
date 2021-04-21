@@ -25,7 +25,7 @@ const ROOT = path.resolve(__dirname, "../docs/rules")
 
 //eslint-disable-next-line require-jsdoc -- tools
 function pickSince(content: string): string | null {
-    const fileIntro = /^---\n(.*\n)+---\n*/g.exec(content)
+    const fileIntro = /^---\n(.*\n)+---\n*/.exec(content)
     if (fileIntro) {
         const since = /since: "?(v\d+\.\d+\.\d+)"?/.exec(fileIntro[0])
         if (since) {
@@ -173,11 +173,11 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
     public adjustCodeBlocks() {
         // Adjust the necessary blank lines before and after the code block so that GitHub can recognize `.md`.
         this.content = this.content.replace(
-            /(<eslint-code-block[\s\S]*?>)\n+```/gmu,
+            /(<eslint-code-block[\s\S]*?>)\n+```/gu,
             "$1\n\n```",
         )
         this.content = this.content.replace(
-            /```\n+<\/eslint-code-block>/gmu,
+            /```\n+<\/eslint-code-block>/gu,
             "```\n\n</eslint-code-block>",
         )
         return this

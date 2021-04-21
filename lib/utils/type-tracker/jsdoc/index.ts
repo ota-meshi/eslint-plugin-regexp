@@ -90,7 +90,7 @@ export class JSDoc {
         }
         const params = (this.params = new JSDocParams())
         for (const param of this.genTags("param")) {
-            const paths: string[] = (param.name || "").split(/\./gu)
+            const paths: string[] = (param.name || "").split(/\./u)
             params.add(paths, param)
         }
         return params
