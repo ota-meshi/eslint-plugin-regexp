@@ -334,5 +334,12 @@ tester.run("no-dupe-disjunctions", rule as any, {
                 "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
             ],
         },
+        {
+            code: String.raw`/(?:\p{Lu}\p{L}*|[A-Z]\w*)/u`,
+            options: [{ disallowNeverMatch: true }],
+            errors: [
+                "This disjunction can never match. Its condition is covered by previous conditions in the disjunctions.",
+            ],
+        },
     ],
 })
