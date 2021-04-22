@@ -142,7 +142,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-exactly-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-exactly-quantifier.html) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-flag.html) | disallow unnecessary regex flags | :wrench: |
 | [regexp/no-useless-lazy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lazy.html) | disallow unnecessarily non-greedy quantifiers | :wrench: |
-| [regexp/no-useless-non-greedy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-greedy.html) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html) | disallow quantifiers that can be removed | :wrench: |
 | [regexp/no-useless-range](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-range.html) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-two-nums-quantifier.html) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
@@ -179,6 +178,15 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/sort-character-class-elements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html) | enforces elements order in character class | :wrench: |
 | [regexp/sort-flags](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-flags.html) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/unicode-escape.html) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+### Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/no-useless-non-greedy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-greedy.html) | [regexp/no-useless-lazy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lazy.html.md) |
 
 <!--RULES_TABLE_END-->
 <!--RULES_SECTION_END-->
