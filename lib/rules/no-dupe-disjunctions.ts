@@ -77,6 +77,7 @@ export default createRule("no-dupe-disjunctions", {
         function createVisitor({
             node,
             flags,
+            toCharSet,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             /** Verify group node */
@@ -94,12 +95,13 @@ export default createRule("no-dupe-disjunctions", {
                     const dupeAlt = disallowNeverMatch
                         ? leftAlts.find((leftAlt) =>
                               isCoveredNode(leftAlt, alt, {
-                                  flags: { left: flags, right: flags },
+                                  flags,
                                   canOmitRight,
+                                  toCharSet,
                               }),
                           )
                         : leftAlts.find((leftAlt) =>
-                              isEqualNodes(leftAlt, alt, (a, _b) => {
+                              isEqualNodes(leftAlt, alt, toCharSet, (a, _b) => {
                                   if (a.type === "CapturingGroup") {
                                       return false
                                   }
@@ -112,7 +114,7 @@ export default createRule("no-dupe-disjunctions", {
                             loc: getRegexpLocation(alt),
                             messageId:
                                 disallowNeverMatch &&
-                                !isEqualNodes(dupeAlt, alt)
+                                !isEqualNodes(dupeAlt, alt, toCharSet)
                                     ? "neverExecute"
                                     : "duplicated",
                         })
