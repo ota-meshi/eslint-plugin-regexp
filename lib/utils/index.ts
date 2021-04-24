@@ -78,6 +78,8 @@ type RegExpHelpersBase = {
     fixReplaceFlags: (
         newFlags: string | (() => string | null),
     ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
+
+    patternAst: Pattern
 }
 export type RegExpHelpersForLiteral = {
     /**
@@ -523,6 +525,8 @@ function buildRegExpHelperBase({
                 regexpNode,
                 newFlags,
             ),
+
+        patternAst: parsedPattern,
     }
 }
 
