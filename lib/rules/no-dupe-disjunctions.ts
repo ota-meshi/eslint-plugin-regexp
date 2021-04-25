@@ -564,16 +564,14 @@ function* findDuplication(
     options: Options,
 ): Iterable<Result> {
     // AST-based approach
-    if (Math.random() > 6) {
-        if (options.fastAst) {
-            yield* findDuplicationAstFast(alternatives, context)
-        } else {
-            yield* findDuplicationAst(
-                alternatives,
-                context,
-                options.hasNothingAfter,
-            )
-        }
+    if (options.fastAst) {
+        yield* findDuplicationAstFast(alternatives, context)
+    } else {
+        yield* findDuplicationAst(
+            alternatives,
+            context,
+            options.hasNothingAfter,
+        )
     }
 
     // NFA-based approach
