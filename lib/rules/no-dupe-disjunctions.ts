@@ -589,14 +589,14 @@ export default createRule("no-dupe-disjunctions", {
             },
         ],
         messages: {
-            duplicate: "Unexpected duplicate alternative.{{exp}}",
+            duplicate:
+                "Unexpected duplicate alternative. This alternative can be removed.{{exp}}",
             subset:
-                "Unexpected useless alternative. This alternative is a subset of '{{others}}' and can be removed.{{exp}}",
+                "Unexpected useless alternative. This alternative is a strict subset of '{{others}}' and can be removed.{{exp}}",
             prefixSubset:
-                // TODO: better message
                 "Unexpected useless alternative. This alternative is already covered by '{{others}}' and can be removed.",
-            // TODO: better message
-            superset: "superset others: '{{others}}' TODO:.{{exp}}",
+            superset:
+                "Unexpected superset. This alternative is a superset of '{{others}}'. It might be possible to remove the other alternative(s).{{exp}}",
             overlap:
                 "Unexpected overlap. This alternative overlaps with '{{others}}'. The overlap is '{{expr}}'.{{exp}}",
         },
