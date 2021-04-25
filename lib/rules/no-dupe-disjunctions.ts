@@ -24,6 +24,7 @@ import {
 } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
+    hasSomeDescendant,
     getMatchingDirection,
     getEffectiveMaximumRepetition,
 } from "regexp-ast-analysis"
@@ -645,15 +646,15 @@ export default createRule("no-dupe-disjunctions", {
         ],
         messages: {
             duplicate:
-                "Unexpected duplicate alternative. This alternative can be removed.{{exp}}",
+                "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
             subset:
-                "Unexpected useless alternative. This alternative is a strict subset of '{{others}}' and can be removed.{{exp}}",
+                "Unexpected useless alternative. This alternative is a strict subset of '{{others}}' and can be removed.{{cap}}{{exp}}",
             prefixSubset:
-                "Unexpected useless alternative. This alternative is already covered by '{{others}}' and can be removed.",
+                "Unexpected useless alternative. This alternative is already covered by '{{others}}' and can be removed.{{cap}}",
             superset:
-                "Unexpected superset. This alternative is a superset of '{{others}}'. It might be possible to remove the other alternative(s).{{exp}}",
+                "Unexpected superset. This alternative is a superset of '{{others}}'. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
-                "Unexpected overlap. This alternative overlaps with '{{others}}'. The overlap is '{{expr}}'.{{exp}}",
+                "Unexpected overlap. This alternative overlaps with '{{others}}'. The overlap is '{{expr}}'.{{cap}}{{exp}}",
         },
         type: "suggestion", // "problem",
     },
@@ -680,7 +681,11 @@ export default createRule("no-dupe-disjunctions", {
             const parser = JS.Parser.fromAst({
                 pattern: patternAst,
                 flags: new RegExpParser().parseFlags(
-                    flagsString?.replace(/[^gimsuy]/g, "") ?? "",
+                    [
+                        ...new Set(
+                            (flagsString || "").replace(/[^gimsuy]/g, ""),
+                        ),
+                    ].join(""),
                 ),
             })
 
@@ -698,7 +703,7 @@ export default createRule("no-dupe-disjunctions", {
                     parentNode.alternatives,
                     regexpContext,
                     {
-                        fastAst: false,
+                        fastAst: true,
                         noNfa: false,
                         ignoreOverlap: nodeReport !== ReportOption.all,
                         hasNothingAfter,
@@ -740,6 +745,12 @@ export default createRule("no-dupe-disjunctions", {
                 const exp = isStared(result.alternative)
                     ? " This ambiguity is likely to cause exponential backtracking."
                     : ""
+                const cap = hasSomeDescendant(
+                    result.alternative,
+                    (d) => d.type === "CapturingGroup",
+                )
+                    ? " Careful! This alternative contains capturing groups which might be difficult to remove."
+                    : ""
 
                 const others = result.others.map((a) => a.raw).join("|")
 
@@ -749,7 +760,7 @@ export default createRule("no-dupe-disjunctions", {
                             node,
                             loc: getRegexpLocation(result.alternative),
                             messageId: "duplicate",
-                            data: { exp, others },
+                            data: { exp, cap, others },
                         })
                         break
 
@@ -758,7 +769,7 @@ export default createRule("no-dupe-disjunctions", {
                             node,
                             loc: getRegexpLocation(result.alternative),
                             messageId: "subset",
-                            data: { exp, others },
+                            data: { exp, cap, others },
                         })
                         break
 
@@ -767,7 +778,7 @@ export default createRule("no-dupe-disjunctions", {
                             node,
                             loc: getRegexpLocation(result.alternative),
                             messageId: "prefixSubset",
-                            data: { exp, others },
+                            data: { exp, cap, others },
                         })
                         break
 
@@ -776,7 +787,7 @@ export default createRule("no-dupe-disjunctions", {
                             node,
                             loc: getRegexpLocation(result.alternative),
                             messageId: "superset",
-                            data: { exp, others },
+                            data: { exp, cap, others },
                         })
                         break
 
@@ -787,6 +798,7 @@ export default createRule("no-dupe-disjunctions", {
                             messageId: "overlap",
                             data: {
                                 exp,
+                                cap,
                                 others,
                                 expr: faToSource(result.overlap, flags),
                             },
