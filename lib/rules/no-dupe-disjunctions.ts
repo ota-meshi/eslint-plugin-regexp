@@ -4,14 +4,16 @@ import type {
     CapturingGroup,
     Group,
     LookaroundAssertion,
+    Node,
     Pattern,
     Quantifier,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
-import type { Expression, FiniteAutomaton, ReadonlyNFA } from "refa"
+import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
+    TooManyNodesError,
     combineTransformers,
     Transformers,
     DFA,
@@ -28,6 +30,18 @@ import {
 import { RegExpParser } from "regexpp"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
+
+/**
+ * Returns whether the node or the elements of the node are effectively
+ * quantified with a star.
+ */
+function isStared(node: Node): boolean {
+    let max = getEffectiveMaximumRepetition(node)
+    if (node.type === "Quantifier") {
+        max *= node.max
+    }
+    return max > 10
+}
 
 /**
  * Check has after pattern
@@ -70,7 +84,7 @@ function hasNothingAfterNode(node: ParentNode): boolean {
 /**
  * Returns whether the given RE AST contains assertions.
  */
-function containsAssertions(expression: Expression): boolean {
+function containsAssertions(expression: NoParent<Expression>): boolean {
     try {
         visitAst(expression, {
             onAssertionEnter() {
@@ -96,26 +110,67 @@ const assertionTransformer = combineTransformers([
 
 /**
  * Create an NFA from the given element.
+ *
+ * The `partial` value determines whether the NFA perfectly represents the given
+ * element. Some elements might contain features that cannot be represented
+ * using NFA in which case a partial NFA will be created (e.g. the NFA of
+ * `a|\bfoo\b` is equivalent to the NFA of `a`).
  */
-function toNFA(parser: JS.Parser, element: JS.ParsableElement): NFA {
+function toNFA(
+    parser: JS.Parser,
+    element: JS.ParsableElement,
+): { nfa: NFA; partial: boolean } {
+    /** Parses the element. */
+    function parse(): { result: JS.ParseResult; partial: boolean } {
+        try {
+            return {
+                result: parser.parseElement(element, {
+                    backreferences: "throw",
+                    assertions: "parse",
+                }),
+                partial: false,
+            }
+        } catch (error) {
+            if (error instanceof TooManyNodesError) {
+                throw error
+            }
+
+            // we are here because the element contains some backreferences that
+            // couldn't be resolved.
+            return {
+                result: parser.parseElement(element, {
+                    backreferences: "disable",
+                    assertions: "parse",
+                }),
+                partial: true,
+            }
+        }
+    }
+
     try {
-        const { expression, maxCharacter } = parser.parseElement(element, {
-            backreferences: "disable",
-            assertions: "parse",
-        })
+        const result = parse()
+        const { expression, maxCharacter } = result.result
+        let { partial } = result
 
         let e
         if (containsAssertions(expression)) {
             e = transform(assertionTransformer, expression)
+            partial = partial || containsAssertions(e)
         } else {
             e = expression
         }
 
-        return NFA.fromRegex(e, { maxCharacter }, { assertions: "disable" })
+        return {
+            nfa: NFA.fromRegex(e, { maxCharacter }, { assertions: "disable" }),
+            partial,
+        }
     } catch (error) {
-        return NFA.empty({
-            maxCharacter: parser.ast.flags.unicode ? 0x10ffff : 0xffff,
-        })
+        return {
+            nfa: NFA.empty({
+                maxCharacter: parser.ast.flags.unicode ? 0x10ffff : 0xffff,
+            }),
+            partial: true,
+        }
     }
 }
 
@@ -330,7 +385,7 @@ function* findDuplicationAst(
  * This operation will modify the given NFAs.
  */
 function* findPrefixDuplicationNfa(
-    alternatives: [NFA, Alternative][],
+    alternatives: [NFA, boolean, Alternative][],
 ): Iterable<Result> {
     if (alternatives.length === 0) {
         return
@@ -341,26 +396,24 @@ function* findPrefixDuplicationNfa(
     const all = NFA.all({ maxCharacter: alternatives[0][0].maxCharacter })
 
     for (let i = 0; i < alternatives.length; i++) {
-        const [nfa, alternative] = alternatives[i]
+        const [nfa, partial, alternative] = alternatives[i]
 
-        const overlapping = alternatives
-            .slice(0, i)
-            .filter(([otherNfa]) => !nfa.isDisjointWith(otherNfa))
+        if (!partial) {
+            const overlapping = alternatives
+                .slice(0, i)
+                .filter(([otherNfa]) => !nfa.isDisjointWith(otherNfa))
 
-        if (overlapping.length >= 1) {
-            const othersNfa = unionAll(overlapping.map(([n]) => n))
-            const others = overlapping.map(([, a]) => a)
+            if (overlapping.length >= 1) {
+                const othersNfa = unionAll(overlapping.map(([n]) => n))
+                const others = overlapping.map(([, , a]) => a)
 
-            // Only checking for a subset relation is sufficient here.
-            // Duplicates are VERY unlikely. (Who would use alternatives
-            // like `a|a[^]*`?)
+                // Only checking for a subset relation is sufficient here.
+                // Duplicates are VERY unlikely. (Who would use alternatives
+                // like `a|a[^]*`?)
 
-            if (isSubsetOf(othersNfa, nfa)) {
-                yield { type: "PrefixSubset", alternative, others }
-            } else {
-                // The else case is interesting.
-                // It means that _some_ of the paths in the current alternative are useless.
-                // TODO: Decide whether this should be reported as well.
+                if (isSubsetOf(othersNfa, nfa)) {
+                    yield { type: "PrefixSubset", alternative, others }
+                }
             }
         }
 
@@ -375,10 +428,10 @@ function* findDuplicationNfa(
     alternatives: Alternative[],
     { hasNothingAfter, parser, ignoreOverlap }: Options,
 ): Iterable<Result> {
-    const previous: [NFA, Alternative][] = []
+    const previous: [NFA, boolean, Alternative][] = []
     for (let i = 0; i < alternatives.length; i++) {
         const alternative = alternatives[i]
-        const nfa = toNFA(parser, alternative)
+        const { nfa, partial } = toNFA(parser, alternative)
 
         const overlapping = previous.filter(
             ([otherNfa]) => !nfa.isDisjointWith(otherNfa),
@@ -386,9 +439,18 @@ function* findDuplicationNfa(
 
         if (overlapping.length >= 1) {
             const othersNfa = unionAll(overlapping.map(([n]) => n))
-            const others = overlapping.map(([, a]) => a)
+            const others = overlapping.map(([, , a]) => a)
 
-            const relation = getSubsetRelation(nfa, othersNfa)
+            let relation = getSubsetRelation(nfa, othersNfa)
+            if (partial) {
+                // the nfa (left) is only a subset of the actual language
+                if (relation === SubsetRelation.leftEqualRight) {
+                    relation = SubsetRelation.leftSupersetOfRight
+                } else if (relation === SubsetRelation.leftSubsetOfRight) {
+                    relation = SubsetRelation.none
+                }
+            }
+
             switch (relation) {
                 case SubsetRelation.leftEqualRight:
                     if (others.length === 1) {
@@ -414,8 +476,6 @@ function* findDuplicationNfa(
 
                 case SubsetRelation.none:
                 case SubsetRelation.unknown:
-                    // TODO: we might want to report cases where the relation
-                    // couldn't be determined
                     if (!ignoreOverlap) {
                         yield {
                             type: "Overlap",
@@ -431,7 +491,7 @@ function* findDuplicationNfa(
             }
         }
 
-        previous.push([nfa, alternative])
+        previous.push([nfa, partial, alternative])
     }
 
     if (hasNothingAfter) {
@@ -501,6 +561,12 @@ function deduplicateResults(results: readonly Result[]): Result[] {
     })
 }
 
+enum ReportOption {
+    all = "all",
+    trivial = "trivial",
+    interesting = "interesting",
+}
+
 export default createRule("no-dupe-disjunctions", {
     meta: {
         docs: {
@@ -513,7 +579,11 @@ export default createRule("no-dupe-disjunctions", {
             {
                 type: "object",
                 properties: {
-                    disallowNeverMatch: { type: "boolean" },
+                    report: {
+                        type: "string",
+                        enum: ["all", "trivial", "interesting"],
+                    },
+                    alwaysReportExponentialBacktracking: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
@@ -533,7 +603,10 @@ export default createRule("no-dupe-disjunctions", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        // TODO: options
+        const alwaysReportExponentialBacktracking =
+            context.options[0]?.alwaysReportExponentialBacktracking ?? true
+        const report: ReportOption =
+            context.options[0]?.report ?? ReportOption.trivial
 
         /**
          * Create visitor
@@ -558,35 +631,60 @@ export default createRule("no-dupe-disjunctions", {
 
             /** Verify group node */
             function verify(parentNode: ParentNode) {
+                // report all if the we report exp backtracking
+                const nodeReport =
+                    alwaysReportExponentialBacktracking && isStared(parentNode)
+                        ? ReportOption.all
+                        : report
+
+                const hasNothingAfter = hasNothingAfterNode(parentNode)
+
                 const rawResults = findDuplication(
                     parentNode.alternatives,
                     regexpContext,
                     {
                         fastAst: false,
                         noNfa: false,
-                        ignoreOverlap: true,
-                        hasNothingAfter: hasNothingAfterNode(parentNode),
+                        ignoreOverlap: nodeReport !== ReportOption.all,
+                        hasNothingAfter,
                         parser,
                     },
                 )
 
-                const results = deduplicateResults(sortResultTypes(rawResults))
+                let results = deduplicateResults(sortResultTypes(rawResults))
 
-                results.forEach(report)
+                if (nodeReport === ReportOption.trivial) {
+                    // For "trivial", we want to filter out all results
+                    // where the user cannot just remove the reported
+                    // alternative. So "Overlap" and "Superset" types are
+                    // removed.
+
+                    results = results.filter(({ type }) => {
+                        return !(type === "Overlap" || type === "Superset")
+                    })
+                } else if (nodeReport === ReportOption.interesting) {
+                    // For "interesting", we want to behave like "trivial"
+                    // but we also want to retain "Superset" results like
+                    // `\b(?:Foo|\w+)\b`. So "Overlap" types are always
+                    // removed and "Superset" types are removed if there is
+                    // nothing after it.
+
+                    results = results.filter(({ type }) => {
+                        return !(
+                            type === "Overlap" ||
+                            (type === "Superset" && hasNothingAfter)
+                        )
+                    })
+                }
+
+                results.forEach(reportResult)
             }
 
             /** Report the given result. */
-            function report(result: Result) {
-                if (
-                    Math.random() < 4 &&
-                    (result.type === "Overlap" || result.type === "Superset")
-                ) {
-                    return
-                }
-                const exp =
-                    getEffectiveMaximumRepetition(result.alternative) > 10
-                        ? " This ambiguity is likely to cause exponential backtracking."
-                        : ""
+            function reportResult(result: Result) {
+                const exp = isStared(result.alternative)
+                    ? " This ambiguity is likely to cause exponential backtracking."
+                    : ""
 
                 const others = result.others.map((a) => a.raw).join("|")
 
