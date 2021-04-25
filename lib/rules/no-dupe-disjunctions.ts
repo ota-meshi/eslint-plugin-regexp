@@ -259,10 +259,13 @@ function getSubsetRelation(
  * This function adjusts their subset relation to account for partial NFAs.
  */
 function getPartialSubsetRelation(
-    relation: SubsetRelation,
+    left: ReadonlyNFA,
     leftIsPartial: boolean,
+    right: ReadonlyNFA,
     rightIsPartial: boolean,
 ): SubsetRelation {
+    const relation = getSubsetRelation(left, right)
+
     if (!leftIsPartial && !rightIsPartial) {
         return relation
     }
@@ -497,8 +500,9 @@ function* findDuplicationNfa(
             const others = overlapping.map(([, , a]) => a)
 
             const relation = getPartialSubsetRelation(
-                getSubsetRelation(nfa, othersNfa),
+                nfa,
                 partial,
+                othersNfa,
                 othersPartial,
             )
 
