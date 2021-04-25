@@ -253,6 +253,60 @@ function getSubsetRelation(
 }
 
 /**
+ * The `getSubsetRelation` function assumes that both NFAs perfectly represent
+ * their language.
+ *
+ * This function adjusts their subset relation to account for partial NFAs.
+ */
+function getPartialSubsetRelation(
+    relation: SubsetRelation,
+    leftIsPartial: boolean,
+    rightIsPartial: boolean,
+): SubsetRelation {
+    if (!leftIsPartial && !rightIsPartial) {
+        return relation
+    }
+
+    if (
+        relation === SubsetRelation.none ||
+        relation === SubsetRelation.unknown
+    ) {
+        return relation
+    }
+
+    if (leftIsPartial && !rightIsPartial) {
+        switch (relation) {
+            case SubsetRelation.leftEqualRight:
+                return SubsetRelation.leftSupersetOfRight
+            case SubsetRelation.leftSubsetOfRight:
+                return SubsetRelation.none
+            case SubsetRelation.leftSupersetOfRight:
+                return SubsetRelation.leftSupersetOfRight
+
+            default:
+                throw new Error(relation)
+        }
+    }
+    if (rightIsPartial && !leftIsPartial) {
+        switch (relation) {
+            case SubsetRelation.leftEqualRight:
+                return SubsetRelation.leftSubsetOfRight
+            case SubsetRelation.leftSubsetOfRight:
+                return SubsetRelation.leftSubsetOfRight
+            case SubsetRelation.leftSupersetOfRight:
+                return SubsetRelation.none
+
+            default:
+                throw new Error(relation)
+        }
+    }
+
+    // both are partial
+
+    return SubsetRelation.none
+}
+
+/**
  * Returns the regex source of the given FA.
  */
 function faToSource(fa: FiniteAutomaton, flags: ReadonlyFlags): string {
@@ -439,17 +493,14 @@ function* findDuplicationNfa(
 
         if (overlapping.length >= 1) {
             const othersNfa = unionAll(overlapping.map(([n]) => n))
+            const othersPartial = overlapping.some(([, p]) => p)
             const others = overlapping.map(([, , a]) => a)
 
-            let relation = getSubsetRelation(nfa, othersNfa)
-            if (partial) {
-                // the nfa (left) is only a subset of the actual language
-                if (relation === SubsetRelation.leftEqualRight) {
-                    relation = SubsetRelation.leftSupersetOfRight
-                } else if (relation === SubsetRelation.leftSubsetOfRight) {
-                    relation = SubsetRelation.none
-                }
-            }
+            const relation = getPartialSubsetRelation(
+                getSubsetRelation(nfa, othersNfa),
+                partial,
+                othersPartial,
+            )
 
             switch (relation) {
                 case SubsetRelation.leftEqualRight:
