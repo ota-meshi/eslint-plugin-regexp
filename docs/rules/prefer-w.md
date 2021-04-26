@@ -14,7 +14,7 @@ since: "v0.1.0"
 
 ## :book: Rule Details
 
-This rule is aimed at using `\d` instead of `[0-9]` in regular expressions.
+This rule is aimed at using `\w` and `\W\` in regular expressions.
 
 <eslint-code-block fix>
 
