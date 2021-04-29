@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("no-assertion-capturing-group", rule as any, {
-    valid: ["/(a)/", "/a(\\bb)/"],
+    valid: ["/(a)/", "/a(\\bb)/", "/a(\\b|b)/"],
     invalid: [
         {
             code: "/a(\\b)/",
@@ -40,6 +40,20 @@ tester.run("no-assertion-capturing-group", rule as any, {
                     endColumn: 5,
                 },
             ],
+        },
+        {
+            code: "/()a/",
+            errors: [
+                {
+                    message: "Unexpected capture assertions.",
+                    column: 2,
+                    endColumn: 4,
+                },
+            ],
+        },
+        {
+            code: "/(\\b\\b|(?:\\B|$))a/",
+            errors: ["Unexpected capture assertions."],
         },
     ],
 })
