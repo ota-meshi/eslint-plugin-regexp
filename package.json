@@ -88,7 +88,7 @@
         "comment-parser": "^1.1.2",
         "eslint-utils": "^2.1.0",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.7.1",
+        "refa": "^0.8.0",
         "regexp-ast-analysis": "^0.1.1",
         "regexpp": "^3.1.0"
     }
