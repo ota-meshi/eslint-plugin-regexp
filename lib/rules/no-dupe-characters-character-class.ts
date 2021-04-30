@@ -10,57 +10,81 @@ import type {
     AnyCharacterSet,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, toCharSetSource } from "../utils"
-import type { CharSet } from "refa"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
+import {
+    createRule,
+    defineRegexpVisitor,
+    toCharSetSource,
+    mightCreateNewElement,
+} from "../utils"
+import type { CharRange, CharSet } from "refa"
+import { JS } from "refa"
+// eslint-disable-next-line no-restricted-imports -- there's no way around it
+import { toCharSet as uncachedToCharSet } from "regexp-ast-analysis"
+import type { Rule } from "eslint"
+
+interface Grouping {
+    duplicates: {
+        element: CharacterClassElement
+        duplicate: CharacterClassElement
+    }[]
+    characters: Character[]
+    characterRanges: CharacterClassRange[]
+    characterSets: (EscapeCharacterSet | UnicodePropertyCharacterSet)[]
+}
 
 /**
  * Grouping the given character class elements.
  * @param elements The elements to grouping.
  */
-function groupingElements(
+function groupElements(
     elements: CharacterClassElement[],
     { toCharSet }: RegExpContext,
-) {
-    const characters = new Map<number, Character[]>()
-    const characterClassRanges = new Map<string, CharacterClassRange[]>()
+): Grouping {
+    const duplicates: Grouping["duplicates"] = []
+    const characters = new Map<number, Character>()
+    const characterRanges = new Map<string, CharacterClassRange>()
     const characterSets = new Map<
         string,
-        (EscapeCharacterSet | UnicodePropertyCharacterSet)[]
+        EscapeCharacterSet | UnicodePropertyCharacterSet
     >()
+
+    /**
+     * If the given element is a duplicate of another element, it will be added
+     * to the the duplicates array. Otherwise, it will be added to the given
+     * group.
+     */
+    function addToGroup<K, V extends CharacterClassElement>(
+        group: Map<K, V>,
+        key: K,
+        element: V,
+    ) {
+        const current = group.get(key)
+        if (current !== undefined) {
+            duplicates.push({ element: current, duplicate: element })
+        } else {
+            group.set(key, element)
+        }
+    }
 
     for (const e of elements) {
         const charSet = toCharSet(e)
+
         if (e.type === "Character") {
             const key = charSet.ranges[0].min
-            const list = characters.get(key)
-            if (list) {
-                list.push(e)
-            } else {
-                characters.set(key, [e])
-            }
+            addToGroup(characters, key, e)
         } else if (e.type === "CharacterClassRange") {
             const key = buildRangeKey(charSet)
-            const list = characterClassRanges.get(key)
-            if (list) {
-                list.push(e)
-            } else {
-                characterClassRanges.set(key, [e])
-            }
+            addToGroup(characterRanges, key, e)
         } else if (e.type === "CharacterSet") {
             const key = e.raw
-            const list = characterSets.get(key)
-            if (list) {
-                list.push(e)
-            } else {
-                characterSets.set(key, [e])
-            }
+            addToGroup(characterSets, key, e)
         }
     }
 
     return {
+        duplicates,
         characters: [...characters.values()],
-        characterClassRanges: [...characterClassRanges.values()],
+        characterRanges: [...characterRanges.values()],
         characterSets: [...characterSets.values()],
     }
 
@@ -74,6 +98,68 @@ function groupingElements(
     }
 }
 
+/**
+ * Returns whether the given character is within the bounds of the given char range.
+ */
+function inRange({ min, max }: CharRange, char: number): boolean {
+    return min <= char && char <= max
+}
+
+/**
+ * Removes the given character class element from its character class.
+ */
+function fixRemove(
+    context: RegExpContext,
+    element: CharacterClassElement,
+): Rule.ReportDescriptor["fix"] {
+    const parent = element.parent
+    if (parent.type !== "CharacterClass") {
+        throw new Error("Only call this function for character class elements.")
+    }
+
+    return context.fixReplaceNode(element, () => {
+        const textBefore = parent.raw.slice(0, element.start - parent.start)
+        const textAfter = parent.raw.slice(element.end - parent.start)
+
+        if (mightCreateNewElement(textBefore, textAfter)) {
+            return null
+        }
+
+        const elementBefore: CharacterClassElement | undefined =
+            parent.elements[parent.elements.indexOf(element) - 1]
+        const elementAfter: CharacterClassElement | undefined =
+            parent.elements[parent.elements.indexOf(element) + 1]
+
+        if (
+            elementBefore &&
+            elementAfter &&
+            elementBefore.type === "Character" &&
+            elementBefore.raw === "-" &&
+            elementAfter.type === "Character"
+        ) {
+            // e.g. [\s0-\s9] -> [\s0-9] is incorrect
+            return null
+        }
+
+        // add a backslash if ...
+        if (
+            // ... the text character is a dash
+            // e.g. [a\w-b] -> [a\-b], [\w-b] -> [-b], [\s\w-b] -> [\s-b]
+            (textAfter.startsWith("-") &&
+                elementBefore &&
+                elementBefore.type === "Character") ||
+            // ... the next character is a caret and the caret will then be the
+            // first character in the character class
+            // e.g. [a^b] -> [\^b], [ba^] -> [b^]
+            (textAfter.startsWith("^") && !parent.negate && !elementBefore)
+        ) {
+            return "\\"
+        }
+
+        return ""
+    })
+}
+
 export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
@@ -82,114 +168,117 @@ export default createRule("no-dupe-characters-character-class", {
                 "disallow duplicate characters in the RegExp character class",
             recommended: true,
         },
+        fixable: "code",
         schema: [],
         messages: {
-            duplicates: "Unexpected element '{{element}}' duplication.",
-            elementIsInElement:
-                "The '{{reportElement}}' is included in '{{element}}'.",
-            intersect:
-                "Unexpected intersection of '{{elementA}}' and '{{elementB}}' was found '{{intersection}}'.",
+            duplicate: "Unexpected duplicate '{{duplicate}}'.",
+            duplicateNonObvious:
+                "Unexpected duplicate. '{{duplicate}}' is a duplicate of '{{element}}'.",
+            subset: "'{{subsetElement}}' is already included in '{{element}}'.",
+            subsetOfMany:
+                "'{{subsetElement}}' is already included by a combination of other elements.",
+            overlap:
+                "Unexpected overlap of '{{elementA}}' and '{{elementB}}' was found '{{overlap}}'.",
         },
     },
     create(context) {
-        const elementInElementReported = new Map<
-            CharacterClassElement,
-            CharacterClassElement[]
-        >()
-
         /**
-         * Report duplicate elements.
-         * @param elements The elements to report
+         * Report a duplicate element.
          */
-        function reportDuplicates(
-            { node, getRegexpLocation }: RegExpContext,
-            elements: CharacterClassElement[],
+        function reportDuplicate(
+            regexpContext: RegExpContext,
+            duplicate: CharacterClassElement,
+            element: CharacterClassElement,
         ) {
-            for (const element of elements) {
+            const { node, getRegexpLocation } = regexpContext
+
+            if (duplicate.raw === element.raw) {
                 context.report({
                     node,
-                    loc: getRegexpLocation(element),
-                    messageId: "duplicates",
+                    loc: getRegexpLocation(duplicate),
+                    messageId: "duplicate",
                     data: {
+                        duplicate: duplicate.raw,
+                    },
+                    fix: fixRemove(regexpContext, duplicate),
+                })
+            } else {
+                context.report({
+                    node,
+                    loc: getRegexpLocation(duplicate),
+                    messageId: "duplicateNonObvious",
+                    data: {
+                        duplicate: duplicate.raw,
                         element: element.raw,
                     },
+                    fix: fixRemove(regexpContext, duplicate),
                 })
             }
         }
 
         /**
          * Reports that the elements intersect.
-         * @param elements The elements to report
-         * @param intersectElement The intersecting element.
-         * @param intersection the intersection
          */
-        function reportIntersect(
+        function reportOverlap(
             { node, getRegexpLocation }: RegExpContext,
-            elements: CharacterClassElement[],
+            element: CharacterClassRange,
             intersectElement: CharacterClassElement,
-            intersection: CharSet,
-            flags: ReadonlyFlags,
+            overlap: string,
         ) {
-            for (const element of elements) {
-                context.report({
-                    node,
-                    loc: getRegexpLocation(element),
-                    messageId: "intersect",
-                    data: {
-                        elementA: element.raw,
-                        elementB: intersectElement.raw,
-                        intersection: toCharSetSource(intersection, flags),
-                    },
-                })
-            }
-        }
-
-        /**
-         * Checks if it was reported as the element included in the element.
-         */
-        function isElementInElementReported(
-            a: CharacterClassElement,
-            b: CharacterClassElement,
-        ) {
-            return (
-                elementInElementReported.get(a)?.includes(b) ||
-                elementInElementReported.get(b)?.includes(a)
-            )
+            context.report({
+                node,
+                loc: getRegexpLocation(element),
+                messageId: "overlap",
+                data: {
+                    elementA: element.raw,
+                    elementB: intersectElement.raw,
+                    overlap,
+                },
+            })
         }
 
         /**
          * Report the element included in the element.
          */
-        function reportElementInElement(
-            { node, getRegexpLocation }: RegExpContext,
-            reportElements: CharacterClassElement[],
+        function reportSubset(
+            regexpContext: RegExpContext,
+            subsetElement: CharacterClassElement,
             element:
                 | Exclude<CharacterSet, AnyCharacterSet>
                 | CharacterClassRange,
         ) {
-            for (const reportElement of reportElements) {
-                context.report({
-                    node,
-                    loc: getRegexpLocation(reportElement),
-                    messageId: "elementIsInElement",
-                    data: {
-                        reportElement: reportElement.raw,
-                        element: element.raw,
-                    },
-                })
-            }
-            let reportedList = elementInElementReported.get(reportElements[0])
-            if (reportedList) {
-                reportedList.push(element)
-            } else {
-                elementInElementReported.set(reportElements[0], [element])
-            }
-            reportedList = elementInElementReported.get(element)
-            if (reportedList) {
-                reportedList.push(reportElements[0])
-            } else {
-                elementInElementReported.set(element, [reportElements[0]])
-            }
+            const { node, getRegexpLocation } = regexpContext
+
+            context.report({
+                node,
+                loc: getRegexpLocation(subsetElement),
+                messageId: "subset",
+                data: {
+                    subsetElement: subsetElement.raw,
+                    element: element.raw,
+                },
+                fix: fixRemove(regexpContext, subsetElement),
+            })
+        }
+
+        /**
+         * Report the element included in the element.
+         */
+        function reportSubsetOfMany(
+            regexpContext: RegExpContext,
+            subsetElement: CharacterClassElement,
+        ) {
+            const { node, getRegexpLocation } = regexpContext
+
+            context.report({
+                node,
+                loc: getRegexpLocation(subsetElement),
+                messageId: "subsetOfMany",
+                data: {
+                    subsetElement: subsetElement.raw,
+                },
+                fix: fixRemove(regexpContext, subsetElement),
+            })
         }
 
         /**
@@ -199,125 +288,126 @@ export default createRule("no-dupe-characters-character-class", {
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { toCharSet, flags } = regexpContext
+
             return {
-                // eslint-disable-next-line complexity -- X(
+                // eslint-disable-next-line complexity -- X
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const {
+                        duplicates,
                         characters,
-                        characterClassRanges,
+                        characterRanges,
                         characterSets,
-                    } = groupingElements(ccNode.elements, regexpContext)
+                    } = groupElements(ccNode.elements, regexpContext)
+                    const rangesAndSets = [...characterRanges, ...characterSets]
 
-                    for (const [char, ...dupeChars] of characters) {
-                        if (dupeChars.length) {
-                            reportDuplicates(regexpContext, [
-                                char,
-                                ...dupeChars,
-                            ])
-                        }
+                    // report all duplicates
+                    for (const { element, duplicate } of duplicates) {
+                        reportDuplicate(regexpContext, duplicate, element)
+                    }
 
-                        for (const [rangeOrSet] of [
-                            ...characterClassRanges,
-                            ...characterSets,
-                        ]) {
-                            if (
-                                toCharSet(rangeOrSet).isSupersetOf(
-                                    toCharSet(char),
-                                )
-                            ) {
-                                reportElementInElement(
-                                    regexpContext,
-                                    [char, ...dupeChars],
-                                    rangeOrSet,
-                                )
+                    // keep track of all reported subset elements
+                    const subsets = new Set<CharacterClassElement>()
+
+                    // report characters that are already matched by some range or set
+                    for (const char of characters) {
+                        for (const other of rangesAndSets) {
+                            if (toCharSet(other).has(char.value)) {
+                                reportSubset(regexpContext, char, other)
+                                subsets.add(char)
+                                break
                             }
                         }
                     }
 
-                    for (const [range, ...dupeRanges] of characterClassRanges) {
-                        if (dupeRanges.length) {
-                            reportDuplicates(regexpContext, [
-                                range,
-                                ...dupeRanges,
-                            ])
+                    // report character ranges and sets that are already matched by some range or set
+                    for (const element of rangesAndSets) {
+                        for (const other of rangesAndSets) {
+                            if (element === other || subsets.has(other)) {
+                                continue
+                            }
+
+                            if (
+                                toCharSet(element).isSubsetOf(toCharSet(other))
+                            ) {
+                                reportSubset(regexpContext, element, other)
+                                subsets.add(element)
+                                break
+                            }
+                        }
+                    }
+
+                    // character ranges and sets might be a subset of a combination of other elements
+                    // e.g. `b-d` is a subset of `a-cd-f`
+                    const characterTotal = uncachedToCharSet(
+                        characters.filter((c) => !subsets.has(c)),
+                        flags,
+                    )
+                    for (const element of rangesAndSets) {
+                        if (subsets.has(element)) {
+                            continue
                         }
 
-                        for (const [other, ...others] of [
-                            ...characterClassRanges.filter(
-                                ([ccr]) => ccr !== range,
-                            ),
-                            ...characterSets,
-                        ]) {
-                            if (isElementInElementReported(range, other)) {
-                                continue
-                            }
-                            if (
-                                toCharSet(other).isSupersetOf(toCharSet(range))
-                            ) {
-                                reportElementInElement(
-                                    regexpContext,
-                                    [range, ...dupeRanges],
-                                    other,
-                                )
-                                continue
-                            }
-                            if (
-                                toCharSet(range).isSupersetOf(toCharSet(other))
-                            ) {
-                                reportElementInElement(
-                                    regexpContext,
-                                    [other, ...others],
-                                    range,
-                                )
+                        const totalOthers = characterTotal.union(
+                            ...rangesAndSets
+                                .filter((e) => !subsets.has(e) && e !== element)
+                                .map((e) => toCharSet(e)),
+                        )
+
+                        if (toCharSet(element).isSubsetOf(totalOthers)) {
+                            reportSubsetOfMany(regexpContext, element)
+                            subsets.add(element)
+                            break
+                        }
+                    }
+
+                    // report overlaps between ranges and sets
+                    // e.g. `a-f` and `d-g` overlap
+                    for (let i = 0; i < characterRanges.length; i++) {
+                        const range = characterRanges[i]
+                        if (subsets.has(range)) {
+                            continue
+                        }
+
+                        for (let j = i + 1; j < rangesAndSets.length; j++) {
+                            const other = rangesAndSets[j]
+                            if (range === other || subsets.has(other)) {
                                 continue
                             }
 
                             const intersection = toCharSet(range).intersect(
                                 toCharSet(other),
                             )
-
-                            if (!intersection.isEmpty) {
-                                // only report if it includes the ends of the range.
-                                // there is no point in reporting overlaps that can't be fixed.
-                                if (
-                                    intersection.has(range.min.value) ||
-                                    intersection.has(range.max.value)
-                                ) {
-                                    const reportRanges = intersection.ranges.filter(
-                                        ({ min, max }) => {
-                                            return (
-                                                min === range.min.value ||
-                                                max === range.max.value
-                                            )
-                                        },
-                                    )
-                                    reportIntersect(
-                                        regexpContext,
-                                        [range, ...dupeRanges],
-                                        other,
-                                        intersection.intersect(reportRanges),
-                                        flags,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    for (const [set, ...dupeSets] of characterSets) {
-                        if (dupeSets.length) {
-                            reportDuplicates(regexpContext, [set, ...dupeSets])
-                        }
-                        for (const [other] of characterSets.filter(
-                            ([o]) => o !== set,
-                        )) {
-                            if (isElementInElementReported(set, other)) {
+                            if (intersection.isEmpty) {
                                 continue
                             }
-                            if (toCharSet(other).isSupersetOf(toCharSet(set))) {
-                                reportElementInElement(
+
+                            // we are only interested in parts of the
+                            // intersection that contain the min/max of the
+                            // character range.
+                            // there is no point in reporting overlaps that can't be fixed.
+                            const interestingRanges = intersection.ranges.filter(
+                                (r) =>
+                                    inRange(r, range.min.value) ||
+                                    inRange(r, range.max.value),
+                            )
+
+                            // we might break the ignore case property here
+                            // (see GH #189).
+                            // to prevent this, we will create a new CharSet
+                            // using `createCharSet`
+                            const interest = JS.createCharSet(
+                                interestingRanges,
+                                flags,
+                            )
+
+                            if (!interest.isEmpty) {
+                                reportOverlap(
                                     regexpContext,
-                                    [set, ...dupeSets],
+                                    range,
                                     other,
+                                    toCharSetSource(interest, flags),
                                 )
+                                break
                             }
                         }
                     }
