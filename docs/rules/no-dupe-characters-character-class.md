@@ -10,6 +10,7 @@ since: "v0.1.0"
 > disallow duplicate characters in the RegExp character class
 
 - :gear: This rule is included in `"plugin:regexp/recommended"`.
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 Because multiple same character classes in regular expressions only one is useful, they might be typing mistakes.
 
@@ -21,7 +22,7 @@ var foo = /\\(\\)/;
 
 This rule disallows duplicate characters in the RegExp character class.
 
-<eslint-code-block>
+<eslint-code-block fix>
 
 ```js
 /* eslint regexp/no-dupe-characters-character-class: "error" */
