@@ -30,7 +30,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "var re = /[\\\\()]/",
             errors: [
                 {
-                    message: "Unexpected duplicate '\\\\'.",
+                    message: "Unexpected duplicate '\\\\' (U+005c).",
                     line: 1,
                     column: 15,
                 },
@@ -41,7 +41,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "var re = /[a-z\\\\]/",
             errors: [
                 {
-                    message: "'s' is already included in 'a-z'.",
+                    message:
+                        "'s' (U+0073) is already included in 'a-z' (U+0061 - U+007a).",
                     line: 1,
                     column: 17,
                 },
@@ -51,8 +52,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[aaa]/",
             output: "/[aa]/",
             errors: [
-                { message: "Unexpected duplicate 'a'.", column: 4 },
-                { message: "Unexpected duplicate 'a'.", column: 5 },
+                { message: "Unexpected duplicate 'a' (U+0061).", column: 4 },
+                { message: "Unexpected duplicate 'a' (U+0061).", column: 5 },
             ],
         },
         {
@@ -60,7 +61,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\d]/",
             errors: [
                 {
-                    message: "'0-9' is already included in '\\d'.",
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '\\d'.",
                     column: 3,
                 },
             ],
@@ -71,7 +73,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected duplicate. '\\u000C' is a duplicate of '\\f'.",
+                        "Unexpected duplicate. '\\u000C' (U+000c) is a duplicate of '\\f' (U+000c).",
                     column: 5,
                 },
             ],
@@ -81,46 +83,65 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                 "/[\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
             output: "/[\\s\\f\\r\\v\\u1680\\u180e\\u2028\\u202f\\u3000]/",
             errors: [
-                { message: "' ' is already included in '\\s'.", column: 5 },
-                { message: "'\\f' is already included in '\\s'.", column: 6 },
-                { message: "'\\n' is already included in '\\s'.", column: 8 },
-                { message: "'\\r' is already included in '\\s'.", column: 10 },
-                { message: "'\\t' is already included in '\\s'.", column: 12 },
-                { message: "'\\v' is already included in '\\s'.", column: 14 },
                 {
-                    message: "'\\u00a0' is already included in '\\s'.",
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 5,
+                },
+                {
+                    message: "'\\f' (U+000c) is already included in '\\s'.",
+                    column: 6,
+                },
+                {
+                    message: "'\\n' (U+000a) is already included in '\\s'.",
+                    column: 8,
+                },
+                {
+                    message: "'\\r' (U+000d) is already included in '\\s'.",
+                    column: 10,
+                },
+                {
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
+                    column: 12,
+                },
+                {
+                    message: "'\\v' (U+000b) is already included in '\\s'.",
+                    column: 14,
+                },
+                {
+                    message: "'\\u00a0' (U+00a0) is already included in '\\s'.",
                     column: 16,
                 },
                 {
-                    message: "'\\u1680' is already included in '\\s'.",
+                    message: "'\\u1680' (U+1680) is already included in '\\s'.",
                     column: 22,
                 },
                 {
-                    message: "'\\u2000-\\u200a' is already included in '\\s'.",
+                    message:
+                        "'\\u2000-\\u200a' (U+2000 - U+200a) is already included in '\\s'.",
                     column: 34,
                 },
                 {
-                    message: "'\\u2028' is already included in '\\s'.",
+                    message: "'\\u2028' (U+2028) is already included in '\\s'.",
                     column: 47,
                 },
                 {
-                    message: "'\\u2029' is already included in '\\s'.",
+                    message: "'\\u2029' (U+2029) is already included in '\\s'.",
                     column: 53,
                 },
                 {
-                    message: "'\\u202f' is already included in '\\s'.",
+                    message: "'\\u202f' (U+202f) is already included in '\\s'.",
                     column: 59,
                 },
                 {
-                    message: "'\\u205f' is already included in '\\s'.",
+                    message: "'\\u205f' (U+205f) is already included in '\\s'.",
                     column: 65,
                 },
                 {
-                    message: "'\\u3000' is already included in '\\s'.",
+                    message: "'\\u3000' (U+3000) is already included in '\\s'.",
                     column: 71,
                 },
                 {
-                    message: "'\\ufeff' is already included in '\\s'.",
+                    message: "'\\ufeff' (U+feff) is already included in '\\s'.",
                     column: 77,
                 },
             ],
@@ -131,12 +152,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected duplicate. '\t' is a duplicate of '\\t'.",
+                        "Unexpected duplicate. '\t' (U+0009) is a duplicate of '\\t' (U+0009).",
                     column: 5,
                 },
                 {
                     message:
-                        "Unexpected duplicate. '\\u0009' is a duplicate of '\\t'.",
+                        "Unexpected duplicate. '\\u0009' (U+0009) is a duplicate of '\\t' (U+0009).",
                     column: 7,
                 },
             ],
@@ -146,49 +167,99 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\w :,]/",
             errors: [
                 {
-                    message: "'A-Z' is already included in '\\w'.",
+                    message:
+                        "'A-Z' (U+0041 - U+005a) is already included in '\\w'.",
                     column: 5,
                 },
                 {
-                    message: "'a-z' is already included in '\\w'.",
+                    message:
+                        "'a-z' (U+0061 - U+007a) is already included in '\\w'.",
                     column: 9,
                 },
                 {
-                    message: "'0-9' is already included in '\\w'.",
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '\\w'.",
                     column: 13,
                 },
-                { message: "'_' is already included in '\\w'.", column: 17 },
+                {
+                    message: "'_' (U+005f) is already included in '\\w'.",
+                    column: 17,
+                },
             ],
         },
         {
             code: "/[!-z_abc-]/",
             output: "/[!-zac]/",
             errors: [
-                { message: "'_' is already included in '!-z'.", column: 6 },
-                { message: "'a' is already included in '!-z'.", column: 7 },
-                { message: "'b' is already included in '!-z'.", column: 8 },
-                { message: "'c' is already included in '!-z'.", column: 9 },
-                { message: "'-' is already included in '!-z'.", column: 10 },
+                {
+                    message:
+                        "'_' (U+005f) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 6,
+                },
+                {
+                    message:
+                        "'a' (U+0061) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 7,
+                },
+                {
+                    message:
+                        "'b' (U+0062) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 8,
+                },
+                {
+                    message:
+                        "'c' (U+0063) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 9,
+                },
+                {
+                    message:
+                        "'-' (U+002d) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 10,
+                },
             ],
         },
         {
             code: "/[\\w_abc-][\\s \\t\\r\\n\\u2000\\u3000]/",
             output: "/[\\wac-][\\s\\t\\n\\u3000]/",
             errors: [
-                { message: "'_' is already included in '\\w'.", column: 5 },
-                { message: "'a' is already included in '\\w'.", column: 6 },
-                { message: "'b' is already included in '\\w'.", column: 7 },
-                { message: "'c' is already included in '\\w'.", column: 8 },
-                { message: "' ' is already included in '\\s'.", column: 14 },
-                { message: "'\\t' is already included in '\\s'.", column: 15 },
-                { message: "'\\r' is already included in '\\s'.", column: 17 },
-                { message: "'\\n' is already included in '\\s'.", column: 19 },
                 {
-                    message: "'\\u2000' is already included in '\\s'.",
+                    message: "'_' (U+005f) is already included in '\\w'.",
+                    column: 5,
+                },
+                {
+                    message: "'a' (U+0061) is already included in '\\w'.",
+                    column: 6,
+                },
+                {
+                    message: "'b' (U+0062) is already included in '\\w'.",
+                    column: 7,
+                },
+                {
+                    message: "'c' (U+0063) is already included in '\\w'.",
+                    column: 8,
+                },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 14,
+                },
+                {
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
+                    column: 15,
+                },
+                {
+                    message: "'\\r' (U+000d) is already included in '\\s'.",
+                    column: 17,
+                },
+                {
+                    message: "'\\n' (U+000a) is already included in '\\s'.",
+                    column: 19,
+                },
+                {
+                    message: "'\\u2000' (U+2000) is already included in '\\s'.",
                     column: 21,
                 },
                 {
-                    message: "'\\u3000' is already included in '\\s'.",
+                    message: "'\\u3000' (U+3000) is already included in '\\s'.",
                     column: 27,
                 },
             ],
@@ -196,7 +267,23 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         {
             code: "/[a-z a-z]/",
             output: "/[a-z ]/",
-            errors: [{ message: "Unexpected duplicate 'a-z'.", column: 7 }],
+            errors: [
+                {
+                    message: "Unexpected duplicate 'a-z' (U+0061 - U+007a).",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: "/[a-z A-Z]/i",
+            output: "/[a-z ]/i",
+            errors: [
+                {
+                    message:
+                        "Unexpected duplicate. 'A-Z' (U+0041 - U+005a) is a duplicate of 'a-z' (U+0061 - U+007a).",
+                    column: 7,
+                },
+            ],
         },
         {
             code: "/[a-d e-h_d-e+c-d]/",
@@ -204,11 +291,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "'d-e' is already included by a combination of other elements.",
+                        "'d-e' (U+0064 - U+0065) is already included by a combination of other elements.",
                     column: 11,
                 },
                 {
-                    message: "'c-d' is already included in 'a-d'.",
+                    message:
+                        "'c-d' (U+0063 - U+0064) is already included in 'a-d' (U+0061 - U+0064).",
                     column: 15,
                 },
             ],
@@ -219,11 +307,11 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "'3-6' is already included by a combination of other elements.",
+                        "'3-6' (U+0033 - U+0036) is already included by a combination of other elements.",
                     column: 3,
                 },
                 {
-                    message: "Unexpected duplicate '3-6'.",
+                    message: "Unexpected duplicate '3-6' (U+0033 - U+0036).",
                     column: 7,
                 },
             ],
@@ -234,11 +322,11 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of '3-6' and '5-7' was found '[56]'.",
+                        "Unexpected overlap of '3-6' (U+0033 - U+0036) and '5-7' (U+0035 - U+0037) was found '[56]'.",
                     column: 3,
                 },
                 {
-                    message: "Unexpected duplicate '3-6'.",
+                    message: "Unexpected duplicate '3-6' (U+0033 - U+0036).",
                     column: 7,
                 },
             ],
@@ -248,7 +336,10 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\s ]/",
             errors: [
                 { message: "Unexpected duplicate '\\s'.", column: 5 },
-                { message: "' ' is already included in '\\s'.", column: 7 },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 7,
+                },
                 { message: "Unexpected duplicate '\\s'.", column: 8 },
             ],
         },
@@ -257,8 +348,14 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\S \\s]/",
             errors: [
                 { message: "Unexpected duplicate '\\S'.", column: 5 },
-                { message: "' ' is already included in '\\s'.", column: 7 },
-                { message: "'a' is already included in '\\S'.", column: 10 },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 7,
+                },
+                {
+                    message: "'a' (U+0061) is already included in '\\S'.",
+                    column: 10,
+                },
             ],
         },
         {
@@ -266,14 +363,20 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[ _!-z]/",
             errors: [
                 {
-                    message: "'\\d' is already included in '!-z'.",
+                    message:
+                        "'\\d' is already included in '!-z' (U+0021 - U+007a).",
                     column: 3,
                 },
                 {
-                    message: "'0-9' is already included in '!-z'.",
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '!-z' (U+0021 - U+007a).",
                     column: 6,
                 },
-                { message: "'_' is already included in '!-z'.", column: 9 },
+                {
+                    message:
+                        "'_' (U+005f) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 9,
+                },
             ],
         },
         {
@@ -285,7 +388,10 @@ tester.run("no-dupe-characters-character-class", rule as any, {
                     column: 3,
                 },
                 { message: "Unexpected duplicate '\\W'.", column: 5 },
-                { message: "' ' is already included in '\\W'.", column: 9 },
+                {
+                    message: "' ' (U+0020) is already included in '\\W'.",
+                    column: 9,
+                },
                 {
                     message: "'\\d' is already included in '\\w'.",
                     column: 10,
@@ -326,19 +432,23 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\p{ASCII}ac\\P{ASCII}]/u",
             errors: [
                 {
-                    message: "' ' is already included in '\\p{ASCII}'.",
+                    message:
+                        "' ' (U+0020) is already included in '\\p{ASCII}'.",
                     column: 12,
                 },
                 {
-                    message: "'a' is already included in '\\p{ASCII}'.",
+                    message:
+                        "'a' (U+0061) is already included in '\\p{ASCII}'.",
                     column: 13,
                 },
                 {
-                    message: "'b' is already included in '\\p{ASCII}'.",
+                    message:
+                        "'b' (U+0062) is already included in '\\p{ASCII}'.",
                     column: 14,
                 },
                 {
-                    message: "'c' is already included in '\\p{ASCII}'.",
+                    message:
+                        "'c' (U+0063) is already included in '\\p{ASCII}'.",
                     column: 15,
                 },
             ],
@@ -349,22 +459,22 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "' ' is already included in '\\P{Script=Hiragana}'.",
+                        "' ' (U+0020) is already included in '\\P{Script=Hiragana}'.",
                     column: 22,
                 },
                 {
                     message:
-                        "'a' is already included in '\\P{Script=Hiragana}'.",
+                        "'a' (U+0061) is already included in '\\P{Script=Hiragana}'.",
                     column: 23,
                 },
                 {
                     message:
-                        "'b' is already included in '\\P{Script=Hiragana}'.",
+                        "'b' (U+0062) is already included in '\\P{Script=Hiragana}'.",
                     column: 24,
                 },
                 {
                     message:
-                        "'c' is already included in '\\P{Script=Hiragana}'.",
+                        "'c' (U+0063) is already included in '\\P{Script=Hiragana}'.",
                     column: 25,
                 },
             ],
@@ -375,12 +485,12 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of '/-7' and '\\w' was found '[0-7]'.",
+                        "Unexpected overlap of '/-7' (U+002f - U+0037) and '\\w' was found '[0-7]'.",
                     column: 6,
                 },
                 {
                     message:
-                        "Unexpected overlap of '8-:' and '\\w' was found '[89]'.",
+                        "Unexpected overlap of '8-:' (U+0038 - U+003a) and '\\w' was found '[89]'.",
                     column: 10,
                 },
             ],
@@ -391,7 +501,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of ' -/' and '\\s' was found ' '.",
+                        "Unexpected overlap of ' -/' (U+0020 - U+002f) and '\\s' was found ' '.",
                     column: 3,
                 },
             ],
@@ -402,7 +512,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of 'A-_' and '\\w' was found '[A-Z_]'.",
+                        "Unexpected overlap of 'A-_' (U+0041 - U+005f) and '\\w' was found '[A-Z_]'.",
                     column: 5,
                 },
             ],
@@ -412,7 +522,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: String.raw`/[0-z]/`,
             errors: [
                 {
-                    message: "'\\w' is already included in '0-z'.",
+                    message:
+                        "'\\w' is already included in '0-z' (U+0030 - U+007a).",
                     line: 1,
                     column: 3,
                     endLine: 1,
@@ -425,7 +536,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: String.raw`/[\t-\uFFFF]/`,
             errors: [
                 {
-                    message: "'\\s' is already included in '\\t-\\uFFFF'.",
+                    message:
+                        "'\\s' is already included in '\\t-\\uFFFF' (U+0009 - U+ffff).",
                     line: 1,
                     column: 12,
                     endLine: 1,
@@ -438,7 +550,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\S]/",
             errors: [
                 {
-                    message: "'a' is already included in '\\S'.",
+                    message: "'a' (U+0061) is already included in '\\S'.",
                     column: 5,
                 },
             ],
@@ -448,7 +560,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\p{L}]/u",
             errors: [
                 {
-                    message: "'a-z' is already included in '\\p{L}'.",
+                    message:
+                        "'a-z' (U+0061 - U+007a) is already included in '\\p{L}'.",
                     column: 3,
                 },
             ],
@@ -468,7 +581,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: "/[\\s]/",
             errors: [
                 {
-                    message: "'\\t' is already included in '\\s'.",
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
                     column: 3,
                 },
             ],
@@ -478,7 +591,8 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             output: String.raw`/[ a-\uFFFF]/i`,
             errors: [
                 {
-                    message: "'A-Z' is already included in 'a-\\uFFFF'.",
+                    message:
+                        "'A-Z' (U+0041 - U+005a) is already included in 'a-\\uFFFF' (U+0061 - U+ffff).",
                     column: 3,
                 },
             ],
@@ -489,7 +603,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of '\\xA0-\\uFFFF' and '\\s' was found '\\xa0'.",
+                        "Unexpected overlap of '\\xA0-\\uFFFF' (U+00a0 - U+ffff) and '\\s' was found '\\xa0'.",
                     column: 3,
                 },
             ],
@@ -500,7 +614,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of '\\u1fff-\\u2005' and '\\s' was found '[\\u2000-\\u2005]'.",
+                        "Unexpected overlap of '\\u1fff-\\u2005' (U+1fff - U+2005) and '\\s' was found '[\\u2000-\\u2005]'.",
                     column: 3,
                 },
             ],
@@ -515,7 +629,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected overlap of '\\x21-\\x5a' and '\\x53-\\x7f' was found '[A-Z]'.",
+                        "Unexpected overlap of '\\x21-\\x5a' (U+0021 - U+005a) and '\\x53-\\x7f' (U+0053 - U+007f) was found '[A-Z]'.",
                     column: 29,
                 },
             ],

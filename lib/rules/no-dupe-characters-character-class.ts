@@ -160,6 +160,25 @@ function fixRemove(
     })
 }
 
+/**
+ * Creates a string that mentions the given element.
+ */
+function mention(element: CharacterClassElement): string {
+    /** Creates a "U+FFFF" string */
+    function unicode(value: number): string {
+        return `U+${value.toString(16).padStart(4, "0")}`
+    }
+
+    if (element.type === "Character") {
+        return `'${element.raw}' (${unicode(element.value)})`
+    } else if (element.type === "CharacterClassRange") {
+        return `'${element.raw}' (${unicode(element.min.value)} - ${unicode(
+            element.max.value,
+        )})`
+    }
+    return `'${element.raw}'`
+}
+
 export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
@@ -171,14 +190,14 @@ export default createRule("no-dupe-characters-character-class", {
         fixable: "code",
         schema: [],
         messages: {
-            duplicate: "Unexpected duplicate '{{duplicate}}'.",
+            duplicate: "Unexpected duplicate {{duplicate}}.",
             duplicateNonObvious:
-                "Unexpected duplicate. '{{duplicate}}' is a duplicate of '{{element}}'.",
-            subset: "'{{subsetElement}}' is already included in '{{element}}'.",
+                "Unexpected duplicate. {{duplicate}} is a duplicate of {{element}}.",
+            subset: "{{subsetElement}} is already included in {{element}}.",
             subsetOfMany:
-                "'{{subsetElement}}' is already included by a combination of other elements.",
+                "{{subsetElement}} is already included by a combination of other elements.",
             overlap:
-                "Unexpected overlap of '{{elementA}}' and '{{elementB}}' was found '{{overlap}}'.",
+                "Unexpected overlap of {{elementA}} and {{elementB}} was found '{{overlap}}'.",
         },
     },
     create(context) {
@@ -198,7 +217,7 @@ export default createRule("no-dupe-characters-character-class", {
                     loc: getRegexpLocation(duplicate),
                     messageId: "duplicate",
                     data: {
-                        duplicate: duplicate.raw,
+                        duplicate: mention(duplicate),
                     },
                     fix: fixRemove(regexpContext, duplicate),
                 })
@@ -208,8 +227,8 @@ export default createRule("no-dupe-characters-character-class", {
                     loc: getRegexpLocation(duplicate),
                     messageId: "duplicateNonObvious",
                     data: {
-                        duplicate: duplicate.raw,
-                        element: element.raw,
+                        duplicate: mention(duplicate),
+                        element: mention(element),
                     },
                     fix: fixRemove(regexpContext, duplicate),
                 })
@@ -230,8 +249,8 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(element),
                 messageId: "overlap",
                 data: {
-                    elementA: element.raw,
-                    elementB: intersectElement.raw,
+                    elementA: mention(element),
+                    elementB: mention(intersectElement),
                     overlap,
                 },
             })
@@ -254,8 +273,8 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(subsetElement),
                 messageId: "subset",
                 data: {
-                    subsetElement: subsetElement.raw,
-                    element: element.raw,
+                    subsetElement: mention(subsetElement),
+                    element: mention(element),
                 },
                 fix: fixRemove(regexpContext, subsetElement),
             })
@@ -275,7 +294,7 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(subsetElement),
                 messageId: "subsetOfMany",
                 data: {
-                    subsetElement: subsetElement.raw,
+                    subsetElement: mention(subsetElement),
                 },
                 fix: fixRemove(regexpContext, subsetElement),
             })
