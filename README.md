@@ -53,7 +53,7 @@ and either use the recommended configuration or configure the rules you want:
 This plugin provides one config: `regexp/recommended` which enables a subset of core rules, this is the recommended configuration for this plugin.
 *See https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts for details.*
 
-```json
+```js
 // .eslintrc.js
 module.exports = {
     "plugins": [
@@ -71,7 +71,7 @@ module.exports = {
 
 Override/add specific rules settings. *See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring)*.
 
-```json
+```js
 // .eslintrc.js
 module.exports = {
     "plugins": [
@@ -83,6 +83,7 @@ module.exports = {
   }
 }
 ```
+
 <!--USAGE_SECTION_END-->
 
 ## :white_check_mark: Rules
