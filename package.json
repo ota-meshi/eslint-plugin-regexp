@@ -49,7 +49,7 @@
         "eslint": ">=6.0.0"
     },
     "devDependencies": {
-        "@ota-meshi/eslint-plugin": "^0.6.0",
+        "@ota-meshi/eslint-plugin": "^0.7.0",
         "@types/eslint": "^7.2.0",
         "@types/eslint-scope": "^3.7.0",
         "@types/estree": "^0.0.47",
@@ -76,7 +76,7 @@
         "prettier": "^2.0.5",
         "raw-loader": "^4.0.1",
         "stylelint": "^13.6.1",
-        "stylelint-config-standard": "^21.0.0",
+        "stylelint-config-standard": "^22.0.0",
         "stylelint-plugin-stylus": "^0.10.0",
         "ts-node": "^9.0.0",
         "typescript": "^4.0.0",
@@ -88,8 +88,8 @@
         "comment-parser": "^1.1.2",
         "eslint-utils": "^2.1.0",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.7.1",
-        "regexp-ast-analysis": "^0.1.1",
+        "refa": "^0.8.0",
+        "regexp-ast-analysis": "^0.2.0",
         "regexpp": "^3.1.0"
     }
 }
