@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-assertions"
 description: "disallow assertions that are known to always accept (or reject)"
----
-# regexp/no-useless-assertions
-
-> disallow assertions that are known to always accept (or reject)
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-useless-assertions"
-description: "disallow assertions that are known to always accept (or reject)"
 since: "v0.9.0"
 ---
 # regexp/no-useless-assertions
@@ -62,6 +50,10 @@ This rule is compatible with [clean-regex/no-unnecessary-assertions] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-unnecessary-assertions]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-unnecessary-assertions.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

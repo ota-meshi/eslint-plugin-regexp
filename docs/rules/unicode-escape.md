@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/unicode-escape"
 description: "enforce consistent usage of unicode escape or unicode codepoint escape"
----
-# regexp/unicode-escape
-
-> enforce consistent usage of unicode escape or unicode codepoint escape
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/unicode-escape"
-description: "enforce consistent usage of unicode escape or unicode codepoint escape"
 since: "v0.9.0"
 ---
 # regexp/unicode-escape
@@ -87,6 +74,10 @@ var foo = /\u{41}/u;
 [regexp/hexadecimal-escape]: ./hexadecimal-escape.md
 [regexp/prefer-unicode-codepoint-escapes]: ./prefer-unicode-codepoint-escapes.md
 [require-unicode-regexp]: https://eslint.org/docs/rules/require-unicode-regexp
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

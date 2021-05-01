@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-escape-backspace"
 description: "disallow escape backspace (`[\\b]`)"
----
-# regexp/no-escape-backspace
-
-> disallow escape backspace (`[\b]`)
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-escape-backspace"
-description: "disallow escape backspace (`[\\b]`)"
 since: "v0.1.0"
 ---
 # regexp/no-escape-backspace
@@ -49,6 +36,10 @@ var foo = /[\b]/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

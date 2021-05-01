@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-assertion-capturing-group"
 description: "disallow capturing group that captures assertions."
----
-# regexp/no-assertion-capturing-group
-
-> disallow capturing group that captures assertions.
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-assertion-capturing-group"
-description: "disallow capturing group that captures assertions."
 since: "v0.1.0"
 ---
 # regexp/no-assertion-capturing-group
@@ -50,6 +37,10 @@ var foo = /(^)a/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

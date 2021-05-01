@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-escape"
 description: "disallow unnecessary escape characters in RegExp"
----
-# regexp/no-useless-escape
-
-> disallow unnecessary escape characters in RegExp
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-useless-escape"
-description: "disallow unnecessary escape characters in RegExp"
 since: "v0.4.0"
 ---
 # regexp/no-useless-escape
@@ -73,6 +61,10 @@ Nothing.
 
 [regexp/no-standalone-backslash]: ./no-standalone-backslash.md
 [no-useless-escape]: https://eslint.org/docs/rules/no-useless-escape
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.4.0
 
 ## :mag: Implementation
 

@@ -10,18 +10,6 @@ description: "disallow standalone backslashes (`\\`)"
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-standalone-backslash"
-description: "disallow standalone backslashes (`\\`)"
----
-# regexp/no-standalone-backslash
-
-> disallow standalone backslashes (`\`)
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
 ## :book: Rule Details
 
 This rule disallows backslash (`\`) without escape.

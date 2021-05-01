@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-regexp-test"
 description: "enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`"
----
-# regexp/prefer-regexp-test
-
-> enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/prefer-regexp-test"
-description: "enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`"
 since: "v0.3.0"
 ---
 # regexp/prefer-regexp-test
@@ -55,6 +42,10 @@ Nothing.
 ## :books: Further reading
 
 - [unicorn/prefer-regexp-test](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-regexp-test.md)
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.3.0
 
 ## :mag: Implementation
 

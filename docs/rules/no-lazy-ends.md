@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-lazy-ends"
 description: "disallow lazy quantifiers at the end of an expression"
----
-# regexp/no-lazy-ends
-
-> disallow lazy quantifiers at the end of an expression
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-lazy-ends"
-description: "disallow lazy quantifiers at the end of an expression"
 since: "v0.8.0"
 ---
 # regexp/no-lazy-ends
@@ -68,6 +56,10 @@ This rule is compatible with [clean-regex/no-lazy-ends] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-lazy-ends]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-lazy-ends.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.8.0
 
 ## :mag: Implementation
 

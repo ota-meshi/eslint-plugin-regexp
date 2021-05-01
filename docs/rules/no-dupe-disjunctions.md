@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-dupe-disjunctions"
 description: "disallow duplicate disjunctions"
----
-# regexp/no-dupe-disjunctions
-
-> disallow duplicate disjunctions
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-dupe-disjunctions"
-description: "disallow duplicate disjunctions"
 since: "v0.4.0"
 ---
 # regexp/no-dupe-disjunctions
@@ -84,6 +72,10 @@ var foo = /.|a|b|c/
 ```
 
 </eslint-code-block>
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.4.0
 
 ## :mag: Implementation
 

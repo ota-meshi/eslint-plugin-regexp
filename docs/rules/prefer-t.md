@@ -3,20 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-t"
 description: "enforce using `\\t`"
----
-# regexp/prefer-t
-
-> enforce using `\t`
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/prefer-t"
-description: "enforce using `\\t`"
 since: "v0.1.0"
 ---
 # regexp/prefer-t
@@ -47,6 +33,10 @@ var foo = /\u0009/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

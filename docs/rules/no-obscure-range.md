@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-obscure-range"
 description: "disallow obscure character ranges"
----
-# regexp/no-obscure-range
-
-> disallow obscure character ranges
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-obscure-range"
-description: "disallow obscure character ranges"
 since: "v0.9.0"
 ---
 # regexp/no-obscure-range
@@ -130,6 +118,10 @@ var foo = /[!-$]/;
 ```
 
 </eslint-code-block>
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

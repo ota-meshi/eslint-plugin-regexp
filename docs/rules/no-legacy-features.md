@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-legacy-features"
 description: "disallow legacy RegExp features"
----
-# regexp/no-legacy-features
-
-> disallow legacy RegExp features
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-legacy-features"
-description: "disallow legacy RegExp features"
 since: "v0.6.0"
 ---
 # regexp/no-legacy-features
@@ -81,6 +69,10 @@ regexObj.compile('new foo', 'g');
 ## :books: Further reading
 
 - [Legacy RegExp features in JavaScript](https://github.com/tc39/proposal-regexp-legacy-features/)
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.6.0
 
 ## :mag: Implementation
 

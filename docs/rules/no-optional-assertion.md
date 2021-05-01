@@ -3,18 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-optional-assertion"
 description: "disallow optional assertions"
----
-# regexp/no-optional-assertion
-
-> disallow optional assertions
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-optional-assertion"
-description: "disallow optional assertions"
 since: "v0.9.0"
 ---
 # regexp/no-optional-assertion
@@ -61,6 +49,10 @@ This rule is compatible with [clean-regex/no-optional-assertion] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-optional-assertion]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-optional-assertion.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

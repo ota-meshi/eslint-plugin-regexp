@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-dupe-characters-character-class"
 description: "disallow duplicate characters in the RegExp character class"
----
-# regexp/no-dupe-characters-character-class
-
-> disallow duplicate characters in the RegExp character class
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/no-dupe-characters-character-class"
-description: "disallow duplicate characters in the RegExp character class"
 since: "v0.1.0"
 ---
 # regexp/no-dupe-characters-character-class
@@ -60,6 +47,10 @@ var foo = /[\w0-9]/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

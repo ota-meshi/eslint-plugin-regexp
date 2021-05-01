@@ -3,19 +3,6 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/sort-flags"
 description: "require regex flags to be sorted"
----
-# regexp/sort-flags
-
-> require regex flags to be sorted
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
-
----
-pageClass: "rule-details"
-sidebarDepth: 0
-title: "regexp/sort-flags"
-description: "require regex flags to be sorted"
 since: "v0.9.0"
 ---
 # regexp/sort-flags
@@ -59,6 +46,10 @@ This rule is compatible with [clean-regex/sort-flags] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/sort-flags]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/sort-flags.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 
