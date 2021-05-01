@@ -50,8 +50,8 @@ and either use the recommended configuration or configure the rules you want:
 
 ### The recommended configuration
 
-This plugin provides one config: `regexp/recommended`, it enables a subset of core rules, and it's the recommended configuration.
-*See https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts for details.*
+The `regexp/recommended` config enables a subset of [the core rules](#white_check_mark-rules) that should be most useful to most users.
+*See https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts for more details.*
 
 ```js
 // .eslintrc.js
