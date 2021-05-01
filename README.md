@@ -41,35 +41,48 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 <!--DOCS_IGNORE_END-->
 
-## :book: Usage
+## :book: Configuring
 
 <!--USAGE_SECTION_START-->
 
-Create `.eslintrc.*` file to configure rules. See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring).
+Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix) 
+and either use the recommended configuration or configure the rules you want:
 
-Example **.eslintrc.js**:
+### The recommended configuration
 
-```js
+This plugin provides one config: `regexp/recommended` which enables a subset of core rules, this is the recommended configuration for this plugin.
+*See https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts for details.*
+
+```json
+// .eslintrc.js
 module.exports = {
-  extends: [
-    // add more generic rulesets here, such as:
-    // 'eslint:recommended',
-    'plugin:regexp/recommended'
-  ],
-  rules: {
-    // override/add rules settings here, such as:
-    // 'regexp/rule-name': 'error'
-  }
+    "plugins": [
+        "regexp"
+    ],
+    "extends": [
+         // add more generic rulesets here, such as:
+         // 'eslint:recommended',
+        "plugin:regexp/recommended"
+    ],
 }
 ```
 
-### Configuration
+### Advanced Configuration
 
-This plugin provides one config:
+Override/add specific rules settings. *See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring)*.
 
-- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.
-  See [lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for details.
-
+```json
+// .eslintrc.js
+module.exports = {
+    "plugins": [
+        "regexp"
+    ]
+    rules: {
+        // Override/add rules settings here, such as:
+        'regexp/rule-name': 'error'
+  }
+}
+```
 <!--USAGE_SECTION_END-->
 
 ## :white_check_mark: Rules
