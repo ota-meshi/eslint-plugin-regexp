@@ -77,7 +77,7 @@ module.exports = {
     "plugins": [
         "regexp"
     ],
-    rules: {
+    "rules": {
         // Override/add rules settings here, such as:
         'regexp/rule-name': 'error'
     }
