@@ -25,6 +25,7 @@ var foo = /(a)/;
 var foo = /a(?:\b)/;
 var foo = /a(?:$)/;
 var foo = /(?:^)a/;
+var foo = /(?:^|b)a/;
 
 /* ✗ BAD */
 var foo = /a(\b)/;
