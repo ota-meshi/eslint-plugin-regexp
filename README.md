@@ -69,7 +69,7 @@ module.exports = {
 
 ### Advanced Configuration
 
-Override/add specific rules settings. *See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring)*.
+Override/add specific rules configurations. *See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring)*.
 
 ```js
 // .eslintrc.js
