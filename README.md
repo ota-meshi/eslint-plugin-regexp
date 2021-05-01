@@ -41,7 +41,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 <!--DOCS_IGNORE_END-->
 
-## :book: Configuring
+## :book: Usage
 
 <!--USAGE_SECTION_START-->
 
