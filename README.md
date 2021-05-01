@@ -79,7 +79,7 @@ module.exports = {
     ],
     "rules": {
         // Override/add rules settings here, such as:
-        'regexp/rule-name': 'error'
+        "regexp/rule-name": "error"
     }
 }
 ```
