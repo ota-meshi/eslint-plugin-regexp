@@ -50,7 +50,7 @@ and either use the recommended configuration or configure the rules you want:
 
 ### The recommended configuration
 
-This plugin provides one config: `regexp/recommended` which enables a subset of core rules, this is the recommended configuration for this plugin.
+This plugin provides one config: `regexp/recommended`, it enables a subset of core rules, and it's the recommended configuration.
 *See https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts for details.*
 
 ```js
