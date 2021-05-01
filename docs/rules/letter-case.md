@@ -3,6 +3,19 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/letter-case"
 description: "enforce into your favorite case"
+---
+# regexp/letter-case
+
+> enforce into your favorite case
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/letter-case"
+description: "enforce into your favorite case"
 since: "v0.3.0"
 ---
 # regexp/letter-case
@@ -59,10 +72,6 @@ var foo = /\ca/
     (The default value will change to `"lowercase"` in the next major version.)
   - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"ignore"`.  
     (The default value will change to `"uppercase"` in the next major version.)
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.3.0
 
 ## :mag: Implementation
 

@@ -3,6 +3,19 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-lookarounds-assertion"
 description: "disallow empty lookahead assertion or empty lookbehind assertion"
+---
+# regexp/no-empty-lookarounds-assertion
+
+> disallow empty lookahead assertion or empty lookbehind assertion
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-empty-lookarounds-assertion"
+description: "disallow empty lookahead assertion or empty lookbehind assertion"
 since: "v0.1.0"
 ---
 # regexp/no-empty-lookarounds-assertion
@@ -59,10 +72,6 @@ var foo = /(?!b?)\w/;
 ## :wrench: Options
 
 Nothing.
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

@@ -3,6 +3,18 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-alternative"
 description: "disallow alternatives without elements"
+---
+# regexp/no-empty-alternative
+
+> disallow alternatives without elements
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-empty-alternative"
+description: "disallow alternatives without elements"
 since: "v0.8.0"
 ---
 # regexp/no-empty-alternative
@@ -44,10 +56,6 @@ This rule is compatible with [clean-regex/no-empty-alternative] rule.
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-empty-alternative]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-empty-alternative.md
 
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.8.0
 
 ## :mag: Implementation
 

@@ -3,6 +3,18 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-non-standard-flag"
 description: "disallow non-standard flags"
+---
+# regexp/no-non-standard-flag
+
+> disallow non-standard flags
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-non-standard-flag"
+description: "disallow non-standard flags"
 since: "v0.9.0"
 ---
 # regexp/no-non-standard-flag
@@ -32,10 +44,6 @@ var foo = RegExp("(?:a|a)*b", "l");
 ## :wrench: Options
 
 Nothing.
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

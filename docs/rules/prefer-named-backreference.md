@@ -3,6 +3,19 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-named-backreference"
 description: "enforce using named backreferences"
+---
+# regexp/prefer-named-backreference
+
+> enforce using named backreferences
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/prefer-named-backreference"
+description: "enforce using named backreferences"
 since: "v0.9.0"
 ---
 # regexp/prefer-named-backreference
@@ -33,10 +46,6 @@ var foo = /(?<foo>a)\1/
 ## :wrench: Options
 
 Nothing.
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

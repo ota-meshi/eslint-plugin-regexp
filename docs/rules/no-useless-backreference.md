@@ -3,6 +3,19 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-backreference"
 description: "disallow useless backreferences in regular expressions"
+---
+# regexp/no-useless-backreference
+
+> disallow useless backreferences in regular expressions
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-useless-backreference"
+description: "disallow useless backreferences in regular expressions"
 since: "v0.1.0"
 ---
 # regexp/no-useless-backreference
@@ -89,10 +102,6 @@ Nothing.
 - [no-useless-backreference]
 
 [no-useless-backreference]: https://eslint.org/docs/rules/no-useless-backreference
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

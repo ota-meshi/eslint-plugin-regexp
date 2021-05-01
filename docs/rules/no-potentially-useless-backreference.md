@@ -3,6 +3,18 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-potentially-useless-backreference"
 description: "disallow backreferences that reference a group that might not be matched"
+---
+# regexp/no-potentially-useless-backreference
+
+> disallow backreferences that reference a group that might not be matched
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-potentially-useless-backreference"
+description: "disallow backreferences that reference a group that might not be matched"
 since: "v0.9.0"
 ---
 # regexp/no-potentially-useless-backreference
@@ -50,10 +62,6 @@ This rule is compatible with [clean-regex/no-potentially-empty-backreference] ru
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-potentially-empty-backreference]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-potentially-empty-backreference.md
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.9.0
 
 ## :mag: Implementation
 

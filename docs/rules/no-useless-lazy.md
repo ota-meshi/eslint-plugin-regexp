@@ -11,6 +11,19 @@ description: "disallow unnecessarily non-greedy quantifiers"
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-useless-lazy"
+description: "disallow unnecessarily non-greedy quantifiers"
+---
+# regexp/no-useless-lazy
+
+> disallow unnecessarily non-greedy quantifiers
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 ## :book: Rule Details
 
 This rule reports lazy quantifiers that don't need to by lazy.

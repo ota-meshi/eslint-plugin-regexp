@@ -22,7 +22,9 @@ This ESLint plugin provides linting rules relate to better ways to help you avoi
 
 You can check on the [Online DEMO](./playground/README.md).
 
-## :book: Usage
+
+
+## :book: Configuring
 
 See [User Guide](./user-guide/README.md).
 
@@ -33,6 +35,8 @@ See [Available Rules](./rules/README.md).
 ## :gear: Settings
 
 See [Settings](./settings/README.md).
+
+
 
 ## :lock: License
 

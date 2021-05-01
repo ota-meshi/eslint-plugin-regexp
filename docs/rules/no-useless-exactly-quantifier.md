@@ -3,6 +3,19 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-exactly-quantifier"
 description: "disallow unnecessary exactly quantifier"
+---
+# regexp/no-useless-exactly-quantifier
+
+> disallow unnecessary exactly quantifier
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/no-useless-exactly-quantifier"
+description: "disallow unnecessary exactly quantifier"
 since: "v0.1.0"
 ---
 # regexp/no-useless-exactly-quantifier
@@ -33,10 +46,6 @@ var foo = /a{0}/;
 ## :wrench: Options
 
 Nothing.
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.1.0
 
 ## :mag: Implementation
 

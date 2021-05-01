@@ -3,6 +3,18 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-escape-replacement-dollar-char"
 description: "enforces escape of replacement `$` character (`$$`)."
+---
+# regexp/prefer-escape-replacement-dollar-char
+
+> enforces escape of replacement `$` character (`$$`).
+
+- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+
+---
+pageClass: "rule-details"
+sidebarDepth: 0
+title: "regexp/prefer-escape-replacement-dollar-char"
+description: "enforces escape of replacement `$` character (`$$`)."
 since: "v0.6.0"
 ---
 # regexp/prefer-escape-replacement-dollar-char
@@ -39,10 +51,6 @@ Nothing.
 ## :books: Further reading
 
 - [MDN Web Docs - String.prototype.replace() > Specifying a string as a parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_a_parameter)
-
-## :rocket: Version
-
-This rule was introduced in eslint-plugin-regexp v0.6.0
 
 ## :mag: Implementation
 
