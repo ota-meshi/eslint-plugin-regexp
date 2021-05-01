@@ -76,7 +76,7 @@ Override/add specific rules settings. *See also: [http://eslint.org/docs/user-gu
 module.exports = {
     "plugins": [
         "regexp"
-    ]
+    ],
     rules: {
         // Override/add rules settings here, such as:
         'regexp/rule-name': 'error'
