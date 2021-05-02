@@ -15,30 +15,48 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 ## :book: Usage
 
-### Configuration
+<!--USAGE_SECTION_START-->
 
-Use `.eslintrc.*` file to configure rules. See also: [https://eslint.org/docs/user-guide/configuring](https://eslint.org/docs/user-guide/configuring).
+Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix)  
+and either use the recommended configuration or configure the rules you want:
 
-Example **.eslintrc.js**:
+### The recommended configuration
+
+The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/) that should be most useful to most users.
+*See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for more details.*
 
 ```js
+// .eslintrc.js
 module.exports = {
-  extends: [
-    // add more generic rulesets here, such as:
-    // 'eslint:recommended',
-    'plugin:regexp/recommended'
-  ],
-  rules: {
-    // override/add rules settings here, such as:
-    // 'regexp/no-dupe-characters-character-class': 'error'
-  }
+    "plugins": [
+        "regexp"
+    ],
+    "extends": [
+         // add more generic rulesets here, such as:
+         // 'eslint:recommended',
+        "plugin:regexp/recommended"
+    ]
 }
 ```
 
-This plugin provides one config:
+### Advanced Configuration
 
-- `plugin:regexp/recommended` ... This is the recommended configuration for this plugin.
-  See [lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for details.
+Override/add specific rules configurations. *See also: [http://eslint.org/docs/user-guide/configuring](http://eslint.org/docs/user-guide/configuring)*.
+
+```js
+// .eslintrc.js
+module.exports = {
+    "plugins": [
+        "regexp"
+    ],
+    "rules": {
+        // Override/add rules settings here, such as:
+        "regexp/rule-name": "error"
+    }
+}
+```
+
+<!--USAGE_SECTION_END-->
 
 See [the rule list](../rules/README.md) to get the `rules` that this plugin provides.
 
