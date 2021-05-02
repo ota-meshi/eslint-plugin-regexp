@@ -13,7 +13,6 @@ import { createRule, defineRegexpVisitor } from "../utils"
 import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
-    TooManyNodesError,
     combineTransformers,
     Transformers,
     DFA,
@@ -98,6 +97,27 @@ function containsAssertions(expression: NoParent<Expression>): boolean {
     }
 }
 
+/**
+ * Returns whether the given RE AST contains assertions or unknowns.
+ */
+function containsAssertionsOrUnknowns(
+    expression: NoParent<Expression>,
+): boolean {
+    try {
+        visitAst(expression, {
+            onAssertionEnter() {
+                throw new Error()
+            },
+            onUnknownEnter() {
+                throw new Error()
+            },
+        })
+        return false
+    } catch (error) {
+        return true
+    }
+}
+
 const creationOption: Transformers.CreationOptions = {
     ignoreAmbiguity: true,
     ignoreOrder: true,
@@ -121,49 +141,26 @@ function toNFA(
     parser: JS.Parser,
     element: JS.ParsableElement,
 ): { nfa: NFA; partial: boolean } {
-    /** Parses the element. */
-    function parse(): { result: JS.ParseResult; partial: boolean } {
-        try {
-            return {
-                result: parser.parseElement(element, {
-                    backreferences: "throw",
-                    assertions: "parse",
-                }),
-                partial: false,
-            }
-        } catch (error) {
-            if (error instanceof TooManyNodesError) {
-                throw error
-            }
-
-            // we are here because the element contains some backreferences that
-            // couldn't be resolved.
-            return {
-                result: parser.parseElement(element, {
-                    backreferences: "disable",
-                    assertions: "parse",
-                }),
-                partial: true,
-            }
-        }
-    }
-
     try {
-        const result = parse()
-        const { expression, maxCharacter } = result.result
-        let { partial } = result
+        const { expression, maxCharacter } = parser.parseElement(element, {
+            backreferences: "unknown",
+            assertions: "parse",
+        })
 
         let e
         if (containsAssertions(expression)) {
             e = transform(assertionTransformer, expression)
-            partial = partial || containsAssertions(e)
         } else {
             e = expression
         }
 
         return {
-            nfa: NFA.fromRegex(e, { maxCharacter }, { assertions: "disable" }),
-            partial,
+            nfa: NFA.fromRegex(
+                e,
+                { maxCharacter },
+                { assertions: "disable", unknowns: "disable" },
+            ),
+            partial: containsAssertionsOrUnknowns(e),
         }
     } catch (error) {
         return {
