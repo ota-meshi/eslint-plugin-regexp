@@ -935,7 +935,7 @@ export function toCharSetSource(
  * Returns whether the concatenation of the two string might create new escape
  * sequences or elements.
  */
-function mightCreateNewElement(
+export function mightCreateNewElement(
     /* eslint-enable complexity -- X( */
     before: string,
     after: string,
