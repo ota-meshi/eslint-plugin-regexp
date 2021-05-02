@@ -291,7 +291,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "'d-e' (U+0064 - U+0065) is already included by a combination of other elements.",
+                        "'d-e' (U+0064 - U+0065) is already included by the elements 'a-de-h' ('a-d' (U+0061 - U+0064), 'e-h' (U+0065 - U+0068)).",
                     column: 11,
                 },
                 {
@@ -307,7 +307,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "'3-6' (U+0033 - U+0036) is already included by a combination of other elements.",
+                        "'3-6' (U+0033 - U+0036) is already included by the elements '2-45-7' ('2-4' (U+0032 - U+0034), '5-7' (U+0035 - U+0037)).",
                     column: 3,
                 },
                 {

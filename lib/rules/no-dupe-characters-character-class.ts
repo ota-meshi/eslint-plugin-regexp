@@ -195,7 +195,7 @@ export default createRule("no-dupe-characters-character-class", {
                 "Unexpected duplicate. {{duplicate}} is a duplicate of {{element}}.",
             subset: "{{subsetElement}} is already included in {{element}}.",
             subsetOfMany:
-                "{{subsetElement}} is already included by a combination of other elements.",
+                "{{subsetElement}} is already included by the elements {{elements}}.",
             overlap:
                 "Unexpected overlap of {{elementA}} and {{elementB}} was found '{{overlap}}'.",
         },
@@ -286,6 +286,7 @@ export default createRule("no-dupe-characters-character-class", {
         function reportSubsetOfMany(
             regexpContext: RegExpContext,
             subsetElement: CharacterClassElement,
+            elements: CharacterClassElement[],
         ) {
             const { node, getRegexpLocation } = regexpContext
 
@@ -295,6 +296,9 @@ export default createRule("no-dupe-characters-character-class", {
                 messageId: "subsetOfMany",
                 data: {
                     subsetElement: mention(subsetElement),
+                    elements: `'${elements
+                        .map((e) => e.raw)
+                        .join("")}' (${elements.map(mention).join(", ")})`,
                 },
                 fix: fixRemove(regexpContext, subsetElement),
             })
@@ -319,13 +323,14 @@ export default createRule("no-dupe-characters-character-class", {
                     } = groupElements(ccNode.elements, regexpContext)
                     const rangesAndSets = [...characterRanges, ...characterSets]
 
+                    // keep track of all reported subset elements
+                    const subsets = new Set<CharacterClassElement>()
+
                     // report all duplicates
                     for (const { element, duplicate } of duplicates) {
                         reportDuplicate(regexpContext, duplicate, element)
+                        subsets.add(duplicate)
                     }
-
-                    // keep track of all reported subset elements
-                    const subsets = new Set<CharacterClassElement>()
 
                     // report characters that are already matched by some range or set
                     for (const char of characters) {
@@ -372,10 +377,23 @@ export default createRule("no-dupe-characters-character-class", {
                                 .map((e) => toCharSet(e)),
                         )
 
-                        if (toCharSet(element).isSubsetOf(totalOthers)) {
-                            reportSubsetOfMany(regexpContext, element)
+                        const elementCharSet = toCharSet(element)
+                        if (elementCharSet.isSubsetOf(totalOthers)) {
+                            const superSetElements = ccNode.elements
+                                .filter((e) => !subsets.has(e) && e !== element)
+                                .filter(
+                                    (e) =>
+                                        !toCharSet(e).isDisjointWith(
+                                            elementCharSet,
+                                        ),
+                                )
+
+                            reportSubsetOfMany(
+                                regexpContext,
+                                element,
+                                superSetElements,
+                            )
                             subsets.add(element)
-                            break
                         }
                     }
 
