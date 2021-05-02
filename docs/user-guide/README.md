@@ -22,7 +22,7 @@ and either use the recommended configuration or configure the rules you want:
 
 ### The recommended configuration
 
-The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/) that should be most useful to most users.
+The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/README.md) that should be most useful to most users.
 *See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for more details.*
 
 ```js

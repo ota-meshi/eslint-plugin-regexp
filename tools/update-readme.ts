@@ -69,6 +69,6 @@ const newUserGuideReadme = fs
 fs.writeFileSync(
     userGuideReadmeFilePath,
     newUserGuideReadme
-        .replace(/\(#white_check_mark-rules\)/g, "(../rules/)")
+        .replace(/\(#white_check_mark-rules\)/g, "(../rules/README.md)")
         .replace(/\n{3,}/gu, "\n\n"),
 )
