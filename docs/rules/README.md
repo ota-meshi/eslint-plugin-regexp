@@ -18,7 +18,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/negation](./negation.md) | enforce use of escapes on negation | :wrench: |
 | [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | disallow capturing group that captures assertions. | :star: |
-| [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star: |
+| [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star::wrench: |
 | [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements |  |
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |

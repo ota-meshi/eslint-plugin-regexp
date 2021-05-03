@@ -500,6 +500,26 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         b: /a*b?c_/,
         result: false,
     },
+    {
+        a: /\d+_/,
+        b: /\d*_/,
+        result: false,
+    },
+    {
+        a: /\d+/,
+        b: /\d*/,
+        result: false,
+    },
+    {
+        a: /\d*\.\d+/,
+        b: /\d+\.\d*/,
+        result: false,
+    },
+    {
+        a: /\d*\.\d+_/,
+        b: /\d+\.\d*_/,
+        result: false,
+    },
 ]
 describe("regexp-ast isCoveredNode", () => {
     for (const testCase of [

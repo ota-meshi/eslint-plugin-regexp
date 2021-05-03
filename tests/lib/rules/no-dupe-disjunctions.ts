@@ -23,6 +23,11 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(?:yml|ya?ml)/`,
         `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
         String.raw`/b+(?:\w+|[+-]?\d+)/`,
+        String.raw`/A+_|A*_/`,
+        String.raw`/(?:A+|A*)_/`,
+        String.raw`/\d*\.\d+_|\d+\.\d*_/`,
+        String.raw`/\d*\.\d+|\d+\.\d*/`,
+        String.raw`/(?:\d*\.\d+|\d+\.\d*)_/`,
     ],
     invalid: [
         {

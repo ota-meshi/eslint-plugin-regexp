@@ -22,7 +22,6 @@ describe("Integration with eslint-plugin-regexp", () => {
             r.results[0].messages.map((m) => m.ruleId),
             [
                 "regexp/no-dupe-characters-character-class",
-                "regexp/no-dupe-characters-character-class",
                 "regexp/prefer-w",
                 "regexp/prefer-d",
                 "regexp/prefer-d",

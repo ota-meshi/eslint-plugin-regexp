@@ -1,3 +1,4 @@
+import { isZeroLength } from "regexp-ast-analysis"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
@@ -24,11 +25,7 @@ export default createRule("no-assertion-capturing-group", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCapturingGroupEnter(cgNode) {
-                    if (
-                        cgNode.alternatives.every((alt) =>
-                            alt.elements.every((e) => e.type === "Assertion"),
-                        )
-                    ) {
+                    if (isZeroLength(cgNode)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(cgNode),

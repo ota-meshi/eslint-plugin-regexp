@@ -27,14 +27,10 @@ tester.run("no-dupe-characters-character-class", rule as any, {
     invalid: [
         {
             code: "var re = /[\\\\(\\\\)]/",
+            output: "var re = /[\\\\()]/",
             errors: [
                 {
-                    message: "Unexpected element '\\\\' duplication.",
-                    line: 1,
-                    column: 12,
-                },
-                {
-                    message: "Unexpected element '\\\\' duplication.",
+                    message: "Unexpected duplicate '\\\\' (U+005c).",
                     line: 1,
                     column: 15,
                 },
@@ -42,9 +38,11 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         },
         {
             code: "var re = /[a-z\\\\s]/",
+            output: "var re = /[a-z\\\\]/",
             errors: [
                 {
-                    message: "The 's' is included in 'a-z'.",
+                    message:
+                        "'s' (U+0073) is already included in 'a-z' (U+0061 - U+007a).",
                     line: 1,
                     column: 17,
                 },
@@ -52,27 +50,30 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         },
         {
             code: "/[aaa]/",
+            output: "/[aa]/",
             errors: [
-                { message: "Unexpected element 'a' duplication.", column: 3 },
-                { message: "Unexpected element 'a' duplication.", column: 4 },
-                { message: "Unexpected element 'a' duplication.", column: 5 },
+                { message: "Unexpected duplicate 'a' (U+0061).", column: 4 },
+                { message: "Unexpected duplicate 'a' (U+0061).", column: 5 },
             ],
         },
         {
             code: "/[0-9\\d]/",
+            output: "/[\\d]/",
             errors: [
                 {
-                    message: "The '0-9' is included in '\\d'.",
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '\\d'.",
                     column: 3,
                 },
             ],
         },
         {
             code: "/[\\f\\u000C]/",
+            output: "/[\\f]/",
             errors: [
-                { message: "Unexpected element '\\f' duplication.", column: 3 },
                 {
-                    message: "Unexpected element '\\u000C' duplication.",
+                    message:
+                        "Unexpected duplicate. '\\u000C' (U+000c) is a duplicate of '\\f' (U+000c).",
                     column: 5,
                 },
             ],
@@ -80,229 +81,323 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         {
             code:
                 "/[\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
-            errors: [
-                { message: "The ' ' is included in '\\s'.", column: 5 },
-                { message: "The '\\f' is included in '\\s'.", column: 6 },
-                { message: "The '\\n' is included in '\\s'.", column: 8 },
-                { message: "The '\\r' is included in '\\s'.", column: 10 },
-                { message: "The '\\t' is included in '\\s'.", column: 12 },
-                { message: "The '\\v' is included in '\\s'.", column: 14 },
-                { message: "The '\\u00a0' is included in '\\s'.", column: 16 },
-                { message: "The '\\u1680' is included in '\\s'.", column: 22 },
-                {
-                    message: "The '\\u2000-\\u200a' is included in '\\s'.",
-                    column: 34,
-                },
-                { message: "The '\\u2028' is included in '\\s'.", column: 47 },
-                { message: "The '\\u2029' is included in '\\s'.", column: 53 },
-                { message: "The '\\u202f' is included in '\\s'.", column: 59 },
-                { message: "The '\\u205f' is included in '\\s'.", column: 65 },
-                { message: "The '\\u3000' is included in '\\s'.", column: 71 },
-                { message: "The '\\ufeff' is included in '\\s'.", column: 77 },
-            ],
-        },
-        {
-            code: "/[\\t\t\\u0009]/",
-            errors: [
-                { message: "Unexpected element '\\t' duplication.", column: 3 },
-                { message: "Unexpected element '\t' duplication.", column: 5 },
-                {
-                    message: "Unexpected element '\\u0009' duplication.",
-                    column: 6,
-                },
-            ],
-        },
-        {
-            code: "/[\\wA-Za-z0-9_]/",
+            output: "/[\\s\\f\\r\\v\\u1680\\u180e\\u2028\\u202f\\u3000]/",
             errors: [
                 {
-                    message: "The 'A-Z' is included in '\\w'.",
+                    message: "' ' (U+0020) is already included in '\\s'.",
                     column: 5,
                 },
                 {
-                    message: "The 'a-z' is included in '\\w'.",
+                    message: "'\\f' (U+000c) is already included in '\\s'.",
+                    column: 6,
+                },
+                {
+                    message: "'\\n' (U+000a) is already included in '\\s'.",
                     column: 8,
                 },
                 {
-                    message: "The '0-9' is included in '\\w'.",
-                    column: 11,
+                    message: "'\\r' (U+000d) is already included in '\\s'.",
+                    column: 10,
                 },
-                { message: "The '_' is included in '\\w'.", column: 14 },
+                {
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
+                    column: 12,
+                },
+                {
+                    message: "'\\v' (U+000b) is already included in '\\s'.",
+                    column: 14,
+                },
+                {
+                    message: "'\\u00a0' (U+00a0) is already included in '\\s'.",
+                    column: 16,
+                },
+                {
+                    message: "'\\u1680' (U+1680) is already included in '\\s'.",
+                    column: 22,
+                },
+                {
+                    message:
+                        "'\\u2000-\\u200a' (U+2000 - U+200a) is already included in '\\s'.",
+                    column: 34,
+                },
+                {
+                    message: "'\\u2028' (U+2028) is already included in '\\s'.",
+                    column: 47,
+                },
+                {
+                    message: "'\\u2029' (U+2029) is already included in '\\s'.",
+                    column: 53,
+                },
+                {
+                    message: "'\\u202f' (U+202f) is already included in '\\s'.",
+                    column: 59,
+                },
+                {
+                    message: "'\\u205f' (U+205f) is already included in '\\s'.",
+                    column: 65,
+                },
+                {
+                    message: "'\\u3000' (U+3000) is already included in '\\s'.",
+                    column: 71,
+                },
+                {
+                    message: "'\\ufeff' (U+feff) is already included in '\\s'.",
+                    column: 77,
+                },
+            ],
+        },
+        {
+            code: "/[\\t\t \\u0009]/",
+            output: "/[\\t ]/",
+            errors: [
+                {
+                    message:
+                        "Unexpected duplicate. '\t' (U+0009) is a duplicate of '\\t' (U+0009).",
+                    column: 5,
+                },
+                {
+                    message:
+                        "Unexpected duplicate. '\\u0009' (U+0009) is a duplicate of '\\t' (U+0009).",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: "/[\\wA-Z a-z:0-9,_]/",
+            output: "/[\\w :,]/",
+            errors: [
+                {
+                    message:
+                        "'A-Z' (U+0041 - U+005a) is already included in '\\w'.",
+                    column: 5,
+                },
+                {
+                    message:
+                        "'a-z' (U+0061 - U+007a) is already included in '\\w'.",
+                    column: 9,
+                },
+                {
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '\\w'.",
+                    column: 13,
+                },
+                {
+                    message: "'_' (U+005f) is already included in '\\w'.",
+                    column: 17,
+                },
             ],
         },
         {
             code: "/[!-z_abc-]/",
-            errors: [
-                { message: "The '_' is included in '!-z'.", column: 6 },
-                { message: "The 'a' is included in '!-z'.", column: 7 },
-                { message: "The 'b' is included in '!-z'.", column: 8 },
-                { message: "The 'c' is included in '!-z'.", column: 9 },
-                { message: "The '-' is included in '!-z'.", column: 10 },
-            ],
-        },
-        {
-            code: "/[\\w_abc-][\\s \\t\\r\\n\\u2000\\u3000]/",
-            errors: [
-                { message: "The '_' is included in '\\w'.", column: 5 },
-                { message: "The 'a' is included in '\\w'.", column: 6 },
-                { message: "The 'b' is included in '\\w'.", column: 7 },
-                { message: "The 'c' is included in '\\w'.", column: 8 },
-                { message: "The ' ' is included in '\\s'.", column: 14 },
-                { message: "The '\\t' is included in '\\s'.", column: 15 },
-                { message: "The '\\r' is included in '\\s'.", column: 17 },
-                { message: "The '\\n' is included in '\\s'.", column: 19 },
-                { message: "The '\\u2000' is included in '\\s'.", column: 21 },
-                { message: "The '\\u3000' is included in '\\s'.", column: 27 },
-            ],
-        },
-        {
-            code: "/[a-z a-z]/",
-            errors: [
-                { message: "Unexpected element 'a-z' duplication.", column: 3 },
-                { message: "Unexpected element 'a-z' duplication.", column: 7 },
-            ],
-        },
-        {
-            code: "/[a-d e-h_d-e+c-d]/",
+            output: "/[!-zac]/",
             errors: [
                 {
                     message:
-                        "Unexpected intersection of 'a-d' and 'd-e' was found 'd'.",
-                    column: 3,
+                        "'_' (U+005f) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 6,
                 },
                 {
                     message:
-                        "Unexpected intersection of 'e-h' and 'd-e' was found 'e'.",
+                        "'a' (U+0061) is already included in '!-z' (U+0021 - U+007a).",
                     column: 7,
                 },
                 {
                     message:
-                        "Unexpected intersection of 'd-e' and 'a-d' was found 'd'.",
-                    column: 11,
+                        "'b' (U+0062) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 8,
                 },
                 {
                     message:
-                        "Unexpected intersection of 'd-e' and 'e-h' was found 'e'.",
-                    column: 11,
+                        "'c' (U+0063) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 9,
                 },
                 {
                     message:
-                        "Unexpected intersection of 'd-e' and 'c-d' was found 'd'.",
-                    column: 11,
+                        "'-' (U+002d) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 10,
+                },
+            ],
+        },
+        {
+            code: "/[\\w_abc-][\\s \\t\\r\\n\\u2000\\u3000]/",
+            output: "/[\\wac-][\\s\\t\\n\\u3000]/",
+            errors: [
+                {
+                    message: "'_' (U+005f) is already included in '\\w'.",
+                    column: 5,
                 },
                 {
-                    message: "The 'c-d' is included in 'a-d'.",
+                    message: "'a' (U+0061) is already included in '\\w'.",
+                    column: 6,
+                },
+                {
+                    message: "'b' (U+0062) is already included in '\\w'.",
+                    column: 7,
+                },
+                {
+                    message: "'c' (U+0063) is already included in '\\w'.",
+                    column: 8,
+                },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 14,
+                },
+                {
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
                     column: 15,
                 },
                 {
+                    message: "'\\r' (U+000d) is already included in '\\s'.",
+                    column: 17,
+                },
+                {
+                    message: "'\\n' (U+000a) is already included in '\\s'.",
+                    column: 19,
+                },
+                {
+                    message: "'\\u2000' (U+2000) is already included in '\\s'.",
+                    column: 21,
+                },
+                {
+                    message: "'\\u3000' (U+3000) is already included in '\\s'.",
+                    column: 27,
+                },
+            ],
+        },
+        {
+            code: "/[a-z a-z]/",
+            output: "/[a-z ]/",
+            errors: [
+                {
+                    message: "Unexpected duplicate 'a-z' (U+0061 - U+007a).",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: "/[a-z A-Z]/i",
+            output: "/[a-z ]/i",
+            errors: [
+                {
                     message:
-                        "Unexpected intersection of 'c-d' and 'd-e' was found 'd'.",
+                        "Unexpected duplicate. 'A-Z' (U+0041 - U+005a) is a duplicate of 'a-z' (U+0061 - U+007a).",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: "/[a-d e-h_d-e+c-d]/",
+            output: "/[a-d e-h_+]/",
+            errors: [
+                {
+                    message:
+                        "'d-e' (U+0064 - U+0065) is already included by the elements 'a-de-h' ('a-d' (U+0061 - U+0064), 'e-h' (U+0065 - U+0068)).",
+                    column: 11,
+                },
+                {
+                    message:
+                        "'c-d' (U+0063 - U+0064) is already included in 'a-d' (U+0061 - U+0064).",
                     column: 15,
                 },
             ],
         },
         {
             code: "/[3-6 3-6_2-4+5-7]/",
+            output: "/[ _2-4+5-7]/",
             errors: [
-                { message: "Unexpected element '3-6' duplication.", column: 3 },
                 {
                     message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
+                        "'3-6' (U+0033 - U+0036) is already included by the elements '2-45-7' ('2-4' (U+0032 - U+0034), '5-7' (U+0035 - U+0037)).",
                     column: 3,
                 },
                 {
+                    message: "Unexpected duplicate '3-6' (U+0033 - U+0036).",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: "/[3-6 3-6_5-7]/",
+            output: "/[3-6 _5-7]/",
+            errors: [
+                {
                     message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
+                        "Unexpected overlap of '3-6' (U+0033 - U+0036) and '5-7' (U+0035 - U+0037) was found '[56]'.",
                     column: 3,
                 },
-                { message: "Unexpected element '3-6' duplication.", column: 7 },
                 {
-                    message:
-                        "Unexpected intersection of '3-6' and '2-4' was found '[34]'.",
+                    message: "Unexpected duplicate '3-6' (U+0033 - U+0036).",
                     column: 7,
-                },
-                {
-                    message:
-                        "Unexpected intersection of '3-6' and '5-7' was found '[56]'.",
-                    column: 7,
-                },
-                {
-                    message:
-                        "Unexpected intersection of '2-4' and '3-6' was found '[34]'.",
-                    column: 11,
-                },
-                {
-                    message:
-                        "Unexpected intersection of '5-7' and '3-6' was found '[56]'.",
-                    column: 15,
                 },
             ],
         },
         {
             code: "/[\\s\\s \\s]/",
+            output: "/[\\s ]/",
             errors: [
-                { message: "Unexpected element '\\s' duplication.", column: 3 },
-                { message: "Unexpected element '\\s' duplication.", column: 5 },
-                { message: "The ' ' is included in '\\s'.", column: 7 },
-                { message: "Unexpected element '\\s' duplication.", column: 8 },
+                { message: "Unexpected duplicate '\\s'.", column: 5 },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 7,
+                },
+                { message: "Unexpected duplicate '\\s'.", column: 8 },
             ],
         },
         {
             code: "/[\\S\\S \\sa]/",
+            output: "/[\\S \\s]/",
             errors: [
-                { message: "Unexpected element '\\S' duplication.", column: 3 },
-                { message: "Unexpected element '\\S' duplication.", column: 5 },
-                { message: "The ' ' is included in '\\s'.", column: 7 },
-                { message: "The 'a' is included in '\\S'.", column: 10 },
+                { message: "Unexpected duplicate '\\S'.", column: 5 },
+                {
+                    message: "' ' (U+0020) is already included in '\\s'.",
+                    column: 7,
+                },
+                {
+                    message: "'a' (U+0061) is already included in '\\S'.",
+                    column: 10,
+                },
             ],
         },
         {
             code: "/[\\d 0-9_!-z]/",
+            output: "/[ _!-z]/",
             errors: [
                 {
-                    message: "The '\\d' is included in '!-z'.",
+                    message:
+                        "'\\d' is already included in '!-z' (U+0021 - U+007a).",
                     column: 3,
                 },
                 {
-                    message: "The '0-9' is included in '!-z'.",
+                    message:
+                        "'0-9' (U+0030 - U+0039) is already included in '!-z' (U+0021 - U+007a).",
                     column: 6,
                 },
                 {
-                    message: "The '0-9' is included in '\\d'.",
-                    column: 6,
+                    message:
+                        "'_' (U+005f) is already included in '!-z' (U+0021 - U+007a).",
+                    column: 9,
                 },
-                { message: "The '_' is included in '!-z'.", column: 9 },
             ],
         },
         {
             code: "/[\\W\\W\\w \\d\\d\\D]/",
+            output: "/[\\W\\w\\d\\D]/",
             errors: [
-                { message: "Unexpected element '\\W' duplication.", column: 3 },
                 {
-                    message: "The '\\W' is included in '\\D'.",
+                    message: "'\\W' is already included in '\\D'.",
                     column: 3,
                 },
-                { message: "Unexpected element '\\W' duplication.", column: 5 },
+                { message: "Unexpected duplicate '\\W'.", column: 5 },
                 {
-                    message: "The '\\W' is included in '\\D'.",
-                    column: 5,
+                    message: "' ' (U+0020) is already included in '\\W'.",
+                    column: 9,
                 },
-                { message: "The ' ' is included in '\\W'.", column: 9 },
-                { message: "The ' ' is included in '\\D'.", column: 9 },
                 {
-                    message: "Unexpected element '\\d' duplication.",
+                    message: "'\\d' is already included in '\\w'.",
                     column: 10,
                 },
                 {
-                    message: "The '\\d' is included in '\\w'.",
-                    column: 10,
-                },
-                {
-                    message: "Unexpected element '\\d' duplication.",
-                    column: 12,
-                },
-                {
-                    message: "The '\\d' is included in '\\w'.",
+                    message: "Unexpected duplicate '\\d'.",
                     column: 12,
                 },
             ],
@@ -310,129 +405,125 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         {
             code:
                 "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana}]/u",
+            output: "/[\\P{ASCII}\\P{Script=Hiragana}\\p{Script=Hiragana}]/u",
             errors: [
                 {
-                    message: "Unexpected element '\\p{ASCII}' duplication.",
+                    message:
+                        "'\\p{ASCII}' is already included in '\\P{Script=Hiragana}'.",
                     column: 3,
                 },
                 {
                     message:
-                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
-                    column: 3,
-                },
-                {
-                    message:
-                        "Unexpected element '\\p{Script=Hiragana}' duplication.",
+                        "'\\p{Script=Hiragana}' is already included in '\\P{ASCII}'.",
                     column: 21,
                 },
                 {
-                    message:
-                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
-                    column: 21,
-                },
-                {
-                    message: "Unexpected element '\\p{ASCII}' duplication.",
+                    message: "Unexpected duplicate '\\p{ASCII}'.",
                     column: 59,
                 },
                 {
-                    message:
-                        "The '\\p{ASCII}' is included in '\\P{Script=Hiragana}'.",
-                    column: 59,
-                },
-                {
-                    message:
-                        "Unexpected element '\\p{Script=Hiragana}' duplication.",
-                    column: 68,
-                },
-                {
-                    message:
-                        "The '\\p{Script=Hiragana}' is included in '\\P{ASCII}'.",
+                    message: "Unexpected duplicate '\\p{Script=Hiragana}'.",
                     column: 68,
                 },
             ],
         },
         {
             code: "/[\\p{ASCII} abc\\P{ASCII}]/u",
+            output: "/[\\p{ASCII}ac\\P{ASCII}]/u",
             errors: [
                 {
-                    message: "The ' ' is included in '\\p{ASCII}'.",
+                    message:
+                        "' ' (U+0020) is already included in '\\p{ASCII}'.",
                     column: 12,
                 },
                 {
-                    message: "The 'a' is included in '\\p{ASCII}'.",
+                    message:
+                        "'a' (U+0061) is already included in '\\p{ASCII}'.",
                     column: 13,
                 },
                 {
-                    message: "The 'b' is included in '\\p{ASCII}'.",
+                    message:
+                        "'b' (U+0062) is already included in '\\p{ASCII}'.",
                     column: 14,
                 },
                 {
-                    message: "The 'c' is included in '\\p{ASCII}'.",
+                    message:
+                        "'c' (U+0063) is already included in '\\p{ASCII}'.",
                     column: 15,
                 },
             ],
         },
         {
             code: "/[\\P{Script=Hiragana} abc\\p{Script=Hiragana}]/u",
+            output: "/[\\P{Script=Hiragana}ac\\p{Script=Hiragana}]/u",
             errors: [
                 {
-                    message: "The ' ' is included in '\\P{Script=Hiragana}'.",
+                    message:
+                        "' ' (U+0020) is already included in '\\P{Script=Hiragana}'.",
                     column: 22,
                 },
                 {
-                    message: "The 'a' is included in '\\P{Script=Hiragana}'.",
+                    message:
+                        "'a' (U+0061) is already included in '\\P{Script=Hiragana}'.",
                     column: 23,
                 },
                 {
-                    message: "The 'b' is included in '\\P{Script=Hiragana}'.",
+                    message:
+                        "'b' (U+0062) is already included in '\\P{Script=Hiragana}'.",
                     column: 24,
                 },
                 {
-                    message: "The 'c' is included in '\\P{Script=Hiragana}'.",
+                    message:
+                        "'c' (U+0063) is already included in '\\P{Script=Hiragana}'.",
                     column: 25,
                 },
             ],
         },
         {
             code: "/[\\w /-7+8-:]/",
+            output: null,
             errors: [
                 {
                     message:
-                        "Unexpected intersection of '/-7' and '\\w' was found '[0-7]'.",
+                        "Unexpected overlap of '/-7' (U+002f - U+0037) and '\\w' was found '[0-7]'.",
                     column: 6,
                 },
                 {
                     message:
-                        "Unexpected intersection of '8-:' and '\\w' was found '[89]'.",
+                        "Unexpected overlap of '8-:' (U+0038 - U+003a) and '\\w' was found '[89]'.",
                     column: 10,
                 },
             ],
         },
         {
             code: "/[ -/\\s]/",
+            output: null,
             errors: [
                 {
                     message:
-                        "Unexpected intersection of ' -/' and '\\s' was found ' '.",
+                        "Unexpected overlap of ' -/' (U+0020 - U+002f) and '\\s' was found ' '.",
                     column: 3,
                 },
             ],
         },
         {
             code: "/[\\wA-_]/",
+            output: null,
             errors: [
                 {
                     message:
-                        "Unexpected intersection of 'A-_' and '\\w' was found '[A-Z_]'.",
+                        "Unexpected overlap of 'A-_' (U+0041 - U+005f) and '\\w' was found '[A-Z_]'.",
                     column: 5,
                 },
             ],
         },
         {
             code: String.raw`/[\w0-z]/`,
+            output: String.raw`/[0-z]/`,
             errors: [
                 {
-                    message: "The '\\w' is included in '0-z'.",
+                    message:
+                        "'\\w' is already included in '0-z' (U+0030 - U+007a).",
                     line: 1,
                     column: 3,
                     endLine: 1,
@@ -442,9 +533,11 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         },
         {
             code: String.raw`/[\t-\uFFFF\s]/`,
+            output: String.raw`/[\t-\uFFFF]/`,
             errors: [
                 {
-                    message: "The '\\s' is included in '\\t-\\uFFFF'.",
+                    message:
+                        "'\\s' is already included in '\\t-\\uFFFF' (U+0009 - U+ffff).",
                     line: 1,
                     column: 12,
                     endLine: 1,
@@ -454,68 +547,135 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         },
         {
             code: "/[\\Sa]/",
+            output: "/[\\S]/",
             errors: [
                 {
-                    message: "The 'a' is included in '\\S'.",
+                    message: "'a' (U+0061) is already included in '\\S'.",
                     column: 5,
                 },
             ],
         },
         {
             code: "/[a-z\\p{L}]/u",
+            output: "/[\\p{L}]/u",
             errors: [
                 {
-                    message: "The 'a-z' is included in '\\p{L}'.",
+                    message:
+                        "'a-z' (U+0061 - U+007a) is already included in '\\p{L}'.",
                     column: 3,
                 },
             ],
         },
         {
             code: "/[\\d\\p{ASCII}]/u",
+            output: "/[\\p{ASCII}]/u",
             errors: [
                 {
-                    message: "The '\\d' is included in '\\p{ASCII}'.",
+                    message: "'\\d' is already included in '\\p{ASCII}'.",
                     column: 3,
                 },
             ],
         },
         {
             code: "/[\\t\\s]/",
+            output: "/[\\s]/",
             errors: [
                 {
-                    message: "The '\\t' is included in '\\s'.",
+                    message: "'\\t' (U+0009) is already included in '\\s'.",
                     column: 3,
                 },
             ],
         },
         {
             code: String.raw`/[A-Z a-\uFFFF]/i`,
+            output: String.raw`/[ a-\uFFFF]/i`,
             errors: [
                 {
-                    message: "The 'A-Z' is included in 'a-\\uFFFF'.",
+                    message:
+                        "'A-Z' (U+0041 - U+005a) is already included in 'a-\\uFFFF' (U+0061 - U+ffff).",
                     column: 3,
                 },
             ],
         },
         {
             code: String.raw`/[\xA0-\uFFFF\s]/`,
+            output: null,
             errors: [
                 {
                     message:
-                        "Unexpected intersection of '\\xA0-\\uFFFF' and '\\s' was found '\\xa0'.",
+                        "Unexpected overlap of '\\xA0-\\uFFFF' (U+00a0 - U+ffff) and '\\s' was found '\\xa0'.",
                     column: 3,
                 },
             ],
         },
         {
             code: String.raw`/[\u1fff-\u2005\s]/`,
+            output: null,
             errors: [
                 {
                     message:
-                        "Unexpected intersection of '\\u1fff-\\u2005' and '\\s' was found '[\\u2000-\\u2005]'.",
+                        "Unexpected overlap of '\\u1fff-\\u2005' (U+1fff - U+2005) and '\\s' was found '[\\u2000-\\u2005]'.",
                     column: 3,
                 },
             ],
+        },
+        {
+            // GH issue: #189
+            code: String(
+                // eslint-disable-next-line no-control-regex -- x
+                /[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]/i,
+            ),
+            output: null,
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap of '\\x21-\\x5a' (U+0021 - U+005a) and '\\x53-\\x7f' (U+0053 - U+007f) was found '[A-Z]'.",
+                    column: 29,
+                },
+            ],
+        },
+
+        // sometimes, we might have to do some escaping
+        {
+            code: String.raw`/[a^\w]/`,
+            output: String.raw`/[\^\w]/`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[0a-a-9a-z]/`,
+            output: String.raw`/[0\-9a-z]/`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[a:^\w]/`,
+            output: String.raw`/[:^\w]/`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[\sa-\w]/`,
+            output: String.raw`/[\s-\w]/`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[\x01\d-\x03\w]/`,
+            output: String.raw`/[\x01\-\x03\w]/`,
+            errors: 1,
+        },
+        // sometimes, we can't can't remove the element
+        {
+            code: String.raw`/[\x01-\d\x03\w]/`,
+            output: null,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[\s0-\s9]/`,
+            output: null,
+            errors: 1,
+        },
+        {
+            code: "/[\\x0x9]/",
+            output: null,
+            errors: 1,
         },
     ],
 })
