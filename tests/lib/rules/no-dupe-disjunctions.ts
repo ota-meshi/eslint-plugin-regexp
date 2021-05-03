@@ -37,6 +37,26 @@ tester.run("no-dupe-disjunctions", rule as any, {
             code: `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
             options: [{ disallowNeverMatch: true }],
         },
+        {
+            code: String.raw`/A+_|A*_/`,
+            options: [{ disallowNeverMatch: true }],
+        },
+        {
+            code: String.raw`/(?:A+|A*)_/`,
+            options: [{ disallowNeverMatch: true }],
+        },
+        {
+            code: String.raw`/\d*\.\d+_|\d+\.\d*_/`,
+            options: [{ disallowNeverMatch: true }],
+        },
+        {
+            code: String.raw`/\d*\.\d+|\d+\.\d*/`,
+            options: [{ disallowNeverMatch: true }],
+        },
+        {
+            code: String.raw`/(?:\d*\.\d+|\d+\.\d*)_/`,
+            options: [{ disallowNeverMatch: true }],
+        },
     ],
     invalid: [
         ...[

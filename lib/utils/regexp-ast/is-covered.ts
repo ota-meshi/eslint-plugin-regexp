@@ -521,6 +521,10 @@ function isCoveredAltNodes(
                 if (!isCoveredForNormalizedNode(le, re.element, options)) {
                     return false
                 }
+                // Checks if skipped.
+                if (!isCoveredAltNodes([le, ...left], right, options)) {
+                    return false
+                }
                 const decrementRe = re.decrementMax()
                 if (decrementRe) {
                     // Check for multiple iterations.
