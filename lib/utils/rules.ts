@@ -34,6 +34,7 @@ import noUselessFlag from "../rules/no-useless-flag"
 import noUselessLazy from "../rules/no-useless-lazy"
 import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
+import noUselessQuantifier from "../rules/no-useless-quantifier"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
@@ -92,6 +93,7 @@ export const rules = [
     noUselessLazy,
     noUselessNonCapturingGroup,
     noUselessNonGreedy,
+    noUselessQuantifier,
     noUselessRange,
     noUselessTwoNumsQuantifier,
     optimalLookaroundQuantifier,
