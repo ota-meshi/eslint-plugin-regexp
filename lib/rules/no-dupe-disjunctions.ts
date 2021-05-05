@@ -612,7 +612,7 @@ function deduplicateResults(results: readonly Result[]): Result[] {
     })
 }
 
-enum ReportOption {
+const enum ReportOption {
     all = "all",
     trivial = "trivial",
     interesting = "interesting",
