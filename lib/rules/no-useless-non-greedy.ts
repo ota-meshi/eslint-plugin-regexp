@@ -10,8 +10,7 @@ export default createRule("no-useless-non-greedy", {
             recommended: false,
             replacedBy: ["no-useless-lazy"],
         },
-        // TODO Switch to deprecated in the major version.
-        // deprecated: true,
+        deprecated: true,
     },
     create(context) {
         return nonUselessLazy.create(context)
