@@ -635,6 +635,8 @@ export default createRule("no-dupe-disjunctions", {
                         enum: ["all", "trivial", "interesting"],
                     },
                     alwaysReportExponentialBacktracking: { type: "boolean" },
+                    // TODO remove in the next major version
+                    disallowNeverMatch: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
