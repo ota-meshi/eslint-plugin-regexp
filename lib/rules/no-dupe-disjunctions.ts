@@ -700,7 +700,7 @@ export default createRule("no-dupe-disjunctions", {
                     parentNode.alternatives,
                     regexpContext,
                     {
-                        fastAst: true,
+                        fastAst: false,
                         noNfa: false,
                         ignoreOverlap: nodeReport !== ReportOption.all,
                         hasNothingAfter,

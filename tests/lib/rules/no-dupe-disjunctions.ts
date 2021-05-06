@@ -70,6 +70,17 @@ tester.run("no-dupe-disjunctions", rule as any, {
             ],
         },
         {
+            code: `/(?=[a-c])|(?=a)/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '(?=[a-c])' and can be removed.",
+                    column: 12,
+                    endColumn: 17,
+                },
+            ],
+        },
+        {
             code: `/(?=a|a)/`,
             errors: [
                 {
