@@ -673,6 +673,7 @@ export default createRule("no-dupe-disjunctions", {
                 flags,
                 node,
                 getRegexpLocation,
+                isPartialPattern,
             } = regexpContext
 
             const parser = JS.Parser.fromAst({
@@ -789,17 +790,22 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     case "Overlap":
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(result.alternative),
-                            messageId: "overlap",
-                            data: {
-                                exp,
-                                cap,
-                                others,
-                                expr: faToSource(result.overlap, flags),
-                            },
-                        })
+                        if (
+                            isStared(result.alternative) ||
+                            !isPartialPattern()
+                        ) {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(result.alternative),
+                                messageId: "overlap",
+                                data: {
+                                    exp,
+                                    cap,
+                                    others,
+                                    expr: faToSource(result.overlap, flags),
+                                },
+                            })
+                        }
                         break
 
                     default:

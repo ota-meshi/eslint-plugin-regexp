@@ -3,20 +3,16 @@ import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { Element, Node, Pattern, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
-import {
-    CALL,
-    CONSTRUCT,
-    ReferenceTracker,
-    getStringIfConstant,
-} from "eslint-utils"
+import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
-import { findVariable } from "./ast-utils"
+import { findVariable, getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
+import { isPartialPattern } from "./is-partial-pattern"
 export * from "./unicode"
 
 export type ToCharSet = (
@@ -78,6 +74,11 @@ type RegExpHelpersBase = {
     fixReplaceFlags: (
         newFlags: string | (() => string | null),
     ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
+
+    /**
+     * Check whether the current pattern is a partial pattern (uses only `.source`).
+     */
+    isPartialPattern: () => boolean
 
     patternAst: Pattern
 }
@@ -325,8 +326,7 @@ function buildRegexpVisitor(
         },
         // eslint-disable-next-line complexity -- X(
         Program() {
-            const scope = context.getScope()
-            const tracker = new ReferenceTracker(scope)
+            const tracker = new ReferenceTracker(context.getScope())
 
             // Iterate calls of RegExp.
             // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
@@ -348,9 +348,9 @@ function buildRegexpVisitor(
                 if (!patternNode || patternNode.type === "SpreadElement") {
                     continue
                 }
-                const pattern = getStringIfConstant(patternNode, scope)
+                const pattern = getStringIfConstant(context, patternNode)
                 const flagsString = flagsNode
-                    ? getStringIfConstant(flagsNode, scope)
+                    ? getStringIfConstant(context, flagsNode)
                     : null
 
                 regexpDataList.push({
@@ -493,7 +493,7 @@ function buildRegExpHelperBase({
     const sourceCode = context.getSourceCode()
 
     const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
-
+    let cacheIsPartialPattern: boolean | null = null
     return {
         toCharSet: (node, optionFlags) => {
             if (optionFlags) {
@@ -525,6 +525,8 @@ function buildRegExpHelperBase({
                 regexpNode,
                 newFlags,
             ),
+        isPartialPattern: () =>
+            (cacheIsPartialPattern ??= isPartialPattern(regexpNode, context)),
 
         patternAst: parsedPattern,
     }

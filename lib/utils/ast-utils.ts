@@ -6,8 +6,6 @@ import type {
     Identifier,
     Literal,
     MemberExpression,
-    MethodDefinition,
-    Property,
     Node,
 } from "estree"
 import { parseStringLiteral } from "./string-literal-parser"
@@ -37,12 +35,62 @@ export function findVariable(
 }
 
 /**
+ * Get the value of a given node if it's a constant of string.
+ */
+export function getStringIfConstant(
+    context: Rule.RuleContext,
+    node: Node,
+): string | null {
+    // Supports `regexp.source` that eslint-utils#getStringIfConstant does not track.
+    if (node.type === "BinaryExpression" || node.type === "MemberExpression") {
+        const evaluated = getStaticValue(context, node)
+        return evaluated && String(evaluated.value)
+    }
+    return eslintUtils.getStringIfConstant(node, getScope(context, node))
+}
+
+/**
+ * Get the value of a given node if it's a static value.
+ */
+export function getStaticValue(
+    context: Rule.RuleContext,
+    node: Node,
+): { value: unknown } | { value: undefined; optional?: true } | null {
+    // Supports `regexp.source` that eslint-utils#getStaticValue does not track.
+    if (node.type === "BinaryExpression") {
+        if (node.operator === "+") {
+            const left = getStaticValue(context, node.left)
+            if (left == null) {
+                return null
+            }
+            const right = getStaticValue(context, node.right)
+            if (right == null) {
+                return null
+            }
+            return {
+                value:
+                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-explicit-any -- ignore
+                    (left.value as any) + right.value,
+            }
+        }
+    } else if (node.type === "MemberExpression") {
+        const propName: string | null = !node.computed
+            ? (node.property as Identifier).name
+            : getStringIfConstant(context, node.property)
+        if (propName === "source") {
+            const object = getStaticValue(context, node.object)
+            if (object && object.value instanceof RegExp) {
+                return { value: object.value.source }
+            }
+        }
+    }
+    return eslintUtils.getStaticValue(node, getScope(context, node))
+}
+
+/**
  * Gets the scope for the current node
  */
-export function getScope(
-    context: Rule.RuleContext,
-    currentNode: Identifier | Property | MemberExpression | MethodDefinition,
-): Scope {
+export function getScope(context: Rule.RuleContext, currentNode: Node): Scope {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
     const scopeManager = (context.getSourceCode() as any).scopeManager
 

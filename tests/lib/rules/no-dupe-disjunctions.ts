@@ -352,5 +352,58 @@ tester.run("no-dupe-disjunctions", rule as any, {
                 "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
             ],
         },
+        {
+            // ignore partial pattern
+            code: String.raw`
+            const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+            const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+            `,
+            options: [{ report: "all" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const partialPattern = /(?:(?:ac?|\wb?)a)+/ // overlap and backtracking but not exp.
+            const bar = RegExp("^"+partialPattern.source+"$")
+            `,
+            options: [{ report: "all" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const foo = /(?:ac?|\wb?)a/ // overlap exp.
+            const bar = RegExp("^(?:(?:ac?|\\wb?)a)+$") // overlap exp backtracking
+            `,
+            options: [{ report: "all" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
     ],
 })
