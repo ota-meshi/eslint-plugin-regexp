@@ -29,6 +29,9 @@ var foo = /(a|a)/
 var foo = /(?:a|a)/
 var foo = /abc|abc/
 var foo = /[ab]|[ba]/
+var foo = /a|abc/
+var foo = /.|abc/
+var foo = /.|a|b|c/
 ```
 
 </eslint-code-block>
@@ -40,38 +43,55 @@ var foo = /[ab]|[ba]/
   "regexp/no-dupe-disjunctions": [
     "error",
     {
-        "disallowNeverMatch": false
+        "report": "trivial",
+        "alwaysReportExponentialBacktracking": true
     }
   ]
 }
 ```
 
-- `disallowNeverMatch` ... If `true`, it reports a pattern that does not match as a result of a partial duplication of the previous pattern.
+### `report`
 
-### `"disallowNeverMatch": true`
+This option control what types of duplications will be reported. The possible values are:
 
-<eslint-code-block>
+- `report: "trivial"` (_default_)
 
-```js
-/* eslint regexp/no-dupe-disjunctions: ["error", { "disallowNeverMatch": true }] */
+  With this option, only trivial cases will be reported. This means that the reported alternative can be removed without affecting the pattern.
 
-/* ✓ GOOD */
-var foo = /a|b/
-var foo = /(a|b)/
-var foo = /(?:a|b)/
+  Trivial cases include duplicates (e.g. `a|a`) and subsets (e.g. `\w|a`).
 
-/* ✗ BAD */
+- `report: "interesting"`
 
-// Duplication
-var foo = /a|a/
+  All trivial cases and superset cases will be reported.
 
-// A string that matches the pattern on the right also matches the pattern on the left, so it doesn't make sense to process the pattern on the right.
-var foo = /a|abc/
-var foo = /.|abc/
-var foo = /.|a|b|c/
-```
+  In superset cases, an alternative _might_ be removable. Whether a reported alternative is removable cannot trivially be decided and depends on the pattern.
 
-</eslint-code-block>
+  E.g. `Foo|\w+` is a superset case because `\w+` is a superset of `Foo`. In the regex `/\b(?:Foo|\w+)\b/`, the `Foo` alternative can be removed. However in the regex `/Foo|\w+/`, the `Foo` alternative cannot be removed without affecting the pattern.
+
+  Whether a reported alternative is removable has to be decided by the developer.
+
+- `report: "all"`
+
+  All cases of duplication and partial duplication (overlap) will be reported.
+
+  Partial duplication (overlap) is typically not harmful and difficult to remove. E.g. the harmless overlap of `a.*|.*b` is `a.*b`.
+
+  Partial duplication is only harmful if it occurs within a quantifier because then it can cause exponential backtracking. By default, this rule will try to report all cases of potential exponential backtracking.
+
+  However, the rule might not be able to detect that overlap happens within a quantifier if the regex was constructed at runtime. Example:
+
+  ```javascript
+  const partial = /a.*|.*b/;
+  const pattern = new RegExp("(?:" + partial.source + ")+\nfoo");
+  ```
+
+  If your codebase contained many such partial regexes, then reporting all cases might yield cases that could not be identified as causing exponential backtracking.
+
+### `alwaysReportExponentialBacktracking: boolean`
+
+If set to `true`, then this rule will always report partial duplications that can cause exponential backtracking. This option is set to `true` by default.
+
+Only set this option to `false` if you have some other mean to reliably detect exponential backtracking.
 
 ## :rocket: Version
 
