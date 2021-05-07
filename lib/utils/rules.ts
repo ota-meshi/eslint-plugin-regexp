@@ -37,6 +37,7 @@ import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessQuantifier from "../rules/no-useless-quantifier"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
+import noZeroQuantifier from "../rules/no-zero-quantifier"
 import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
 import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
@@ -96,6 +97,7 @@ export const rules = [
     noUselessQuantifier,
     noUselessRange,
     noUselessTwoNumsQuantifier,
+    noZeroQuantifier,
     optimalLookaroundQuantifier,
     orderInCharacterClass,
     preferCharacterClass,
