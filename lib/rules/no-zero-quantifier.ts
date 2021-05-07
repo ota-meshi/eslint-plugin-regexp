@@ -17,7 +17,7 @@ export default createRule("no-zero-quantifier", {
             unexpected:
                 "Unexpected zero quantifier. The quantifier and its quantified element can be removed without affecting the pattern.",
             withCapturingGroup:
-                "Unexpected zero quantifier. The quantifier and its quantified element do not affecting the pattern. Try to remove this element but be aware that it contains at least one capturing group. Depending on the pattern and its usage, other code might have to be changed as well.",
+                "Unexpected zero quantifier. The quantifier and its quantified element do not affecting the pattern. Try to remove the elements but be careful because it contains at least one capturing group.",
 
             // suggestions
             remove: "Remove this zero quantifier.",
