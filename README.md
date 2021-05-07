@@ -135,6 +135,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html) | disallow quantifiers that can be removed | :wrench: |
 | [regexp/no-useless-range](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-range.html) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-two-nums-quantifier.html) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
+| [regexp/no-zero-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-zero-quantifier.html) | disallow quantifiers with a maximum of zero |  |
 | [regexp/optimal-lookaround-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/optimal-lookaround-quantifier.html) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
 | [regexp/order-in-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/order-in-character-class.html) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-character-class.html) | enforce using character class | :wrench: |
