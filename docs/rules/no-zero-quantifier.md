@@ -26,7 +26,7 @@ var foo = /a{0,1}/;
 
 /* ✗ BAD */
 var foo = /a{0}/;
-var foo = /a{0,0}/?;
+var foo = /a{0,0}?/;
 var foo = /(a){0}/;
 ```
 
