@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-standalone-backslash"
 description: "disallow standalone backslashes (`\\`)"
+since: "v0.10.0"
 ---
 # regexp/no-standalone-backslash
 
 > disallow standalone backslashes (`\`)
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -49,6 +48,10 @@ Nothing.
 ## :books: Further reading
 
 - [ECMAScript® 2022 Language Specification > Annex B > B.1.4 Regular Expressions Patterns](https://tc39.es/ecma262/#sec-regular-expressions-patterns)
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.10.0
 
 ## :mag: Implementation
 
