@@ -64,8 +64,16 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-regexp-exec](./prefer-regexp-exec.md) | enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided |  |
 | [regexp/prefer-regexp-test](./prefer-regexp-test.md) | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec` | :wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
-| [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+## Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md.md) |

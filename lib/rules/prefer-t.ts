@@ -6,7 +6,8 @@ export default createRule("prefer-t", {
     meta: {
         docs: {
             description: "enforce using `\\t`",
-            recommended: true,
+            recommended: false,
+            replacedBy: ["control-character-escape"],
         },
         fixable: "code",
         schema: [],
@@ -14,6 +15,7 @@ export default createRule("prefer-t", {
             unexpected: "Unexpected character '{{expr}}'. Use '\\t' instead.",
         },
         type: "suggestion", // "problem",
+        deprecated: true,
     },
     create(context) {
         /**
@@ -21,7 +23,7 @@ export default createRule("prefer-t", {
          */
         function createVisitor(
             regexpContext: RegExpContext,
-            arrows: string[],
+            allows: string[],
         ): RegExpVisitor.Handlers {
             const { node, getRegexpLocation, fixReplaceNode } = regexpContext
             return {
@@ -29,7 +31,7 @@ export default createRule("prefer-t", {
                     if (
                         cNode.value === CP_TAB &&
                         cNode.raw !== "\\t" &&
-                        !arrows.includes(cNode.raw)
+                        !allows.includes(cNode.raw)
                     ) {
                         context.report({
                             node,
