@@ -7,6 +7,7 @@ export default createRule("prefer-escape-replacement-dollar-char", {
     meta: {
         docs: {
             description: "enforces escape of replacement `$` character (`$$`).",
+            category: "Best Practices",
             recommended: false,
         },
         schema: [],

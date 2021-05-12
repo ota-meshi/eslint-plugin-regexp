@@ -65,6 +65,7 @@ export default createRule("letter-case", {
     meta: {
         docs: {
             description: "enforce into your favorite case",
+            category: "Stylistic Issues",
             recommended: false,
         },
         fixable: "code",

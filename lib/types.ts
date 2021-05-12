@@ -11,6 +11,7 @@ export interface RuleModule {
 export interface RuleMetaData {
     docs: {
         description: string
+        category: "Possible Errors" | "Best Practices" | "Stylistic Issues"
         recommended: boolean
         url: string
         ruleId: string
@@ -33,6 +34,7 @@ export interface PartialRuleModule {
 export interface PartialRuleMetaData {
     docs: {
         description: string
+        category: "Possible Errors" | "Best Practices" | "Stylistic Issues"
         recommended: boolean
         replacedBy?: string[]
         default?: "error" | "warn"

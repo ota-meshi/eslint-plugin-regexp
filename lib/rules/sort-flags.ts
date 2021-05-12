@@ -6,6 +6,7 @@ export default createRule("sort-flags", {
     meta: {
         docs: {
             description: "require regex flags to be sorted",
+            category: "Stylistic Issues",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

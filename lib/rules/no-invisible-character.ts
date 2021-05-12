@@ -12,6 +12,7 @@ export default createRule("no-invisible-character", {
     meta: {
         docs: {
             description: "disallow invisible raw character",
+            category: "Best Practices",
             recommended: true,
         },
         fixable: "code",

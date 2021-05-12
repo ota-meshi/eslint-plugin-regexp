@@ -11,6 +11,7 @@ const TEST_RULE = createRule("test", {
     meta: {
         docs: {
             description: "",
+            category: "Best Practices",
             recommended: false,
         },
         schema: [],

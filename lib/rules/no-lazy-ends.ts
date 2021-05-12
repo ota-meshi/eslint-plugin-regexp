@@ -46,6 +46,7 @@ export default createRule("no-lazy-ends", {
         docs: {
             description:
                 "disallow lazy quantifiers at the end of an expression",
+            category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

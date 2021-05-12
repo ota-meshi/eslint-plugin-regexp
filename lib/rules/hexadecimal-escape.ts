@@ -12,6 +12,7 @@ export default createRule("hexadecimal-escape", {
     meta: {
         docs: {
             description: "enforce consistent usage of hexadecimal escape",
+            category: "Stylistic Issues",
             recommended: false,
         },
         fixable: "code",

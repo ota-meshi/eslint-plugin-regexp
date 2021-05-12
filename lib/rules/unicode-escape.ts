@@ -13,6 +13,7 @@ export default createRule("unicode-escape", {
         docs: {
             description:
                 "enforce consistent usage of unicode escape or unicode codepoint escape",
+            category: "Stylistic Issues",
             recommended: false,
         },
         fixable: "code",

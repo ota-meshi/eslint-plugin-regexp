@@ -6,6 +6,7 @@ export default createRule("no-escape-backspace", {
     meta: {
         docs: {
             description: "disallow escape backspace (`[\\b]`)",
+            category: "Possible Errors",
             recommended: true,
         },
         schema: [],

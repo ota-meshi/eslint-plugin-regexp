@@ -53,6 +53,7 @@ export default createRule("no-legacy-features", {
     meta: {
         docs: {
             description: "disallow legacy RegExp features",
+            category: "Best Practices",
             // TODO In the major version
             // recommended: true,
             recommended: false,

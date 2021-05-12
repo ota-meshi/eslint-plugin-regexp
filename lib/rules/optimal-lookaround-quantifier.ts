@@ -56,6 +56,7 @@ export default createRule("optimal-lookaround-quantifier", {
         docs: {
             description:
                 "disallow the alternatives of lookarounds that end with a non-constant quantifier",
+            category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
