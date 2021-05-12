@@ -12,7 +12,8 @@ import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 import { toCharSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
-import { isPartialPattern } from "./is-partial-pattern"
+import type { UsageOfPattern } from "./get-usage-of-pattern"
+import { getUsageOfPattern } from "./get-usage-of-pattern"
 export * from "./unicode"
 
 export type ToCharSet = (
@@ -76,9 +77,9 @@ type RegExpHelpersBase = {
     ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
 
     /**
-     * Check whether the current pattern is a partial pattern (uses only `.source`).
+     * Returns the usage of pattern.
      */
-    isPartialPattern: () => boolean
+    getUsageOfPattern: () => UsageOfPattern
 
     patternAst: Pattern
 }
@@ -493,7 +494,7 @@ function buildRegExpHelperBase({
     const sourceCode = context.getSourceCode()
 
     const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
-    let cacheIsPartialPattern: boolean | null = null
+    let cacheUsageOfPattern: UsageOfPattern | null = null
     return {
         toCharSet: (node, optionFlags) => {
             if (optionFlags) {
@@ -525,8 +526,8 @@ function buildRegExpHelperBase({
                 regexpNode,
                 newFlags,
             ),
-        isPartialPattern: () =>
-            (cacheIsPartialPattern ??= isPartialPattern(regexpNode, context)),
+        getUsageOfPattern: () =>
+            (cacheUsageOfPattern ??= getUsageOfPattern(regexpNode, context)),
 
         patternAst: parsedPattern,
     }

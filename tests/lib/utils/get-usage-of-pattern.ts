@@ -2,21 +2,24 @@ import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
 import { isRegexpLiteral } from "../../../lib/utils"
-import { isPartialPattern } from "../../../lib/utils/is-partial-pattern"
+import {
+    getUsageOfPattern,
+    UsageOfPattern,
+} from "../../../lib/utils/get-usage-of-pattern"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 
 type TestCase = {
     code: string
-    results: boolean[]
+    results: UsageOfPattern[]
 }
 const TESTCASES: TestCase[] = [
     {
         code: `const a = /a/`,
-        results: [false],
+        results: [UsageOfPattern.unknown],
     },
     {
         code: `/a/`,
-        results: [false],
+        results: [UsageOfPattern.unknown],
     },
     {
         code: `
@@ -24,7 +27,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(a.source+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -32,7 +35,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(a?.source+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -40,7 +43,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(a['source']+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -48,7 +51,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(source[a]+'b')
         b.exec(str)
         `,
-        results: [false, false],
+        results: [UsageOfPattern.unknown, UsageOfPattern.whole],
     },
     {
         code: `
@@ -56,7 +59,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(a.toString()+'b')
         b.exec(str)
         `,
-        results: [false, false],
+        results: [UsageOfPattern.whole, UsageOfPattern.whole],
     },
     {
         code: `
@@ -64,7 +67,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(source+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -72,7 +75,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(src+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -80,7 +83,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(src+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -88,7 +91,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(source+'b')
         b.exec(str)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -96,7 +99,7 @@ const TESTCASES: TestCase[] = [
         const b = new RegExp(source+'b')
         b.exec(str)
         `,
-        results: [false, false],
+        results: [UsageOfPattern.whole, UsageOfPattern.whole],
     },
     {
         code: `
@@ -110,7 +113,7 @@ const TESTCASES: TestCase[] = [
             return p.toString()
         }
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -123,7 +126,7 @@ const TESTCASES: TestCase[] = [
         getSource(/a/)
         toString(/b/)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -132,7 +135,7 @@ const TESTCASES: TestCase[] = [
         getSource(/a/)
         toString(/b/)
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
     {
         code: `
@@ -143,7 +146,7 @@ const TESTCASES: TestCase[] = [
             return p2.source
         }
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.unknown],
     },
     {
         code: `
@@ -153,7 +156,7 @@ const TESTCASES: TestCase[] = [
             return fn(p)
         }
         `,
-        results: [false],
+        results: [UsageOfPattern.unknown],
     },
     {
         code: `
@@ -165,13 +168,47 @@ const TESTCASES: TestCase[] = [
             return p2.source
         }
         `,
-        results: [true, false],
+        results: [UsageOfPattern.partial, UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        getSource(42, /a/)
+        
+        function getSource(p) {
+            return p.source
+        }
+        `,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        const a = /a/
+        const b = new RegExp(a.source+'b')
+        b.exec(str)
+        a.exec(str)
+        `,
+        results: [UsageOfPattern.mixed, UsageOfPattern.whole],
+    },
+    {
+        code: `
+        const a = /a/
+        a()
+        `,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        const a = /a/
+        a.flags;
+        str.search(a)
+        `,
+        results: [UsageOfPattern.whole],
     },
 ]
-describe("isPartialPattern", () => {
+describe("getUsageOfPattern", () => {
     for (const testCase of TESTCASES) {
         it(testCase.code, () => {
-            let results: boolean[] = []
+            let results: UsageOfPattern[] = []
             const regexps: (ESTree.NewExpression | ESTree.CallExpression)[] = []
             const testNodes: (
                 | ESTree.Literal
@@ -211,7 +248,7 @@ describe("isPartialPattern", () => {
                         },
                         "Program:exit"() {
                             results = testNodes.map((node) =>
-                                isPartialPattern(node, context),
+                                getUsageOfPattern(node, context),
                             )
                         },
                     }

@@ -28,6 +28,7 @@ import {
     getEffectiveMaximumRepetition,
 } from "regexp-ast-analysis"
 import { RegExpParser } from "regexpp"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -673,7 +674,7 @@ export default createRule("no-dupe-disjunctions", {
                 flags,
                 node,
                 getRegexpLocation,
-                isPartialPattern,
+                getUsageOfPattern,
             } = regexpContext
 
             const parser = JS.Parser.fromAst({
@@ -792,7 +793,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "Overlap":
                         if (
                             isStared(result.alternative) ||
-                            !isPartialPattern()
+                            getUsageOfPattern() !== UsageOfPattern.partial
                         ) {
                             context.report({
                                 node,
