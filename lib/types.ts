@@ -8,10 +8,15 @@ export interface RuleModule {
     create(context: Rule.RuleContext): RuleListener
 }
 
+export type RuleCategory =
+    | "Possible Errors"
+    | "Best Practices"
+    | "Stylistic Issues"
+
 export interface RuleMetaData {
     docs: {
         description: string
-        category: "Possible Errors" | "Best Practices" | "Stylistic Issues"
+        category: RuleCategory
         recommended: boolean
         url: string
         ruleId: string
@@ -34,7 +39,7 @@ export interface PartialRuleModule {
 export interface PartialRuleMetaData {
     docs: {
         description: string
-        category: "Possible Errors" | "Best Practices" | "Stylistic Issues"
+        category: RuleCategory
         recommended: boolean
         replacedBy?: string[]
         default?: "error" | "warn"
