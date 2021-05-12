@@ -51,6 +51,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
 | [regexp/no-zero-quantifier](./no-zero-quantifier.md) | disallow quantifiers with a maximum of zero |  |
 | [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
+| [regexp/optimal-quantifier-concatenation](./optimal-quantifier-concatenation.md) | require optimal quantifiers for concatenated quantifiers | :wrench: |
 | [regexp/order-in-character-class](./order-in-character-class.md) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
