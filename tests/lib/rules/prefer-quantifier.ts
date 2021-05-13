@@ -48,28 +48,15 @@ tester.run("prefer-quantifier", rule as any, {
             ],
         },
         {
-            code: `/\\d\\d?/`,
-            output: `/\\d{1,2}/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected consecutive same character class escapes. Use '{1,2}' instead.",
-                    line: 1,
-                    column: 2,
-                    endColumn: 7,
-                },
-            ],
-        },
-        {
             code: `/(\\d\\d\\d*)/`,
-            output: `/(\\d{2,})/`,
+            output: `/(\\d{2}\\d*)/`,
             errors: [
                 {
                     message:
-                        "Unexpected consecutive same character class escapes. Use '{2,}' instead.",
+                        "Unexpected consecutive same character class escapes. Use '{2}' instead.",
                     line: 1,
                     column: 3,
-                    endColumn: 10,
+                    endColumn: 7,
                 },
             ],
         },
@@ -129,41 +116,6 @@ tester.run("prefer-quantifier", rule as any, {
             output: null,
             errors: [
                 "Unexpected consecutive same character class escapes. Use '{2}' instead.",
-            ],
-        },
-        {
-            code: `/aa*/`,
-            output: `/a+/`,
-            errors: [
-                "Unexpected consecutive same characters. Use '+' instead.",
-            ],
-        },
-        {
-            code: `/a*a*/`,
-            output: `/a*/`,
-            errors: [
-                "Unexpected consecutive same characters. Use '*' instead.",
-            ],
-        },
-        {
-            code: `/a?a?a?/`,
-            output: `/a{0,3}/`,
-            errors: [
-                "Unexpected consecutive same characters. Use '{0,3}' instead.",
-            ],
-        },
-        {
-            code: `/a.{1,3}?.{2,4}?c/`,
-            output: `/a.{3,7}?c/`,
-            errors: [
-                "Unexpected consecutive same any characters. Use '{3,7}?' instead.",
-            ],
-        },
-        {
-            code: `/a.{1,3}.{2,4}c/`,
-            output: `/a.{3,7}c/`,
-            errors: [
-                "Unexpected consecutive same any characters. Use '{3,7}' instead.",
             ],
         },
     ],
