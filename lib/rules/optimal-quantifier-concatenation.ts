@@ -152,11 +152,6 @@ function getQuantifiersReplacement(
         return null
     }
 
-    // at least one quantifier must be unbounded
-    if (left.max < Infinity && right.max < Infinity) {
-        return null
-    }
-
     // compare
     const lChars = createChars(left.element, context)
     const rChars = createChars(right.element, context)
@@ -164,9 +159,21 @@ function getQuantifiersReplacement(
 
     let lQuant: Readonly<Quant>, rQuant: Readonly<Quant>
     if (
+        lChars.complete &&
+        rChars.complete &&
+        lChars.chars.equals(rChars.chars)
+    ) {
+        // left is equal to right
+        lQuant = {
+            min: left.min + right.min,
+            max: left.max + right.max,
+            greedy,
+        }
+        rQuant = { min: 0, max: 0, greedy }
+    } else if (
         right.max === Infinity &&
         lChars.complete &&
-        rChars.chars.isSupersetOf(lChars.chars)
+        lChars.chars.isSubsetOf(rChars.chars)
     ) {
         // left is a subset of right
         lQuant = {
@@ -178,7 +185,7 @@ function getQuantifiersReplacement(
     } else if (
         left.max === Infinity &&
         rChars.complete &&
-        lChars.chars.isSupersetOf(rChars.chars)
+        rChars.chars.isSubsetOf(lChars.chars)
     ) {
         // right is a subset of left
         lQuant = left // unchanged

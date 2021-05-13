@@ -125,11 +125,55 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             ],
         },
         {
+            code: String.raw`/\w+\w{4}?/`,
+            output: String.raw`/\w{5,}/`,
+            errors: [
+                "'\\w+' and '\\w{4}?' can be combined into one quantifier '\\w{5,}'.",
+            ],
+        },
+        {
+            code: String.raw`/\w{4}\w{4}?/`,
+            output: String.raw`/\w{8}/`,
+            errors: [
+                "'\\w{4}' and '\\w{4}?' can be combined into one quantifier '\\w{8}'.",
+            ],
+        },
+        {
             code: String.raw`/[ab]*(?:a|b)/`,
             output: String.raw`/[ab]+/`,
             errors: [
                 "'[ab]*' and '(?:a|b)' can be combined into one quantifier '[ab]+'.",
             ],
+        },
+        {
+            code: String.raw`/aa*/`,
+            output: String.raw`/a+/`,
+            errors: ["'a' and 'a*' can be combined into one quantifier 'a+'."],
+        },
+        {
+            code: String.raw`/a*a*/`,
+            output: String.raw`/a*/`,
+            errors: [
+                "'a*' can be removed because it is already included by 'a*'.",
+            ],
+        },
+        {
+            code: String.raw`/a?a?a?/`,
+            output: String.raw`/a{0,2}a?/`,
+            errors: [
+                "'a?' and 'a?' can be replaced with 'a{0,2}'.",
+                "'a?' and 'a?' can be replaced with 'a{0,2}'.",
+            ],
+        },
+        {
+            code: String.raw`/a.{1,3}?.{2,4}?c/`,
+            output: String.raw`/a.{3,7}?c/`,
+            errors: ["'.{1,3}?' and '.{2,4}?' can be replaced with '.{3,7}?'."],
+        },
+        {
+            code: String.raw`/a.{1,3}.{2,4}c/`,
+            output: String.raw`/a.{3,7}c/`,
+            errors: ["'.{1,3}' and '.{2,4}' can be replaced with '.{3,7}'."],
         },
 
         // careful with capturing groups
