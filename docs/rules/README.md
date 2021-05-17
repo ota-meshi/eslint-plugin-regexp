@@ -53,6 +53,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
 | [regexp/no-zero-quantifier](./no-zero-quantifier.md) | disallow quantifiers with a maximum of zero |  |
 | [regexp/optimal-lookaround-quantifier](./optimal-lookaround-quantifier.md) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
+| [regexp/optimal-quantifier-concatenation](./optimal-quantifier-concatenation.md) | require optimal quantifiers for concatenated quantifiers | :wrench: |
 | [regexp/prefer-escape-replacement-dollar-char](./prefer-escape-replacement-dollar-char.md) | enforces escape of replacement `$` character (`$$`). |  |
 | [regexp/prefer-predefined-assertion](./prefer-predefined-assertion.md) | prefer predefined assertion over equivalent lookarounds | :wrench: |
 | [regexp/prefer-quantifier](./prefer-quantifier.md) | enforce using quantifier | :wrench: |

@@ -139,6 +139,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-two-nums-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-two-nums-quantifier.html) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
 | [regexp/no-zero-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-zero-quantifier.html) | disallow quantifiers with a maximum of zero |  |
 | [regexp/optimal-lookaround-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/optimal-lookaround-quantifier.html) | disallow the alternatives of lookarounds that end with a non-constant quantifier |  |
+| [regexp/optimal-quantifier-concatenation](https://ota-meshi.github.io/eslint-plugin-regexp/rules/optimal-quantifier-concatenation.html) | require optimal quantifiers for concatenated quantifiers | :wrench: |
 | [regexp/prefer-escape-replacement-dollar-char](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-escape-replacement-dollar-char.html) | enforces escape of replacement `$` character (`$$`). |  |
 | [regexp/prefer-predefined-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-predefined-assertion.html) | prefer predefined assertion over equivalent lookarounds | :wrench: |
 | [regexp/prefer-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-quantifier.html) | enforce using quantifier | :wrench: |

@@ -39,6 +39,7 @@ import noUselessRange from "../rules/no-useless-range"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import noZeroQuantifier from "../rules/no-zero-quantifier"
 import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
+import optimalQuantifierConcatenation from "../rules/optimal-quantifier-concatenation"
 import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
@@ -99,6 +100,7 @@ export const rules = [
     noUselessTwoNumsQuantifier,
     noZeroQuantifier,
     optimalLookaroundQuantifier,
+    optimalQuantifierConcatenation,
     orderInCharacterClass,
     preferCharacterClass,
     preferD,
