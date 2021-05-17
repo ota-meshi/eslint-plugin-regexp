@@ -126,6 +126,7 @@ export default createRule("prefer-quantifier", {
     meta: {
         docs: {
             description: "enforce using quantifier",
+            category: "Best Practices",
             recommended: false,
         },
         fixable: "code",

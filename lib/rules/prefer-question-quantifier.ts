@@ -7,6 +7,7 @@ export default createRule("prefer-question-quantifier", {
     meta: {
         docs: {
             description: "enforce using `?` quantifier",
+            category: "Stylistic Issues",
             recommended: true,
         },
         fixable: "code",

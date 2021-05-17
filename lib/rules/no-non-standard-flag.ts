@@ -8,6 +8,7 @@ export default createRule("no-non-standard-flag", {
     meta: {
         docs: {
             description: "disallow non-standard flags",
+            category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

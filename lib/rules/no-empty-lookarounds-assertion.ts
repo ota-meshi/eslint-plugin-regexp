@@ -8,6 +8,7 @@ export default createRule("no-empty-lookarounds-assertion", {
         docs: {
             description:
                 "disallow empty lookahead assertion or empty lookbehind assertion",
+            category: "Possible Errors",
             recommended: true,
         },
         schema: [],

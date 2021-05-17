@@ -32,6 +32,7 @@ export default createRule("${ruleId}", {
     meta: {
         docs: {
             description: "",
+            category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
@@ -117,16 +118,16 @@ This rule reports ???.
 \`\`\`json
 {
   "regexp/${ruleId}": ["error", {
-   
+
   }]
 }
 \`\`\`
 
-- 
+-
 
 ## :books: Further reading
 
-- 
+-
 
 `,
     )

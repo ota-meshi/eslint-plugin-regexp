@@ -12,6 +12,7 @@ export default createRule("prefer-d", {
     meta: {
         docs: {
             description: "enforce using `\\d`",
+            category: "Stylistic Issues",
             recommended: true,
         },
         fixable: "code",

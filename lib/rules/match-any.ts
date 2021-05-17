@@ -19,6 +19,7 @@ export default createRule("match-any", {
     meta: {
         docs: {
             description: "enforce match any character style",
+            category: "Stylistic Issues",
             recommended: true,
         },
         fixable: "code",
