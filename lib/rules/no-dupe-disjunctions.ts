@@ -618,6 +618,15 @@ const enum ReportOption {
     trivial = "trivial",
     interesting = "interesting",
 }
+const enum ReportExponentialBacktracking {
+    none = "none",
+    certain = "certain",
+    potential = "potential",
+}
+const enum ReportPrefixSubset {
+    certain = "certain",
+    potential = "potential",
+}
 
 export default createRule("no-dupe-disjunctions", {
     meta: {
@@ -635,6 +644,14 @@ export default createRule("no-dupe-disjunctions", {
                         type: "string",
                         enum: ["all", "trivial", "interesting"],
                     },
+                    reportExponentialBacktracking: {
+                        enum: ["none", "certain", "potential"],
+                    },
+                    reportPrefixSubset: {
+                        enum: ["certain", "potential"],
+                    },
+
+                    // TODO remove in the next major version
                     alwaysReportExponentialBacktracking: { type: "boolean" },
                     // TODO remove in the next major version
                     disallowNeverMatch: { type: "boolean" },
@@ -657,8 +674,25 @@ export default createRule("no-dupe-disjunctions", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const alwaysReportExponentialBacktracking =
-            context.options[0]?.alwaysReportExponentialBacktracking ?? true
+        let reportExponentialBacktracking: ReportExponentialBacktracking =
+            ReportExponentialBacktracking.potential
+        if (context.options[0]?.reportExponentialBacktracking) {
+            reportExponentialBacktracking =
+                context.options[0]?.reportExponentialBacktracking
+        } else {
+            // backward compatibility
+            if (
+                context.options[0]?.alwaysReportExponentialBacktracking ===
+                false
+            ) {
+                reportExponentialBacktracking =
+                    ReportExponentialBacktracking.none
+            }
+        }
+        let reportPrefixSubset = ReportPrefixSubset.potential
+        if (context.options[0]?.reportPrefixSubset) {
+            reportPrefixSubset = context.options[0]?.reportPrefixSubset
+        }
         const report: ReportOption =
             context.options[0]?.report ?? ReportOption.trivial
 
@@ -692,11 +726,17 @@ export default createRule("no-dupe-disjunctions", {
             function verify(parentNode: ParentNode) {
                 // report all if the we report exp backtracking
                 const nodeReport =
-                    alwaysReportExponentialBacktracking && isStared(parentNode)
+                    reportExponentialBacktracking !==
+                        ReportExponentialBacktracking.none &&
+                    isStared(parentNode)
                         ? ReportOption.all
                         : report
 
-                const hasNothingAfter = hasNothingAfterNode(parentNode)
+                const hasNothingAfter =
+                    hasNothingAfterNode(parentNode) &&
+                    (reportPrefixSubset === ReportPrefixSubset.potential ||
+                        (reportPrefixSubset === ReportPrefixSubset.certain &&
+                            getUsageOfPattern() !== UsageOfPattern.partial))
 
                 const rawResults = findDuplication(
                     parentNode.alternatives,
@@ -773,12 +813,20 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     case "PrefixSubset":
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(result.alternative),
-                            messageId: "prefixSubset",
-                            data: { exp, cap, others },
-                        })
+                        if (
+                            reportPrefixSubset ===
+                                ReportPrefixSubset.potential ||
+                            (reportPrefixSubset ===
+                                ReportPrefixSubset.certain &&
+                                getUsageOfPattern() !== UsageOfPattern.partial)
+                        ) {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(result.alternative),
+                                messageId: "prefixSubset",
+                                data: { exp, cap, others },
+                            })
+                        }
                         break
 
                     case "Superset":
@@ -793,7 +841,11 @@ export default createRule("no-dupe-disjunctions", {
                     case "Overlap":
                         if (
                             isStared(result.alternative) ||
-                            getUsageOfPattern() !== UsageOfPattern.partial
+                            reportExponentialBacktracking ===
+                                ReportExponentialBacktracking.potential ||
+                            (reportExponentialBacktracking ===
+                                ReportExponentialBacktracking.certain &&
+                                getUsageOfPattern() !== UsageOfPattern.partial)
                         ) {
                             context.report({
                                 node,

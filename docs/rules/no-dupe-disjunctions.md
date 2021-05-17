@@ -44,7 +44,8 @@ var foo = /.|a|b|c/
     "error",
     {
         "report": "trivial",
-        "alwaysReportExponentialBacktracking": true
+        "reportExponentialBacktracking": "potential",
+        "reportPrefixSubset": "potential"
     }
   ]
 }
@@ -87,11 +88,36 @@ This option control what types of duplications will be reported. The possible va
 
   If your codebase contained many such partial regexes, then reporting all cases might yield cases that could not be identified as causing exponential backtracking.
 
-### `alwaysReportExponentialBacktracking: boolean`
+### `reportExponentialBacktracking`
 
-If set to `true`, then this rule will always report partial duplications that can cause exponential backtracking. This option is set to `true` by default.
+- `reportExponentialBacktracking: "potential"` (_default_)
 
-Only set this option to `false` if you have some other mean to reliably detect exponential backtracking.
+  In this case, this rule will always report partial duplications that can cause exponential backtracking.
+
+- `reportExponentialBacktracking: "certain"`
+
+  In this case, this rule will partial duplication that can cause exponential backtracking, but not regexes that are used only via `.source`.
+
+- `reportExponentialBacktracking: "none"`
+
+  In this case, Does not report partial duplication that can cause exponential backtracking.
+  Only set this option to `none` if you have some other mean to reliably detect exponential backtracking.
+
+### `reportPrefixSubset`
+
+- `reportPrefixSubset: "potential"` (_default_)
+
+  In this case, this rule will always reports disjunctions that may not match.
+
+- `reportPrefixSubset: "certain"`
+
+  In this case, this rule will always reports disjunctions that not match.
+  But, regexes that are only used via `.source` are does not report because it may be followed by a pattern.
+
+  ```js
+  const a = /a|aa/.source; // Does not report
+  const b = RegExp(`(${a})foo`);
+  ```
 
 ## :rocket: Version
 

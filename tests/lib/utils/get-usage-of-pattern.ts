@@ -204,6 +204,14 @@ const TESTCASES: TestCase[] = [
         `,
         results: [UsageOfPattern.whole],
     },
+    {
+        code: `
+        const s = /a/.source
+        const b =  new RegExp(\`\${s}\`)
+        b.exec(str)
+        `,
+        results: [UsageOfPattern.partial, UsageOfPattern.whole],
+    },
 ]
 describe("getUsageOfPattern", () => {
     for (const testCase of TESTCASES) {
