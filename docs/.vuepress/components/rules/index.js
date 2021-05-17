@@ -4,8 +4,9 @@ import * as coreRules from "../../../../node_modules/eslint4b/dist/core-rules"
 import plugin from "../../../../"
 
 const CATEGORY_TITLES = {
-    recommended: "Recommended",
-    uncategorized: "Uncategorized",
+    "Possible Errors": "Possible Errors",
+    "Best Practices": "Best Practices",
+    "Stylistic Issues": "Stylistic Issues",
     "eslint-core-rules@Possible Errors": "ESLint core rules(Possible Errors)",
     "eslint-core-rules@Best Practices": "ESLint core rules(Best Practices)",
     "eslint-core-rules@Strict Mode": "ESLint core rules(Strict Mode)",
@@ -16,21 +17,23 @@ const CATEGORY_TITLES = {
     "eslint-core-rules@ECMAScript 6": "ESLint core rules(ECMAScript 6)",
 }
 const CATEGORY_INDEX = {
-    recommended: 2,
-    uncategorized: 4,
-    "eslint-plugin-vue": 5,
-    "eslint-core-rules@Possible Errors": 6,
-    "eslint-core-rules@Best Practices": 7,
-    "eslint-core-rules@Strict Mode": 8,
-    "eslint-core-rules@Variables": 9,
-    "eslint-core-rules@Node.js and CommonJS": 10,
-    "eslint-core-rules@Stylistic Issues": 11,
-    "eslint-core-rules@ECMAScript 6": 12,
+    "Possible Errors": 1,
+    "Best Practices": 2,
+    "Stylistic Issues": 3,
+    "eslint-plugin-vue": 10,
+    "eslint-core-rules@Possible Errors": 20,
+    "eslint-core-rules@Best Practices": 21,
+    "eslint-core-rules@Strict Mode": 22,
+    "eslint-core-rules@Variables": 23,
+    "eslint-core-rules@Node.js and CommonJS": 24,
+    "eslint-core-rules@Stylistic Issues": 25,
+    "eslint-core-rules@ECMAScript 6": 26,
 }
 const CATEGORY_CLASSES = {
     base: "eslint-plugin-regexp__category",
-    recommended: "eslint-plugin-regexp__category",
-    uncategorized: "eslint-plugin-regexp__category",
+    "Possible Errors": "eslint-plugin-regexp__category",
+    "Best Practices": "eslint-plugin-regexp__category",
+    "Stylistic Issues": "eslint-plugin-regexp__category",
 }
 
 const allRules = []
@@ -40,9 +43,6 @@ for (const k of Object.keys(plugin.rules)) {
     if (rule.meta.deprecated) {
         continue
     }
-    rule.meta.docs.category = rule.meta.docs.recommended
-        ? "recommended"
-        : "uncategorized"
     allRules.push({
         classes: "eslint-plugin-regexp__rule",
         category: rule.meta.docs.category,

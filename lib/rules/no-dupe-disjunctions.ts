@@ -622,6 +622,7 @@ export default createRule("no-dupe-disjunctions", {
     meta: {
         docs: {
             description: "disallow duplicate disjunctions",
+            category: "Possible Errors",
             // TODO In the major version
             // recommended: true,
             recommended: false,

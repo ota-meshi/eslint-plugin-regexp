@@ -14,6 +14,7 @@ export default createRule("prefer-regexp-test", {
         docs: {
             description:
                 "enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`",
+            category: "Best Practices",
             recommended: false,
         },
         fixable: "code",

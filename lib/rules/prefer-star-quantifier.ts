@@ -6,6 +6,7 @@ export default createRule("prefer-star-quantifier", {
     meta: {
         docs: {
             description: "enforce using `*` quantifier",
+            category: "Stylistic Issues",
             recommended: true,
         },
         fixable: "code",

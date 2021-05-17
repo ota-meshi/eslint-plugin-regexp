@@ -43,6 +43,7 @@ export default createRule("order-in-character-class", {
     meta: {
         docs: {
             description: "enforces elements order in character class",
+            category: "Stylistic Issues",
             recommended: false,
         },
         fixable: "code",

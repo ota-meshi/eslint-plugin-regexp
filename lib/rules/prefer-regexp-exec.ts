@@ -10,6 +10,7 @@ export default createRule("prefer-regexp-exec", {
         docs: {
             description:
                 "enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided",
+            category: "Best Practices",
             recommended: false,
         },
         schema: [],

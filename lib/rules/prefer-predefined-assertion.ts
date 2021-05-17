@@ -40,6 +40,7 @@ export default createRule("prefer-predefined-assertion", {
         docs: {
             description:
                 "prefer predefined assertion over equivalent lookarounds",
+            category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

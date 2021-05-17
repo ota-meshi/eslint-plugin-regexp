@@ -43,6 +43,7 @@ export default createRule("no-useless-assertions", {
         docs: {
             description:
                 "disallow assertions that are known to always accept (or reject)",
+            category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
