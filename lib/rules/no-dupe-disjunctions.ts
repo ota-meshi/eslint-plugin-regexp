@@ -689,10 +689,10 @@ export default createRule("no-dupe-disjunctions", {
                     ReportExponentialBacktracking.none
             }
         }
-        let reportPrefixSubset = ReportPrefixSubset.potential
-        if (context.options[0]?.reportPrefixSubset) {
-            reportPrefixSubset = context.options[0]?.reportPrefixSubset
-        }
+        const reportPrefixSubset =
+            context.options[0]?.reportPrefixSubset ??
+            ReportPrefixSubset.potential
+
         const report: ReportOption =
             context.options[0]?.report ?? ReportOption.trivial
 
@@ -724,19 +724,44 @@ export default createRule("no-dupe-disjunctions", {
 
             /** Verify group node */
             function verify(parentNode: ParentNode) {
+                let needReportExponentialBacktracking = false
+                if (report === ReportOption.all) {
+                    needReportExponentialBacktracking = true
+                } else if (
+                    reportExponentialBacktracking ===
+                    ReportExponentialBacktracking.certain
+                ) {
+                    needReportExponentialBacktracking = isStared(parentNode)
+                } else if (
+                    reportExponentialBacktracking ===
+                    ReportExponentialBacktracking.potential
+                ) {
+                    needReportExponentialBacktracking =
+                        isStared(parentNode) ||
+                        // Partial use can potentially cause exponential backtracking.
+                        getUsageOfPattern() === UsageOfPattern.partial
+                }
+                let needReportPrefixSubsetHasNothingAfter = false
+                if (report === ReportOption.all) {
+                    needReportPrefixSubsetHasNothingAfter = true
+                } else if (reportPrefixSubset === ReportPrefixSubset.certain) {
+                    needReportPrefixSubsetHasNothingAfter =
+                        // Partial use may add a pattern after it.
+                        getUsageOfPattern() !== UsageOfPattern.partial
+                } else if (
+                    reportPrefixSubset === ReportPrefixSubset.potential
+                ) {
+                    needReportPrefixSubsetHasNothingAfter = true
+                }
+
                 // report all if the we report exp backtracking
-                const nodeReport =
-                    reportExponentialBacktracking !==
-                        ReportExponentialBacktracking.none &&
-                    isStared(parentNode)
-                        ? ReportOption.all
-                        : report
+                const nodeReport = needReportExponentialBacktracking
+                    ? ReportOption.all
+                    : report
 
                 const hasNothingAfter =
                     hasNothingAfterNode(parentNode) &&
-                    (reportPrefixSubset === ReportPrefixSubset.potential ||
-                        (reportPrefixSubset === ReportPrefixSubset.certain &&
-                            getUsageOfPattern() !== UsageOfPattern.partial))
+                    needReportPrefixSubsetHasNothingAfter
 
                 const rawResults = findDuplication(
                     parentNode.alternatives,
@@ -813,20 +838,12 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     case "PrefixSubset":
-                        if (
-                            reportPrefixSubset ===
-                                ReportPrefixSubset.potential ||
-                            (reportPrefixSubset ===
-                                ReportPrefixSubset.certain &&
-                                getUsageOfPattern() !== UsageOfPattern.partial)
-                        ) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(result.alternative),
-                                messageId: "prefixSubset",
-                                data: { exp, cap, others },
-                            })
-                        }
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(result.alternative),
+                            messageId: "prefixSubset",
+                            data: { exp, cap, others },
+                        })
                         break
 
                     case "Superset":
@@ -839,26 +856,17 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     case "Overlap":
-                        if (
-                            isStared(result.alternative) ||
-                            reportExponentialBacktracking ===
-                                ReportExponentialBacktracking.potential ||
-                            (reportExponentialBacktracking ===
-                                ReportExponentialBacktracking.certain &&
-                                getUsageOfPattern() !== UsageOfPattern.partial)
-                        ) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(result.alternative),
-                                messageId: "overlap",
-                                data: {
-                                    exp,
-                                    cap,
-                                    others,
-                                    expr: faToSource(result.overlap, flags),
-                                },
-                            })
-                        }
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(result.alternative),
+                            messageId: "overlap",
+                            data: {
+                                exp,
+                                cap,
+                                others,
+                                expr: faToSource(result.overlap, flags),
+                            },
+                        })
                         break
 
                     default:
