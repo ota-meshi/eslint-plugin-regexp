@@ -6,6 +6,7 @@ export default createRule("no-useless-two-nums-quantifier", {
     meta: {
         docs: {
             description: "disallow unnecessary `{n,m}` quantifier",
+            category: "Best Practices",
             recommended: true,
         },
         fixable: "code",

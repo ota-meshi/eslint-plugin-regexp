@@ -57,6 +57,7 @@ export default createRule("no-trivially-nested-assertion", {
     meta: {
         docs: {
             description: "disallow trivially nested assertions",
+            category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

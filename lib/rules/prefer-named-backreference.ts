@@ -6,6 +6,7 @@ export default createRule("prefer-named-backreference", {
     meta: {
         docs: {
             description: "enforce using named backreferences",
+            category: "Stylistic Issues",
             recommended: false,
         },
         fixable: "code",

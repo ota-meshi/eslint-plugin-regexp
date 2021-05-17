@@ -7,6 +7,7 @@ export default createRule("no-assertion-capturing-group", {
     meta: {
         docs: {
             description: "disallow capturing group that captures assertions.",
+            category: "Possible Errors",
             recommended: true,
         },
         schema: [],

@@ -11,6 +11,7 @@ export default createRule("no-potentially-useless-backreference", {
         docs: {
             description:
                 "disallow backreferences that reference a group that might not be matched",
+            category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,

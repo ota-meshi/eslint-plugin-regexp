@@ -6,6 +6,7 @@ export default createRule("no-useless-exactly-quantifier", {
     meta: {
         docs: {
             description: "disallow unnecessary exactly quantifier",
+            category: "Best Practices",
             recommended: true,
         },
         schema: [],

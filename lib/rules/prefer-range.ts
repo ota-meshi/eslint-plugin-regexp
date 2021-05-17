@@ -12,6 +12,7 @@ export default createRule("prefer-range", {
     meta: {
         docs: {
             description: "enforce using character class range",
+            category: "Best Practices",
             // TODO In the major version
             // recommended: true,
             recommended: false,

@@ -7,6 +7,7 @@ export default createRule("no-empty-alternative", {
     meta: {
         docs: {
             description: "disallow alternatives without elements",
+            category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
             recommended: false,
