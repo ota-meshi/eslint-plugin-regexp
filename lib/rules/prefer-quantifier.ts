@@ -1,5 +1,5 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Character, CharacterSet, Quantifier } from "regexpp/ast"
+import type { Character, CharacterSet } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -10,36 +10,23 @@ import {
     quantToString,
 } from "../utils"
 
+type CharTarget = CharacterSet | Character
+
 class CharBuffer {
-    public target: CharacterSet | Character
+    public target: CharTarget
 
-    public min: number
+    public elements: CharTarget[]
 
-    public max: number
+    public times: number
 
-    public elements: (CharacterSet | Character | Quantifier)[]
+    public equalChar: (element: CharTarget) => boolean
 
-    public equalChar: (element: CharacterSet | Character) => boolean
-
-    public greedy: boolean | null = null
-
-    public constructor(
-        element: CharacterSet | Character | Quantifier,
-        target: CharacterSet | Character,
-    ) {
+    public constructor(target: CharTarget) {
         this.target = target
-        this.elements = [element]
+        this.elements = [target]
 
-        if (element.type === "Quantifier") {
-            this.min = element.min
-            this.max = element.max
-            if (element.min < element.max) {
-                this.greedy = element.greedy
-            }
-        } else {
-            this.min = 1
-            this.max = 1
-        }
+        this.times = 1
+
         if (target.type === "CharacterSet") {
             if (target.kind === "any") {
                 this.equalChar = (e) =>
@@ -64,18 +51,9 @@ class CharBuffer {
         }
     }
 
-    public addElement(element: CharacterSet | Character | Quantifier) {
+    public addElement(element: CharTarget) {
         this.elements.push(element)
-        if (element.type === "Quantifier") {
-            this.min += element.min
-            this.max += element.max
-            if (element.min < element.max) {
-                this.greedy ||= element.greedy
-            }
-        } else {
-            this.min += 1
-            this.max += 1
-        }
+        this.times += 1
     }
 
     public isValid(): boolean {
@@ -114,11 +92,7 @@ class CharBuffer {
     }
 
     public getQuantifier(): string {
-        return quantToString({
-            min: this.min,
-            max: this.max,
-            greedy: this.greedy !== false,
-        })
+        return quantToString({ min: this.times, max: this.times })
     }
 }
 
@@ -152,59 +126,29 @@ export default createRule("prefer-quantifier", {
                 onAlternativeEnter(aNode) {
                     let charBuffer: CharBuffer | null = null
                     for (const element of aNode.elements) {
-                        let target: CharacterSet | Character
                         if (
                             element.type === "CharacterSet" ||
                             element.type === "Character"
                         ) {
-                            target = element
-                        } else if (element.type === "Quantifier") {
-                            if (
-                                element.element.type !== "CharacterSet" &&
-                                element.element.type !== "Character"
-                            ) {
-                                if (charBuffer) {
-                                    validateBuffer(charBuffer)
-                                    charBuffer = null
-                                }
-                                continue
-                            }
-                            if (
-                                charBuffer &&
-                                charBuffer.greedy != null &&
-                                charBuffer.greedy !== element.greedy
-                            ) {
-                                // greedy flags do not match.
-                                validateBuffer(charBuffer)
-                                charBuffer = null
-                            }
-                            target = element.element
-                        } else {
-                            if (charBuffer) {
-                                validateBuffer(charBuffer)
-                                charBuffer = null
-                            }
-                            continue
-                        }
-                        if (charBuffer) {
-                            if (charBuffer.equalChar(target)) {
+                            if (charBuffer && charBuffer.equalChar(element)) {
                                 charBuffer.addElement(element)
-                                continue
+                            } else {
+                                validateBuffer(charBuffer)
+                                charBuffer = new CharBuffer(element)
                             }
+                        } else {
                             validateBuffer(charBuffer)
+                            charBuffer = null
                         }
-                        charBuffer = new CharBuffer(element, target)
                     }
-                    if (charBuffer) {
-                        validateBuffer(charBuffer)
-                        charBuffer = null
-                    }
+
+                    validateBuffer(charBuffer)
 
                     /**
                      * Validate
                      */
-                    function validateBuffer(buffer: CharBuffer) {
-                        if (buffer.isValid()) {
+                    function validateBuffer(buffer: CharBuffer | null) {
+                        if (!buffer || buffer.isValid()) {
                             return
                         }
                         const firstRange = getRegexpRange(buffer.elements[0])
