@@ -7,6 +7,7 @@ export default createRule("no-empty-group", {
     meta: {
         docs: {
             description: "disallow empty group",
+            category: "Possible Errors",
             recommended: true,
         },
         schema: [],

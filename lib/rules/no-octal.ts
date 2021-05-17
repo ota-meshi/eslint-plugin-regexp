@@ -6,6 +6,7 @@ export default createRule("no-octal", {
     meta: {
         docs: {
             description: "disallow octal escape sequence",
+            category: "Best Practices",
             recommended: true,
         },
         schema: [],

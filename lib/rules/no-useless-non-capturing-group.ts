@@ -26,6 +26,7 @@ export default createRule("no-useless-non-capturing-group", {
     meta: {
         docs: {
             description: "disallow unnecessary Non-capturing group",
+            category: "Stylistic Issues",
             // TODO In the major version
             // recommended: true,
             recommended: false,

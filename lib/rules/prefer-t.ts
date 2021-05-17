@@ -6,6 +6,7 @@ export default createRule("prefer-t", {
     meta: {
         docs: {
             description: "enforce using `\\t`",
+            category: "Stylistic Issues",
             recommended: true,
         },
         fixable: "code",

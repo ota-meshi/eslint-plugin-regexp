@@ -8,6 +8,22 @@ function ruleToLink({
     return [`/rules/${ruleName}`, ruleId]
 }
 
+/** @type {Record<import("../../lib/types").RuleCategory | "deprecated", import("../../lib/types").RuleModule[]>} */
+const categories = {
+    "Best Practices": [],
+    "Possible Errors": [],
+    "Stylistic Issues": [],
+    deprecated: [],
+}
+
+for (const rule of rules) {
+    if (rule.meta.deprecated) {
+        categories.deprecated.push(rule)
+    } else {
+        categories[rule.meta.docs.category].push(rule)
+    }
+}
+
 module.exports = {
     base: "/eslint-plugin-regexp/",
     title: "eslint-plugin-regexp",
@@ -52,44 +68,26 @@ module.exports = {
             "/rules/": [
                 "/rules/",
                 {
-                    title: "Recommended",
+                    title: "Possible Errors",
                     collapsable: false,
-                    children: rules
-                        .filter(
-                            (rule) =>
-                                rule.meta.docs.recommended &&
-                                !rule.meta.deprecated,
-                        )
-                        .map(ruleToLink),
+                    children: categories["Possible Errors"].map(ruleToLink),
                 },
-                ...(rules.some(
-                    (rule) =>
-                        !rule.meta.docs.recommended && !rule.meta.deprecated,
-                )
-                    ? [
-                          {
-                              title: "Uncategorized",
-                              collapsable: false,
-                              children: rules
-                                  .filter(
-                                      (rule) =>
-                                          !rule.meta.docs.recommended &&
-                                          !rule.meta.deprecated,
-                                  )
-                                  .map(ruleToLink),
-                          },
-                      ]
-                    : []),
-
-                // Rules in no category.
-                ...(rules.some((rule) => rule.meta.deprecated)
+                {
+                    title: "Best Practices",
+                    collapsable: false,
+                    children: categories["Best Practices"].map(ruleToLink),
+                },
+                {
+                    title: "Stylistic Issues",
+                    collapsable: false,
+                    children: categories["Stylistic Issues"].map(ruleToLink),
+                },
+                ...(categories.deprecated.length >= 1
                     ? [
                           {
                               title: "Deprecated",
                               collapsable: false,
-                              children: rules
-                                  .filter((rule) => rule.meta.deprecated)
-                                  .map(ruleToLink),
+                              children: categories.deprecated.map(ruleToLink),
                           },
                       ]
                     : []),

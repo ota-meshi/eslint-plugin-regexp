@@ -185,6 +185,7 @@ export default createRule("no-dupe-characters-character-class", {
         docs: {
             description:
                 "disallow duplicate characters in the RegExp character class",
+            category: "Best Practices",
             recommended: true,
         },
         fixable: "code",

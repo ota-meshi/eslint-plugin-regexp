@@ -38,6 +38,7 @@ export default createRule("no-useless-lazy", {
     meta: {
         docs: {
             description: "disallow unnecessarily non-greedy quantifiers",
+            category: "Best Practices",
             // TODO In the major version
             // recommended: true,
             recommended: false,
