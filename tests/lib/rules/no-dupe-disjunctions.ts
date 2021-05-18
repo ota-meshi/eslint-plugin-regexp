@@ -34,7 +34,15 @@ tester.run("no-dupe-disjunctions", rule as any, {
             const a = /a|aa/.source;
             const b = RegExp(\`\\b(\${a})\\b\`);
             `,
-            options: [{ reportPrefixSubset: "certain" }],
+            options: [{ reportUnreachable: "certain" }],
+        },
+        {
+            // reportUnreachable: 'certain', but report: "all"
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{ report: "all", reportUnreachable: "certain" }],
         },
     ],
     invalid: [
@@ -439,16 +447,11 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             // reportExponentialBacktracking: 'certain'
             code: `
-            const foo = /(?:ac?|\\wb?)a/.source;
-            const bar = RegExp(\`^(?:\${foo})+$\`);
+            const foo1 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo1})+$\`);
             `,
             options: [{ reportExponentialBacktracking: "certain" }],
             errors: [
-                {
-                    message:
-                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
-                    line: 2,
-                },
                 {
                     message:
                         "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
@@ -459,8 +462,8 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             // reportExponentialBacktracking: 'certain'
             code: `
-            const foo = /(?:ac?|\\wb?)a/.source;
-            const bar = RegExp(\`^(?:\${foo})+$\`);
+            const foo2 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo2})+$\`);
             `,
             options: [
                 {
@@ -479,8 +482,8 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             // reportExponentialBacktracking: 'certain'
             code: `
-            const foo = /(?:ac?|\\wb?)a/.source;
-            const bar = RegExp(\`^(?:\${foo})+$\`);
+            const foo3 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo3})+$\`);
             `,
             options: [
                 {
@@ -524,7 +527,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             // reportExponentialBacktracking: 'certain'
             code: String.raw`
-            const foo = /(?:ac?|\wb?)a/ // overlap exp.
+            const foo4 = /(?:ac?|\wb?)a/ // overlap exp.
             const bar = RegExp("^(?:(?:ac?|\\wb?)a)+$") // overlap exp backtracking
             `,
             options: [{ reportExponentialBacktracking: "certain" }],
@@ -583,21 +586,6 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected duplicate alternative. This alternative can be removed.",
                     line: 3,
-                },
-            ],
-        },
-        {
-            // reportPrefixSubset: 'certain', but report: "all"
-            code: `
-            const a = /a|aa/.source;
-            const b = RegExp(\`\\b(\${a})\\b\`);
-            `,
-            options: [{ report: "all", reportPrefixSubset: "certain" }],
-            errors: [
-                {
-                    message:
-                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
-                    line: 2,
                 },
             ],
         },
