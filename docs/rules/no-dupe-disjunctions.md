@@ -45,7 +45,7 @@ var foo = /.|a|b|c/
     {
         "report": "trivial",
         "reportExponentialBacktracking": "potential",
-        "reportPrefixSubset": "potential"
+        "reportUnreachable": "potential"
     }
   ]
 }
@@ -90,34 +90,78 @@ This option control what types of duplications will be reported. The possible va
 
 ### `reportExponentialBacktracking`
 
+Partial duplications (overlaps) are only reported by `report: "all"` even though they sometimes cause exponential backtracking. This option will force the other `report` modes to also report partial duplications if the partial duplications are likely to cause exponential backtracking.
+
 - `reportExponentialBacktracking: "potential"` (_default_)
 
-  In this case, this rule will always report partial duplications that can cause exponential backtracking.
+  In this case, this rule will always report partial duplications that _might_ cause exponential backtracking.
+
+  If the plugin cannot prove that a partial duplication is safe (= does not cause exponential backtracking), then the partial duplication will be reported. This might cause some false positives.
 
 - `reportExponentialBacktracking: "certain"`
 
-  In this case, this rule will partial duplication that can cause exponential backtracking, but not regexes that are used only via `.source`.
+  In this case, this rule will report partial duplication that _can_ cause exponential backtracking.
+
+  If the plugin can prove that a partial duplication is unsafe (= causes exponential backtracking), then the partial duplication will be reported. This might cause some false negatives.
 
 - `reportExponentialBacktracking: "none"`
 
-  In this case, Does not report partial duplication that can cause exponential backtracking.
-  Only set this option to `none` if you have some other mean to reliably detect exponential backtracking.
+  In this case, no extra cases of partial duplication will be reported.
 
-### `reportPrefixSubset`
+The `"potential"` and `"certain"` modes differ only in how they handle uncertainty. The rule might be unable to prove that partial duplication is safe or unsafe with 100% certainty. This typically happens around fragment regexes (regexes that are used as fragments to build more complex regexes). Because the rule might not be able to track how a regex fragment is used, it has to make assumptions:
 
-- `reportPrefixSubset: "potential"` (_default_)
+- `"potential"` assumes that fragments might be used inside a (logical) star quantifier and reports all partial duplication.
+- `"certain"` assumes that fragments will not be used inside a (logical) star quantifier and will only report partial duplication that is certain to cause exponential backtracking.
 
-  In this case, this rule will always reports disjunctions that may not match.
+_Note:_ This option only affects `report` modes other than `"all"`.
 
-- `reportPrefixSubset: "certain"`
+### `reportUnreachable`
 
-  In this case, this rule will always reports disjunctions that not match.
-  But, regexes that are only used via `.source` are does not report because it may be followed by a pattern.
+All `report` modes report unreachable alternatives. These are alternatives that can _never_ be reached because a previous alternative always accepts before them. I.e. in `/int|integer/.exec("integer")`, the `integer` alternative is unreachable because the `int` alternative will always accept before the `integer` alternative has a chance to.
+
+However, some regexes are used as fragments to build more complex regexes. Example:
+
+```js
+const int = /int|integer/.source;
+const pattern = RegExp(`\\b(${int}|\\d+)\\b`, "g");
+
+"integer int".match(pattern)
+// => [ 'integer', 'int' ]
+```
+
+In these fragments, seemingly unreachable alternatives might not actually be unreachable depending on how the fragment is used.
+
+This option controls how this rule reports unreachable alternatives in fragments.
+
+- `reportUnreachable: "potential"` (_default_)
+
+  In this case, this rule will always report unreachable alternatives, even in fragments.
 
   ```js
-  const a = /a|aa/.source; // Does not report
-  const b = RegExp(`(${a})foo`);
+  const int = /int|integer/.source; // report (false positive)
+  const pattern = RegExp(`\\b(${int}|\\d+)\\b`);
   ```
+
+  ```js
+  const int = /int|integer/.source; // report (true positive)
+  const pattern = RegExp(`is (${int})`);
+  ```
+
+- `reportUnreachable: "certain"`
+
+  In this case, this rule will only report unreachable alternatives in non-fragment regexes.
+
+  ```js
+  const int = /int|integer/.source; // no report (true negative)
+  const pattern = RegExp(`\\b(${int}|\\d+)\\b`);
+  ```
+
+  ```js
+  const int = /int|integer/.source; // no report (false negative)
+  const pattern = RegExp(`is (${int})`);
+  ```
+
+_Note:_ This option only affects `report` modes other than `"all"`.
 
 ## :rocket: Version
 
