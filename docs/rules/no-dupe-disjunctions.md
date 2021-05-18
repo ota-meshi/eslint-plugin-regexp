@@ -161,8 +161,6 @@ This option controls how this rule reports unreachable alternatives in fragments
   const pattern = RegExp(`is (${int})`);
   ```
 
-_Note:_ This option only affects `report` modes other than `"all"`.
-
 ## :rocket: Version
 
 This rule was introduced in eslint-plugin-regexp v0.4.0
