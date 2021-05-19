@@ -589,5 +589,37 @@ tester.run("no-dupe-disjunctions", rule as any, {
                 },
             ],
         },
+        {
+            // don't overshadow potential exponential backtracking
+            code: `
+            const partial = /a?|a+/.source;
+            const whole = RegExp(\`^(?:\${partial})+$\`);
+            `,
+            options: [
+                {
+                    reportExponentialBacktracking: "potential",
+                    reportUnreachable: "potential",
+                },
+            ],
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a?' and can be removed.",
+                    line: 2,
+                    column: 33,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                    column: 33,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
     ],
 })
