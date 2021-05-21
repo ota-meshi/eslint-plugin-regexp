@@ -590,26 +590,39 @@ const RESULT_TYPE_ORDER: Result["type"][] = [
  * Returns an array of the given results that is sorted by result type from
  * most important to least important.
  */
-function sortResultTypes(unsorted: Iterable<Result>): Result[] {
-    return [...unsorted].sort(
+function deduplicateResults(
+    unsorted: Iterable<Result>,
+    { reportExp }: FilterInfo,
+): Result[] {
+    const results = [...unsorted].sort(
         (a, b) =>
             RESULT_TYPE_ORDER.indexOf(a.type) -
             RESULT_TYPE_ORDER.indexOf(b.type),
     )
-}
 
-/**
- * Returns an array of the given results that is sorted by result type from
- * most important to least important.
- */
-function deduplicateResults(results: readonly Result[]): Result[] {
-    const seen = new Set<Alternative>()
-    return results.filter(({ alternative }) => {
-        if (seen.has(alternative)) {
-            return false
+    const seen = new Map<Alternative, Result["type"]>()
+    return results.filter(({ alternative, type }) => {
+        const firstSeen = seen.get(alternative)
+
+        if (firstSeen === undefined) {
+            seen.set(alternative, type)
+            return true
         }
-        seen.add(alternative)
-        return true
+
+        if (
+            reportExp &&
+            firstSeen === "PrefixSubset" &&
+            type !== "PrefixSubset"
+        ) {
+            // Prefix subset might overshadow some other results (Superset or
+            // Overlap) that report exponential backtracking. In this case, we
+            // want to report BOTH the Prefix subset and one Superset or
+            // Overlap.
+            seen.set(alternative, type)
+            return true
+        }
+
+        return false
     })
 }
 
@@ -639,6 +652,14 @@ const enum MaybeBool {
     false = 0,
     true = 1,
     maybe = 2,
+}
+
+interface FilterInfo {
+    stared: MaybeBool
+    nothingAfter: MaybeBool
+
+    reportExp: boolean
+    reportPrefix: boolean
 }
 
 export default createRule("no-dupe-disjunctions", {
@@ -734,14 +755,6 @@ export default createRule("no-dupe-disjunctions", {
                 ),
             })
 
-            interface FilterInfo {
-                stared: MaybeBool
-                nothingAfter: MaybeBool
-
-                reportExp: boolean
-                reportPrefix: boolean
-            }
-
             /** Returns the filter information for the given node */
             function getFilterInfo(parentNode: ParentNode): FilterInfo {
                 const usage = getUsageOfPattern()
@@ -826,7 +839,7 @@ export default createRule("no-dupe-disjunctions", {
                 )
 
                 let results = filterResults([...rawResults], info)
-                results = deduplicateResults(sortResultTypes(results))
+                results = deduplicateResults(results, info)
                 results.forEach((result) => reportResult(result, info))
             }
 
