@@ -45,7 +45,7 @@ var foo = /.|a|b|c/
     {
         "report": "trivial",
         "reportExponentialBacktracking": "potential",
-        "reportUnreachable": "potential"
+        "reportUnreachable": "certain"
     }
   ]
 }
@@ -133,7 +133,7 @@ In these fragments, seemingly unreachable alternatives might not actually be unr
 
 This option controls how this rule reports unreachable alternatives in fragments.
 
-- `reportUnreachable: "potential"` (_default_)
+- `reportUnreachable: "potential"`
 
   In this case, this rule will always report unreachable alternatives, even in fragments.
 
@@ -147,7 +147,7 @@ This option controls how this rule reports unreachable alternatives in fragments
   const pattern = RegExp(`is (${int})`);
   ```
 
-- `reportUnreachable: "certain"`
+- `reportUnreachable: "certain"` (_default_)
 
   In this case, this rule will only report unreachable alternatives in non-fragment regexes.
 

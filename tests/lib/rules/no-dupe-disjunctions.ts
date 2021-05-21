@@ -37,6 +37,14 @@ tester.run("no-dupe-disjunctions", rule as any, {
             options: [{ reportUnreachable: "certain" }],
         },
         {
+            // reportUnreachable: 'certain' (default)
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{}],
+        },
+        {
             // reportUnreachable: 'certain', but report: "all"
             code: `
             const a = /a|aa/.source;
@@ -546,21 +554,6 @@ tester.run("no-dupe-disjunctions", rule as any, {
             const b = RegExp(\`\\b(\${a})\\b\`);
             `,
             options: [{ report: "all", reportUnreachable: "potential" }],
-            errors: [
-                {
-                    message:
-                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
-                    line: 2,
-                },
-            ],
-        },
-        {
-            // reportUnreachable: 'potential' (default)
-            code: `
-            const a = /a|aa/.source;
-            const b = RegExp(\`\\b(\${a})\\b\`);
-            `,
-            options: [{}],
             errors: [
                 {
                     message:

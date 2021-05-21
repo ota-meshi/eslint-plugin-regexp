@@ -725,7 +725,7 @@ export default createRule("no-dupe-disjunctions", {
             }
         }
         const reportUnreachable: ReportUnreachable =
-            context.options[0]?.reportUnreachable ?? ReportUnreachable.potential
+            context.options[0]?.reportUnreachable ?? ReportUnreachable.certain
         const report: ReportOption =
             context.options[0]?.report ?? ReportOption.trivial
 
