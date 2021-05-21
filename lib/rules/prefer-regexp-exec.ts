@@ -1,8 +1,7 @@
 import type { CallExpression } from "estree"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import { getStaticValue } from "eslint-utils"
-import { isKnownMethodCall } from "../utils/ast-utils"
+import { isKnownMethodCall, getStaticValue } from "../utils/ast-utils"
 
 // Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md
 export default createRule("prefer-regexp-exec", {
@@ -28,7 +27,7 @@ export default createRule("prefer-regexp-exec", {
                     return
                 }
                 const arg = node.arguments[0]
-                const evaluated = getStaticValue(arg, context.getScope())
+                const evaluated = getStaticValue(context, arg)
                 if (
                     evaluated &&
                     evaluated.value instanceof RegExp &&

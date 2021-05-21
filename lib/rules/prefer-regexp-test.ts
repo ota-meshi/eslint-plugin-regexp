@@ -1,12 +1,12 @@
 import type * as ES from "estree"
-import {
-    getStaticValue,
-    hasSideEffect,
-    isOpeningParenToken,
-} from "eslint-utils"
+import { hasSideEffect, isOpeningParenToken } from "eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import { getParent, isKnownMethodCall } from "../utils/ast-utils"
+import {
+    getParent,
+    isKnownMethodCall,
+    getStaticValue,
+} from "../utils/ast-utils"
 
 // Inspired by https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-regexp-test.md
 export default createRule("prefer-regexp-test", {
@@ -43,7 +43,7 @@ export default createRule("prefer-regexp-test", {
                         return
                     }
                     const arg = node.arguments[0]
-                    const evaluated = getStaticValue(arg, context.getScope())
+                    const evaluated = getStaticValue(context, arg)
                     let argIsRegExp = true
                     if (evaluated && evaluated.value instanceof RegExp) {
                         if (evaluated.value.flags.includes("g")) {

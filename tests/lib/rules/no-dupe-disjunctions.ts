@@ -28,6 +28,30 @@ tester.run("no-dupe-disjunctions", rule as any, {
         String.raw`/\d*\.\d+_|\d+\.\d*_/`,
         String.raw`/\d*\.\d+|\d+\.\d*/`,
         String.raw`/(?:\d*\.\d+|\d+\.\d*)_/`,
+        {
+            // reportUnreachable: 'certain'
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{ reportUnreachable: "certain" }],
+        },
+        {
+            // reportUnreachable: 'certain' (default)
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{}],
+        },
+        {
+            // reportUnreachable: 'certain', but report: "all"
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{ report: "all", reportUnreachable: "certain" }],
+        },
     ],
     invalid: [
         {
@@ -350,6 +374,244 @@ tester.run("no-dupe-disjunctions", rule as any, {
             code: String(/\d|[a-z]|_|\w/i),
             errors: [
                 "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'potential'
+            code: String.raw`
+            const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+            const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+            `,
+            options: [{ reportExponentialBacktracking: "potential" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'potential' (default)
+            code: String.raw`
+            const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+            const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+            `,
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: String.raw`
+            const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+            const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+            `,
+            options: [{ reportExponentialBacktracking: "certain" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            //  reportExponentialBacktracking: "certain", but report: "all"
+            code: String.raw`
+            const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+            const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+            `,
+            options: [
+                { report: "all", reportExponentialBacktracking: "certain" },
+            ],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: `
+            const foo1 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo1})+$\`);
+            `,
+            options: [{ reportExponentialBacktracking: "certain" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: `
+            const foo2 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo2})+$\`);
+            `,
+            options: [
+                {
+                    report: "interesting",
+                    reportExponentialBacktracking: "certain",
+                },
+            ],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: `
+            const foo3 = /(?:ac?|\\wb?)a/.source;
+            const bar = RegExp(\`^(?:\${foo3})+$\`);
+            `,
+            options: [
+                {
+                    report: "interesting",
+                    reportExponentialBacktracking: "potential",
+                },
+            ],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: String.raw`
+            const partialPattern = /(?:(?:ac?|\wb?)a)+/ // overlap and backtracking.
+            const bar = RegExp("^"+partialPattern.source+"$")
+            `,
+            options: [{ reportExponentialBacktracking: "certain" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportExponentialBacktracking: 'certain'
+            code: String.raw`
+            const foo4 = /(?:ac?|\wb?)a/ // overlap exp.
+            const bar = RegExp("^(?:(?:ac?|\\wb?)a)+$") // overlap exp backtracking
+            `,
+            options: [{ reportExponentialBacktracking: "certain" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // reportUnreachable: 'potential'
+            code: `
+            const a = /a|aa/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{ report: "all", reportUnreachable: "potential" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                    line: 2,
+                },
+            ],
+        },
+        {
+            // reportUnreachable: 'certain'
+            code: `
+            const a = /a|a/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+            options: [{ report: "all", reportUnreachable: "certain" }],
+            errors: [
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                },
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            // don't overshadow potential exponential backtracking
+            code: `
+            const partial = /a?|a+/.source;
+            const whole = RegExp(\`^(?:\${partial})+$\`);
+            `,
+            options: [
+                {
+                    reportExponentialBacktracking: "potential",
+                    reportUnreachable: "potential",
+                },
+            ],
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a?' and can be removed.",
+                    line: 2,
+                    column: 33,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
+                    line: 2,
+                    column: 33,
+                },
+                {
+                    message:
+                        "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
+                    line: 3,
+                },
             ],
         },
     ],

@@ -2,7 +2,7 @@ import type { RegExpLiteral, Pattern } from "regexpp/ast"
 import type { Rule } from "eslint"
 import type { Expression } from "estree"
 import { parseRegExpLiteral, RegExpParser, visitRegExpAST } from "regexpp"
-import { getStaticValue } from "eslint-utils"
+import { getStaticValue } from "../ast-utils"
 export { ShortCircuit } from "./common"
 export * from "./is-covered"
 export * from "./is-equals"
@@ -30,7 +30,7 @@ export function getRegExpNodeFromExpression(
         }
         return null
     }
-    const evaluated = getStaticValue(node, context.getScope())
+    const evaluated = getStaticValue(context, node)
     if (!evaluated || !(evaluated.value instanceof RegExp)) {
         return null
     }

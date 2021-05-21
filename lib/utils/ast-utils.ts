@@ -6,8 +6,6 @@ import type {
     Identifier,
     Literal,
     MemberExpression,
-    MethodDefinition,
-    Property,
     Node,
 } from "estree"
 import { parseStringLiteral } from "./string-literal-parser"
@@ -37,12 +35,105 @@ export function findVariable(
 }
 
 /**
+ * Get the value of a given node if it's a constant of string.
+ */
+export function getStringIfConstant(
+    context: Rule.RuleContext,
+    node: Node,
+): string | null {
+    // Supports `regexp.source` that eslint-utils#getStringIfConstant does not track.
+    if (
+        node.type === "BinaryExpression" ||
+        node.type === "MemberExpression" ||
+        node.type === "Identifier" ||
+        node.type === "TemplateLiteral"
+    ) {
+        const evaluated = getStaticValue(context, node)
+        return evaluated && String(evaluated.value)
+    }
+    return eslintUtils.getStringIfConstant(node, getScope(context, node))
+}
+
+type GetStaticValueResult =
+    | { value: unknown }
+    | { value: undefined; optional?: true }
+
+/* eslint-disable complexity -- ignore */
+/**
+ * Get the value of a given node if it's a static value.
+ */
+export function getStaticValue(
+    /* eslint-enable complexity -- ignore */
+    context: Rule.RuleContext,
+    node: Node,
+): GetStaticValueResult | null {
+    // Supports `regexp.source` that eslint-utils#getStaticValue does not track.
+    if (node.type === "BinaryExpression") {
+        if (node.operator === "+") {
+            const left = getStaticValue(context, node.left)
+            if (left == null) {
+                return null
+            }
+            const right = getStaticValue(context, node.right)
+            if (right == null) {
+                return null
+            }
+            return {
+                value:
+                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-explicit-any -- ignore
+                    (left.value as any) + right.value,
+            }
+        }
+    } else if (node.type === "MemberExpression") {
+        const propName: string | null = !node.computed
+            ? (node.property as Identifier).name
+            : getStringIfConstant(context, node.property)
+        if (propName === "source") {
+            const object = getStaticValue(context, node.object)
+            if (object && object.value instanceof RegExp) {
+                return { value: object.value.source }
+            }
+        }
+    } else if (node.type === "TemplateLiteral") {
+        const expressions: GetStaticValueResult[] = []
+
+        for (const expr of node.expressions) {
+            const exprValue = getStaticValue(context, expr)
+            if (!exprValue) {
+                return null
+            }
+            expressions.push(exprValue)
+        }
+        let value = node.quasis[0].value.cooked
+        for (let i = 0; i < expressions.length; ++i) {
+            value += String(expressions[i].value)
+            value += node.quasis[i + 1].value.cooked!
+        }
+        return { value }
+    } else if (node.type === "Identifier") {
+        const variable = findVariable(context, node)
+
+        if (variable != null && variable.defs.length === 1) {
+            const def = variable.defs[0]
+            if (
+                def.type === "Variable" &&
+                def.parent &&
+                def.parent.type === "VariableDeclaration" &&
+                def.parent.kind === "const" &&
+                def.node.id.type === "Identifier" &&
+                def.node.init
+            ) {
+                return getStaticValue(context, def.node.init)
+            }
+        }
+    }
+    return eslintUtils.getStaticValue(node, getScope(context, node))
+}
+
+/**
  * Gets the scope for the current node
  */
-export function getScope(
-    context: Rule.RuleContext,
-    currentNode: Identifier | Property | MemberExpression | MethodDefinition,
-): Scope {
+export function getScope(context: Rule.RuleContext, currentNode: Node): Scope {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
     const scopeManager = (context.getSourceCode() as any).scopeManager
 

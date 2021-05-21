@@ -28,6 +28,7 @@ import {
     getEffectiveMaximumRepetition,
 } from "regexp-ast-analysis"
 import { RegExpParser } from "regexpp"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -589,33 +590,76 @@ const RESULT_TYPE_ORDER: Result["type"][] = [
  * Returns an array of the given results that is sorted by result type from
  * most important to least important.
  */
-function sortResultTypes(unsorted: Iterable<Result>): Result[] {
-    return [...unsorted].sort(
+function deduplicateResults(
+    unsorted: Iterable<Result>,
+    { reportExp }: FilterInfo,
+): Result[] {
+    const results = [...unsorted].sort(
         (a, b) =>
             RESULT_TYPE_ORDER.indexOf(a.type) -
             RESULT_TYPE_ORDER.indexOf(b.type),
     )
+
+    const seen = new Map<Alternative, Result["type"]>()
+    return results.filter(({ alternative, type }) => {
+        const firstSeen = seen.get(alternative)
+
+        if (firstSeen === undefined) {
+            seen.set(alternative, type)
+            return true
+        }
+
+        if (
+            reportExp &&
+            firstSeen === "PrefixSubset" &&
+            type !== "PrefixSubset"
+        ) {
+            // Prefix subset might overshadow some other results (Superset or
+            // Overlap) that report exponential backtracking. In this case, we
+            // want to report BOTH the Prefix subset and one Superset or
+            // Overlap.
+            seen.set(alternative, type)
+            return true
+        }
+
+        return false
+    })
 }
 
 /**
- * Returns an array of the given results that is sorted by result type from
- * most important to least important.
+ * Throws if called.
  */
-function deduplicateResults(results: readonly Result[]): Result[] {
-    const seen = new Set<Alternative>()
-    return results.filter(({ alternative }) => {
-        if (seen.has(alternative)) {
-            return false
-        }
-        seen.add(alternative)
-        return true
-    })
+function assertNever(value: never): never {
+    throw new Error(`Invalid value: ${value}`)
 }
 
 const enum ReportOption {
     all = "all",
     trivial = "trivial",
     interesting = "interesting",
+}
+const enum ReportExponentialBacktracking {
+    none = "none",
+    certain = "certain",
+    potential = "potential",
+}
+const enum ReportUnreachable {
+    certain = "certain",
+    potential = "potential",
+}
+
+const enum MaybeBool {
+    false = 0,
+    true = 1,
+    maybe = 2,
+}
+
+interface FilterInfo {
+    stared: MaybeBool
+    nothingAfter: MaybeBool
+
+    reportExp: boolean
+    reportPrefix: boolean
 }
 
 export default createRule("no-dupe-disjunctions", {
@@ -635,6 +679,14 @@ export default createRule("no-dupe-disjunctions", {
                         type: "string",
                         enum: ["all", "trivial", "interesting"],
                     },
+                    reportExponentialBacktracking: {
+                        enum: ["none", "certain", "potential"],
+                    },
+                    reportUnreachable: {
+                        enum: ["certain", "potential"],
+                    },
+
+                    // TODO remove in the next major version
                     alwaysReportExponentialBacktracking: { type: "boolean" },
                     // TODO remove in the next major version
                     disallowNeverMatch: { type: "boolean" },
@@ -657,8 +709,23 @@ export default createRule("no-dupe-disjunctions", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const alwaysReportExponentialBacktracking =
-            context.options[0]?.alwaysReportExponentialBacktracking ?? true
+        let reportExponentialBacktracking: ReportExponentialBacktracking =
+            ReportExponentialBacktracking.potential
+        if (context.options[0]?.reportExponentialBacktracking) {
+            reportExponentialBacktracking =
+                context.options[0]?.reportExponentialBacktracking
+        } else {
+            // backward compatibility
+            if (
+                context.options[0]?.alwaysReportExponentialBacktracking ===
+                false
+            ) {
+                reportExponentialBacktracking =
+                    ReportExponentialBacktracking.none
+            }
+        }
+        const reportUnreachable: ReportUnreachable =
+            context.options[0]?.reportUnreachable ?? ReportUnreachable.certain
         const report: ReportOption =
             context.options[0]?.report ?? ReportOption.trivial
 
@@ -674,6 +741,7 @@ export default createRule("no-dupe-disjunctions", {
                 flags,
                 node,
                 getRegexpLocation,
+                getUsageOfPattern,
             } = regexpContext
 
             const parser = JS.Parser.fromAst({
@@ -687,15 +755,75 @@ export default createRule("no-dupe-disjunctions", {
                 ),
             })
 
+            /** Returns the filter information for the given node */
+            function getFilterInfo(parentNode: ParentNode): FilterInfo {
+                const usage = getUsageOfPattern()
+
+                let stared: MaybeBool
+                if (isStared(parentNode)) {
+                    stared = MaybeBool.true
+                } else if (
+                    usage === UsageOfPattern.partial ||
+                    usage === UsageOfPattern.mixed
+                ) {
+                    stared = MaybeBool.maybe
+                } else {
+                    stared = MaybeBool.false
+                }
+
+                // eslint-disable-next-line one-var -- false positive
+                let nothingAfter: MaybeBool
+                if (!hasNothingAfterNode(parentNode)) {
+                    nothingAfter = MaybeBool.false
+                } else if (
+                    usage === UsageOfPattern.partial ||
+                    usage === UsageOfPattern.mixed
+                ) {
+                    nothingAfter = MaybeBool.maybe
+                } else {
+                    nothingAfter = MaybeBool.true
+                }
+
+                // eslint-disable-next-line one-var -- false positive
+                let reportExp: boolean
+                switch (reportExponentialBacktracking) {
+                    case ReportExponentialBacktracking.none:
+                        reportExp = false
+                        break
+
+                    case ReportExponentialBacktracking.certain:
+                        reportExp = stared === MaybeBool.true
+                        break
+
+                    case ReportExponentialBacktracking.potential:
+                        reportExp = stared !== MaybeBool.false
+                        break
+
+                    default:
+                        assertNever(reportExponentialBacktracking)
+                }
+
+                // eslint-disable-next-line one-var -- false positive
+                let reportPrefix: boolean
+                switch (reportUnreachable) {
+                    case ReportUnreachable.certain:
+                        reportPrefix = nothingAfter === MaybeBool.true
+                        break
+
+                    case ReportUnreachable.potential:
+                        reportPrefix = nothingAfter !== MaybeBool.false
+                        break
+
+                    default:
+                        assertNever(reportUnreachable)
+                }
+
+                return { stared, nothingAfter, reportExp, reportPrefix }
+            }
+
             /** Verify group node */
             function verify(parentNode: ParentNode) {
-                // report all if the we report exp backtracking
-                const nodeReport =
-                    alwaysReportExponentialBacktracking && isStared(parentNode)
-                        ? ReportOption.all
-                        : report
-
-                const hasNothingAfter = hasNothingAfterNode(parentNode)
+                const info = getFilterInfo(parentNode)
 
                 const rawResults = findDuplication(
                     parentNode.alternatives,
@@ -703,46 +831,100 @@ export default createRule("no-dupe-disjunctions", {
                     {
                         fastAst: false,
                         noNfa: false,
-                        ignoreOverlap: nodeReport !== ReportOption.all,
-                        hasNothingAfter,
+                        ignoreOverlap:
+                            !info.reportExp && report !== ReportOption.all,
+                        hasNothingAfter: info.reportPrefix,
                         parser,
                     },
                 )
 
-                let results = deduplicateResults(sortResultTypes(rawResults))
+                let results = filterResults([...rawResults], info)
+                results = deduplicateResults(results, info)
+                results.forEach((result) => reportResult(result, info))
+            }
 
-                if (nodeReport === ReportOption.trivial) {
-                    // For "trivial", we want to filter out all results
-                    // where the user cannot just remove the reported
-                    // alternative. So "Overlap" and "Superset" types are
-                    // removed.
+            /** Filters the results of a parent node. */
+            function filterResults(
+                results: Result[],
+                { nothingAfter, reportExp, reportPrefix }: FilterInfo,
+            ): Result[] {
+                switch (report) {
+                    case ReportOption.all: {
+                        // We really want to report _everything_.
+                        return results
+                    }
+                    case ReportOption.trivial: {
+                        // For "trivial", we want to filter out all results
+                        // where the user cannot just remove the reported
+                        // alternative. So "Overlap" and "Superset" types are
+                        // removed.
 
-                    results = results.filter(({ type }) => {
-                        return !(type === "Overlap" || type === "Superset")
-                    })
-                } else if (nodeReport === ReportOption.interesting) {
-                    // For "interesting", we want to behave like "trivial"
-                    // but we also want to retain "Superset" results like
-                    // `\b(?:Foo|\w+)\b`. So "Overlap" types are always
-                    // removed and "Superset" types are removed if there is
-                    // nothing after it.
+                        return results.filter(({ type }) => {
+                            switch (type) {
+                                case "Duplicate":
+                                case "Subset":
+                                    return true
 
-                    results = results.filter(({ type }) => {
-                        return !(
-                            type === "Overlap" ||
-                            (type === "Superset" && hasNothingAfter)
-                        )
-                    })
+                                case "Overlap":
+                                case "Superset":
+                                    return reportExp
+
+                                case "PrefixSubset":
+                                    return reportPrefix
+
+                                default:
+                                    throw assertNever(type)
+                            }
+                        })
+                    }
+                    case ReportOption.interesting: {
+                        // For "interesting", we want to behave like "trivial"
+                        // but we also want to retain "Superset" results like
+                        // `\b(?:Foo|\w+)\b`. So "Overlap" types are always
+                        // removed and "Superset" types are removed if there is
+                        // nothing after it.
+
+                        return results.filter(({ type }) => {
+                            switch (type) {
+                                case "Duplicate":
+                                case "Subset":
+                                    return true
+
+                                case "Overlap":
+                                    return reportExp
+
+                                case "Superset":
+                                    return (
+                                        reportExp ||
+                                        nothingAfter === MaybeBool.false
+                                    )
+
+                                case "PrefixSubset":
+                                    return reportPrefix
+
+                                default:
+                                    throw assertNever(type)
+                            }
+                        })
+                    }
+                    default:
+                        throw assertNever(report)
                 }
-
-                results.forEach(reportResult)
             }
 
             /** Report the given result. */
-            function reportResult(result: Result) {
-                const exp = isStared(result.alternative)
-                    ? " This ambiguity is likely to cause exponential backtracking."
-                    : ""
+            function reportResult(result: Result, { stared }: FilterInfo) {
+                let exp
+                if (stared === MaybeBool.true) {
+                    exp =
+                        " This ambiguity is likely to cause exponential backtracking."
+                } else if (stared === MaybeBool.maybe) {
+                    exp =
+                        " This ambiguity might cause exponential backtracking."
+                } else {
+                    exp = ""
+                }
+
                 const cap = hasSomeDescendant(
                     result.alternative,
                     (d) => d.type === "CapturingGroup",

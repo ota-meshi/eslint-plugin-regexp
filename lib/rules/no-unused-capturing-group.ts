@@ -12,8 +12,11 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, compositingVisitors } from "../utils"
 import type { KnownMethodCall } from "../utils/ast-utils"
-import { findVariable, isKnownMethodCall } from "../utils/ast-utils"
-import { getStaticValue } from "eslint-utils"
+import {
+    findVariable,
+    isKnownMethodCall,
+    getStaticValue,
+} from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { CapturingGroup } from "regexpp/ast"
 import { parseReplacementsForString } from "../utils/replacements-utils"
@@ -422,10 +425,7 @@ export default createRule("no-unused-capturing-group", {
                 capturingData.markAsUsed()
                 verifyForReplaceFunction(replacementNode, capturingData)
             } else {
-                const evaluated = getStaticValue(
-                    node.arguments[1],
-                    context.getScope(),
-                )
+                const evaluated = getStaticValue(context, node.arguments[1])
                 if (!evaluated || typeof evaluated.value !== "string") {
                     capturingData.markAsCannotTrack()
                     return
