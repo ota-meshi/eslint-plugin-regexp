@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/optimal-quantifier-concatenation"
 description: "require optimal quantifiers for concatenated quantifiers"
+since: "v0.11.0"
 ---
 # regexp/optimal-quantifier-concatenation
 
 > require optimal quantifiers for concatenated quantifiers
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -44,6 +44,10 @@ var foo = /\w+(?:(a)|b)*/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.11.0
 
 ## :mag: Implementation
 
