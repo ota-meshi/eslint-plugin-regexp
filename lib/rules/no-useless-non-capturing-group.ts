@@ -2,6 +2,7 @@ import type { Group } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
 /**
  * Returns whether the given group is the top-level group of its pattern.
@@ -36,7 +37,15 @@ export default createRule("no-useless-non-capturing-group", {
             {
                 type: "object",
                 properties: {
-                    allowTop: { type: "boolean" },
+                    allowTop: {
+                        anyOf: [
+                            {
+                                // backward compatibility
+                                type: "boolean",
+                            },
+                            { enum: ["always", "never", "partial"] },
+                        ],
+                    },
                 },
                 additionalProperties: false,
             },
@@ -47,7 +56,12 @@ export default createRule("no-useless-non-capturing-group", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const allowTop = context.options[0]?.allowTop ?? false
+        const allowTop: "always" | "never" | "partial" =
+            context.options[0]?.allowTop === true
+                ? "always"
+                : context.options[0]?.allowTop === false
+                ? "never"
+                : context.options[0]?.allowTop ?? "partial"
 
         /**
          * Create visitor
@@ -56,10 +70,29 @@ export default createRule("no-useless-non-capturing-group", {
             node,
             getRegexpLocation,
             fixReplaceNode,
+            getUsageOfPattern,
         }: RegExpContext): RegExpVisitor.Handlers {
+            let isIgnore: (gNode: Group) => boolean
+            if (allowTop === "always") {
+                isIgnore = isTopLevel
+            } else if (allowTop === "partial") {
+                const usageOfPattern = getUsageOfPattern()
+                if (
+                    usageOfPattern === UsageOfPattern.partial ||
+                    usageOfPattern === UsageOfPattern.mixed
+                ) {
+                    isIgnore = isTopLevel
+                } else {
+                    isIgnore = () => false
+                }
+            } else {
+                // allowTop === "never"
+                isIgnore = () => false
+            }
+
             return {
                 onGroupEnter(gNode) {
-                    if (allowTop && isTopLevel(gNode)) {
+                    if (isIgnore(gNode)) {
                         return
                     }
 

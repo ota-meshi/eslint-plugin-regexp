@@ -16,6 +16,34 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             code: `/(?:a|b)/`,
             options: [{ allowTop: true }],
         },
+        {
+            code: `/(?:a|b)/`,
+            options: [{ allowTop: "always" }],
+        },
+        `
+        const foo = /(?:a|b)/
+        const bar = new RegExp(foo.source + 'c')
+        `,
+        {
+            code: `
+            const foo = /(?:a|b)/
+            const bar = new RegExp(foo.source + 'c')
+            `,
+            options: [{ allowTop: "partial" }],
+        },
+        `
+        const foo = /(?:a|b)/
+        const bar = new RegExp(foo.source + 'c')
+        foo.exec('a')
+        `,
+        {
+            code: `
+            const foo = /(?:a|b)/
+            const bar = new RegExp(foo.source + 'c')
+            foo.exec('a')
+            `,
+            options: [{ allowTop: "partial" }],
+        },
         String.raw`/()\1(?:0)/`,
         String.raw`/\1(?:0)/`,
         String.raw`/\0(?:1)/`,
@@ -167,6 +195,36 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         {
             code: String(/a|(?:b|c)/),
             output: String(/a|b|c/),
+            errors: ["Unexpected quantifier Non-capturing group."],
+        },
+        {
+            code: String(/a|(?:b|c)/),
+            output: String(/a|b|c/),
+            options: [{ allowTop: "always" }],
+            errors: ["Unexpected quantifier Non-capturing group."],
+        },
+        {
+            code: `
+            const foo = /(?:a|b)/
+            const bar = new RegExp('(?:a|b)' + 'c')
+            `,
+            output: `
+            const foo = /a|b/
+            const bar = new RegExp('(?:a|b)' + 'c')
+            `,
+            options: [{ allowTop: "partial" }],
+            errors: ["Unexpected quantifier Non-capturing group."],
+        },
+        {
+            code: `
+            const foo = /(?:a|b)/
+            const bar = new RegExp(foo.source + 'c')
+            `,
+            output: `
+            const foo = /a|b/
+            const bar = new RegExp(foo.source + 'c')
+            `,
+            options: [{ allowTop: "never" }],
             errors: ["Unexpected quantifier Non-capturing group."],
         },
     ],

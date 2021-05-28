@@ -39,33 +39,70 @@ var foo = /(?:a|(?:b|c)|d)/
 ```json5
 {
   "regexp/no-useless-non-capturing-group": ["error", {
-    "allowTop": true
+    "allowTop": "partial" // or "always" or "never"
   }]
 }
 ```
 
 - `"allowTop"`:
-  Whether a top-level non-capturing group is allowed. Defaults to `false`.
+  Whether a top-level non-capturing group is allowed. Defaults to `"partial"`.
 
   Sometimes it's useful to wrap a whole pattern into a non-capturing group (e.g. when the pattern is used as a building block to construct more complex patterns). Use this option to allow top-level non-capturing groups.
+  - `"partial"`:
+    Allows top-level non-capturing groups of patterns used as strings via `.source`.
 
-<eslint-code-block fix>
+    <eslint-code-block fix>
 
-```js
-/* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: true }] */
+    ```js
+    /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "partial" }] */
 
-/* ✓ GOOD */
-var foo = /(?:abcd)/
-var foo = /(?:ab|cd)/
-var foo = /(?:abcd)/
-var foo = /(?:[a-d])/
+    /* ✓ GOOD */
+    var foo = /(?:ab|cd)/
+    var bar = new RexExp(foo.source + 'e')
 
-/* ✗ BAD */
-var foo = /(?:[a-d])|e/
-var foo = /(?:a|(?:b|c)|d)/
-```
+    /* ✗ BAD */
+    var baz = /(?:ab|cd)/
+    ```
 
-</eslint-code-block>
+    </eslint-code-block>
+
+  - `"always"`:
+    Always allow top-level non-capturing groups.
+
+    <eslint-code-block fix>
+
+    ```js
+    /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "always" }] */
+
+    /* ✓ GOOD */
+    var foo = /(?:abcd)/
+    var foo = /(?:ab|cd)/
+    var foo = /(?:abcd)/
+    var foo = /(?:[a-d])/
+
+    /* ✗ BAD */
+    var foo = /(?:[a-d])|e/
+    var foo = /(?:a|(?:b|c)|d)/
+    ```
+
+    </eslint-code-block>
+
+  - `"never"`:
+    Never allow top-level non-capturing groups.
+
+    <eslint-code-block fix>
+
+    ```js
+    /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "never" }] */
+
+    /* ✗ BAD */
+    var foo = /(?:ab|cd)/
+    var bar = new RexExp(foo.source + 'e')
+
+    var baz = /(?:ab|cd)/
+    ```
+
+    </eslint-code-block>
 
 ## :rocket: Version
 
