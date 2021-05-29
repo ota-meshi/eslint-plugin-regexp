@@ -2,6 +2,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { Alternative, Quantifier } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
 /**
  * Extract lazy end quantifiers
@@ -52,7 +53,15 @@ export default createRule("no-lazy-ends", {
             recommended: false,
             default: "warn",
         },
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    ignorePartial: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             uselessElement:
                 "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
@@ -64,13 +73,27 @@ export default createRule("no-lazy-ends", {
         type: "problem",
     },
     create(context) {
+        const ignorePartial = context.options[0]?.ignorePartial ?? true
+
         /**
          * Create visitor
          */
         function createVisitor({
             node,
             getRegexpLocation,
+            getUsageOfPattern,
         }: RegExpContext): RegExpVisitor.Handlers {
+            if (ignorePartial) {
+                const usageOfPattern = getUsageOfPattern()
+                if (
+                    usageOfPattern === UsageOfPattern.partial ||
+                    usageOfPattern === UsageOfPattern.mixed
+                ) {
+                    // ignore
+                    return {}
+                }
+            }
+
             return {
                 onPatternEnter(pNode) {
                     for (const lazy of extractLazyEndQuantifiers(

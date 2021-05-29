@@ -95,5 +95,69 @@ tester.run("no-lazy-ends", rule as any, {
                 },
             ],
         },
+        {
+            code: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /[\\s\\S]*?/
+            foo.exec(str)
+            `,
+            errors: [
+                {
+                    message:
+                        "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
+                    line: 7,
+                    column: 26,
+                },
+            ],
+        },
+        {
+            code: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /[\\s\\S]*?/
+            foo.exec(str)
+            `,
+            options: [{ ignorePartial: true }],
+            errors: [
+                {
+                    message:
+                        "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
+                    line: 7,
+                    column: 26,
+                },
+            ],
+        },
+        {
+            code: `
+            /* ✗ BAD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            const foo = /[\\s\\S]*?/
+            foo.exec(str)
+            `,
+            options: [{ ignorePartial: false }],
+            errors: [
+                {
+                    message:
+                        "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
+                    line: 3,
+                    column: 26,
+                },
+                {
+                    message:
+                        "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
+                    line: 6,
+                    column: 26,
+                },
+            ],
+        },
     ],
 })

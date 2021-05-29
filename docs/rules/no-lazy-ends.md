@@ -47,7 +47,64 @@ var foo = /a(?:c|ab+?)?/
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/no-lazy-ends": [
+    "error",
+    {
+      "ignorePartial": true,
+    }
+  ]
+}
+```
+
+- `ignorePartial`:
+
+  Some regexes are used as fragments to build more complex regexes. Example:
+
+  ```js
+  const any = /[\s\S]*?/.source;
+  const pattern = RegExp(`<script(\\s${any})?>(${any})<\\/script>`, "g");
+  ```
+
+  In these fragments, seemingly ignored quantifier might not actually be ignored depending on how the fragment is used.
+
+  - `true`:
+    The rule does not check the regexp used as a fragment. This is default.
+
+    <eslint-code-block>
+
+    ```js
+    /* eslint regexp/no-lazy-ends: ["error", { ignorePartial: true }] */
+
+    /* ✓ GOOD */
+    const any = /[\s\S]*?/.source;
+    const pattern = RegExp(`<script(\\s${any})?>(${any})<\\/script>`, "g");
+
+    /* ✗ BAD */
+    const foo = /[\s\S]*?/
+    foo.exec(str)
+    ```
+
+    </eslint-code-block>
+
+  - `false`:
+    This rule checks all regular expressions, including those used as fragments.
+
+    <eslint-code-block>
+
+    ```js
+    /* eslint regexp/no-lazy-ends: ["error", { ignorePartial: false }] */
+
+    /* ✗ BAD */
+    const any = /[\s\S]*?/.source;
+    const pattern = RegExp(`<script(\\s${any})?>(${any})<\\/script>`, "g");
+
+    const foo = /[\s\S]*?/
+    foo.exec(str)
+    ```
+
+    </eslint-code-block>
 
 ## :heart: Compatibility
 
