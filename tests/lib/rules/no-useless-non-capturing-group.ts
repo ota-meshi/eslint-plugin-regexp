@@ -10,8 +10,8 @@ const tester = new RuleTester({
 
 tester.run("no-useless-non-capturing-group", rule as any, {
     valid: [
-        `/(?:abcd)?/`,
-        `/(?:)/`,
+        `/(?:abcd)?/.test(str)`,
+        `/(?:)/.test(str)`,
         `/(?:a|b)/`, // UsageOfPattern.unknown
         {
             code: `/(?:a|b)/.test(str)`,
@@ -24,11 +24,15 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         `
         const foo = /(?:a|b)/
         const bar = new RegExp(foo.source + 'c')
+        foo.test(str)
+        bar.test(str)
         `,
         {
             code: `
             const foo = /(?:a|b)/
             const bar = new RegExp(foo.source + 'c')
+            foo.test(str)
+            bar.test(str)
             `,
             options: [{ allowTop: "partial" }],
         },
@@ -36,41 +40,42 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         const foo = /(?:a|b)/
         const bar = new RegExp(foo.source + 'c')
         foo.exec('a')
+        bar.exec('a')
         `,
         {
             code: `
             const foo = /(?:a|b)/
             const bar = new RegExp(foo.source + 'c')
             foo.exec('a')
+            bar.exec('a')
             `,
             options: [{ allowTop: "partial" }],
         },
-        String.raw`/()\1(?:0)/`,
-        String.raw`/\1(?:0)/`,
-        String.raw`/\0(?:1)/`,
-        String.raw`/(\d)(?=(?:\d{3})+(?!\d))/g`,
+        String.raw`/()\1(?:0)/.test(str)`,
+        String.raw`/\1(?:0)/.test(str)`,
+        String.raw`/\0(?:1)/.test(str)`,
+        String.raw`/(\d)(?=(?:\d{3})+(?!\d))/g.test(str)`,
 
-        String(/(?:a{2})+/),
-        String(/{(?:2)}/),
-        String(/{(?:2,)}/),
-        String(/{(?:2,5)}/),
-        String(/{2,(?:5)}/),
-        String(/a{(?:5})/),
-        String(/\u{(?:41)}/),
-        String(/(.)\1(?:2\s)/),
-        String(/\0(?:2)/),
-        String(/\x4(?:1)*/),
-        String(/\x4(?:1)/),
-        String(/(?:\x4)1/),
-        String(/\x(?:4)1/),
-        String(/\x(?:41\w+)/),
-        String(/\u004(?:1)/),
-        String(/\u00(?:4)1/),
-        String(/\u0(?:0)41/),
-        String(/\u(?:0)041/),
-        String(/\c(?:A)/),
-        String(/(?:)/),
-        String(/(?:a|b)c/),
+        `/(?:a{2})+/.test(str)`,
+        `/{(?:2)}/.test(str)`,
+        `/{(?:2,)}/.test(str)`,
+        `/{(?:2,5)}/.test(str)`,
+        `/{2,(?:5)}/.test(str)`,
+        `/a{(?:5})/.test(str)`,
+        `/\\u{(?:41)}/.test(str)`,
+        String.raw`/(.)\1(?:2\s)/.test(str)`,
+        String.raw`/\0(?:2)/.test(str)`,
+        `/\\x4(?:1)*/.test(str)`,
+        `/\\x4(?:1)/.test(str)`,
+        `/(?:\\x4)1/.test(str)`,
+        `/\\x(?:4)1/.test(str)`,
+        `/\\x(?:41\\w+)/.test(str)`,
+        `/\\u004(?:1)/.test(str)`,
+        `/\\u00(?:4)1/.test(str)`,
+        `/\\u0(?:0)41/.test(str)`,
+        `/\\u(?:0)041/.test(str)`,
+        String.raw`/\c(?:A)/.test(str)`,
+        `/(?:a|b)c/.test(str)`,
     ],
     invalid: [
         {

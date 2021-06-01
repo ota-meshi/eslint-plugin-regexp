@@ -21,15 +21,15 @@ This rule reports unnecessary non-capturing group
 /* eslint regexp/no-useless-non-capturing-group: "error" */
 
 /* ✓ GOOD */
-var foo = /(?:abcd)?/
-var foo = /a(?:ab|cd)/
+var foo = /(?:abcd)?/.test(str)
+var foo = /a(?:ab|cd)/.test(str)
 
 /* ✗ BAD */
-var foo = /(?:ab|cd)/
-var foo = /(?:abcd)/
-var foo = /(?:[a-d])/
-var foo = /(?:[a-d])|e/
-var foo = /(?:a|(?:b|c)|d)/
+var foo = /(?:ab|cd)/.test(str)
+var foo = /(?:abcd)/.test(str)
+var foo = /(?:[a-d])/.test(str)
+var foo = /(?:[a-d])|e/.test(str)
+var foo = /(?:a|(?:b|c)|d)/.test(str)
 ```
 
 </eslint-code-block>
@@ -57,11 +57,15 @@ var foo = /(?:a|(?:b|c)|d)/
     /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "partial" }] */
 
     /* ✓ GOOD */
-    var foo = /(?:ab|cd)/
-    var bar = new RexExp(foo.source + 'e')
+    var foo = /(?:ab|cd)/;
+    var bar = /(?:ab|cd)/; // We still don't know how it will be used.
 
     /* ✗ BAD */
-    var baz = /(?:ab|cd)/
+    /(?:ab|cd)/.test(str);
+
+    /*-------*/
+    var baz = new RexExp(foo.source + 'e');
+    baz.test(str);
     ```
 
     </eslint-code-block>
@@ -75,14 +79,14 @@ var foo = /(?:a|(?:b|c)|d)/
     /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "always" }] */
 
     /* ✓ GOOD */
-    var foo = /(?:abcd)/
-    var foo = /(?:ab|cd)/
-    var foo = /(?:abcd)/
-    var foo = /(?:[a-d])/
+    var foo = /(?:abcd)/.test(str)
+    var foo = /(?:ab|cd)/.test(str)
+    var foo = /(?:abcd)/.test(str)
+    var foo = /(?:[a-d])/.test(str)
 
     /* ✗ BAD */
-    var foo = /(?:[a-d])|e/
-    var foo = /(?:a|(?:b|c)|d)/
+    var foo = /(?:[a-d])|e/.test(str)
+    var foo = /(?:a|(?:b|c)|d)/.test(str)
     ```
 
     </eslint-code-block>
@@ -96,10 +100,14 @@ var foo = /(?:a|(?:b|c)|d)/
     /* eslint regexp/no-useless-non-capturing-group: ["error", { allowTop: "never" }] */
 
     /* ✗ BAD */
-    var foo = /(?:ab|cd)/
-    var bar = new RexExp(foo.source + 'e')
+    var foo = /(?:ab|cd)/;
+    var bar = /(?:ab|cd)/;
 
-    var baz = /(?:ab|cd)/
+    /(?:ab|cd)/.test(str);
+
+    /*-------*/
+    var baz = new RexExp(foo.source + 'e');
+    baz.test(str);
     ```
 
     </eslint-code-block>
