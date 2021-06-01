@@ -51,6 +51,11 @@ tester.run("prefer-range", rule as any, {
             code: `/[0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ]/`,
             options: [{ target: ["😀-😏"] }],
         },
+        {
+            // issue #218
+            code: `/[а-яА-Я][А-Яа-я]/`,
+            options: [{ target: ["alphanumeric", "а-я", "А-Я"] }],
+        },
     ],
     invalid: [
         {
@@ -91,6 +96,20 @@ tester.run("prefer-range", rule as any, {
         },
         {
             code: `/[a-cd-f]/`,
+            output: `/[a-f]/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected multiple adjacent characters. Use 'a-f' instead.",
+                    line: 1,
+                    column: 3,
+                    endLine: 1,
+                    endColumn: 9,
+                },
+            ],
+        },
+        {
+            code: `/[d-fa-c]/`,
             output: `/[a-f]/`,
             errors: [
                 {
