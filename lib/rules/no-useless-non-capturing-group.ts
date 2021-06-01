@@ -76,8 +76,7 @@ export default createRule("no-useless-non-capturing-group", {
             if (allowTop === "always") {
                 isIgnored = isTopLevel
             } else if (allowTop === "partial") {
-                const usageOfPattern = getUsageOfPattern()
-                if (usageOfPattern !== UsageOfPattern.whole) {
+                if (getUsageOfPattern() !== UsageOfPattern.whole) {
                     isIgnored = isTopLevel
                 } else {
                     isIgnored = () => false
@@ -128,7 +127,18 @@ export default createRule("no-useless-non-capturing-group", {
                         node,
                         loc: getRegexpLocation(gNode),
                         messageId: "unexpected",
-                        fix: fixReplaceNode(gNode, gNode.raw.slice(3, -1)),
+                        fix: fixReplaceNode(gNode, () => {
+                            if (
+                                allowTop === "never" &&
+                                isTopLevel(gNode) &&
+                                getUsageOfPattern() !== UsageOfPattern.whole
+                            ) {
+                                // Top-level group and potentially partially used patterns
+                                // do not autofix because they can cause side effects.
+                                return null
+                            }
+                            return gNode.raw.slice(3, -1)
+                        }),
                     })
                 },
             }
