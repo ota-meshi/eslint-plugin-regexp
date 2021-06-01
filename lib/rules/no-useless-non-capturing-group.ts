@@ -2,6 +2,7 @@ import type { Group } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
 /**
  * Returns whether the given group is the top-level group of its pattern.
@@ -36,7 +37,15 @@ export default createRule("no-useless-non-capturing-group", {
             {
                 type: "object",
                 properties: {
-                    allowTop: { type: "boolean" },
+                    allowTop: {
+                        anyOf: [
+                            {
+                                // backward compatibility
+                                type: "boolean",
+                            },
+                            { enum: ["always", "never", "partial"] },
+                        ],
+                    },
                 },
                 additionalProperties: false,
             },
@@ -47,7 +56,12 @@ export default createRule("no-useless-non-capturing-group", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const allowTop = context.options[0]?.allowTop ?? false
+        const allowTop: "always" | "never" | "partial" =
+            context.options[0]?.allowTop === true
+                ? "always"
+                : context.options[0]?.allowTop === false
+                ? "never"
+                : context.options[0]?.allowTop ?? "partial"
 
         /**
          * Create visitor
@@ -56,10 +70,25 @@ export default createRule("no-useless-non-capturing-group", {
             node,
             getRegexpLocation,
             fixReplaceNode,
+            getUsageOfPattern,
         }: RegExpContext): RegExpVisitor.Handlers {
+            let isIgnored: (gNode: Group) => boolean
+            if (allowTop === "always") {
+                isIgnored = isTopLevel
+            } else if (allowTop === "partial") {
+                if (getUsageOfPattern() !== UsageOfPattern.whole) {
+                    isIgnored = isTopLevel
+                } else {
+                    isIgnored = () => false
+                }
+            } else {
+                // allowTop === "never"
+                isIgnored = () => false
+            }
+
             return {
                 onGroupEnter(gNode) {
-                    if (allowTop && isTopLevel(gNode)) {
+                    if (isIgnored(gNode)) {
                         return
                     }
 
@@ -98,7 +127,18 @@ export default createRule("no-useless-non-capturing-group", {
                         node,
                         loc: getRegexpLocation(gNode),
                         messageId: "unexpected",
-                        fix: fixReplaceNode(gNode, gNode.raw.slice(3, -1)),
+                        fix: fixReplaceNode(gNode, () => {
+                            if (
+                                allowTop === "never" &&
+                                isTopLevel(gNode) &&
+                                getUsageOfPattern() !== UsageOfPattern.whole
+                            ) {
+                                // Top-level group and potentially partially used patterns
+                                // do not autofix because they can cause side effects.
+                                return null
+                            }
+                            return gNode.raw.slice(3, -1)
+                        }),
                     })
                 },
             }
