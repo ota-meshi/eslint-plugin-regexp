@@ -33,14 +33,14 @@ greedy quantifier. E.g. `a+b{2,4}?` and `a+b{2}` behave the same.
 /* eslint regexp/no-lazy-ends: "error" */
 
 /* ✓ GOOD */
-var foo = /a+?b*/
-var foo = /a??(?:ba+?|c)*/
-var foo = /ba*?$/
+var foo = /a+?b*/.test(str)
+var foo = /a??(?:ba+?|c)*/.test(str)
+var foo = /ba*?$/.test(str)
 
 /* ✗ BAD */
-var foo = /a??/
-var foo = /a+b+?/
-var foo = /a(?:c|ab+?)?/
+var foo = /a??/.test(str)
+var foo = /a+b+?/.test(str)
+var foo = /a(?:c|ab+?)?/.test(str)
 ```
 
 </eslint-code-block>

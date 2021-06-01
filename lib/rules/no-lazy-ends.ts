@@ -85,10 +85,7 @@ export default createRule("no-lazy-ends", {
         }: RegExpContext): RegExpVisitor.Handlers {
             if (ignorePartial) {
                 const usageOfPattern = getUsageOfPattern()
-                if (
-                    usageOfPattern === UsageOfPattern.partial ||
-                    usageOfPattern === UsageOfPattern.mixed
-                ) {
+                if (usageOfPattern !== UsageOfPattern.whole) {
                     // ignore
                     return {}
                 }

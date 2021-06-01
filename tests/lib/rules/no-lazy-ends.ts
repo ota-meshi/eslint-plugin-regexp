@@ -10,15 +10,16 @@ const tester = new RuleTester({
 
 tester.run("no-lazy-ends", rule as any, {
     valid: [
-        `/a+?b*/`,
-        `/a??(?:ba+?|c)*/`,
-        `/ba*?$/`,
+        `/a+?b*/.test(str)`,
+        `/a??(?:ba+?|c)*/.test(str)`,
+        `/ba*?$/.test(str)`,
+        `/a??/`, // UsageOfPattern.unknown
 
-        `/a{3}?/`, // uselessly lazy but that's not for this rule to correct
+        `/a{3}?/.test(str)`, // uselessly lazy but that's not for this rule to correct
     ],
     invalid: [
         {
-            code: `/a??/`,
+            code: `/a??/.test(str)`,
             errors: [
                 {
                     message:
@@ -29,7 +30,7 @@ tester.run("no-lazy-ends", rule as any, {
             ],
         },
         {
-            code: `/a*?/`,
+            code: `/a*?/.test(str)`,
             errors: [
                 {
                     message:
@@ -40,7 +41,7 @@ tester.run("no-lazy-ends", rule as any, {
             ],
         },
         {
-            code: `/a+?/`,
+            code: `/a+?/.test(str)`,
             errors: [
                 {
                     message:
@@ -51,7 +52,7 @@ tester.run("no-lazy-ends", rule as any, {
             ],
         },
         {
-            code: `/a{3,7}?/`,
+            code: `/a{3,7}?/.test(str)`,
             errors: [
                 {
                     message:
@@ -62,7 +63,7 @@ tester.run("no-lazy-ends", rule as any, {
             ],
         },
         {
-            code: `/a{3,}?/`,
+            code: `/a{3,}?/.test(str)`,
             errors: [
                 {
                     message:
@@ -74,7 +75,7 @@ tester.run("no-lazy-ends", rule as any, {
         },
 
         {
-            code: `/(?:a|b(c+?))/`,
+            code: `/(?:a|b(c+?))/.test(str)`,
             errors: [
                 {
                     message:
@@ -85,7 +86,7 @@ tester.run("no-lazy-ends", rule as any, {
             ],
         },
         {
-            code: `/a(?:c|ab+?)?/`,
+            code: `/a(?:c|ab+?)?/.test(str)`,
             errors: [
                 {
                     message:
