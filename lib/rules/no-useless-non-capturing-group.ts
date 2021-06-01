@@ -72,27 +72,24 @@ export default createRule("no-useless-non-capturing-group", {
             fixReplaceNode,
             getUsageOfPattern,
         }: RegExpContext): RegExpVisitor.Handlers {
-            let isIgnore: (gNode: Group) => boolean
+            let isIgnored: (gNode: Group) => boolean
             if (allowTop === "always") {
-                isIgnore = isTopLevel
+                isIgnored = isTopLevel
             } else if (allowTop === "partial") {
                 const usageOfPattern = getUsageOfPattern()
-                if (
-                    usageOfPattern === UsageOfPattern.partial ||
-                    usageOfPattern === UsageOfPattern.mixed
-                ) {
-                    isIgnore = isTopLevel
+                if (usageOfPattern !== UsageOfPattern.whole) {
+                    isIgnored = isTopLevel
                 } else {
-                    isIgnore = () => false
+                    isIgnored = () => false
                 }
             } else {
                 // allowTop === "never"
-                isIgnore = () => false
+                isIgnored = () => false
             }
 
             return {
                 onGroupEnter(gNode) {
-                    if (isIgnore(gNode)) {
+                    if (isIgnored(gNode)) {
                         return
                     }
 

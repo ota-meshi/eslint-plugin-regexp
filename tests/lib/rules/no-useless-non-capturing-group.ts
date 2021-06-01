@@ -12,12 +12,13 @@ tester.run("no-useless-non-capturing-group", rule as any, {
     valid: [
         `/(?:abcd)?/`,
         `/(?:)/`,
+        `/(?:a|b)/`, // UsageOfPattern.unknown
         {
-            code: `/(?:a|b)/`,
-            options: [{ allowTop: true }],
+            code: `/(?:a|b)/.test(str)`,
+            options: [{ allowTop: true }], // backward compatibility
         },
         {
-            code: `/(?:a|b)/`,
+            code: `/(?:a|b)/.test(str)`,
             options: [{ allowTop: "always" }],
         },
         `
@@ -73,8 +74,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
     ],
     invalid: [
         {
-            code: `/(?:abcd)/`,
-            output: `/abcd/`,
+            code: `/(?:abcd)/.test(str)`,
+            output: `/abcd/.test(str)`,
             errors: [
                 {
                     message: "Unexpected quantifier Non-capturing group.",
@@ -86,8 +87,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             ],
         },
         {
-            code: `/(?:[abcd])/`,
-            output: `/[abcd]/`,
+            code: `/(?:[abcd])/.test(str)`,
+            output: `/[abcd]/.test(str)`,
             errors: [
                 {
                     message: "Unexpected quantifier Non-capturing group.",
@@ -99,8 +100,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             ],
         },
         {
-            code: `/(?:ab|cd)/`,
-            output: `/ab|cd/`,
+            code: `/(?:ab|cd)/.test(str)`,
+            output: `/ab|cd/.test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
@@ -109,8 +110,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
-            code: `/(?:[abcd]+?)/`,
-            output: `/[abcd]+?/`,
+            code: `/(?:[abcd]+?)/.test(str)`,
+            output: `/[abcd]+?/.test(str)`,
             errors: [
                 {
                     message: "Unexpected quantifier Non-capturing group.",
@@ -122,6 +123,7 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         {
             code: String.raw`/(?:0)/; /\1(?:0)/; /(?:1)/; /\1(?:1)/`,
             output: String.raw`/0/; /\1(?:0)/; /1/; /\1(?:1)/`,
+            options: [{ allowTop: "never" }],
             errors: [
                 {
                     message: "Unexpected quantifier Non-capturing group.",
@@ -136,30 +138,30 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             ],
         },
         {
-            code: String.raw`/(?:a\n)/`,
-            output: String.raw`/a\n/`,
+            code: String.raw`/(?:a\n)/.test(str)`,
+            output: String.raw`/a\n/.test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
             code: String.raw`
             const s = "(?:a\\n)"
-            new RegExp(s)`,
+            ;(new RegExp(s)).test(str)`,
             output: String.raw`
             const s = "a\\n"
-            new RegExp(s)`,
+            ;(new RegExp(s)).test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
             code: String.raw`
             const s = "(?:a"+"\\n)"
-            new RegExp(s)`,
+            ;(new RegExp(s)).test(str)`,
             output: null,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
 
         {
-            code: String(/(?:a)/),
-            output: String(/a/),
+            code: `/(?:a)/.test(str)`,
+            output: `/a/.test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
@@ -168,8 +170,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
-            code: String(/(?:\w)/),
-            output: String(/\w/),
+            code: String.raw`/(?:\w)/.test(str)`,
+            output: String.raw`/\w/.test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
@@ -188,8 +190,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
-            code: String(/(?:a|b)/),
-            output: String(/a|b/),
+            code: `/(?:a|b)/.test(str)`,
+            output: `/a|b/.test(str)`,
             errors: ["Unexpected quantifier Non-capturing group."],
         },
         {
@@ -207,10 +209,16 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             code: `
             const foo = /(?:a|b)/
             const bar = new RegExp('(?:a|b)' + 'c')
+            foo.exec(str)
+            bar.exec(str)
+            // { allowTop: "partial" }
             `,
             output: `
             const foo = /a|b/
             const bar = new RegExp('(?:a|b)' + 'c')
+            foo.exec(str)
+            bar.exec(str)
+            // { allowTop: "partial" }
             `,
             options: [{ allowTop: "partial" }],
             errors: ["Unexpected quantifier Non-capturing group."],
@@ -219,10 +227,16 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             code: `
             const foo = /(?:a|b)/
             const bar = new RegExp(foo.source + 'c')
+            foo.exec(str)
+            bar.exec(str)
+            // { allowTop: "never" }
             `,
             output: `
             const foo = /a|b/
             const bar = new RegExp(foo.source + 'c')
+            foo.exec(str)
+            bar.exec(str)
+            // { allowTop: "never" }
             `,
             options: [{ allowTop: "never" }],
             errors: ["Unexpected quantifier Non-capturing group."],
