@@ -103,11 +103,25 @@ export default createRule("prefer-range", {
                         } else {
                             continue
                         }
-                        const group = groups.find(
-                            (gp) =>
+
+                        const group = groups.find((gp) => {
+                            const adjacent =
                                 gp.min.value - 1 <= data.max.value &&
-                                data.min.value <= gp.max.value + 1,
-                        )
+                                data.min.value <= gp.max.value + 1
+
+                            if (!adjacent) {
+                                // the ranges have to be adjacent
+                                return false
+                            }
+
+                            // the bounds of the union of the two ranges
+                            const min = Math.min(gp.min.value, data.min.value)
+                            const max = Math.max(gp.max.value, data.max.value)
+
+                            // the union has to be an allowed range as well
+                            return inRange(allowedRanges, min, max)
+                        })
+
                         if (group) {
                             if (data.min.value < group.min.value) {
                                 group.min = data.min
