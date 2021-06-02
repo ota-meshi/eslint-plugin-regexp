@@ -116,6 +116,37 @@ str.search(/foo/g);
 
 </eslint-code-block>
 
+### `y` flag (sticky)
+
+The `y` flag is used when you need to do a sticky search. If not, it will be unnecessary.
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/no-useless-flag: "error" */
+
+/* ✓ GOOD */
+const regex1 = /foo/y;
+const str = 'table football, foosball';
+regex1.lastIndex = 6
+var array = regex1.exec(str)
+
+const regex2 = /foo/y;
+regex2.test(string);
+regex2.test(string);
+
+str.replace(/foo/y, 'bar');
+str.replaceAll(/foo/gy, 'bar');
+
+const regexp3 = /foo/y
+str.search(regexp3)
+
+/* ✗ BAD */
+str.split(/foo/y);
+```
+
+</eslint-code-block>
+
 ### other flags
 
 No other flags will be checked.
@@ -126,7 +157,7 @@ No other flags will be checked.
 {
   "regexp/no-useless-flag": ["error",
     {
-      "ignore": [] // An array of "i", "m", "s" and "g".
+      "ignore": [] // An array of "i", "m", "s", "g" and "y".
     }
   ]
 }
