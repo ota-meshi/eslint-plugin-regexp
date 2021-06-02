@@ -31,7 +31,7 @@ export default createRule("strict", {
         messages: {
             regexMessage: "{{message}}.",
         },
-        type: "problem",
+        type: "suggestion",
     },
     create(context) {
         /**
