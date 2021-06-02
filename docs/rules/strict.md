@@ -36,7 +36,7 @@ var foo = /u{42}/; // It matches a string followed by 42 "u"s.
 var foo = /}/
 var foo = /{/
 var foo = /]/
-var foo = /\u{42}/ // It matches a string followed by 42 "u"s.
+var foo = /\u{42}/; // It matches a string followed by 42 "u"s.
 ```
 
 </eslint-code-block>
