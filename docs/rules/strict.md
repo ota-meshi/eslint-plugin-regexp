@@ -9,6 +9,7 @@ description: "disallow not strictly valid regular expressions"
 > disallow not strictly valid regular expressions
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
 
@@ -20,7 +21,7 @@ Depending on the syntax defined in [Annex B] of the ECMAScript specification, so
 
 [Annex B]: https://tc39.es/ecma262/#sec-regular-expressions-patterns
 
-<eslint-code-block>
+<eslint-code-block fix>
 
 ```js
 /* eslint regexp/strict: "error" */
