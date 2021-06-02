@@ -20,7 +20,6 @@ export = {
         "regexp/no-invisible-character": "error",
         "regexp/no-octal": "error",
         "regexp/no-useless-backreference": "error",
-        "regexp/no-useless-exactly-quantifier": "error",
         "regexp/no-useless-two-nums-quantifier": "error",
         "regexp/prefer-d": "error",
         "regexp/prefer-plus-quantifier": "error",

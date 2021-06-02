@@ -44,7 +44,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
-| [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |
 | [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
@@ -82,3 +81,12 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+### Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | [regexp/no-useless-quantifier](./no-useless-quantifier.md), [regexp/no-zero-quantifier](./no-zero-quantifier.md) |
