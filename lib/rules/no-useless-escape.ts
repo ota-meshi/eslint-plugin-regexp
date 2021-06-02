@@ -46,6 +46,8 @@ const REGEX_ESCAPES = new Set([
     CP_CLOSING_PAREN, // )
 ])
 
+const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpP".split(""))
+
 export default createRule("no-useless-escape", {
     meta: {
         docs: {
@@ -55,6 +57,7 @@ export default createRule("no-useless-escape", {
             // recommended: true,
             recommended: false,
         },
+        fixable: "code",
         schema: [],
         messages: {
             unnecessary: "Unnecessary escape character: \\{{character}}.",
@@ -68,12 +71,14 @@ export default createRule("no-useless-escape", {
         function createVisitor({
             node,
             getRegexpLocation,
+            fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
             /** Report */
             function report(
                 cNode: Character,
                 offset: number,
                 character: string,
+                fix: boolean,
             ) {
                 context.report({
                     node,
@@ -82,6 +87,7 @@ export default createRule("no-useless-escape", {
                     data: {
                         character,
                     },
+                    fix: fix ? fixReplaceNode(cNode, character) : null,
                 })
             }
 
@@ -120,7 +126,12 @@ export default createRule("no-useless-escape", {
                             if (!canUnwrapped(cNode, char)) {
                                 return
                             }
-                            report(cNode, 0, char)
+                            report(
+                                cNode,
+                                0,
+                                char,
+                                !POTENTIAL_ESCAPE_SEQUENCE.has(char),
+                            )
                         }
                     }
                 },
