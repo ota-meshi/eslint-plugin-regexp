@@ -58,32 +58,14 @@ function canReorder(
     consumedChars: CharSet,
     context: RegExpContext,
 ): boolean {
-    if (group.parent.type !== "Alternative") {
-        return false
-    }
-
-    const parentElements = group.parent.elements
-    const groupIndex = parentElements.indexOf(group)
-
-    let boundaryBefore = parentElements[groupIndex - 1]?.raw === "\\b"
-    let boundaryAfter = parentElements[groupIndex + 1]?.raw === "\\b"
-
-    if (boundaryBefore && boundaryAfter) {
-        return true
-    }
-
-    const words = Chars.word(context.flags)
-
-    if (!boundaryBefore) {
-        const { char } = getFirstCharAfter(group, "rtl", context.flags)
-        boundaryBefore = char.isDisjointWith(words)
-    }
-    if (!boundaryAfter) {
-        const { char } = getFirstCharAfter(group, "ltr", context.flags)
-        boundaryAfter = char.isDisjointWith(words)
-    }
-
-    return boundaryBefore && boundaryAfter
+    return (
+        getFirstCharAfter(group, "rtl", context.flags).char.isDisjointWith(
+            consumedChars,
+        ) &&
+        getFirstCharAfter(group, "ltr", context.flags).char.isDisjointWith(
+            consumedChars,
+        )
+    )
 }
 
 /**
