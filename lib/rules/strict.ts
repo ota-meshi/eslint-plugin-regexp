@@ -91,6 +91,7 @@ export default createRule("strict", {
             }
 
             let reported = false
+            let hasNamedBackreference = false
 
             /** Report */
             function report(
@@ -229,7 +230,21 @@ export default createRule("strict", {
                         )
                     }
                 },
+
+                onBackreferenceEnter(bNode) {
+                    if (typeof bNode.ref === "string") {
+                        hasNamedBackreference = true
+                    }
+                },
                 onPatternLeave() {
+                    if (hasNamedBackreference) {
+                        // There is a bug in regexpp that causes it throw a
+                        // syntax error for all non-Unicode regexes with named
+                        // backreferences.
+                        // TODO: Remove this workaround when the bug is fixed.
+                        return
+                    }
+
                     if (!reported) {
                         // our own logic couldn't find any problems,
                         // so let's use a real parser to do the job.

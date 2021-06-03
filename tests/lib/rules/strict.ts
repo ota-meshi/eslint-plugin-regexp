@@ -155,6 +155,17 @@ tester.run("strict", rule as any, {
                 },
             ],
         },
+        {
+            code: "/\\k<foo>/",
+            output: null,
+            errors: [
+                {
+                    message:
+                        "Incomplete backreference '\\k'. Either use a valid backreference or remove the useless escaping.",
+                    column: 2,
+                },
+            ],
+        },
 
         // useless escape
         {
