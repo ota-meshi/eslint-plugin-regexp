@@ -46,7 +46,7 @@ const REGEX_ESCAPES = new Set([
     CP_CLOSING_PAREN, // )
 ])
 
-const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpP".split(""))
+const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpP")
 
 export default createRule("no-useless-escape", {
     meta: {
