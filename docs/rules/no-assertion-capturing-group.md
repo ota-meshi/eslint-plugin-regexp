@@ -2,42 +2,21 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-assertion-capturing-group"
-description: "disallow capturing group that captures assertions."
+description: "disallow capturing group that captures empty."
 since: "v0.1.0"
 ---
 # regexp/no-assertion-capturing-group
 
-> disallow capturing group that captures assertions.
+> disallow capturing group that captures empty.
 
 - :gear: This rule is included in `"plugin:regexp/recommended"`.
 
 ## :book: Rule Details
 
-This rule reports capturing group that captures assertions.
+This rule is the same as the [regexp/no-empty-capturing-group] rule. Use [regexp/no-empty-capturing-group] instead.
+Replaced by [regexp/no-empty-capturing-group] in v1.0.0, this rule will be marked as **deprecated**.
 
-<eslint-code-block>
-
-```js
-/* eslint regexp/no-assertion-capturing-group: "error" */
-
-/* ✓ GOOD */
-var foo = /(a)/;
-var foo = /a(?:\b)/;
-var foo = /a(?:$)/;
-var foo = /(?:^)a/;
-var foo = /(?:^|b)a/;
-
-/* ✗ BAD */
-var foo = /a(\b)/;
-var foo = /a($)/;
-var foo = /(^)a/;
-```
-
-</eslint-code-block>
-
-## :wrench: Options
-
-Nothing.
+[regexp/no-empty-capturing-group]: no-empty-capturing-group.md
 
 ## :rocket: Version
 

@@ -106,6 +106,80 @@ tester.run("no-useless-flag", rule as any, {
         unknown.exec(regex)
         `,
 
+        // y
+        `
+        const regex = /foo/y
+        regex.lastIndex = 4
+        regex.test('bar_foo')
+        `,
+        `
+        const regex = /foo/y;
+        regex.test(bar);
+        regex.test(bar);
+        `,
+        `
+        const regex = /foo/y;
+        regex.exec(bar);
+        regex.exec(bar);
+        `,
+        `
+        const regex = /foo/y;
+        `,
+        `
+        const regex = /foo/y;
+        function fn () {
+            return regex.test(bar);
+        }
+        `,
+        `
+        const regex = /foo/y;
+        while (foo) {
+            regex.test(bar);
+        }
+        `,
+        `
+        const regex = /foo/y;
+        for (;foo;) {
+            regex.test(bar);
+        }
+        `,
+        `
+        const regex = /foo/y;
+        for (const foo of bar) {
+            regex.test(bar);
+        }
+        `,
+        `
+        const regex = /foo/y;
+        for (const foo in bar) {
+            regex.test(bar);
+        }
+        `,
+        `
+        const regex = /foo/y;
+        do {
+            regex.test(bar);
+        } while (foo)
+        `,
+        `
+        const regex = /foo/y;
+        unknown.search(regex)
+        'str'.search(regex)
+        `,
+        `
+        const regex = /foo/y;
+        unknown(regex)
+        'str'.search(regex)
+        `,
+        `
+        const regex = /foo/y;
+        regex.split(unknown)
+        `,
+        `
+        const regex = /foo/y;
+        unknown.exec(regex)
+        `,
+
         // ignore
         { code: String.raw`/\w/i`, options: [{ ignore: ["i"] }] },
         { code: String.raw`/\w/m`, options: [{ ignore: ["m"] }] },
@@ -388,6 +462,85 @@ tester.run("no-useless-flag", rule as any, {
                 {
                     message:
                         "The 'g' flag is unnecessary because not using global testing.",
+                    line: 2,
+                    column: 28,
+                },
+            ],
+        },
+
+        // y
+        {
+            code: `
+            /* ✓ GOOD */
+            const regex1 = /foo/y;
+            const str = 'table football, foosball';
+            regex1.lastIndex = 6
+            var array = regex1.exec(str)
+            
+            const regex2 = /foo/y;
+            regex2.test(string);
+            regex2.test(string);
+            
+            str.replace(/foo/y, 'bar');
+            str.replaceAll(/foo/gy, 'bar');
+
+            const regexp3 = /foo/y
+            str.search(regexp3)
+            
+            /* ✗ BAD */
+            str.split(/foo/y);
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'y' flag is unnecessary because not using sticky search.",
+                    line: 19,
+                    column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            "str".split(/foo/y)
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'y' flag is unnecessary because not using sticky search.",
+                    line: 2,
+                    column: 30,
+                },
+            ],
+        },
+        {
+            code: `
+            "str".split(new RegExp('foo', 'y'));
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'y' flag is unnecessary because not using sticky search.",
+                    line: 2,
+                    column: 43,
+                },
+            ],
+        },
+        {
+            code: `
+            const a = /foo/y;
+            const b = a;
+            const regex = b;
+
+            'str'.split(b)
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'y' flag is unnecessary because not using sticky search.",
                     line: 2,
                     column: 28,
                 },

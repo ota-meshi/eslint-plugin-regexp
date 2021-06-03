@@ -1,44 +1,21 @@
-import { isZeroLength } from "regexp-ast-analysis"
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import { createRule } from "../utils"
+
+import noEmptyCapturingGroup from "./no-empty-capturing-group"
 
 export default createRule("no-assertion-capturing-group", {
     meta: {
+        ...noEmptyCapturingGroup.meta,
         docs: {
-            description: "disallow capturing group that captures assertions.",
-            category: "Possible Errors",
+            ...noEmptyCapturingGroup.meta.docs,
+            // TODO Switch to recommended in the major version.
+            // recommended: false,
             recommended: true,
+            replacedBy: ["no-empty-capturing-group"],
         },
-        schema: [],
-        messages: {
-            unexpected: "Unexpected capture assertions.",
-        },
-        type: "suggestion",
+        // TODO Switch to deprecated in the major version.
+        // deprecated: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
-        function createVisitor({
-            node,
-            getRegexpLocation,
-        }: RegExpContext): RegExpVisitor.Handlers {
-            return {
-                onCapturingGroupEnter(cgNode) {
-                    if (isZeroLength(cgNode)) {
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(cgNode),
-                            messageId: "unexpected",
-                        })
-                    }
-                },
-            }
-        }
-
-        return defineRegexpVisitor(context, {
-            createVisitor,
-        })
+        return noEmptyCapturingGroup.create(context)
     },
 })
