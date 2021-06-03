@@ -89,7 +89,7 @@
         "eslint-utils": "^3.0.0",
         "jsdoctypeparser": "^9.0.0",
         "refa": "^0.8.0",
-        "regexp-ast-analysis": "^0.2.0",
+        "regexp-ast-analysis": "^0.2.2",
         "regexpp": "^3.1.0"
     }
 }
