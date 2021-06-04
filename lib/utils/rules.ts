@@ -59,6 +59,7 @@ import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-esc
 import preferW from "../rules/prefer-w"
 import sortAlternatives from "../rules/sort-alternatives"
 import sortFlags from "../rules/sort-flags"
+import strict from "../rules/strict"
 import unicodeEscape from "../rules/unicode-escape"
 
 export const rules = [
@@ -122,5 +123,6 @@ export const rules = [
     preferW,
     sortAlternatives,
     sortFlags,
+    strict,
     unicodeEscape,
 ] as RuleModule[]

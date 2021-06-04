@@ -26,6 +26,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
+| [regexp/strict](./strict.md) | disallow not strictly valid regular expressions | :wrench: |
 
 ### Best Practices
 
@@ -70,7 +71,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/hexadecimal-escape](./hexadecimal-escape.md) | enforce consistent usage of hexadecimal escape | :wrench: |
 | [regexp/letter-case](./letter-case.md) | enforce into your favorite case | :wrench: |
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
-| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp |  |
+| [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp | :wrench: |
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
 | [regexp/order-in-character-class](./order-in-character-class.md) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
