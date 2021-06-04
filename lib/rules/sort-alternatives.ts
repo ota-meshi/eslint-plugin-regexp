@@ -100,6 +100,28 @@ function sortAlternatives(
     })
 }
 
+/**
+ * This tries to sort the given alternatives by assuming that all alternatives
+ * are a number.
+ */
+function trySortNumberAlternatives(alternatives: Alternative[]): boolean {
+    const numbers = new Map<Alternative, number>()
+    for (const a of alternatives) {
+        const { raw } = a
+        if (/^\d+$/.test(raw)) {
+            numbers.set(a, Number(raw))
+        } else {
+            return false
+        }
+    }
+
+    alternatives.sort((a, b) => {
+        return numbers.get(a)! - numbers.get(b)!
+    })
+
+    return true
+}
+
 export default createRule("sort-alternatives", {
     meta: {
         docs: {
@@ -131,12 +153,20 @@ export default createRule("sort-alternatives", {
                 }
 
                 const consumedChars = getConsumedChars(group, regexpContext)
+                if (consumedChars.isEmpty) {
+                    // all alternatives are either empty or only contain
+                    // assertions
+                    return
+                }
+
                 if (!canReorder(group, consumedChars, regexpContext)) {
                     return
                 }
 
                 const alternatives = [...group.alternatives]
-                sortAlternatives(alternatives, regexpContext)
+                if (!trySortNumberAlternatives(alternatives)) {
+                    sortAlternatives(alternatives, regexpContext)
+                }
 
                 const reordered = alternatives.some(
                     (a, i) => group.alternatives[i] !== a,
