@@ -26,6 +26,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
+| [regexp/strict](./strict.md) | disallow not strictly valid regular expressions | :wrench: |
 
 ### Best Practices
 

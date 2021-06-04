@@ -112,6 +112,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-assertions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-assertions.html) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-backreference.html) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-dollar-replacements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-dollar-replacements.html) | disallow useless `$` replacements in replacement string |  |
+| [regexp/strict](https://ota-meshi.github.io/eslint-plugin-regexp/rules/strict.html) | disallow not strictly valid regular expressions | :wrench: |
 
 ### Best Practices
 
