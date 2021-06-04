@@ -12,7 +12,6 @@ export = {
 
         // eslint-plugin-regexp rules
         "regexp/match-any": "error",
-        "regexp/no-assertion-capturing-group": "error",
         "regexp/no-dupe-characters-character-class": "error",
         "regexp/no-empty-group": "error",
         "regexp/no-empty-lookarounds-assertion": "error",

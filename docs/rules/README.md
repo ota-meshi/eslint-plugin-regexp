@@ -13,7 +13,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | disallow capturing group that captures empty. | :star: |
 | [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements |  |
 | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. |  |
@@ -83,3 +82,12 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+### Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md.md) |
