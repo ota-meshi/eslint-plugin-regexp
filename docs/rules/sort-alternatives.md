@@ -13,7 +13,11 @@ description: "sort alternatives if order doesn't matter"
 
 ## :book: Rule Details
 
-This rule reports ???.
+This rule will sort alternatives to improve readability and maintainability.
+
+The primary target of this rule are lists of words and/or numbers. These lists are somewhat common and sorting them makes it easy for readers to check whether a particular word or number is included.
+
+This rule will only sort alternatives if reordering the alternatives doesn't affect the pattern.
 
 <eslint-code-block fix>
 
@@ -21,10 +25,13 @@ This rule reports ???.
 /* eslint regexp/sort-alternatives: "error" */
 
 /* ✓ GOOD */
-
+var foo = /\b(1|2|3)\b/;
+var foo = /\b(alpha|beta|gamma)\b/;
 
 /* ✗ BAD */
-
+var foo = /\b(2|1|3)\b/;
+var foo = /__(?:Foo|Bar)__/;
+var foo = /\((?:TM|R|C)\)/;
 ```
 
 </eslint-code-block>
