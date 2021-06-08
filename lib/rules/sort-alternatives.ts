@@ -10,6 +10,7 @@ import {
     isEmptyBackreference,
 } from "regexp-ast-analysis"
 import type { CharRange, CharSet } from "refa"
+import type { SourceLocation, Position } from "estree"
 
 /**
  * Returns the union of all characters that can possibly be consumed by the
@@ -122,6 +123,26 @@ function trySortNumberAlternatives(alternatives: Alternative[]): boolean {
     return true
 }
 
+/**
+ * Returns the combined source location of the two given locations.
+ */
+function unionLocations(a: SourceLocation, b: SourceLocation): SourceLocation {
+    /** x < y */
+    function less(x: Position, y: Position): boolean {
+        if (x.line < y.line) {
+            return true
+        } else if (x.line > y.line) {
+            return false
+        }
+        return x.column < y.column
+    }
+
+    return {
+        start: { ...(less(a.start, b.start) ? a.start : b.start) },
+        end: { ...(less(a.end, b.end) ? b.end : a.end) },
+    }
+}
+
 export default createRule("sort-alternatives", {
     meta: {
         docs: {
@@ -146,7 +167,53 @@ export default createRule("sort-alternatives", {
         ): RegExpVisitor.Handlers {
             const { node, getRegexpLocation, fixReplaceNode } = regexpContext
 
-            /** */
+            /** The handler for groups */
+            function enforceSorted(sorted: Alternative[]): void {
+                const parent = sorted[0].parent
+                const unsorted = parent.alternatives
+
+                const firstChanged = unsorted.findIndex(
+                    (a, i) => a !== unsorted[i],
+                )
+
+                if (firstChanged === -1) {
+                    // unsorted === sorted
+                    return
+                }
+
+                const lastChanged = [...unsorted]
+                    .reverse()
+                    .findIndex(
+                        (a, i) => a !== unsorted[unsorted.length - 1 - i],
+                    )
+
+                const loc = unionLocations(
+                    getRegexpLocation(unsorted[firstChanged]),
+                    getRegexpLocation(unsorted[lastChanged]),
+                )
+
+                context.report({
+                    node,
+                    loc,
+                    messageId: "sort",
+                    fix: fixReplaceNode(parent, () => {
+                        const prefix = parent.raw.slice(
+                            0,
+                            parent.alternatives[0].start - parent.start,
+                        )
+                        const suffix = parent.raw.slice(
+                            parent.alternatives[parent.alternatives.length - 1]
+                                .end - parent.start,
+                        )
+
+                        return (
+                            prefix + sorted.map((a) => a.raw).join("|") + suffix
+                        )
+                    }),
+                })
+            }
+
+            /** The handler for groups */
             function onGroup(group: Group | CapturingGroup): void {
                 if (group.alternatives.length < 2) {
                     return
@@ -168,34 +235,7 @@ export default createRule("sort-alternatives", {
                     sortAlternatives(alternatives, regexpContext)
                 }
 
-                const reordered = alternatives.some(
-                    (a, i) => group.alternatives[i] !== a,
-                )
-
-                if (reordered) {
-                    context.report({
-                        node,
-                        loc: getRegexpLocation(group),
-                        messageId: "sort",
-                        fix: fixReplaceNode(group, () => {
-                            const prefix = group.raw.slice(
-                                0,
-                                group.alternatives[0].start - group.start,
-                            )
-                            const suffix = group.raw.slice(
-                                group.alternatives[
-                                    group.alternatives.length - 1
-                                ].end - group.start,
-                            )
-
-                            return (
-                                prefix +
-                                alternatives.map((a) => a.raw).join("|") +
-                                suffix
-                            )
-                        }),
-                    })
-                }
+                enforceSorted(alternatives)
             }
 
             return {
