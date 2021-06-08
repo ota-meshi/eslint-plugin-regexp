@@ -1,8 +1,17 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Alternative, CapturingGroup, Element, Group } from "regexpp/ast"
+import type {
+    Alternative,
+    CapturingGroup,
+    Element,
+    Group,
+    LookaroundAssertion,
+    Pattern,
+} from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import { CP_MINUS, CP_SPACE, createRule, defineRegexpVisitor } from "../utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
+    getLengthRange,
     Chars,
     getFirstCharAfter,
     getFirstConsumedChar,
@@ -10,14 +19,43 @@ import {
     isEmptyBackreference,
 } from "regexp-ast-analysis"
 import type { CharRange, CharSet } from "refa"
+import { JS } from "refa"
 import type { SourceLocation, Position } from "estree"
+
+interface AllowedChars {
+    allowed: CharSet
+    required: CharSet
+}
+const cache = new Map<string, Readonly<AllowedChars>>()
+
+/** */
+function getAllowedChars(flags: ReadonlyFlags) {
+    const cacheKey = (flags.ignoreCase ? "i" : "") + (flags.unicode ? "u" : "")
+    let result = cache.get(cacheKey)
+    if (result === undefined) {
+        result = {
+            allowed: JS.createCharSet(
+                [
+                    { kind: "word", negate: false },
+                    { min: CP_SPACE, max: CP_SPACE },
+                    { min: CP_MINUS, max: CP_MINUS },
+                    { min: CP_MINUS, max: CP_MINUS },
+                ],
+                flags,
+            ),
+            required: Chars.word(flags),
+        }
+        cache.set(cacheKey, result)
+    }
+    return result
+}
 
 /**
  * Returns the union of all characters that can possibly be consumed by the
  * given element.
  */
 function getConsumedChars(
-    element: Element | Alternative,
+    element: Element | Pattern | Alternative,
     context: RegExpContext,
 ): CharSet {
     const ranges: CharRange[] = []
@@ -46,6 +84,8 @@ function getConsumedChars(
     return Chars.empty(context.flags).union(ranges)
 }
 
+type Parent = Group | CapturingGroup | Pattern | LookaroundAssertion
+
 /**
  * Assuming that the given group only consumes the given characters, this will
  * return whether the alternatives of the group can be reordered freely without
@@ -55,17 +95,47 @@ function getConsumedChars(
  * capturing group in such a way that their order matters.
  */
 function canReorder(
-    group: Group | CapturingGroup,
+    parent: Parent,
     consumedChars: CharSet,
     context: RegExpContext,
 ): boolean {
+    const lengthRange = getLengthRange(parent.alternatives)
+    if (lengthRange && lengthRange.min === lengthRange.max) {
+        return true
+    }
+
+    if (parent.type === "Pattern" || parent.type === "Assertion") {
+        return false
+    }
+
     return (
-        getFirstCharAfter(group, "rtl", context.flags).char.isDisjointWith(
+        getFirstCharAfter(parent, "rtl", context.flags).char.isDisjointWith(
             consumedChars,
         ) &&
-        getFirstCharAfter(group, "ltr", context.flags).char.isDisjointWith(
+        getFirstCharAfter(parent, "ltr", context.flags).char.isDisjointWith(
             consumedChars,
         )
+    )
+}
+
+/**
+ * Returns whether the given element contains only literal characters and
+ * groups/other elements containing literal characters.
+ */
+function containsOnlyLiterals(
+    element: Element | Pattern | Alternative,
+): boolean {
+    return !hasSomeDescendant(
+        element,
+        (d) => {
+            return (
+                d.type === "Backreference" ||
+                d.type === "CharacterSet" ||
+                (d.type === "Quantifier" && d.max === Infinity) ||
+                (d.type === "CharacterClass" && d.negate)
+            )
+        },
+        (d) => d.type !== "Assertion",
     )
 }
 
@@ -105,22 +175,32 @@ function sortAlternatives(
  * This tries to sort the given alternatives by assuming that all alternatives
  * are a number.
  */
-function trySortNumberAlternatives(alternatives: Alternative[]): boolean {
-    const numbers = new Map<Alternative, number>()
-    for (const a of alternatives) {
-        const { raw } = a
-        if (/^\d+$/.test(raw)) {
-            numbers.set(a, Number(raw))
-        } else {
-            return false
+function trySortNumberAlternatives(alternatives: Alternative[]): void {
+    const numberRanges: [number, number][] = []
+    {
+        let start = 0
+        for (let i = 0; i < alternatives.length; i++) {
+            if (!/^0|[1-9]\d*$/.test(alternatives[i].raw)) {
+                if (start < i) {
+                    numberRanges.push([start, i])
+                }
+                start = i + 1
+            }
+        }
+        if (start < alternatives.length) {
+            numberRanges.push([start, alternatives.length])
         }
     }
 
-    alternatives.sort((a, b) => {
-        return numbers.get(a)! - numbers.get(b)!
-    })
+    for (const [start, end] of numberRanges) {
+        const slice = alternatives.slice(start, end)
 
-    return true
+        slice.sort((a, b) => {
+            return Number(a.raw) - Number(b.raw)
+        })
+
+        alternatives.splice(start, end - start, ...slice)
+    }
 }
 
 /**
@@ -141,6 +221,33 @@ function unionLocations(a: SourceLocation, b: SourceLocation): SourceLocation {
         start: { ...(less(a.start, b.start) ? a.start : b.start) },
         end: { ...(less(a.end, b.end) ? b.end : a.end) },
     }
+}
+
+/**
+ * Returns the indexes of the first and last of original array that is changed
+ * when compared with the reordered one.
+ */
+function getReorderingBounds<T>(
+    original: readonly T[],
+    reorder: readonly T[],
+): [number, number] | undefined {
+    if (original.length !== reorder.length) {
+        return undefined
+    }
+
+    const len = original.length
+
+    let first = 0
+    for (; first < len && original[first] === reorder[first]; first++);
+
+    if (first === len) {
+        return undefined
+    }
+
+    let last = len - 1
+    for (; last >= 0 && original[last] === reorder[last]; last--);
+
+    return [first, last]
 }
 
 export default createRule("sort-alternatives", {
@@ -165,31 +272,31 @@ export default createRule("sort-alternatives", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
+            const {
+                node,
+                getRegexpLocation,
+                fixReplaceNode,
+                flags,
+            } = regexpContext
 
-            /** The handler for groups */
+            const allowedChars = getAllowedChars(flags)
+
+            /**
+             * Creates a report if the sorted alternatives are different from
+             * the unsorted ones.
+             */
             function enforceSorted(sorted: Alternative[]): void {
                 const parent = sorted[0].parent
                 const unsorted = parent.alternatives
 
-                const firstChanged = unsorted.findIndex(
-                    (a, i) => a !== unsorted[i],
-                )
-
-                if (firstChanged === -1) {
-                    // unsorted === sorted
+                const bounds = getReorderingBounds(unsorted, sorted)
+                if (!bounds) {
                     return
                 }
 
-                const lastChanged = [...unsorted]
-                    .reverse()
-                    .findIndex(
-                        (a, i) => a !== unsorted[unsorted.length - 1 - i],
-                    )
-
                 const loc = unionLocations(
-                    getRegexpLocation(unsorted[firstChanged]),
-                    getRegexpLocation(unsorted[lastChanged]),
+                    getRegexpLocation(unsorted[bounds[0]]),
+                    getRegexpLocation(unsorted[bounds[1]]),
                 )
 
                 context.report({
@@ -213,34 +320,66 @@ export default createRule("sort-alternatives", {
                 })
             }
 
-            /** The handler for groups */
-            function onGroup(group: Group | CapturingGroup): void {
-                if (group.alternatives.length < 2) {
+            /** The handler for parents */
+            function onParent(parent: Parent): void {
+                if (parent.alternatives.length < 2) {
                     return
                 }
 
-                const consumedChars = getConsumedChars(group, regexpContext)
+                if (!containsOnlyLiterals(parent)) {
+                    return
+                }
+
+                if (
+                    hasSomeDescendant(
+                        parent,
+                        (d) => d !== parent && d.type === "CapturingGroup",
+                    )
+                ) {
+                    // it's not safe to reorder alternatives with capturing groups
+                    return
+                }
+
+                const consumedChars = getConsumedChars(parent, regexpContext)
                 if (consumedChars.isEmpty) {
                     // all alternatives are either empty or only contain
                     // assertions
                     return
                 }
-
-                if (!canReorder(group, consumedChars, regexpContext)) {
+                if (!consumedChars.isSubsetOf(allowedChars.allowed)) {
+                    // contains some chars that are not allowed
+                    return
+                }
+                if (consumedChars.isDisjointWith(allowedChars.required)) {
+                    // doesn't contain required chars
                     return
                 }
 
-                const alternatives = [...group.alternatives]
-                if (!trySortNumberAlternatives(alternatives)) {
+                const alternatives = [...parent.alternatives]
+
+                if (canReorder(parent, consumedChars, regexpContext)) {
+                    // alternatives can be reordered freely
                     sortAlternatives(alternatives, regexpContext)
+                    trySortNumberAlternatives(alternatives)
+                } else if (
+                    !consumedChars.isDisjointWith(Chars.digit(flags)) &&
+                    canReorder(
+                        parent,
+                        consumedChars.intersect(Chars.digit(flags)),
+                        regexpContext,
+                    )
+                ) {
+                    // let's try to at least sort numbers
+                    trySortNumberAlternatives(alternatives)
                 }
 
                 enforceSorted(alternatives)
             }
 
             return {
-                onGroupEnter: onGroup,
-                onCapturingGroupEnter: onGroup,
+                onGroupEnter: onParent,
+                onPatternEnter: onParent,
+                onCapturingGroupEnter: onParent,
             }
         }
 
