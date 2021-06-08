@@ -8,7 +8,13 @@ import type {
     Pattern,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { CP_MINUS, CP_SPACE, createRule, defineRegexpVisitor } from "../utils"
+import {
+    CP_MINUS,
+    CP_SPACE,
+    CP_APOSTROPHE,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getLengthRange,
@@ -39,7 +45,7 @@ function getAllowedChars(flags: ReadonlyFlags) {
                     { kind: "word", negate: false },
                     { min: CP_SPACE, max: CP_SPACE },
                     { min: CP_MINUS, max: CP_MINUS },
-                    { min: CP_MINUS, max: CP_MINUS },
+                    { min: CP_APOSTROPHE, max: CP_APOSTROPHE },
                 ],
                 flags,
             ),
