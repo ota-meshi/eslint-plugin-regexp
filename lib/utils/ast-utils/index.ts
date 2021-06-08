@@ -8,9 +8,11 @@ import type {
     MemberExpression,
     Node,
 } from "estree"
-import { parseStringLiteral } from "./string-literal-parser"
-import { baseParseReplacements } from "./replacements-utils"
+import { parseStringLiteral } from "../string-literal-parser"
+import { baseParseReplacements } from "../replacements-utils"
 import type { Scope, Variable } from "eslint-scope"
+export { extractExpressionReferences } from "./extract-expression-references"
+export { extractPropertyReferences } from "./extract-property-references"
 
 /**
  * Get a parent node

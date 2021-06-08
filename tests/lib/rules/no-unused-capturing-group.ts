@@ -100,6 +100,18 @@ tester.run("no-unused-capturing-group", rule as any, {
         const reg = /(,)/;
         'a,b,c'.split(reg)
         `,
+        {
+            // exported
+            code: String.raw`
+            /* exported regexp */
+            const regexp = /(\d{4})-(\d{2})-(\d{2})/
+            const replaced = '2000-12-31'.replace(regexp, 'Date') // "Date"
+            `,
+            parserOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
+            },
+        },
     ],
     invalid: [
         {
@@ -444,7 +456,10 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: ["Capturing group is defined but never used."],
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "Capturing group is defined but never used.",
+            ],
         },
         {
             code: String.raw`

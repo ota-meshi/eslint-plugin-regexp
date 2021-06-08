@@ -3,14 +3,16 @@ import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type {
     CallExpression,
     Expression,
-    Identifier,
     NewExpression,
     Node,
     RegExpLiteral,
     Statement,
 } from "estree"
 import type { KnownMethodCall } from "../utils/ast-utils"
-import { findVariable, isKnownMethodCall, getParent } from "../utils/ast-utils"
+import {
+    isKnownMethodCall,
+    extractExpressionReferences,
+} from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
@@ -60,6 +62,7 @@ class RegExpReference {
             replace?: boolean
             replaceAll?: boolean
         }
+        hasUnusedExpression?: boolean
     } = {
         usedIn: {},
         track: true,
@@ -152,26 +155,6 @@ class RegExpReference {
     public markAsCannotTrack() {
         this.state.track = false
     }
-}
-
-/**
- * If the given expression node is assigned with a variable declaration, it returns the variable name node.
- */
-function getVariableId(node: Expression) {
-    const parent = getParent(node)
-    if (
-        !parent ||
-        parent.type !== "VariableDeclarator" ||
-        parent.init !== node ||
-        parent.id.type !== "Identifier"
-    ) {
-        return null
-    }
-    const decl = getParent(parent)
-    if (decl && decl.type === "VariableDeclaration" && decl.kind === "const") {
-        return parent.id
-    }
-    return null
 }
 
 /**
@@ -493,29 +476,6 @@ function createRegExpReferenceExtractVisitor(
     const regExpReferenceMap = new Map<Node, RegExpReference>()
     const regExpReferenceList: RegExpReference[] = []
 
-    /**
-     * Extract read references
-     */
-    function extractReadReferences(node: Identifier): Identifier[] {
-        const references: Identifier[] = []
-        const variable = findVariable(context, node)
-        if (!variable) {
-            return references
-        }
-        for (const reference of variable.references) {
-            if (reference.isRead()) {
-                const id = getVariableId(reference.identifier)
-                if (id) {
-                    references.push(...extractReadReferences(id))
-                } else {
-                    references.push(reference.identifier)
-                }
-            }
-        }
-
-        return references
-    }
-
     /** Verify for String.prototype.search() or String.prototype.split() */
     function verifyForSearchOrSplit(
         node: KnownMethodCall,
@@ -568,15 +528,16 @@ function createRegExpReferenceExtractVisitor(
                     const regExpReference = new RegExpReference(regexpNode)
                     regExpReferenceList.push(regExpReference)
                     regExpReferenceMap.set(regexpNode, regExpReference)
-                    const id = getVariableId(regexpNode)
-                    if (id) {
-                        const readReferences = extractReadReferences(id)
-                        for (const ref of readReferences) {
-                            regExpReferenceMap.set(ref, regExpReference)
-                            regExpReference.addReadNode(ref)
+                    for (const ref of extractExpressionReferences(
+                        regexpNode,
+                        context,
+                    )) {
+                        if (ref.type === "argument" || ref.type === "member") {
+                            regExpReferenceMap.set(ref.node, regExpReference)
+                            regExpReference.addReadNode(ref.node)
+                        } else {
+                            regExpReference.markAsCannotTrack()
                         }
-                    } else {
-                        regExpReference.addReadNode(regexpNode)
                     }
                 }
                 return {} // not visit RegExpNodes

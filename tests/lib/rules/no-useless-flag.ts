@@ -179,6 +179,28 @@ tester.run("no-useless-flag", rule as any, {
         const regex = /foo/y;
         unknown.exec(regex)
         `,
+        {
+            // exported
+            code: `
+            /* exported b */
+            const a = /foo/y;
+            const b = a;
+            const regex = b;
+
+            'str'.split(regex)
+            `,
+            parserOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
+            },
+        },
+        `
+        const a = /foo/y;
+        const b = a;
+        const regex = b; // unused
+
+        'str'.split(b)
+        `,
 
         // ignore
         { code: String.raw`/\w/i`, options: [{ ignore: ["i"] }] },
@@ -534,7 +556,7 @@ tester.run("no-useless-flag", rule as any, {
             const b = a;
             const regex = b;
 
-            'str'.split(b)
+            'str'.split(regex)
             `,
             output: null,
             errors: [

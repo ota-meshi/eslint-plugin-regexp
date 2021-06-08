@@ -11,6 +11,7 @@ import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 type TestCase = {
     code: string
     results: UsageOfPattern[]
+    sourceType?: "script" | "module"
 }
 const TESTCASES: TestCase[] = [
     {
@@ -212,6 +213,25 @@ const TESTCASES: TestCase[] = [
         `,
         results: [UsageOfPattern.partial, UsageOfPattern.whole],
     },
+    {
+        code: `
+        /* exported a */
+        const a = /a/
+        const b = new RegExp(a.source+'b')
+        b.exec(str)
+        `,
+        results: [UsageOfPattern.unknown, UsageOfPattern.whole],
+        sourceType: "script",
+    },
+    {
+        code: `
+        export const a = /a/
+        const b = new RegExp(a.source+'b')
+        b.exec(str)
+        `,
+        results: [UsageOfPattern.unknown, UsageOfPattern.whole],
+        sourceType: "module",
+    },
 ]
 describe("getUsageOfPattern", () => {
     for (const testCase of TESTCASES) {
@@ -274,6 +294,7 @@ describe("getUsageOfPattern", () => {
                     },
                     parserOptions: {
                         ecmaVersion: 2020,
+                        sourceType: testCase.sourceType,
                     },
                     rules: {
                         test: "error",
