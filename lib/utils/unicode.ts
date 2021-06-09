@@ -24,6 +24,7 @@ export const CP_BACK_SLASH = "\\".codePointAt(0)!
 export const CP_CLOSING_BRACKET = "]".codePointAt(0)!
 export const CP_CARET = "^".codePointAt(0)!
 export const CP_BACKTICK = "`".codePointAt(0)!
+export const CP_APOSTROPHE = "'".codePointAt(0)!
 export const CP_OPENING_BRACE = "{".codePointAt(0)!
 export const CP_PIPE = "|".codePointAt(0)!
 export const CP_CLOSING_BRACE = "}".codePointAt(0)!
