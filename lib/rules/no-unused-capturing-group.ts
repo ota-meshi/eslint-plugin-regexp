@@ -7,7 +7,7 @@ import type {
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, compositingVisitors } from "../utils"
-import type { KnownMethodCall } from "../utils/ast-utils"
+import type { KnownMethodCall, PropertyReference } from "../utils/ast-utils"
 import {
     isKnownMethodCall,
     getStaticValue,
@@ -318,21 +318,18 @@ export default createRule("no-unused-capturing-group", {
             capturingData: CapturingData,
         ) {
             for (const ref of extractPropertyReferences(node, context)) {
-                if (ref.type === "destructuring" || ref.type === "member") {
-                    if (ref.ref === "groups") {
-                        for (const namedRef of ref.references()) {
-                            if (
-                                namedRef.type === "destructuring" ||
-                                namedRef.type === "member"
-                            ) {
-                                capturingData.usedName(namedRef.ref)
+                if (hasNameRef(ref)) {
+                    if (ref.name === "groups") {
+                        for (const namedRef of ref.extractPropertyReferences()) {
+                            if (hasNameRef(namedRef)) {
+                                capturingData.usedName(namedRef.name)
                             } else {
                                 // unknown used as name
                                 capturingData.usedAllNames()
                             }
                         }
                     } else {
-                        capturingData.usedIndex(Number(ref.ref))
+                        capturingData.usedIndex(Number(ref.name))
                     }
                 } else {
                     capturingData.markAsCannotTrack()
@@ -356,26 +353,29 @@ export default createRule("no-unused-capturing-group", {
                 node,
                 context,
             )) {
-                if (iterationRef.type !== "iteration") {
+                if (!iterationRef.extractPropertyReferences) {
                     capturingData.markAsCannotTrack()
                     return
                 }
-                for (const ref of iterationRef.references()) {
-                    if (ref.type === "destructuring" || ref.type === "member") {
-                        if (ref.ref === "groups") {
-                            for (const namedRef of ref.references()) {
-                                if (
-                                    namedRef.type === "destructuring" ||
-                                    namedRef.type === "member"
-                                ) {
-                                    capturingData.usedName(namedRef.ref)
+                if (hasNameRef(iterationRef)) {
+                    if (Number.isNaN(Number(iterationRef.name))) {
+                        // Not aimed to iteration.
+                        continue
+                    }
+                }
+                for (const ref of iterationRef.extractPropertyReferences()) {
+                    if (hasNameRef(ref)) {
+                        if (ref.name === "groups") {
+                            for (const namedRef of ref.extractPropertyReferences()) {
+                                if (hasNameRef(namedRef)) {
+                                    capturingData.usedName(namedRef.name)
                                 } else {
                                     // unknown used as name
                                     capturingData.usedAllNames()
                                 }
                             }
                         } else {
-                            capturingData.usedIndex(Number(ref.ref))
+                            capturingData.usedIndex(Number(ref.name))
                         }
                     } else {
                         capturingData.markAsCannotTrack()
@@ -473,3 +473,10 @@ export default createRule("no-unused-capturing-group", {
         )
     },
 })
+
+/** Checks whether the given reference is a named reference. */
+function hasNameRef(
+    ref: PropertyReference,
+): ref is PropertyReference & { type: "member" | "destructuring" } {
+    return ref.type === "destructuring" || ref.type === "member"
+}

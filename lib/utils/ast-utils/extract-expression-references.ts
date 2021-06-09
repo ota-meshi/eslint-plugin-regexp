@@ -22,40 +22,40 @@ export type ExpressionReference =
           node: Expression
       }
     | {
-          // The expression is referenced as a property name.
-          type: "property"
-          node: Expression
-      }
-    | {
-          // Unknown how expression is referenced.
+          // Unknown what the expression was referenced for.
           type: "unknown"
           node: Expression
       }
     | {
-          // Expression is exported.
+          // The expression is exported.
           type: "exported"
           node: Expression
       }
     | {
+          // The expression is referenced for member access.
           type: "member"
           node: Expression
           memberExpression: MemberExpression
       }
     | {
+          // The expression is referenced for destructuring.
           type: "destructuring"
           node: Expression
           pattern: ObjectPattern | ArrayPattern
       }
     | {
+          // The expression is referenced to give as an argument.
           type: "argument"
           node: Expression
           callExpression: CallExpression
       }
     | {
+          // The expression is referenced to call.
           type: "call"
           node: Expression
       }
     | {
+          // The expression is referenced for iteration.
           type: "iteration"
           node: Expression
           for: ForOfStatement
@@ -94,28 +94,28 @@ export function* extractExpressionReferencesForVariable(
 /** Iterate references from the given expression */
 function* iterateReferencesForExpression(
     /* eslint-enable complexity -- ignore */
-    node: Expression,
+    expression: Expression,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
 ): IterableIterator<ExpressionReference> {
-    let target = node
-    let parent = getParent(target)
+    let node = expression
+    let parent = getParent(node)
     while (parent?.type === "ChainExpression") {
-        target = parent
-        parent = getParent(target)
+        node = parent
+        parent = getParent(node)
     }
     if (!parent || parent.type === "ExpressionStatement") {
         yield { node, type: "unused" }
         return
     }
     if (parent.type === "MemberExpression") {
-        if (parent.object === target) {
+        if (parent.object === node) {
             yield { node, type: "member", memberExpression: parent }
         } else {
-            yield { node, type: "property" }
+            yield { node, type: "unknown" }
         }
     } else if (parent.type === "AssignmentExpression") {
-        if (parent.right === target && parent.operator === "=") {
+        if (parent.right === node && parent.operator === "=") {
             yield* iterateReferencesForESPattern(
                 node,
                 parent.left,
@@ -126,7 +126,7 @@ function* iterateReferencesForExpression(
             yield { node, type: "unknown" }
         }
     } else if (parent.type === "VariableDeclarator") {
-        if (parent.init === target) {
+        if (parent.init === node) {
             const pp = getParent(getParent(parent))
             if (pp?.type === "ExportNamedDeclaration") {
                 yield { node, type: "exported" }
@@ -141,7 +141,7 @@ function* iterateReferencesForExpression(
             yield { node, type: "unknown" }
         }
     } else if (parent.type === "CallExpression") {
-        const argIndex = parent.arguments.indexOf(target)
+        const argIndex = parent.arguments.indexOf(node)
         if (argIndex > -1) {
             // `foo(regexp)`
             if (parent.callee.type === "Identifier") {
@@ -167,7 +167,7 @@ function* iterateReferencesForExpression(
     ) {
         yield { node, type: "exported" }
     } else if (parent.type === "ForOfStatement") {
-        if (parent.right === target) {
+        if (parent.right === node) {
             yield { node, type: "iteration", for: parent }
         } else {
             yield { node, type: "unknown" }
@@ -179,7 +179,7 @@ function* iterateReferencesForExpression(
 
 /** Iterate references for the given pattern node. */
 function* iterateReferencesForESPattern(
-    node: Expression,
+    expression: Expression,
     pattern: Pattern,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
@@ -195,21 +195,21 @@ function* iterateReferencesForESPattern(
         target.type === "ObjectPattern" ||
         target.type === "ArrayPattern"
     ) {
-        yield { node, type: "destructuring", pattern: target }
+        yield { node: expression, type: "destructuring", pattern: target }
     } else {
-        yield { node, type: "unknown" }
+        yield { node: expression, type: "unknown" }
     }
 }
 
 /** Iterate references for the given variable id node. */
 function* iterateReferencesForVariable(
-    node: Identifier,
+    identifier: Identifier,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
 ): IterableIterator<ExpressionReference> {
-    const variable = findVariable(context, node)
+    const variable = findVariable(context, identifier)
     if (!variable) {
-        yield { node, type: "unknown" }
+        yield { node: identifier, type: "unknown" }
         return
     }
     if (alreadyChecked.variables.has(variable)) {
@@ -218,11 +218,11 @@ function* iterateReferencesForVariable(
     alreadyChecked.variables.add(variable)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- expect
     if ((variable as any).eslintUsed) {
-        yield { node, type: "exported" }
+        yield { node: identifier, type: "exported" }
     }
     const readReferences = variable.references.filter((ref) => ref.isRead())
     if (!readReferences.length) {
-        yield { node, type: "unused" }
+        yield { node: identifier, type: "unused" }
         return
     }
     for (const reference of readReferences) {
@@ -236,7 +236,7 @@ function* iterateReferencesForVariable(
 
 /** Iterate references for the given function argument. */
 function* iterateReferencesForFunctionArgument(
-    node: Expression,
+    expression: Expression,
     fn: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
     argIndex: number,
     context: Rule.RuleContext,
@@ -255,10 +255,15 @@ function* iterateReferencesForFunctionArgument(
     const params = fn.params.slice(0, argIndex + 1)
     const argNode = params[argIndex]
     if (!argNode || params.some((param) => param?.type === "RestElement")) {
-        yield { node, type: "unknown" }
+        yield { node: expression, type: "unknown" }
         return
     }
-    yield* iterateReferencesForESPattern(node, argNode, context, alreadyChecked)
+    yield* iterateReferencesForESPattern(
+        expression,
+        argNode,
+        context,
+        alreadyChecked,
+    )
 }
 
 /**

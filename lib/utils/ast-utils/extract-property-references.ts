@@ -1,14 +1,17 @@
 import type { Rule } from "eslint"
 import type {
+    ArrayExpression,
     ArrayPattern,
     Expression,
     ForOfStatement,
     MemberExpression,
+    ObjectExpression,
     ObjectPattern,
     Pattern,
     Property,
+    SpreadElement,
 } from "estree"
-import { getStringIfConstant } from "."
+import { getParent, getStringIfConstant } from "."
 import {
     extractExpressionReferences,
     extractExpressionReferencesForVariable,
@@ -18,52 +21,72 @@ export type PropertyReference =
     | {
           // Property name is unknown.
           type: "unknown"
+          extractPropertyReferences?: () => IterableIterator<PropertyReference>
       }
     | {
           type: "member"
-          ref: string
-          references: () => IterableIterator<PropertyReference>
+          name: string
+          extractPropertyReferences: () => IterableIterator<PropertyReference>
       }
     | {
           type: "destructuring"
-          ref: string
-          references: () => IterableIterator<PropertyReference>
+          name: string
+          extractPropertyReferences: () => IterableIterator<PropertyReference>
       }
     | {
           type: "iteration"
-          references: () => IterableIterator<PropertyReference>
+          extractPropertyReferences: () => IterableIterator<PropertyReference>
       }
 /** Extract property references from the given expression */
 export function* extractPropertyReferences(
     node: Expression,
     context: Rule.RuleContext,
 ): IterableIterator<PropertyReference> {
-    for (const ref of node.type === "Identifier"
-        ? extractExpressionReferencesForVariable(node, context)
-        : extractExpressionReferences(node, context)) {
+    if (isShallowCopy(node)) {
+        yield* iteratePropertyReferencesForShallowCopy(node, context)
+        return
+    }
+
+    for (const ref of extractExpressionReferences(node, context)) {
         if (ref.type === "member") {
             yield* iteratePropertyReferencesForMemberExpression(
                 ref.memberExpression,
                 context,
             )
         } else if (ref.type === "destructuring") {
-            if (ref.pattern.type === "ObjectPattern") {
-                yield* iteratePropertyReferencesForObjectPattern(
-                    ref.pattern,
-                    context,
-                )
-            } else if (ref.pattern.type === "ArrayPattern") {
-                yield* iteratePropertyReferencesForArrayPattern(
-                    ref.pattern,
-                    context,
-                )
-            }
+            yield* iteratePropertyReferencesForPattern(ref.pattern, context)
         } else if (ref.type === "iteration") {
             yield* iteratePropertyReferencesForForOf(ref.for, context)
         } else {
+            if (ref.node !== node && isShallowCopy(ref.node)) {
+                yield* iteratePropertyReferencesForShallowCopy(
+                    ref.node,
+                    context,
+                )
+                return
+            }
             yield { type: "unknown" }
         }
     }
+}
+
+/** Checks whether the given expression is shallow copied. */
+function isShallowCopy(
+    node: Expression,
+): node is Expression & {
+    parent: SpreadElement & { parent: ObjectExpression | ArrayExpression }
+} {
+    const parent = getParent(node)
+    if (parent?.type === "SpreadElement") {
+        const spreadParent = getParent(parent)
+        if (
+            spreadParent?.type === "ObjectExpression" ||
+            spreadParent?.type === "ArrayExpression"
+        ) {
+            return true
+        }
+    }
+    return false
 }
 
 /** Iterate property references from the given member expression */
@@ -73,13 +96,18 @@ function* iteratePropertyReferencesForMemberExpression(
 ): IterableIterator<PropertyReference> {
     const property = getProperty(node, context)
     if (property == null) {
-        yield { type: "unknown" }
+        yield {
+            type: "unknown",
+            *extractPropertyReferences() {
+                yield* extractPropertyReferences(node, context)
+            },
+        }
         return
     }
     yield {
         type: "member",
-        ref: property,
-        *references() {
+        name: property,
+        *extractPropertyReferences() {
             yield* extractPropertyReferences(node, context)
         },
     }
@@ -97,13 +125,21 @@ function* iteratePropertyReferencesForObjectPattern(
         }
         const property = getProperty(prop, context)
         if (property == null) {
-            yield { type: "unknown" }
+            yield {
+                type: "unknown",
+                *extractPropertyReferences() {
+                    yield* iteratePropertyReferencesForPattern(
+                        prop.value,
+                        context,
+                    )
+                },
+            }
             continue
         }
         yield {
             type: "destructuring",
-            ref: property,
-            *references() {
+            name: property,
+            *extractPropertyReferences() {
                 yield* iteratePropertyReferencesForPattern(prop.value, context)
             },
         }
@@ -115,7 +151,8 @@ function* iteratePropertyReferencesForArrayPattern(
     node: ArrayPattern,
     context: Rule.RuleContext,
 ): IterableIterator<PropertyReference> {
-    for (let index = 0; index < node.elements.length; index++) {
+    let index = 0
+    for (; index < node.elements.length; index++) {
         const element = node.elements[index]
         if (!element) {
             continue
@@ -125,23 +162,27 @@ function* iteratePropertyReferencesForArrayPattern(
                 element.argument,
                 context,
             )) {
-                if (ref.type === "member" || ref.type === "destructuring") {
-                    const num = Number(ref.ref) + index
-                    if (Number.isFinite(num)) {
-                        yield { ...ref, ref: String(num) }
-                    } else {
-                        yield ref
-                    }
-                } else {
-                    yield ref
-                }
+                yield offsetRef(ref, index)
             }
-            continue
+            index++
+            break
         }
         yield {
             type: "destructuring",
-            ref: String(index),
-            *references() {
+            name: String(index),
+            *extractPropertyReferences() {
+                yield* iteratePropertyReferencesForPattern(element, context)
+            },
+        }
+    }
+    for (; index < node.elements.length; index++) {
+        const element = node.elements[index]
+        if (!element) {
+            continue
+        }
+        yield {
+            type: "unknown",
+            *extractPropertyReferences() {
                 yield* iteratePropertyReferencesForPattern(element, context)
             },
         }
@@ -155,7 +196,7 @@ function* iteratePropertyReferencesForForOf(
 ): IterableIterator<PropertyReference> {
     yield {
         type: "iteration",
-        *references() {
+        *extractPropertyReferences() {
             let left = node.left
             if (left.type === "VariableDeclaration") {
                 left = left.declarations[0].id
@@ -175,13 +216,60 @@ function* iteratePropertyReferencesForPattern(
         target = target.left
     }
     if (target.type === "Identifier") {
-        yield* extractPropertyReferences(target, context)
+        for (const exprRef of extractExpressionReferencesForVariable(
+            target,
+            context,
+        )) {
+            yield* extractPropertyReferences(exprRef.node, context)
+        }
     } else if (target.type === "ObjectPattern") {
         yield* iteratePropertyReferencesForObjectPattern(target, context)
     } else if (target.type === "ArrayPattern") {
         yield* iteratePropertyReferencesForArrayPattern(target, context)
     } else {
         yield { type: "unknown" }
+    }
+}
+
+/** Iterate property references from the given shallow copy expression */
+function* iteratePropertyReferencesForShallowCopy(
+    node: Expression & {
+        parent: SpreadElement & { parent: ObjectExpression | ArrayExpression }
+    },
+    context: Rule.RuleContext,
+): IterableIterator<PropertyReference> {
+    const spread = node.parent
+    const spreadParent = spread.parent
+    if (spreadParent.type === "ObjectExpression") {
+        yield* extractPropertyReferences(spreadParent, context)
+    } else if (spreadParent.type === "ArrayExpression") {
+        const index = spreadParent.elements.indexOf(spread)
+        if (index === 0) {
+            // e.g. [...expr] or [...expr, after]
+            yield* extractPropertyReferences(spreadParent, context)
+            return
+        }
+        const hasSpread = spreadParent.elements
+            .slice(0, index)
+            .some((e) => e?.type === "SpreadElement")
+        if (hasSpread) {
+            for (const ref of extractPropertyReferences(
+                spreadParent,
+                context,
+            )) {
+                yield {
+                    type: "unknown",
+                    extractPropertyReferences: ref.extractPropertyReferences,
+                }
+            }
+        } else {
+            for (const ref of extractPropertyReferences(
+                spreadParent,
+                context,
+            )) {
+                yield offsetRef(ref, -index)
+            }
+        }
     }
 }
 
@@ -221,4 +309,15 @@ function getProperty(
         }
     }
     return null
+}
+
+/** Moves the reference position of the index reference. */
+function offsetRef(ref: PropertyReference, offset: number): PropertyReference {
+    if (ref.type === "member" || ref.type === "destructuring") {
+        const num = Number(ref.name) + offset
+        if (!Number.isNaN(num)) {
+            return { ...ref, name: String(num) }
+        }
+    }
+    return ref
 }

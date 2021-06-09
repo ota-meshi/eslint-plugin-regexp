@@ -463,6 +463,55 @@ tester.run("no-unused-capturing-group", rule as any, {
         },
         {
             code: String.raw`
+            const result = [...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g)]
+            for (const matches of result) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "Capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            const result = [
+                { 1: 2000, groups: { m: 12 } },
+                ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g),
+                ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?<d>\d{2})/g),
+            ]
+            for (const matches of result) {
+                var y = matches[1]
+                var m = matches.groups.m
+                // var d = matches[3]
+            }
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "Capturing group is defined but never used.",
+                "'y' is defined for capturing group, but it name is never used.",
+                "'d' capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
+            const result = [...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g)]
+            for (let index = 0; index < result.length; index++) {
+                const matches = result[index]
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+            errors: [
+                "'y' is defined for capturing group, but it name is never used.",
+                "Capturing group is defined but never used.",
+            ],
+        },
+        {
+            code: String.raw`
             const reg = /(?<comma>,)/;
             'a,b,c'.split(reg)
             `,
