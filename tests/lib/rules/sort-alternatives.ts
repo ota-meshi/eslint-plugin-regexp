@@ -33,8 +33,29 @@ tester.run("sort-alternatives", rule as any, {
             ],
         },
         {
+            code: String.raw`/\b(?:aa|aA|aB|ab)\b/`,
+            output: String.raw`/\b(?:aA|aB|aa|ab)\b/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
             code: String.raw`/\b(?:A|a|C|c|B|b)\b/i`,
             output: String.raw`/\b(?:A|a|B|b|C|c)\b/i`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:a|A|c|C|b|B)\b/i`,
+            output: String.raw`/\b(?:A|a|B|b|C|c)\b/i`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:aa|aA|aB|ab)\b/i`,
+            output: String.raw`/\b(?:aA|aa|aB|ab)\b/i`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
             ],

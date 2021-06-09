@@ -146,6 +146,21 @@ function containsOnlyLiterals(
 }
 
 /**
+ * Compare two string independent of the current locale by byte order.
+ */
+function compareByteOrder(a: string, b: string): number {
+    const l = Math.min(a.length, b.length)
+    for (let i = 0; i < l; i++) {
+        const diff = a.charCodeAt(i) - b.charCodeAt(i)
+        if (diff !== 0) {
+            return diff
+        }
+    }
+
+    return a.length - b.length
+}
+
+/**
  * Sorts the given alternatives.
  */
 function sortAlternatives(
@@ -170,10 +185,13 @@ function sortAlternatives(
         }
 
         if (context.flags.ignoreCase) {
-            return a.raw.toUpperCase().localeCompare(b.raw.toUpperCase())
+            return (
+                compareByteOrder(a.raw.toUpperCase(), b.raw.toUpperCase()) ||
+                compareByteOrder(a.raw, b.raw)
+            )
         }
 
-        return a.raw.localeCompare(b.raw)
+        return compareByteOrder(a.raw, b.raw)
     })
 }
 
