@@ -51,7 +51,7 @@ export function getUsageOfPattern(
 function* iterateUsageOfPattern(
     node: Expression,
     context: Rule.RuleContext,
-): IterableIterator<InternalUsageOfPattern> {
+): Iterable<InternalUsageOfPattern> {
     for (const ref of extractExpressionReferences(node, context)) {
         if (ref.type === "member") {
             yield* iterateUsageOfPatternForMemberExpression(
@@ -80,7 +80,7 @@ function* iterateUsageOfPattern(
 function* iterateUsageOfPatternForMemberExpression(
     node: MemberExpression,
     context: Rule.RuleContext,
-): IterableIterator<InternalUsageOfPattern> {
+): Iterable<InternalUsageOfPattern> {
     const propName: string | null = !node.computed
         ? (node.property as Identifier).name
         : getStringIfConstant(context, node.property)
@@ -90,7 +90,7 @@ function* iterateUsageOfPatternForMemberExpression(
 /** Iterate the usage of pattern for the given member expression node. */
 function* iterateUsageOfPatternForPropName(
     propName: string | null,
-): IterableIterator<InternalUsageOfPattern> {
+): Iterable<InternalUsageOfPattern> {
     const regexpPropName: keyof RegExp | null = propName as never
     if (regexpPropName === "source") {
         yield UsageOfPattern.partial
@@ -120,7 +120,7 @@ function* iterateUsageOfPatternForPropName(
 function* iterateUsageOfPatternForObjectPattern(
     node: ObjectPattern,
     context: Rule.RuleContext,
-): IterableIterator<InternalUsageOfPattern> {
+): Iterable<InternalUsageOfPattern> {
     for (const prop of node.properties) {
         if (prop.type === "RestElement") {
             continue

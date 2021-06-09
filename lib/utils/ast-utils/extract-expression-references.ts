@@ -72,7 +72,7 @@ type AlreadyChecked = {
 export function* extractExpressionReferences(
     node: Expression,
     context: Rule.RuleContext,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     yield* iterateReferencesForExpression(node, context, {
         variables: new Set(),
         functions: new Map(),
@@ -83,7 +83,7 @@ export function* extractExpressionReferences(
 export function* extractExpressionReferencesForVariable(
     node: Identifier,
     context: Rule.RuleContext,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     yield* iterateReferencesForVariable(node, context, {
         variables: new Set(),
         functions: new Map(),
@@ -97,7 +97,7 @@ function* iterateReferencesForExpression(
     expression: Expression,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     let node = expression
     let parent = getParent(node)
     while (parent?.type === "ChainExpression") {
@@ -183,7 +183,7 @@ function* iterateReferencesForESPattern(
     pattern: Pattern,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     let target = pattern
     while (target.type === "AssignmentPattern") {
         target = target.left
@@ -206,7 +206,7 @@ function* iterateReferencesForVariable(
     identifier: Identifier,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     const variable = findVariable(context, identifier)
     if (!variable) {
         yield { node: identifier, type: "unknown" }
@@ -241,7 +241,7 @@ function* iterateReferencesForFunctionArgument(
     argIndex: number,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,
-): IterableIterator<ExpressionReference> {
+): Iterable<ExpressionReference> {
     let alreadyIndexes = alreadyChecked.functions.get(fn)
     if (!alreadyIndexes) {
         alreadyIndexes = new Set()

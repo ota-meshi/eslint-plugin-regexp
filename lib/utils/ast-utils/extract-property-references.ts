@@ -21,27 +21,27 @@ export type PropertyReference =
     | {
           // Property name is unknown.
           type: "unknown"
-          extractPropertyReferences?: () => IterableIterator<PropertyReference>
+          extractPropertyReferences?: () => Iterable<PropertyReference>
       }
     | {
           type: "member"
           name: string
-          extractPropertyReferences: () => IterableIterator<PropertyReference>
+          extractPropertyReferences: () => Iterable<PropertyReference>
       }
     | {
           type: "destructuring"
           name: string
-          extractPropertyReferences: () => IterableIterator<PropertyReference>
+          extractPropertyReferences: () => Iterable<PropertyReference>
       }
     | {
           type: "iteration"
-          extractPropertyReferences: () => IterableIterator<PropertyReference>
+          extractPropertyReferences: () => Iterable<PropertyReference>
       }
 /** Extract property references from the given expression */
 export function* extractPropertyReferences(
     node: Expression,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     if (isShallowCopy(node)) {
         yield* iteratePropertyReferencesForShallowCopy(node, context)
         return
@@ -93,7 +93,7 @@ function isShallowCopy(
 function* iteratePropertyReferencesForMemberExpression(
     node: MemberExpression,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     const property = getProperty(node, context)
     if (property == null) {
         yield {
@@ -117,7 +117,7 @@ function* iteratePropertyReferencesForMemberExpression(
 function* iteratePropertyReferencesForObjectPattern(
     node: ObjectPattern,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     for (const prop of node.properties) {
         if (prop.type === "RestElement") {
             yield* iteratePropertyReferencesForPattern(prop.argument, context)
@@ -150,7 +150,7 @@ function* iteratePropertyReferencesForObjectPattern(
 function* iteratePropertyReferencesForArrayPattern(
     node: ArrayPattern,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     let index = 0
     for (; index < node.elements.length; index++) {
         const element = node.elements[index]
@@ -193,7 +193,7 @@ function* iteratePropertyReferencesForArrayPattern(
 function* iteratePropertyReferencesForForOf(
     node: ForOfStatement,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     yield {
         type: "iteration",
         *extractPropertyReferences() {
@@ -210,7 +210,7 @@ function* iteratePropertyReferencesForForOf(
 function* iteratePropertyReferencesForPattern(
     node: Pattern,
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     let target = node
     while (target.type === "AssignmentPattern") {
         target = target.left
@@ -237,7 +237,7 @@ function* iteratePropertyReferencesForShallowCopy(
         parent: SpreadElement & { parent: ObjectExpression | ArrayExpression }
     },
     context: Rule.RuleContext,
-): IterableIterator<PropertyReference> {
+): Iterable<PropertyReference> {
     const spread = node.parent
     const spreadParent = spread.parent
     if (spreadParent.type === "ObjectExpression") {
