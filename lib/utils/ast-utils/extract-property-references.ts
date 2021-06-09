@@ -11,7 +11,7 @@ import type {
     Property,
     SpreadElement,
 } from "estree"
-import { getParent, getStringIfConstant } from "."
+import { getParent, getStringIfConstant } from "./utils"
 import {
     extractExpressionReferences,
     extractExpressionReferencesForVariable,

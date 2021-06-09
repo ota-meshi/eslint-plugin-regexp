@@ -13,7 +13,7 @@ import type {
     ObjectPattern,
     Pattern,
 } from "estree"
-import { findVariable, getParent } from "."
+import { findFunction, findVariable, getParent } from "./utils"
 
 export type ExpressionReference =
     | {
@@ -264,49 +264,4 @@ function* iterateReferencesForFunctionArgument(
         context,
         alreadyChecked,
     )
-}
-
-/**
- * Find function node
- */
-function findFunction(
-    context: Rule.RuleContext,
-    id: Identifier,
-): FunctionDeclaration | FunctionExpression | ArrowFunctionExpression | null {
-    let target = id
-
-    const set = new Set<Identifier>()
-    for (;;) {
-        if (set.has(target)) {
-            return null
-        }
-        set.add(target)
-        const calleeVariable = findVariable(context, target)
-        if (!calleeVariable) {
-            return null
-        }
-        if (calleeVariable.defs.length === 1) {
-            const def = calleeVariable.defs[0]
-            if (def.node.type === "FunctionDeclaration") {
-                return def.node
-            }
-            if (
-                def.type === "Variable" &&
-                def.parent.kind === "const" &&
-                def.node.init
-            ) {
-                if (
-                    def.node.init.type === "FunctionExpression" ||
-                    def.node.init.type === "ArrowFunctionExpression"
-                ) {
-                    return def.node.init
-                }
-                if (def.node.init.type === "Identifier") {
-                    target = def.node.init
-                    continue
-                }
-            }
-        }
-        return null
-    }
 }
