@@ -13,41 +13,10 @@ since: "v0.4.0"
 
 ## :book: Rule Details
 
-This rule checks elements of character classes are sorted.
+This rule is the same as the [regexp/sort-character-class-elements] rule. Use [regexp/sort-character-class-elements] instead.
+Replaced by [regexp/sort-character-class-elements] in v1.0.0, this rule will be marked as **deprecated**.
 
-<eslint-code-block fix>
-
-```js
-/* eslint regexp/order-in-character-class: "error" */
-
-/* ✓ GOOD */
-var foo = /[abcdef]/
-var foo = /[ab-f]/
-
-/* ✗ BAD */
-var foo = /[bcdefa]/
-var foo = /[b-fa]/
-```
-
-</eslint-code-block>
-
-## :wrench: Options
-
-```json5
-{
-  "regexp/order-in-character-class": ["error", {
-    "order": [
-      "\\s", // \s or \S
-      "\\w", // \w or \W
-      "\\d", // \d or \D
-      "\\p", // \p{...} or \P{...}
-      "*", // Others (A character or range of characters or an element you did not specify.)
-    ]
-  }]
-}
-```
-
-- `"order"` ... An array of your preferred order. The default is `["\\s", "\\w", "\\d", "\\p", "*",]`.
+[regexp/sort-character-class-elements]: no-useless-lazy.md
 
 ## :rocket: Version
 
