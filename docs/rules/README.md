@@ -83,5 +83,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
+| [regexp/sort-character-class-elements](./sort-character-class-elements.md) | enforces elements order in character class | :wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
