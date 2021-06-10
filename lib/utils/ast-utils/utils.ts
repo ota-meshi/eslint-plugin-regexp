@@ -1,15 +1,18 @@
 import type { Rule } from "eslint"
 import * as eslintUtils from "eslint-utils"
 import type {
+    ArrowFunctionExpression,
     CallExpression,
     Expression,
+    FunctionDeclaration,
+    FunctionExpression,
     Identifier,
     Literal,
     MemberExpression,
     Node,
 } from "estree"
-import { parseStringLiteral } from "./string-literal-parser"
-import { baseParseReplacements } from "./replacements-utils"
+import { parseStringLiteral } from "../string-literal-parser"
+import { baseParseReplacements } from "../replacements-utils"
 import type { Scope, Variable } from "eslint-scope"
 
 /**
@@ -151,6 +154,51 @@ export function getScope(context: Rule.RuleContext, currentNode: Node): Scope {
     }
 
     return scopeManager.scopes[0]
+}
+
+/**
+ * Find function node
+ */
+export function findFunction(
+    context: Rule.RuleContext,
+    id: Identifier,
+): FunctionDeclaration | FunctionExpression | ArrowFunctionExpression | null {
+    let target = id
+
+    const set = new Set<Identifier>()
+    for (;;) {
+        if (set.has(target)) {
+            return null
+        }
+        set.add(target)
+        const calleeVariable = findVariable(context, target)
+        if (!calleeVariable) {
+            return null
+        }
+        if (calleeVariable.defs.length === 1) {
+            const def = calleeVariable.defs[0]
+            if (def.node.type === "FunctionDeclaration") {
+                return def.node
+            }
+            if (
+                def.type === "Variable" &&
+                def.parent.kind === "const" &&
+                def.node.init
+            ) {
+                if (
+                    def.node.init.type === "FunctionExpression" ||
+                    def.node.init.type === "ArrowFunctionExpression"
+                ) {
+                    return def.node.init
+                }
+                if (def.node.init.type === "Identifier") {
+                    target = def.node.init
+                    continue
+                }
+            }
+        }
+        return null
+    }
 }
 
 export type KnownMethodCall = CallExpression & {
