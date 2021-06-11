@@ -10,8 +10,7 @@ export default createRule("order-in-character-class", {
             recommended: false,
             replacedBy: ["sort-character-class-elements"],
         },
-        // TODO Switch to deprecated in the major version.
-        // deprecated: true,
+        deprecated: true,
     },
     create(context) {
         return sortCharacterClassElements.create(context)

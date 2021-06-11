@@ -73,7 +73,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/match-any](./match-any.md) | enforce match any character style | :star::wrench: |
 | [regexp/no-useless-escape](./no-useless-escape.md) | disallow unnecessary escape characters in RegExp | :wrench: |
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :wrench: |
-| [regexp/order-in-character-class](./order-in-character-class.md) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-named-backreference](./prefer-named-backreference.md) | enforce using named backreferences | :wrench: |
@@ -86,3 +85,12 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/sort-character-class-elements](./sort-character-class-elements.md) | enforces elements order in character class | :wrench: |
 | [regexp/sort-flags](./sort-flags.md) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](./unicode-escape.md) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+### Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/order-in-character-class](./order-in-character-class.md) | [regexp/sort-character-class-elements](./sort-character-class-elements.md.md) |
