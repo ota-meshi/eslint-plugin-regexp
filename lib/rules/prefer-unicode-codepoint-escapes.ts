@@ -7,8 +7,7 @@ export default createRule("prefer-unicode-codepoint-escapes", {
         docs: {
             description: "enforce use of unicode codepoint escapes",
             category: "Stylistic Issues",
-            // TODO In the major version, it will be changed to "recommended".
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

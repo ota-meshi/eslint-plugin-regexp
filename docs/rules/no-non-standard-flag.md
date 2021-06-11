@@ -9,6 +9,8 @@ since: "v0.9.0"
 
 > disallow non-standard flags
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule reports non-standard flags.

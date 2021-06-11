@@ -9,6 +9,8 @@ since: "v0.6.0"
 
 > disallow unused capturing group
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule aims to optimize regular expressions by replacing unused capturing groups with non-capturing groups.

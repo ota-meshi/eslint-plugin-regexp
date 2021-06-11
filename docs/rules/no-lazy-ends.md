@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 > disallow lazy quantifiers at the end of an expression
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 If a lazily quantified element is the last element matched by an expression

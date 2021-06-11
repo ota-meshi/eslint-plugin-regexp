@@ -6,8 +6,7 @@ import { rules } from "./lib/load-rules"
 const coreRules = [
     // Possible Errors
     "no-control-regex",
-    // TODO In the major version
-    // "no-empty-character-class",
+    "no-empty-character-class",
     "no-invalid-regexp",
     "no-misleading-character-class",
     "no-regex-spaces",

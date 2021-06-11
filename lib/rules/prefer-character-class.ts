@@ -416,9 +416,7 @@ export default createRule("prefer-character-class", {
         docs: {
             description: "enforce using character class",
             category: "Stylistic Issues",
-            // TODO In the major version
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

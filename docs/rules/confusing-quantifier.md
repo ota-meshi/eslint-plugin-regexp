@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 > disallow confusing quantifiers
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 Confusing quantifiers are ones which imply one thing but don't deliver on that.

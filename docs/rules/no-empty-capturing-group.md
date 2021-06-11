@@ -9,6 +9,8 @@ since: "v0.12.0"
 
 > disallow capturing group that captures empty.
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule reports capturing group that captures assertions.

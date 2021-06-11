@@ -8,9 +8,7 @@ export default createRule("no-empty-capturing-group", {
         docs: {
             description: "disallow capturing group that captures empty.",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {

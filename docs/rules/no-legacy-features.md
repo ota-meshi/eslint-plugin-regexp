@@ -9,6 +9,8 @@ since: "v0.6.0"
 
 > disallow legacy RegExp features
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule disallow legacy RegExp features.

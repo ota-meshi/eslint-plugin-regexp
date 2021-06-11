@@ -9,6 +9,8 @@ since: "v0.9.0"
 
 > disallow obscure character ranges
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 The character range operator (the `-` inside character classes) can easily be misused (mostly unintentionally) to construct non-obvious character class. This rule will disallow all non-obvious uses of the character range operator.

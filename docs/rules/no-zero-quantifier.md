@@ -9,6 +9,8 @@ since: "v0.10.0"
 
 > disallow quantifiers with a maximum of zero
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule reports quantifiers with a maximum of zero. These quantifiers trivially do not affect the pattern is any way and can be removed.

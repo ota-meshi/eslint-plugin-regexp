@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 > disallow alternatives without elements
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 While (re-)writing long regular expressions, it can happen that one forgets to

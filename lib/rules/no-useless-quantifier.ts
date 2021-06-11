@@ -10,9 +10,7 @@ export default createRule("no-useless-quantifier", {
         docs: {
             description: "disallow quantifiers that can be removed",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

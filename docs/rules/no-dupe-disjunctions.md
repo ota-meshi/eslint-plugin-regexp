@@ -9,6 +9,8 @@ since: "v0.4.0"
 
 > disallow duplicate disjunctions
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule disallows duplicate disjunctions.

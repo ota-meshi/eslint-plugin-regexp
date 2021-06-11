@@ -42,8 +42,8 @@ var foo = /\ca/
   "regexp/letter-case": ["error", {
     "caseInsensitive": "lowercase", // or "uppercase" or "ignore"
     "unicodeEscape": "lowercase", // or "uppercase" or "ignore"
-    "hexadecimalEscape": "ignore", // or "lowercase" or "uppercase"
-    "controlEscape": "ignore", // or "lowercase" or "uppercase"
+    "hexadecimalEscape": "lowercase", // or "uppercase" or "ignore"
+    "controlEscape": "uppercase", // or "lowercase" or "ignore"
   }]
 }
 ```
@@ -55,10 +55,8 @@ var foo = /\ca/
 - Properties
   - `caseInsensitive` ... Specifies the letter case when the `i` flag is present. Default is `"lowercase"`.
   - `unicodeEscape` ... Specifies the letter case when the unicode escapes. Default is `"lowercase"`.
-  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"ignore"`.  
-    (The default value will change to `"lowercase"` in the next major version.)
-  - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"ignore"`.  
-    (The default value will change to `"uppercase"` in the next major version.)
+  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"ignolowercasere"`.
+  - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"uppercase"`.
 
 ## :rocket: Version
 

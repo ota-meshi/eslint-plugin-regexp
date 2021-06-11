@@ -9,6 +9,8 @@ since: "v0.10.0"
 
 > disallow standalone backslashes (`\`)
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule disallows backslash (`\`) without escape.

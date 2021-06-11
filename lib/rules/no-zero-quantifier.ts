@@ -9,9 +9,7 @@ export default createRule("no-zero-quantifier", {
         docs: {
             description: "disallow quantifiers with a maximum of zero",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {

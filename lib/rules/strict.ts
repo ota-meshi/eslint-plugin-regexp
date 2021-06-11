@@ -35,9 +35,7 @@ export default createRule("strict", {
         docs: {
             description: "disallow not strictly valid regular expressions",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],
