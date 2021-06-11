@@ -90,6 +90,7 @@
         "jsdoctypeparser": "^9.0.0",
         "refa": "^0.8.0",
         "regexp-ast-analysis": "^0.2.2",
-        "regexpp": "^3.1.0"
+        "regexpp": "^3.1.0",
+        "scslre": "^0.1.5"
     }
 }

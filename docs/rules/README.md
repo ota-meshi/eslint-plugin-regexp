@@ -23,6 +23,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression |  |
 | [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions |  |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
+| [regexp/no-super-linear-backtracking](./no-super-linear-backtracking.md) | disallow exponential and polynomial backtracking | :wrench: |
 | [regexp/no-useless-assertions](./no-useless-assertions.md) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](./no-useless-backreference.md) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md) | disallow useless `$` replacements in replacement string |  |
