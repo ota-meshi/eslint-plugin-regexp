@@ -5,14 +5,13 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import type { FilterKeys } from "./common"
 import { cache, createObject, getTypeName, isEquals } from "./common"
 import { getObjectPrototypes } from "./object"
 
-type IterableKeys = keyof Iterable<unknown>
+type IterableKeys = FilterKeys<keyof Iterable<unknown>>
 
-const getPrototypes: () => {
-    [key in IterableKeys]: TypeInfo | null
-} = cache(() => {
+const getPrototypes = cache(() => {
     return createObject<
         {
             [key in IterableKeys]: TypeInfo | null
@@ -31,8 +30,8 @@ export class TypeIterable implements ITypeClass {
         this.param0 = param0
     }
 
-    public has(_type: NamedType | OtherTypeName): boolean {
-        return false // type === "Iterable"
+    public has(type: NamedType | OtherTypeName): boolean {
+        return type === "Iterable"
     }
 
     public paramType(index: number): TypeInfo | null {
@@ -64,6 +63,17 @@ export class TypeIterable implements ITypeClass {
             return false
         }
         return isEquals(this.iterateType(), o.iterateType())
+    }
+
+    public intersect(o: TypeClass): TypeIterable | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Iterable")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_ITERABLE
+        }
+        return null
     }
 }
 

@@ -6,6 +6,7 @@ import type {
     TypeInfo,
 } from "."
 import { BOOLEAN } from "./boolean"
+import type { FilterKeys } from "./common"
 import { cache, createObject } from "./common"
 import {
     RETURN_REGEXP,
@@ -48,6 +49,13 @@ export class TypeRegExp implements ITypeClass {
     public equals(o: TypeClass): boolean {
         return o.type === "RegExp"
     }
+
+    public intersect(o: TypeClass): TypeRegExp | null {
+        if (o.has("RegExp")) {
+            return this
+        }
+        return null
+    }
 }
 export const REGEXP = new TypeRegExp()
 
@@ -55,7 +63,7 @@ export const REGEXP = new TypeRegExp()
 export function buildRegExpConstructor(): TypeGlobalFunction {
     const REGEXP_TYPES = createObject<
         {
-            [key in keyof RegExpConstructor]: TypeInfo | null
+            [key in FilterKeys<keyof RegExpConstructor>]: TypeInfo | null
         }
     >({
         $1: STRING,
@@ -73,12 +81,10 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
     return new TypeGlobalFunction(() => REGEXP, REGEXP_TYPES)
 }
 
-const getPrototypes: () => {
-    [key in keyof RegExp]: TypeInfo | null
-} = cache(() =>
+const getPrototypes = cache(() =>
     createObject<
         {
-            [key in keyof RegExp]: TypeInfo | null
+            [key in FilterKeys<keyof RegExp>]: TypeInfo | null
         }
     >({
         ...getObjectPrototypes(),

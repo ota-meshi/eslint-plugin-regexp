@@ -45,6 +45,13 @@ export class TypeNumber implements ITypeClass {
     public equals(o: TypeClass): boolean {
         return o.type === "Number"
     }
+
+    public intersect(o: TypeClass): TypeNumber | null {
+        if (o.has("Number")) {
+            return this
+        }
+        return null
+    }
 }
 export const NUMBER = new TypeNumber()
 

@@ -11,6 +11,7 @@ import type { TypeBigInt } from "./bigint"
 import { BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
 import { BOOLEAN } from "./boolean"
+import type { FilterKeys } from "./common"
 import { cache, createObject } from "./common"
 import type { TypeNumber } from "./number"
 import { NUMBER } from "./number"
@@ -67,6 +68,17 @@ export class TypeFunction implements ITypeClass {
 
     public equals(_o: TypeClass): boolean {
         return false
+    }
+
+    public intersect(o: TypeClass): TypeFunction | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Function")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_FUNCTION
+        }
+        return null
     }
 }
 
@@ -184,14 +196,11 @@ const RETURN_SELF = new TypeFunction(
         return selfType?.() ?? null
     },
 )
-const getPrototypes: () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-    [key in keyof Function]: TypeInfo | null
-} = cache(() =>
+const getPrototypes = cache(() =>
     createObject<
         {
             // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-            [key in keyof Function]: TypeInfo | null
+            [key in FilterKeys<keyof Function>]: TypeInfo | null
         }
     >({
         ...getObjectPrototypes(),

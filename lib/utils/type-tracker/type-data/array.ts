@@ -14,6 +14,7 @@ import {
     RETURN_BOOLEAN,
     TypeGlobalFunction,
 } from "./function"
+import type { FilterKeys } from "./common"
 import {
     cache,
     createObject,
@@ -97,6 +98,17 @@ export class TypeArray implements ITypeClass {
         }
         return isEquals(this.iterateType(), o.iterateType())
     }
+
+    public intersect(o: TypeClass): TypeArray | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Array")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_ARRAY
+        }
+        return null
+    }
 }
 export const UNKNOWN_ARRAY = new TypeArray()
 export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
@@ -105,7 +117,7 @@ export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
 export function buildArrayConstructor(): TypeGlobalFunction {
     const ARRAY_TYPES = createObject<
         {
-            [key in keyof ArrayConstructor]: TypeInfo | null
+            [key in FilterKeys<keyof ArrayConstructor>]: TypeInfo | null
         }
     >({
         // ES5
@@ -217,7 +229,7 @@ const getPrototypes = cache(() => {
     )
     return createObject<
         {
-            [key in keyof unknown[]]: TypeInfo | null
+            [key in FilterKeys<keyof unknown[]>]: TypeInfo | null
         }
     >({
         ...getObjectPrototypes(),

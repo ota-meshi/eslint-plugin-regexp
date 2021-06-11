@@ -40,6 +40,13 @@ export class TypeBoolean implements ITypeClass {
     public equals(o: TypeClass): boolean {
         return o.type === "Boolean"
     }
+
+    public intersect(o: TypeClass): TypeBoolean | null {
+        if (o.has("Boolean")) {
+            return this
+        }
+        return null
+    }
 }
 export const BOOLEAN = new TypeBoolean()
 

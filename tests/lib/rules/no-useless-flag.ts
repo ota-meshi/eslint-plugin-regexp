@@ -105,6 +105,14 @@ tester.run("no-useless-flag", rule as any, {
         const regex = /foo/g;
         unknown.exec(regex)
         `,
+        `
+        function fn(a, b) {
+            if(typeof a !== 'string' && b) {
+                return
+            }
+            a.split(/foo/g)
+        }
+        `,
 
         // y
         `
@@ -486,6 +494,107 @@ tester.run("no-useless-flag", rule as any, {
                         "The 'g' flag is unnecessary because not using global testing.",
                     line: 2,
                     column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            const a = /foo/g;
+            if (typeof b === 'string') {
+                b.split(a)
+            }
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 2,
+                    column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            const a = /foo/g;
+            const c = typeof b === 'string' ? b.split(a) : b
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 2,
+                    column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            function fn(a) {
+                const c = typeof a === 'string' ? a.split(/foo/g) : a
+            }
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 3,
+                    column: 64,
+                },
+            ],
+        },
+        {
+            code: `
+            function fn(a, b) {
+                const c = typeof a === 'string' && b ? a.split(/foo/g) : a
+            }
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 3,
+                },
+            ],
+        },
+        {
+            code: `
+            function fn(a, b) {
+                if(typeof a !== 'string') {
+                    return
+                }
+                a.split(/foo/g)
+            }
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 6,
+                },
+            ],
+        },
+        {
+            code: `
+            function fn(a) {
+                for (const b of a) {
+                    if(typeof b !== 'string') {
+                        continue
+                    }
+                    b.split(/foo/g)
+                }
+            }
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because not using global testing.",
+                    line: 7,
                 },
             ],
         },

@@ -422,6 +422,7 @@ export default createRule("no-unused-capturing-group", {
         }
 
         return compositingVisitors(
+            typeTracer.getCodePathVisitor(),
             defineRegexpVisitor(context, {
                 createVisitor,
             }),

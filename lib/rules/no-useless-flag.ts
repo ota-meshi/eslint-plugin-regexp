@@ -522,6 +522,7 @@ function createRegExpReferenceExtractVisitor(
     }
 
     return compositingVisitors(
+        typeTracer.getCodePathVisitor(),
         defineRegexpVisitor(context, {
             createVisitor({ flags, regexpNode }: RegExpContext) {
                 if (flags[flag]) {

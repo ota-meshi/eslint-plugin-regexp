@@ -102,6 +102,7 @@ export default createRule("no-useless-dollar-replacements", {
         }
 
         return {
+            ...typeTracer.getCodePathVisitor(),
             CallExpression(node: CallExpression) {
                 if (!isKnownMethodCall(node, { replace: 2, replaceAll: 2 })) {
                     return

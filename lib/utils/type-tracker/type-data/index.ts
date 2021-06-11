@@ -60,6 +60,8 @@ export type OtherTypeName =
     | "BigInt"
     | "Map"
     | "Set"
+    | "Iterable"
+    | "Global"
 
 export type TypeInfo = NamedType | TypeClass
 export type TypeClass =
@@ -102,6 +104,7 @@ export interface ITypeClass {
     ): TypeInfo | null
     typeNames(): string[]
     equals(o: TypeClass): boolean
+    intersect(o: TypeClass): TypeInfo | null
 }
 
 /** Get BinaryExpression calc type */

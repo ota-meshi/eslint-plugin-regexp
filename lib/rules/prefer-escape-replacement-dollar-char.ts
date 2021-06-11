@@ -41,6 +41,7 @@ export default createRule("prefer-escape-replacement-dollar-char", {
         }
 
         return {
+            ...typeTracer.getCodePathVisitor(),
             CallExpression(node: CallExpression) {
                 if (!isKnownMethodCall(node, { replace: 2, replaceAll: 2 })) {
                     return

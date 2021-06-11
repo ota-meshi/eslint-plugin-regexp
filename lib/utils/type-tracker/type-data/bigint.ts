@@ -5,6 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import type { FilterKeys } from "./common"
 import { cache, createObject } from "./common"
 import { RETURN_BIGINT, RETURN_STRING, TypeGlobalFunction } from "./function"
 import { getObjectPrototypes } from "./object"
@@ -40,6 +41,13 @@ export class TypeBigInt implements ITypeClass {
     public equals(o: TypeClass): boolean {
         return o.type === "BigInt"
     }
+
+    public intersect(o: TypeClass): TypeBigInt | null {
+        if (o.has("BigInt")) {
+            return this
+        }
+        return null
+    }
 }
 export const BIGINT = new TypeBigInt()
 
@@ -56,12 +64,10 @@ export function buildBigIntConstructor(): TypeGlobalFunction {
     })
     return new TypeGlobalFunction(() => BIGINT, BIGINT_TYPES)
 }
-const getPrototypes: () => {
-    [key in keyof BigInt]: TypeInfo | null
-} = cache(() =>
+const getPrototypes = cache(() =>
     createObject<
         {
-            [key in keyof BigInt]: TypeInfo | null
+            [key in FilterKeys<keyof BigInt>]: TypeInfo | null
         }
     >({
         ...getObjectPrototypes(),

@@ -7,6 +7,7 @@ import { createTypeTracker } from "../../../../lib/utils/type-tracker"
 import * as tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { isCommentToken } from "eslint-utils"
+import { isParenthesized } from "../../../../lib/utils/type-tracker/utils"
 
 export type TestCase = {
     code: string
@@ -32,16 +33,27 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
             const sourceCode = context.getSourceCode()
             let lastExpr: Expression | null = null
             let target: Expression | null = null
+            const typeTracer = createTypeTracker(context)
             return {
+                ...typeTracer.getCodePathVisitor(),
                 ":expression:exit"(node: Expression) {
                     lastExpr = node
                     if (!target) {
-                        const token:
+                        let token:
                             | AST.Token
                             | ES.Comment
                             | null = sourceCode.getTokenBefore(node, {
                             includeComments: true,
                         })
+                        if (
+                            token?.value === "(" &&
+                            isParenthesized(context, node)
+                        ) {
+                            token = sourceCode.getTokenBefore(token, {
+                                includeComments: true,
+                            })
+                        }
+
                         if (
                             token &&
                             isCommentToken(token) &&
@@ -59,9 +71,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                     // ) {
                     //     debugger
                     // }
-                    types = createTypeTracker(context).getTypes(
-                        target ?? lastExpr!,
-                    )
+                    types = typeTracer.getTypes(target ?? lastExpr!)
                 },
             }
         },
@@ -76,6 +86,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 BigInt: "readonly",
                 window: "readonly",
                 globalThis: "readonly",
+                Array: "readonly",
             },
             parser: testCase.parser,
             parserOptions: {

@@ -91,6 +91,7 @@ export default createRule("no-legacy-features", {
         const typeTracer = createTypeTracker(context)
 
         return {
+            ...typeTracer.getCodePathVisitor(),
             ...(staticProperties.length
                 ? {
                       Program() {

@@ -7,6 +7,7 @@ import type {
 } from "."
 import { isTypeClass } from "."
 import { TypeArray } from "./array"
+import type { FilterKeys } from "./common"
 import { cache, createObject, getTypeName, isEquals } from "./common"
 import {
     RETURN_VOID,
@@ -18,7 +19,7 @@ import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
-type SetKeys = keyof Set<unknown>
+type SetKeys = FilterKeys<keyof Set<unknown>>
 
 const getPrototypes: () => {
     [key in SetKeys]: TypeInfo | null
@@ -140,6 +141,17 @@ export class TypeSet implements ITypeClass {
         }
         return isEquals(this.iterateType(), o.iterateType())
     }
+
+    public intersect(o: TypeClass): TypeSet | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Set")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_SET
+        }
+        return null
+    }
 }
 
 export const UNKNOWN_SET = new TypeSet(() => null)
@@ -147,7 +159,7 @@ export const UNKNOWN_SET = new TypeSet(() => null)
 export function buildSetConstructor(): TypeFunction {
     const SET_TYPES = createObject<
         {
-            [key in keyof SetConstructor]: TypeInfo | null
+            [key in FilterKeys<keyof SetConstructor>]: TypeInfo | null
         }
     >({
         prototype: null,

@@ -1,5 +1,9 @@
 import type { NamedType, OtherTypeName, TypeClass, TypeInfo } from "."
 
+export type FilterKeys<T extends string | number | symbol> = {
+    [key in T]: key extends string | number ? key : never
+}[T]
+
 /** Check whether given type is TypeClass */
 export function isTypeClass(
     type: TypeInfo | null | undefined,

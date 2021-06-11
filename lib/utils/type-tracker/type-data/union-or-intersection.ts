@@ -105,4 +105,27 @@ export class TypeUnionOrIntersection implements ITypeClass {
         }
         return e1.done === e2.done
     }
+
+    public intersect(o: TypeClass): TypeInfo | null {
+        const baseCollection = this.collection
+        return TypeUnionOrIntersection.buildType(function* () {
+            for (const t of baseCollection.all()) {
+                const type = intersectType(t, o)
+                if (type) {
+                    yield type
+                }
+            }
+        })
+    }
+}
+
+/** Gets intersect type */
+function intersectType(a: TypeInfo, b: TypeInfo) {
+    if (a === b) {
+        return a
+    }
+    if (typeof a === "string" || typeof b === "string") {
+        return null
+    }
+    return a.intersect(b)
 }

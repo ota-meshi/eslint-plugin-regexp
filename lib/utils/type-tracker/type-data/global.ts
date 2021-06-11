@@ -25,8 +25,8 @@ import { buildStringConstructor } from "./string"
 export class TypeGlobal implements ITypeClass {
     public type = "Global" as const
 
-    public has(_type: NamedType | OtherTypeName): boolean {
-        return false
+    public has(type: NamedType | OtherTypeName): boolean {
+        return type === "Global"
     }
 
     public paramType(): null {
@@ -52,6 +52,13 @@ export class TypeGlobal implements ITypeClass {
 
     public equals(o: TypeClass): boolean {
         return o.type === "Global"
+    }
+
+    public intersect(o: TypeClass): TypeGlobal | null {
+        if (o.has("Global")) {
+            return this
+        }
+        return null
     }
 }
 export const GLOBAL = new TypeGlobal()

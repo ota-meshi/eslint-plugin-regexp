@@ -5,6 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import type { FilterKeys } from "./common"
 import { cache, createObject } from "./common"
 import {
     RETURN_STRING,
@@ -50,6 +51,13 @@ export class TypeString implements ITypeClass {
     public equals(o: TypeClass): boolean {
         return o.type === "String"
     }
+
+    public intersect(o: TypeClass): TypeString | null {
+        if (o.has("String")) {
+            return this
+        }
+        return null
+    }
 }
 export const STRING = new TypeString()
 
@@ -71,12 +79,10 @@ export function buildStringConstructor(): TypeGlobalFunction {
     return new TypeGlobalFunction(() => STRING, STRING_TYPES)
 }
 
-const getPrototypes: () => {
-    [key in keyof string]: TypeInfo | null
-} = cache(() =>
+const getPrototypes = cache(() =>
     createObject<
         {
-            [key in keyof string]: TypeInfo | null
+            [key in FilterKeys<keyof string>]: TypeInfo | null
         }
     >({
         ...getObjectPrototypes(),

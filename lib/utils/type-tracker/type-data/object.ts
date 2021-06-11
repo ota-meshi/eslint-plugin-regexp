@@ -134,6 +134,17 @@ export class TypeObject implements ITypeClass {
         }
         return true
     }
+
+    public intersect(o: TypeClass): TypeObject | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Object")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_OBJECT
+        }
+        return null
+    }
 }
 
 export const UNKNOWN_OBJECT = new TypeObject()

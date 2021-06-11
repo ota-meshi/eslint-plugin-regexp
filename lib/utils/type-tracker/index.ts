@@ -30,6 +30,8 @@ import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
 import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
 import { getParent } from "../ast-utils"
+import { TypeGuardTracker } from "./type-guard"
+import type { RuleListener } from "../../types"
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
 const ts: typeof import("typescript") = (() => {
@@ -48,6 +50,7 @@ type TypeTracker = {
     isString: (node: ES.Expression) => boolean
     isRegExp: (node: ES.Expression) => boolean
     getTypes: (node: ES.Expression) => string[]
+    getCodePathVisitor: () => RuleListener
 }
 
 const cacheTypeTracker = new WeakMap<ES.Program, TypeTracker>()
@@ -71,10 +74,19 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
     const cacheTypeInfo = new WeakMap<ES.Expression, TypeInfo | null>()
 
+    let typeGuardTracker: TypeGuardTracker | null = null
+
     const tracker: TypeTracker = {
         isString,
         isRegExp,
         getTypes,
+        getCodePathVisitor() {
+            if (typeGuardTracker) {
+                return {}
+            }
+            typeGuardTracker = new TypeGuardTracker(context)
+            return typeGuardTracker.getVisitor()
+        },
     }
     cacheTypeTracker.set(programNode, tracker)
     return tracker
@@ -267,6 +279,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         } else if (node.type === "ClassExpression") {
             return null
         } else if (node.type === "Identifier") {
+            const typeGuard = typeGuardTracker!.getTypeGuard(node)
+            if (typeGuard) {
+                return typeGuard
+            }
             const variable = findVariable(context, node)
             if (variable) {
                 if (variable.defs.length === 1) {
@@ -465,6 +481,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                 }
             }
         } else if (node.type === "MemberExpression") {
+            const typeGuard = typeGuardTracker!.getTypeGuard(node)
+            if (typeGuard) {
+                return typeGuard
+            }
             if (node.object.type !== "Super") {
                 let propertyName: string | null = null
                 if (!node.computed) {
@@ -502,14 +522,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         return tsType && getTypeFromTsType(tsType)
     }
 
-    /* eslint-disable complexity -- X( */
     /**
      * Check if the name of the given type is expected or not.
      */
-    function getTypeFromTsType(
-        /* eslint-enable complexity -- X( */
-        tsType: TS.Type,
-    ): TypeInfo | null {
+    function getTypeFromTsType(tsType: TS.Type): TypeInfo | null {
         if ((tsType.flags & ts.TypeFlags.StringLike) !== 0) {
             return STRING
         }
@@ -521,6 +537,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
         if ((tsType.flags & ts.TypeFlags.BigIntLike) !== 0) {
             return BIGINT
+        }
+        if (isFunction(tsType)) {
+            return UNKNOWN_FUNCTION
         }
         if (
             (tsType.flags & ts.TypeFlags.Any) !== 0 ||
@@ -554,9 +573,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
 
         if (isClassOrInterface(tsType)) {
-            const name = tsType.symbol.escapedName
-            const typeName = /^Readonly(.*)/.exec(name as string)?.[1] ?? name
-            return typeName === "Array" ? UNKNOWN_ARRAY : (typeName as TypeInfo)
+            return getFromTypeSymbolEscapedName(tsType)
         }
         if (isObject(tsType)) {
             return UNKNOWN_OBJECT
@@ -578,6 +595,28 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             return checker.getTypeFromTypeNode(declaration.constraint)
         }
         return undefined
+    }
+
+    /**
+     * Gets the type from the symbol.escapedName of the given type.
+     */
+    function getFromTypeSymbolEscapedName(type: TS.InterfaceType) {
+        const escapedName = type.symbol.escapedName
+        if (escapedName === "CallableFunction") {
+            return UNKNOWN_FUNCTION
+        }
+        const typeName =
+            /^Readonly(.*)/u.exec(escapedName as string)?.[1] ?? escapedName
+        if (typeName === "Array") {
+            return UNKNOWN_ARRAY
+        }
+        if (typeName === "Map") {
+            return UNKNOWN_MAP
+        }
+        if (typeName === "Set") {
+            return UNKNOWN_SET
+        }
+        return typeName as TypeInfo
     }
 }
 
@@ -629,6 +668,23 @@ function isUnionOrIntersection(
     tsType: TS.Type,
 ): tsType is TS.UnionOrIntersectionType {
     return (tsType.flags & ts.TypeFlags.UnionOrIntersection) !== 0
+}
+
+/**
+ * Check if a given type is `function` or not.
+ */
+function isFunction(tsType: TS.Type) {
+    if (
+        tsType.symbol &&
+        (tsType.symbol.flags &
+            (ts.SymbolFlags.Function | ts.SymbolFlags.Method)) !==
+            0
+    ) {
+        return true
+    }
+
+    const signatures = tsType.getCallSignatures()
+    return signatures.length > 0
 }
 
 /** Get type from jsdoc type text */

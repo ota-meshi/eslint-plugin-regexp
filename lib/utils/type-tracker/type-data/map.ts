@@ -6,6 +6,7 @@ import type {
     TypeInfo,
 } from "."
 import { TypeArray } from "./array"
+import type { FilterKeys } from "./common"
 import {
     cache,
     createObject,
@@ -23,7 +24,7 @@ import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 
-type MapKeys = keyof Map<unknown, unknown>
+type MapKeys = FilterKeys<keyof Map<unknown, unknown>>
 
 const getPrototypes: () => {
     [key in MapKeys]: TypeInfo | null
@@ -180,6 +181,17 @@ export class TypeMap implements ITypeClass {
             isEquals(this.paramType(1), o.paramType(1))
         )
     }
+
+    public intersect(o: TypeClass): TypeMap | null {
+        if (this.equals(o)) {
+            return this
+        }
+        if (o.has("Map")) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define -- ignore
+            return UNKNOWN_MAP
+        }
+        return null
+    }
 }
 
 export const UNKNOWN_MAP = new TypeMap(
@@ -190,7 +202,7 @@ export const UNKNOWN_MAP = new TypeMap(
 export function buildMapConstructor(): TypeFunction {
     const MAP_TYPES = createObject<
         {
-            [key in keyof MapConstructor]: TypeInfo | null
+            [key in FilterKeys<keyof MapConstructor>]: TypeInfo | null
         }
     >({
         prototype: null,

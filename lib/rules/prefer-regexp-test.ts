@@ -30,6 +30,7 @@ export default createRule("prefer-regexp-test", {
         const typeTracer = createTypeTracker(context)
 
         return {
+            ...typeTracer.getCodePathVisitor(),
             CallExpression(node: ES.CallExpression) {
                 if (!isKnownMethodCall(node, { match: 1, exec: 1 })) {
                     return
