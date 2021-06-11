@@ -685,11 +685,6 @@ export default createRule("no-dupe-disjunctions", {
                     reportUnreachable: {
                         enum: ["certain", "potential"],
                     },
-
-                    // TODO remove in the next major version
-                    alwaysReportExponentialBacktracking: { type: "boolean" },
-                    // TODO remove in the next major version
-                    disallowNeverMatch: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
@@ -709,21 +704,9 @@ export default createRule("no-dupe-disjunctions", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        let reportExponentialBacktracking: ReportExponentialBacktracking =
+        const reportExponentialBacktracking: ReportExponentialBacktracking =
+            context.options[0]?.reportExponentialBacktracking ??
             ReportExponentialBacktracking.potential
-        if (context.options[0]?.reportExponentialBacktracking) {
-            reportExponentialBacktracking =
-                context.options[0]?.reportExponentialBacktracking
-        } else {
-            // backward compatibility
-            if (
-                context.options[0]?.alwaysReportExponentialBacktracking ===
-                false
-            ) {
-                reportExponentialBacktracking =
-                    ReportExponentialBacktracking.none
-            }
-        }
         const reportUnreachable: ReportUnreachable =
             context.options[0]?.reportUnreachable ?? ReportUnreachable.certain
         const report: ReportOption =
