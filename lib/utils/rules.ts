@@ -23,6 +23,7 @@ import noOptionalAssertion from "../rules/no-optional-assertion"
 import noPotentiallyUselessBackreference from "../rules/no-potentially-useless-backreference"
 import noStandaloneBackslash from "../rules/no-standalone-backslash"
 import noSuperLinearBacktracking from "../rules/no-super-linear-backtracking"
+import noSuperLinearMove from "../rules/no-super-linear-move"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noTriviallyNestedQuantifier from "../rules/no-trivially-nested-quantifier"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
@@ -89,6 +90,7 @@ export const rules = [
     noPotentiallyUselessBackreference,
     noStandaloneBackslash,
     noSuperLinearBacktracking,
+    noSuperLinearMove,
     noTriviallyNestedAssertion,
     noTriviallyNestedQuantifier,
     noUnusedCapturingGroup,

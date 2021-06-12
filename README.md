@@ -110,6 +110,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-optional-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-optional-assertion.html) | disallow optional assertions |  |
 | [regexp/no-potentially-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-potentially-useless-backreference.html) | disallow backreferences that reference a group that might not be matched |  |
 | [regexp/no-super-linear-backtracking](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-super-linear-backtracking.html) | disallow exponential and polynomial backtracking | :wrench: |
+| [regexp/no-super-linear-move](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-super-linear-move.html) | disallow quantifiers that cause quadratic moves |  |
 | [regexp/no-useless-assertions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-assertions.html) | disallow assertions that are known to always accept (or reject) |  |
 | [regexp/no-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-backreference.html) | disallow useless backreferences in regular expressions | :star: |
 | [regexp/no-useless-dollar-replacements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-dollar-replacements.html) | disallow useless `$` replacements in replacement string |  |
