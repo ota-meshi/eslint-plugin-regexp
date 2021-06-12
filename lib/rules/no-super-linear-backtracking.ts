@@ -41,11 +41,11 @@ function getParsedLiteral(context: RegExpContext): ParsedLiteral {
             start: NaN,
             end: NaN,
             dotAll: flags.dotAll ?? false,
-            global: flags.dotAll ?? false,
-            ignoreCase: flags.dotAll ?? false,
-            multiline: flags.dotAll ?? false,
-            sticky: flags.dotAll ?? false,
-            unicode: flags.dotAll ?? false,
+            global: flags.global ?? false,
+            ignoreCase: flags.ignoreCase ?? false,
+            multiline: flags.multiline ?? false,
+            sticky: flags.sticky ?? false,
+            unicode: flags.unicode ?? false,
         },
     }
 }
