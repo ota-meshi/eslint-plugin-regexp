@@ -320,13 +320,13 @@ export default createRule("no-super-linear-move", {
                 getUsageOfPattern,
             } = regexpContext
 
-            if (!ignoreSticky && flags.sticky) {
+            if (ignoreSticky && flags.sticky) {
                 return {}
             }
 
             const usage = getUsageOfPattern()
 
-            if (!ignorePartial && usage === UsageOfPattern.partial) {
+            if (ignorePartial && usage === UsageOfPattern.partial) {
                 return {}
             }
 
