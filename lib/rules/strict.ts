@@ -67,6 +67,10 @@ export default createRule("strict", {
 
             // validator
             regexMessage: "{{message}}.",
+
+            // suggestions
+            hexEscapeSuggestion:
+                "Replace the octal escape with a hexadecimal escape.",
         },
         type: "suggestion",
     },
@@ -97,19 +101,36 @@ export default createRule("strict", {
             function report(
                 messageId: string,
                 element: Element,
-                fix?: string | null,
+                fix?: string | null | { fix: string; messageId: string },
             ): void {
                 reported = true
 
-                context.report({
-                    node,
-                    loc: getRegexpLocation(element),
-                    messageId,
-                    data: {
-                        expr: element.raw,
-                    },
-                    fix: fix ? fixReplaceNode(element, fix) : null,
-                })
+                if (fix && typeof fix === "object") {
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(element),
+                        messageId,
+                        data: {
+                            expr: element.raw,
+                        },
+                        suggest: [
+                            {
+                                messageId: fix.messageId,
+                                fix: fixReplaceNode(element, fix.fix),
+                            },
+                        ],
+                    })
+                } else {
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(element),
+                        messageId,
+                        data: {
+                            expr: element.raw,
+                        },
+                        fix: fix ? fixReplaceNode(element, fix) : null,
+                    })
+                }
             }
 
             return {
@@ -132,11 +153,20 @@ export default createRule("strict", {
                     }
                     if (cNode.value !== 0 && isOctalEscape(cNode.raw)) {
                         // e.g. \023
-                        report(
-                            "octalEscape",
-                            cNode,
-                            `\\x${cNode.value.toString(16).padStart(2, "0")}`,
-                        )
+                        const fix = `\\x${cNode.value
+                            .toString(16)
+                            .padStart(2, "0")}`
+
+                        if (/^\\[1-9]\d*$/.test(cNode.raw)) {
+                            // this could be confused with a backreference
+                            // use a suggestion instead of a fix
+                            report("octalEscape", cNode, {
+                                fix,
+                                messageId: "hexEscapeSuggestion",
+                            })
+                        } else {
+                            report("octalEscape", cNode, fix)
+                        }
                         return
                     }
 

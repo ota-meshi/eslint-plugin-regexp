@@ -142,6 +142,24 @@ tester.run("strict", rule as any, {
                 },
             ],
         },
+        {
+            code: "/\\12/",
+            output: null,
+            errors: [
+                {
+                    message:
+                        "Invalid legacy octal escape sequence '\\12'. Use a hexadecimal escape instead.",
+                    column: 2,
+                    suggestions: [
+                        {
+                            output: "/\\x0a/",
+                            desc:
+                                "Replace the octal escape with a hexadecimal escape.",
+                        },
+                    ],
+                },
+            ],
+        },
 
         // incomplete backreference
         {
