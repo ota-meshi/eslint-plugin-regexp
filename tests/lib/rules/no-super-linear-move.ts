@@ -15,6 +15,17 @@ tester.run("no-super-linear-move", rule as any, {
 
         // no rejecting suffix
         String.raw`/a*/`,
+
+        {
+            code: String.raw`/a*/.test(input)`,
+            options: [{ report: "potential" }],
+        },
+        {
+            code: String.raw`export default /a*/`,
+            options: [{ report: "certain" }],
+        },
+        { code: String.raw`/a*b/.source`, options: [{ ignorePartial: true }] },
+        { code: String.raw`/a*b/y`, options: [{ ignoreSticky: true }] },
     ],
     invalid: [
         {
@@ -45,6 +56,28 @@ tester.run("no-super-linear-move", rule as any, {
             code: String.raw`/(?!\d)\w+(?=\s*\()/i`,
             errors: [
                 "Any attack string /[A-Z_]+/i plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
+            ],
+        },
+
+        {
+            code: String.raw`export default /a*/`,
+            options: [{ report: "potential" }],
+            errors: [
+                "Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
+            ],
+        },
+        {
+            code: String.raw`/a*b/.source`,
+            options: [{ ignorePartial: false }],
+            errors: [
+                "Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
+            ],
+        },
+        {
+            code: String.raw`/a*b/y`,
+            options: [{ ignoreSticky: false }],
+            errors: [
+                "Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
             ],
         },
     ],
