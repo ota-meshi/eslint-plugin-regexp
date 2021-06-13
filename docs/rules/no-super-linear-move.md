@@ -180,6 +180,25 @@ This option determines whether this rule will ignore regexes with sticky (`y`) f
 
   All regexes will be analysed.
 
+### `ignorePartial: boolean`:
+
+Some regexes are used as fragments to build more complex regexes. Example:
+
+```js
+const fn = /\w+(?=\s*\()/.source;
+const pattern = RegExp(`#\\s*define\\s+${fn}`, "g");
+```
+
+Even if a fragment had exploitable quantifiers, it might not cause super-linear runtime depending on how the fragment is used.
+
+- `ignorePartial: true`  (_default_)
+
+  The rule does not check regexes used as a fragment. It assumes that fragments are used in a way such that super-linear runtime caused by moves is prevented.
+
+- `ignorePartial: false`
+
+  The rule checks all regexes regardless of how they are used.
+
 
 ## :books: Further reading
 

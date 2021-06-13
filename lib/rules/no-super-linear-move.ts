@@ -160,6 +160,9 @@ export default createRule("no-super-linear-move", {
                     ignoreSticky: {
                         type: "boolean",
                     },
+                    ignorePartial: {
+                        type: "boolean",
+                    },
                 },
                 additionalProperties: false,
             },
@@ -174,6 +177,7 @@ export default createRule("no-super-linear-move", {
         const reportUncertain =
             (context.options[0]?.report ?? "certain") === "potential"
         const ignoreSticky = context.options[0]?.ignoreSticky ?? false
+        const ignorePartial = context.options[0]?.ignorePartial ?? true
 
         /** Returns reports reported by scslre. */
         function getScslreReports(
@@ -316,12 +320,18 @@ export default createRule("no-super-linear-move", {
                 getUsageOfPattern,
             } = regexpContext
 
-            if (flags.sticky && !ignoreSticky) {
+            if (!ignoreSticky && flags.sticky) {
+                return {}
+            }
+
+            const usage = getUsageOfPattern()
+
+            if (!ignorePartial && usage === UsageOfPattern.partial) {
                 return {}
             }
 
             const assumeRejectingSuffix =
-                reportUncertain && getUsageOfPattern() !== UsageOfPattern.whole
+                reportUncertain && usage !== UsageOfPattern.whole
 
             for (const report of dedupeReports([
                 ...getSimpleReports(regexpContext, assumeRejectingSuffix),
