@@ -152,21 +152,16 @@ export default createRule("strict", {
                         return
                     }
                     if (cNode.value !== 0 && isOctalEscape(cNode.raw)) {
-                        // e.g. \023
-                        const fix = `\\x${cNode.value
-                            .toString(16)
-                            .padStart(2, "0")}`
+                        // e.g. \023, \34
 
-                        if (/^\\[1-9]\d*$/.test(cNode.raw)) {
-                            // this could be confused with a backreference
-                            // use a suggestion instead of a fix
-                            report("octalEscape", cNode, {
-                                fix,
-                                messageId: "hexEscapeSuggestion",
-                            })
-                        } else {
-                            report("octalEscape", cNode, fix)
-                        }
+                        // this could be confused with a backreference
+                        // use a suggestion instead of a fix
+                        report("octalEscape", cNode, {
+                            fix: `\\x${cNode.value
+                                .toString(16)
+                                .padStart(2, "0")}`,
+                            messageId: "hexEscapeSuggestion",
+                        })
                         return
                     }
 
