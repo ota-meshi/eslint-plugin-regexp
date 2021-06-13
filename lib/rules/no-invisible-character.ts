@@ -68,6 +68,9 @@ export default createRule("no-invisible-character", {
 
             let index = 0
             for (const c of text) {
+                if (c === " ") {
+                    continue
+                }
                 const cp = c.codePointAt(0)!
                 if (isInvisible(cp)) {
                     const instead = toCharSetSource(cp, flags)

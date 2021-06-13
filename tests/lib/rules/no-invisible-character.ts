@@ -19,6 +19,9 @@ tester.run("no-invisible-character", rule as any, {
         `
         const a = '' + '\t';
         new RegExp(a)`,
+        "new RegExp(' ')",
+        "new RegExp('a')",
+        "new RegExp('[ ]')",
     ],
     invalid: [
         {
