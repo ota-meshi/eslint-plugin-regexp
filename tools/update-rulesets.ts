@@ -40,13 +40,9 @@ export = {
 }
 `
 
-let filePath = path.resolve(__dirname, "../lib/configs/recommended.ts")
+const filePath = path.resolve(__dirname, "../lib/configs/recommended.ts")
 
 // Update file.
-fs.writeFileSync(filePath, content)
-
-// To also update the all.ts configuration file
-filePath = path.resolve(__dirname, "../lib/configs/all.ts")
 fs.writeFileSync(filePath, content)
 
 // Format files.
