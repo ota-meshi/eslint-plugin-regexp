@@ -25,10 +25,8 @@ and either use one of the two configurations available (`recommended` or `all`) 
 The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/README.md) that should be most useful to most users.
 *See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for more details.*
 
-### The all configuration
-
 The `plugin:regexp/all` config enables all rules. It's meant for testing, not for production use because it changes with every minor and major version of the plugin. Use it at your own risk.
-  *See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
+*See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
 
 ```js
 // .eslintrc.js
@@ -40,8 +38,6 @@ module.exports = {
          // add more generic rulesets here, such as:
          // 'eslint:recommended',
         "plugin:regexp/recommended"
-        // or enable the entire ruleset for testing:
-        // "plugin:regexp/all"
     ]
 }
 ```
