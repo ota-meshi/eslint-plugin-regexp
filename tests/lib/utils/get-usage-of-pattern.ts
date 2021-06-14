@@ -232,6 +232,21 @@ const TESTCASES: TestCase[] = [
         results: [UsageOfPattern.unknown, UsageOfPattern.whole],
         sourceType: "module",
     },
+    {
+        code: `foo(/[a-zA-Z]\\w*/)`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `foo({ pattern: /[a-zA-Z]\\w*/ })`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        const a = /a/
+        'str'.replace(b, a/*unknown*/)
+        `,
+        results: [UsageOfPattern.unknown],
+    },
 ]
 describe("getUsageOfPattern", () => {
     for (const testCase of TESTCASES) {

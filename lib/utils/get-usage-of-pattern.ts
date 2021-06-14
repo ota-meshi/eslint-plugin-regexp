@@ -67,9 +67,29 @@ function* iterateUsageOfPattern(
         } else if (ref.type === "unused") {
             // noop
         } else if (ref.type === "argument") {
-            // It could be a call to a known method that uses a regexp (`match`, `matchAll`, `split`, `replace`, `replaceAll`, and `search`),
-            // or it could use an unknown method, both of which are considered to have used a regexp.
-            yield UsageOfPattern.whole
+            if (
+                ref.callExpression.arguments[0] === ref.node &&
+                ref.callExpression.callee.type === "MemberExpression"
+            ) {
+                const member = ref.callExpression.callee
+                const propName: string | null = !member.computed
+                    ? (member.property as Identifier).name
+                    : getStringIfConstant(context, member.property)
+                if (
+                    propName === "match" ||
+                    propName === "matchAll" ||
+                    propName === "split" ||
+                    propName === "replace" ||
+                    propName === "replaceAll" ||
+                    propName === "search"
+                ) {
+                    yield UsageOfPattern.whole
+                } else {
+                    yield UsageOfPattern.unknown
+                }
+            } else {
+                yield UsageOfPattern.unknown
+            }
         } else {
             yield UsageOfPattern.unknown
         }
