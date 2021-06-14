@@ -28,7 +28,7 @@ The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/
 ### The all configuration
 
 The `plugin:regexp/all` config enables all rules. It's meant for testing, not for production use because it changes with every minor and major version of the plugin. Use it at your own risk.
-  See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
+  *See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
 
 ```js
 // .eslintrc.js
