@@ -46,7 +46,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 <!--USAGE_SECTION_START-->
 
 Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix)  
-and either use the recommended configuration or configure the rules you want:
+and either use one of the two configurations available (`recommended` or `all`) or configure the rules you want:
 
 ### The recommended configuration
 
@@ -83,6 +83,11 @@ module.exports = {
     }
 }
 ```
+
+### Using `"plugin:regexp/all"`
+
+The `plugin:regexp/all` config enables all rules. It's meant for testing, not for production use because it changes with every minor and major version of the plugin. Use it at your own risk.
+*See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
 
 <!--USAGE_SECTION_END-->
 
