@@ -17,6 +17,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
         String.raw`/a+b+c+d+[abc]+/`,
         String.raw`/(?:a|::)?\w+/`,
         String.raw`/aa?/`,
+        String.raw`/\w?\w/`,
     ],
     invalid: [
         {
@@ -101,13 +102,6 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             output: String.raw`/\w+/`,
             errors: [
                 "'\\w*' and '\\w' can be combined into one quantifier '\\w+'.",
-            ],
-        },
-        {
-            code: String.raw`/\w?\w/`,
-            output: String.raw`/\w{1,2}/`,
-            errors: [
-                "'\\w?' and '\\w' can be combined into one quantifier '\\w{1,2}'.",
             ],
         },
         {

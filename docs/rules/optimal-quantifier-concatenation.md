@@ -34,7 +34,6 @@ var foo = /a\w*/;
 /* ✗ BAD */
 var foo = /\w+\d+/;
 var foo = /\w+\d?/;
-var foo = /\w?\w/;
 var foo = /[ab]*(?:a|b)/;
 var foo = /\w+(?:(a)|b)*/;
 ```

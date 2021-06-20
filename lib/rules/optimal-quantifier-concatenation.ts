@@ -294,6 +294,41 @@ function getQuantifierRepeatedElementReplacement(
 }
 
 /**
+ * Whether the computed replacement is to be ignored.
+ */
+function ignoreReplacement(
+    left: Element,
+    right: Element,
+    result: Replacement,
+): boolean {
+    // There is a relatively common case for which we want to make
+    // an exception: `aa?`
+    // We will only suggest the replacement if the new raw is
+    // shorter than the current one.
+    if (left.type === "Quantifier") {
+        if (
+            left.raw.length + right.raw.length <= result.raw.length &&
+            isGroupOrCharacter(right) &&
+            left.min === 0 &&
+            left.max === 1
+        ) {
+            return true
+        }
+    }
+    if (right.type === "Quantifier") {
+        if (
+            left.raw.length + right.raw.length <= result.raw.length &&
+            isGroupOrCharacter(left) &&
+            right.min === 0 &&
+            right.max === 1
+        ) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
  * Returns the replacement for the two adjacent elements.
  */
 function getReplacement(
@@ -303,7 +338,7 @@ function getReplacement(
 ): Replacement | null {
     if (left.type === "Quantifier" && right.type === "Quantifier") {
         const result = getQuantifiersReplacement(left, right, context)
-        if (result) return result
+        if (result && !ignoreReplacement(left, right, result)) return result
     }
 
     if (left.type === "Quantifier") {
@@ -313,7 +348,7 @@ function getReplacement(
                 [left, rightRep],
                 context,
             )
-            if (result) return result
+            if (result && !ignoreReplacement(left, right, result)) return result
         }
     }
 
@@ -324,22 +359,7 @@ function getReplacement(
                 [leftRep, right],
                 context,
             )
-            if (result) {
-                // There is a relatively common case for which we want to make
-                // an exception: `aa?`
-                // We will only suggest the replacement if the new raw is
-                // shorter than the current one.
-                if (
-                    isGroupOrCharacter(left) &&
-                    right.min === 0 &&
-                    right.max === 1 &&
-                    left.raw.length + right.raw.length <= result.raw.length
-                ) {
-                    return null
-                }
-
-                return result
-            }
+            if (result && !ignoreReplacement(left, right, result)) return result
         }
     }
 
