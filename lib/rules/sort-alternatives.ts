@@ -1,12 +1,5 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type {
-    Alternative,
-    CapturingGroup,
-    Element,
-    Group,
-    LookaroundAssertion,
-    Pattern,
-} from "regexpp/ast"
+import type { Alternative, Element, Pattern } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_MINUS,
@@ -17,9 +10,7 @@ import {
 } from "../utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
-    getLengthRange,
     Chars,
-    getFirstCharAfter,
     getFirstConsumedChar,
     hasSomeDescendant,
     isEmptyBackreference,
@@ -27,6 +18,7 @@ import {
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
 import type { SourceLocation, Position } from "estree"
+import { canReorder } from "../utils/reorder-alternatives"
 
 interface AllowedChars {
     allowed: CharSet
@@ -88,40 +80,6 @@ function getConsumedChars(
     )
 
     return Chars.empty(context.flags).union(ranges)
-}
-
-type Parent = Group | CapturingGroup | Pattern | LookaroundAssertion
-
-/**
- * Assuming that the given group only consumes the given characters, this will
- * return whether the alternatives of the group can be reordered freely without
- * affecting the behavior of the regex.
- *
- * This also assumes that the alternatives of the given group do not contain
- * capturing group in such a way that their order matters.
- */
-function canReorder(
-    parent: Parent,
-    consumedChars: CharSet,
-    context: RegExpContext,
-): boolean {
-    const lengthRange = getLengthRange(parent.alternatives)
-    if (lengthRange && lengthRange.min === lengthRange.max) {
-        return true
-    }
-
-    if (parent.type === "Pattern" || parent.type === "Assertion") {
-        return false
-    }
-
-    return (
-        getFirstCharAfter(parent, "rtl", context.flags).char.isDisjointWith(
-            consumedChars,
-        ) &&
-        getFirstCharAfter(parent, "ltr", context.flags).char.isDisjointWith(
-            consumedChars,
-        )
-    )
 }
 
 /**
@@ -274,6 +232,36 @@ function getReorderingBounds<T>(
     return [first, last]
 }
 
+interface Run<T> {
+    index: number
+    elements: T[]
+}
+
+/**
+ * Returns an array of runs of elements that fulfill the given condition.
+ */
+function getRuns<T>(iter: Iterable<T>, condFn: (item: T) => boolean): Run<T>[] {
+    const runs: Run<T>[] = []
+
+    let elements: T[] = []
+    let index = 0
+
+    for (const item of iter) {
+        if (condFn(item)) {
+            elements.push(item)
+        } else {
+            if (elements.length > 0) {
+                runs.push({ index, elements })
+                elements = []
+            }
+        }
+
+        index++
+    }
+
+    return runs
+}
+
 export default createRule("sort-alternatives", {
     meta: {
         docs: {
@@ -345,7 +333,7 @@ export default createRule("sort-alternatives", {
             }
 
             /** The handler for parents */
-            function onParent(parent: Parent): void {
+            function onParent(parent: Alternative["parent"]): void {
                 if (parent.alternatives.length < 2) {
                     return
                 }
@@ -381,20 +369,28 @@ export default createRule("sort-alternatives", {
 
                 const alternatives = [...parent.alternatives]
 
-                if (canReorder(parent, consumedChars, regexpContext)) {
+                if (canReorder(alternatives, regexpContext)) {
                     // alternatives can be reordered freely
                     sortAlternatives(alternatives, regexpContext)
                     trySortNumberAlternatives(alternatives)
-                } else if (
-                    !consumedChars.isDisjointWith(Chars.digit(flags)) &&
-                    canReorder(
-                        parent,
-                        consumedChars.intersect(Chars.digit(flags)),
-                        regexpContext,
-                    )
-                ) {
+                } else if (!consumedChars.isDisjointWith(Chars.digit(flags))) {
                     // let's try to at least sort numbers
-                    trySortNumberAlternatives(alternatives)
+                    const runs = getRuns(alternatives, (a) =>
+                        /^0|[1-9]\d*$/.test(a.raw),
+                    )
+                    for (const { index, elements } of runs) {
+                        if (
+                            elements.length > 1 &&
+                            canReorder(elements, regexpContext)
+                        ) {
+                            trySortNumberAlternatives(elements)
+                            alternatives.splice(
+                                index,
+                                elements.length,
+                                ...elements,
+                            )
+                        }
+                    }
                 }
 
                 enforceSorted(alternatives)

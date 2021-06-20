@@ -50,6 +50,7 @@
     },
     "devDependencies": {
         "@ota-meshi/eslint-plugin": "^0.7.0",
+        "@types/chai": "^4.2.18",
         "@types/eslint": "^7.2.0",
         "@types/eslint-scope": "^3.7.0",
         "@types/estree": "^0.0.48",
@@ -58,6 +59,7 @@
         "@typescript-eslint/eslint-plugin": "^4.14.0",
         "@typescript-eslint/parser": "^4.14.0",
         "babel-eslint": "^10.1.0",
+        "chai": "^4.3.4",
         "env-cmd": "^10.1.0",
         "eslint": "^7.3.0",
         "eslint-config-prettier": "^8.0.0",
@@ -72,6 +74,7 @@
         "eslint-plugin-yml": "^0.9.0",
         "eslint4b": "^7.3.1",
         "mocha": "^9.0.0",
+        "mocha-chai-jest-snapshot": "^1.1.2",
         "nyc": "^15.1.0",
         "prettier": "^2.0.5",
         "raw-loader": "^4.0.1",
