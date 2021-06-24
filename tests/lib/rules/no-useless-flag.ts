@@ -568,6 +568,77 @@ tester.run("no-useless-flag", rule as any, {
                 },
             ],
         },
+
+        // test for RegExp constructor with RegExp arguments
+        {
+            code: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig);
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 42,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig, 'i');
+            `,
+            output: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 44,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/i;
+            const clone = new RegExp(orig, '');
+            `,
+            output: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 2,
+                    column: 30,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, 'i');
+            `,
+            output: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 44,
+                },
+            ],
+        },
     ],
 })
 

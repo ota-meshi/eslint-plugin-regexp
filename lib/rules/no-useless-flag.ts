@@ -176,7 +176,10 @@ function getFlagLocation(
             end: sourceCode.getLocFromIndex(flagIndex + 1),
         }
     }
-    return node.arguments[1].loc!
+    if (node.arguments.length >= 2) {
+        return node.arguments[1].loc!
+    }
+    return context.getSourceCode().getTokenAfter(node.arguments[0])!.loc!
 }
 
 /**
