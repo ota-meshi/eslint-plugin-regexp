@@ -50,6 +50,12 @@ tester.run("no-useless-assertions", rule as any, {
         // exponentially for nested loops. In this case, the 48 nested loops necessitate 2.8e14 starting positions.
         // There needs to be some optimization to work around this problem.
         String.raw`/((((((((((((((((((((((((((((((((((((((((((((((((\b)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+)+/`,
+
+        // https://github.com/ota-meshi/eslint-plugin-regexp/issues/258
+        String.raw`
+        const orig = /^https?:\/\//i;
+        const clone = new RegExp(orig);
+        `,
     ],
     invalid: [
         {
