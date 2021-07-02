@@ -204,7 +204,7 @@ function trySortNumberAlternatives(alternatives: Alternative[]): void {
     {
         let start = 0
         for (let i = 0; i < alternatives.length; i++) {
-            if (!/^0|[1-9]\d*$/.test(alternatives[i].raw)) {
+            if (!/^(?:0|[1-9]\d*)$/.test(alternatives[i].raw)) {
                 if (start < i) {
                     numberRanges.push([start, i])
                 }
