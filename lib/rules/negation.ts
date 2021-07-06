@@ -64,28 +64,14 @@ export default createRule("negation", {
 function getNegationText(
     node: EscapeCharacterSet | UnicodePropertyCharacterSet,
 ) {
-    let text: string
-    if (node.kind === "digit") {
-        text = "d"
-    } else if (node.kind === "space") {
-        text = "s"
-    } else if (node.kind === "word") {
-        text = "w"
-    } else if (node.kind === "property") {
-        text = "p"
+    // they are all of the form: /\\[dswp](?:\{[^{}]+\})?/
+    let kind = node.raw[1]
+
+    if (kind.toLowerCase() === kind) {
+        kind = kind.toUpperCase()
     } else {
-        throw new Error(`unknown kind:${node.kind}`)
-    }
-    if (!node.negate) {
-        text = text.toUpperCase()
-    }
-    if (node.kind === "property") {
-        if (node.value != null) {
-            text += `{${node.key}=${node.value}}`
-        } else {
-            text += `{${node.key}}`
-        }
+        kind = kind.toLowerCase()
     }
 
-    return `\\${text}`
+    return `\\${kind}${node.raw.slice(2)}`
 }
