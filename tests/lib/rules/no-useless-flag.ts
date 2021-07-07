@@ -22,6 +22,7 @@ tester.run("no-useless-flag", rule as any, {
         `/\\b/iu`,
         String.raw`/\x41/i`,
         `/[a-zA-Z]/i`, // in that case you should use the i flag instead of removing it
+        `/\\p{Ll}/iu`,
 
         // m
         `/^foo/m`,

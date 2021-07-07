@@ -518,7 +518,7 @@ function buildRegExpHelperBase({
         toCharSet: (node, optionFlags) => {
             if (optionFlags) {
                 // Ignore the cache if the flag is specified.
-                return toCharSet(node, flags)
+                return toCharSet(node, optionFlags)
             }
 
             let charSet = cacheCharSet.get(node)
