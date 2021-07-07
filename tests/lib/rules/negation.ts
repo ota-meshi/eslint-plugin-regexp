@@ -88,6 +88,13 @@ tester.run("negation", rule as any, {
             ],
         },
         {
+            code: String.raw`/[^\P{Ll}]/u;`,
+            output: String.raw`/\p{Ll}/u;`,
+            errors: [
+                "Unexpected negated character class. Use '\\p{Ll}' instead.",
+            ],
+        },
+        {
             code: String.raw`const s ="[^\\w]"
             new RegExp(s)`,
             output: String.raw`const s ="\\W"
