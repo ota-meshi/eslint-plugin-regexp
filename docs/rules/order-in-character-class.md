@@ -9,6 +9,7 @@ since: "v0.4.0"
 
 > enforces elements order in character class
 
+- :warning: This rule was **deprecated** and replaced by [regexp/sort-character-class-elements](sort-character-class-elements.md) rule.
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
