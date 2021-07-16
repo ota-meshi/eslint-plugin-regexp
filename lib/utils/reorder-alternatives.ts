@@ -1,5 +1,5 @@
-import type { CharRange } from "refa"
-import { CharSet } from "refa"
+import type { CharSet } from "refa"
+import { CharBase } from "refa"
 import type { MatchingDirection } from "regexp-ast-analysis"
 import {
     isZeroLength,
@@ -308,7 +308,7 @@ function getDirectionalDeterminismEqClasses(
     for (const a of alternatives) {
         getPrefixCharSets(a).forEach((cs) => allCharSets.add(cs))
     }
-    const baseSets = getBaseSets(allCharSets)
+    const base = new CharBase(allCharSets)
 
     interface Prefix {
         readonly characters: readonly (readonly number[])[]
@@ -317,9 +317,7 @@ function getDirectionalDeterminismEqClasses(
     const prefixes: Prefix[] = []
     for (const a of alternatives) {
         prefixes.push({
-            characters: getPrefixCharSets(a).map((cs) =>
-                decomposeIntoBaseSets(cs, baseSets),
-            ),
+            characters: getPrefixCharSets(a).map((cs) => base.split(cs)),
             alternative: a,
         })
     }
@@ -816,110 +814,4 @@ function cachedFn<S, T>(fn: (value: S) => T): CachedFn<S, T> {
     wrapper.cache = new Map<S, T>()
 
     return wrapper
-}
-
-/**
- * Returns an array of disjoint non-empty sets that can used to construct all given sets.
- *
- * If the union of all given character sets is empty, the empty array will be returned.
- *
- * This algorithm run in O(n*log(n)) where n is the number of ranges in the given character sets.
- *
- * @param sets
- */
-function getBaseSets(charSets: Iterable<CharSet>): readonly CharSet[] {
-    // remove duplicates and empty sets
-    const sets = [...asSet(charSets)]
-        .filter((set) => !set.isEmpty)
-        .sort((a, b) => a.compare(b))
-        .filter((set, i, array) => i === 0 || !set.equals(array[i - 1]))
-
-    if (sets.length === 0) {
-        // trivially
-        return sets
-    }
-    if (sets.length === 1) {
-        // if there's only one set, then it's the only base set
-        return sets
-    }
-
-    // extract all ranges
-    const maximum = sets[0].maximum
-    const ranges: CharRange[] = []
-    for (const set of sets) {
-        if (set.maximum !== maximum) {
-            throw new Error("The maximum of all given sets has to be the same.")
-        }
-        ranges.push(...set.ranges)
-    }
-
-    if (ranges.length === 0) {
-        return []
-    }
-
-    // union of all char sets
-    const union = CharSet.empty(maximum).union(ranges)
-
-    // set of all cuts
-    const cuts = new Set<number>()
-    for (let i = 0, l = ranges.length; i < l; i++) {
-        const { min, max } = ranges[i]
-        cuts.add(min)
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands -- it's a number
-        cuts.add(max + 1)
-    }
-
-    // determine the ranges of the base sets
-    const sortedCuts = [...cuts].sort((a, b) => a - b)
-    const baseRangesMap = new Map<string, CharRange[]>()
-    for (let i = 1, l = sortedCuts.length; i < l; i++) {
-        const min = sortedCuts[i - 1]
-        if (union.has(min)) {
-            let key = ""
-            for (let setIndex = 0; setIndex < sets.length; setIndex++) {
-                const set = sets[setIndex]
-                if (set.has(min)) {
-                    key += `${setIndex} `
-                }
-            }
-
-            const value = baseRangesMap.get(key)
-            const range = { min, max: sortedCuts[i] - 1 }
-            if (value) {
-                value.push(range)
-            } else {
-                baseRangesMap.set(key, [range])
-            }
-        }
-    }
-
-    // create the base sets
-    const baseSets: CharSet[] = []
-    for (const baseRanges of baseRangesMap.values()) {
-        baseSets.push(CharSet.empty(maximum).union(baseRanges))
-    }
-
-    return baseSets
-}
-
-/**
- * Decomposes the given set into its base sets. Returned array will be the sorted indexes of the base sets necessary to
- * construct the given set.
- *
- * This assumes that `set` is either empty or can be constructed from the base sets.
- *
- * @param set
- * @param baseSets
- */
-function decomposeIntoBaseSets(
-    set: CharSet,
-    baseSets: readonly CharSet[],
-): number[] {
-    const res: number[] = []
-    for (let i = 0, l = baseSets.length; i < l; i++) {
-        if (set.has(baseSets[i].ranges[0].min)) {
-            res.push(i)
-        }
-    }
-    return res
 }
