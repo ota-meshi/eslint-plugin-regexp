@@ -42,6 +42,7 @@ function getParsedLiteral(context: RegExpContext): ParsedLiteral {
             end: NaN,
             dotAll: flags.dotAll ?? false,
             global: flags.global ?? false,
+            hasIndices: flags.hasIndices ?? false,
             ignoreCase: flags.ignoreCase ?? false,
             multiline: flags.multiline ?? false,
             sticky: flags.sticky ?? false,

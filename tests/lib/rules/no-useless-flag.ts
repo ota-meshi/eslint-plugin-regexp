@@ -22,6 +22,7 @@ tester.run("no-useless-flag", rule as any, {
         `/\\b/iu`,
         String.raw`/\x41/i`,
         `/[a-zA-Z]/i`, // in that case you should use the i flag instead of removing it
+        `/\\p{Ll}/iu`,
 
         // m
         `/^foo/m`,
@@ -565,6 +566,77 @@ tester.run("no-useless-flag", rule as any, {
                         "The 'y' flag is unnecessary because not using sticky search.",
                     line: 2,
                     column: 28,
+                },
+            ],
+        },
+
+        // test for RegExp constructor with RegExp arguments
+        {
+            code: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig);
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 42,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig, 'i');
+            `,
+            output: String.raw`
+            const orig = /\w/i; // eslint-disable-line
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 44,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/i;
+            const clone = new RegExp(orig, '');
+            `,
+            output: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 2,
+                    column: 30,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, 'i');
+            `,
+            output: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 3,
+                    column: 44,
                 },
             ],
         },

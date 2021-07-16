@@ -6,7 +6,7 @@ import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { parseStringTokens } from "./string-literal-parser"
-import { findVariable, getStringIfConstant } from "./ast-utils"
+import { findVariable, getStaticValue, getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
@@ -338,6 +338,7 @@ function buildRegexpVisitor(
                 pattern: string | null
                 flagsNode: ESTree.Expression | ESTree.SpreadElement | undefined
                 flagsString: string | null
+                ownsFlags: boolean
             }[] = []
             for (const { node } of tracker.iterateGlobalReferences({
                 RegExp: { [CALL]: true, [CONSTRUCT]: true },
@@ -349,10 +350,31 @@ function buildRegexpVisitor(
                 if (!patternNode || patternNode.type === "SpreadElement") {
                     continue
                 }
-                const pattern = getStringIfConstant(context, patternNode)
-                const flagsString = flagsNode
-                    ? getStringIfConstant(context, flagsNode)
-                    : null
+                const patternResult = getStaticValue(context, patternNode)
+                if (!patternResult || patternResult.value == null) {
+                    continue
+                }
+                let pattern: string | null = null
+                let { flagsString, ownsFlags } =
+                    flagsNode && flagsNode.type !== "SpreadElement"
+                        ? {
+                              flagsString: getStringIfConstant(
+                                  context,
+                                  flagsNode,
+                              ),
+                              ownsFlags: isStringLiteral(flagsNode),
+                          }
+                        : { flagsString: null, ownsFlags: false }
+                if (patternResult.value instanceof RegExp) {
+                    pattern = patternResult.value.source
+                    if (!flagsNode) {
+                        // If no flag is given, the flag is also cloned.
+                        flagsString = patternResult.value.flags
+                        ownsFlags = true
+                    }
+                } else {
+                    pattern = String(patternResult.value)
+                }
 
                 regexpDataList.push({
                     newOrCall,
@@ -360,14 +382,15 @@ function buildRegexpVisitor(
                     pattern,
                     flagsNode,
                     flagsString,
+                    ownsFlags,
                 })
             }
             for (const {
                 newOrCall,
                 patternNode,
                 pattern,
-                flagsNode,
                 flagsString,
+                ownsFlags,
             } of regexpDataList) {
                 if (typeof pattern === "string") {
                     let verifyPatternNode = patternNode
@@ -421,11 +444,7 @@ function buildRegexpVisitor(
                                 pattern,
                                 flags,
                                 flagsString,
-                                ownsFlags: Boolean(
-                                    flagsNode &&
-                                        flagsNode.type !== "SpreadElement" &&
-                                        isStringLiteral(flagsNode),
-                                ),
+                                ownsFlags,
                                 regexpNode: newOrCall,
                                 ...helpers,
                                 getRegexpRange: (regexpNode) =>
@@ -499,7 +518,7 @@ function buildRegExpHelperBase({
         toCharSet: (node, optionFlags) => {
             if (optionFlags) {
                 // Ignore the cache if the flag is specified.
-                return toCharSet(node, flags)
+                return toCharSet(node, optionFlags)
             }
 
             let charSet = cacheCharSet.get(node)

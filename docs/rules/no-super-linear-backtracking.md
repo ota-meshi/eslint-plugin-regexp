@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-super-linear-backtracking"
 description: "disallow exponential and polynomial backtracking"
+since: "v0.13.0"
 ---
 # regexp/no-super-linear-backtracking
 
 > disallow exponential and polynomial backtracking
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -85,6 +85,10 @@ This options control whether ambiguity that might cause super-linear backtrackin
 
 [1]: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
 [scslre]: https://github.com/RunDevelopment/scslre
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v0.13.0
 
 ## :mag: Implementation
 

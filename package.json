@@ -1,7 +1,10 @@
 {
     "name": "eslint-plugin-regexp",
-    "version": "0.12.0",
+    "version": "0.13.1",
     "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
+    "engines": {
+        "node": "^12 || >=14"
+    },
     "main": "dist/index.js",
     "files": [
         "dist"
@@ -53,7 +56,7 @@
         "@types/chai": "^4.2.18",
         "@types/eslint": "^7.2.0",
         "@types/eslint-scope": "^3.7.0",
-        "@types/estree": "^0.0.48",
+        "@types/estree": "^0.0.50",
         "@types/mocha": "^8.0.0",
         "@types/node": "^14.14.39",
         "@typescript-eslint/eslint-plugin": "^4.14.0",
@@ -69,7 +72,7 @@
         "eslint-plugin-jsonc": "^1.0.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prettier": "^3.4.0",
-        "eslint-plugin-regexp": "^0.12.0",
+        "eslint-plugin-regexp": "^0.13.1",
         "eslint-plugin-vue": "^7.5.0",
         "eslint-plugin-yml": "^0.9.0",
         "eslint4b": "^7.3.1",
@@ -91,9 +94,9 @@
         "comment-parser": "^1.1.2",
         "eslint-utils": "^3.0.0",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.8.0",
-        "regexp-ast-analysis": "^0.2.2",
-        "regexpp": "^3.1.0",
-        "scslre": "^0.1.5"
+        "refa": "^0.9.0",
+        "regexp-ast-analysis": "^0.2.3",
+        "regexpp": "^3.2.0",
+        "scslre": "^0.1.6"
     }
 }
