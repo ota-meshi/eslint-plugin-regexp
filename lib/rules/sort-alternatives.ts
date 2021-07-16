@@ -154,6 +154,15 @@ function sortAlternatives(
 }
 
 /**
+ * Returns whether the given string is a valid integer.
+ * @param str
+ * @returns
+ */
+function isIntegerString(str: string): boolean {
+    return /^(?:0|[1-9]\d*)$/.test(str)
+}
+
+/**
  * This tries to sort the given alternatives by assuming that all alternatives
  * are a number.
  */
@@ -162,7 +171,7 @@ function trySortNumberAlternatives(alternatives: Alternative[]): void {
     {
         let start = 0
         for (let i = 0; i < alternatives.length; i++) {
-            if (!/^(?:0|[1-9]\d*)$/.test(alternatives[i].raw)) {
+            if (!isIntegerString(alternatives[i].raw)) {
                 if (start < i) {
                     numberRanges.push([start, i])
                 }
@@ -376,7 +385,7 @@ export default createRule("sort-alternatives", {
                 } else if (!consumedChars.isDisjointWith(Chars.digit(flags))) {
                     // let's try to at least sort numbers
                     const runs = getRuns(alternatives, (a) =>
-                        /^0|[1-9]\d*$/.test(a.raw),
+                        isIntegerString(a.raw),
                     )
                     for (const { index, elements } of runs) {
                         if (
