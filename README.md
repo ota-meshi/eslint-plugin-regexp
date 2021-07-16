@@ -104,7 +104,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/no-assertion-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-assertion-capturing-group.html) | disallow capturing group that captures empty. | :star: |
 | [regexp/no-dupe-disjunctions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-dupe-disjunctions.html) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-alternative](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-alternative.html) | disallow alternatives without elements |  |
 | [regexp/no-empty-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-capturing-group.html) | disallow capturing group that captures empty. |  |
@@ -179,6 +178,15 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/sort-character-class-elements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html) | enforces elements order in character class | :wrench: |
 | [regexp/sort-flags](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-flags.html) | require regex flags to be sorted | :wrench: |
 | [regexp/unicode-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/unicode-escape.html) | enforce consistent usage of unicode escape or unicode codepoint escape | :wrench: |
+
+### Deprecated
+
+- :warning: We're going to remove deprecated rules in the next major release. Please migrate to successor/new rules.
+- :innocent: We don't fix bugs which are in deprecated rules since we don't have enough resources.
+
+| Rule ID | Replaced by |
+|:--------|:------------|
+| [regexp/no-assertion-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-assertion-capturing-group.html) | [regexp/no-empty-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-capturing-group.html.md) |
 
 <!--RULES_TABLE_END-->
 <!--RULES_SECTION_END-->

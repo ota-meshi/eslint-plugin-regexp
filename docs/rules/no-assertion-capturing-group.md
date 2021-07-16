@@ -9,7 +9,7 @@ since: "v0.1.0"
 
 > disallow capturing group that captures empty.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+- :warning: This rule was **deprecated** and replaced by [regexp/no-empty-capturing-group](no-empty-capturing-group.md) rule.
 
 ## :book: Rule Details
 
