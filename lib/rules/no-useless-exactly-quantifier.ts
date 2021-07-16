@@ -7,13 +7,15 @@ export default createRule("no-useless-exactly-quantifier", {
         docs: {
             description: "disallow unnecessary exactly quantifier",
             category: "Best Practices",
-            recommended: true,
+            recommended: false,
+            replacedBy: ["no-useless-quantifier", "no-zero-quantifier"],
         },
         schema: [],
         messages: {
             unexpected: "Unexpected quantifier '{{expr}}'.",
         },
         type: "suggestion", // "problem",
+        deprecated: true,
     },
     create(context) {
         /**

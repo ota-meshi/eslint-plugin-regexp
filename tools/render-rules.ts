@@ -102,7 +102,7 @@ function createDeprecationTable(
 
         const replacedRules = meta.docs.replacedBy || []
         const replacedBy = replacedRules
-            .map((name) => `[regexp/${name}](${buildRulePath(name)}.md)`)
+            .map((name) => `[regexp/${name}](${buildRulePath(name)})`)
             .join(", ")
 
         md += `\n| ${link} | ${replacedBy || "(no replacement)"} |`
