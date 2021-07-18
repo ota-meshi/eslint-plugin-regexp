@@ -192,7 +192,7 @@ export default createRule("no-unused-capturing-group", {
                 "Capturing group {{identifier}} has a name, but its name is never used.",
 
             // suggestions
-            makeNonCapturing: "Making this a non-capturing group ('(?:...)').",
+            makeNonCapturing: "Making this a non-capturing group.",
             removeName: "Remove the unused name.",
         },
         type: "suggestion", // "problem",
