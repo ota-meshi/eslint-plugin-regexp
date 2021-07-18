@@ -57,9 +57,10 @@ export default createRule("negation", {
 
                         const ccSet = toCharSet(ccNode)
 
-                        element.negate = !element.negate
-                        const negatedElementSet = toCharSet(element)
-                        element.negate = !element.negate
+                        const negatedElementSet = toCharSet({
+                            ...element,
+                            negate: !element.negate,
+                        })
 
                         if (!ccSet.equals(negatedElementSet)) {
                             // We cannot remove the negative
