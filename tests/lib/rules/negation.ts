@@ -9,7 +9,12 @@ const tester = new RuleTester({
 })
 
 tester.run("negation", rule as any, {
-    valid: [String.raw`/[\d]/`, String.raw`/[^\d\s]/`],
+    valid: [
+        String.raw`/[\d]/`,
+        String.raw`/[^\d\s]/`,
+        String.raw`/[^\p{ASCII}]/iu`,
+        String.raw`/[^\P{Ll}]/iu`,
+    ],
     invalid: [
         {
             code: String.raw`/[^\d]/`,
@@ -92,6 +97,13 @@ tester.run("negation", rule as any, {
             output: String.raw`/\p{Ll}/u;`,
             errors: [
                 "Unexpected negated character class. Use '\\p{Ll}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^\P{White_Space}]/iu;`,
+            output: String.raw`/\p{White_Space}/iu;`,
+            errors: [
+                "Unexpected negated character class. Use '\\p{White_Space}' instead.",
             ],
         },
         {
