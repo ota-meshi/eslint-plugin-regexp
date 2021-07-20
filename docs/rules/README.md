@@ -46,7 +46,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-standalone-backslash](./no-standalone-backslash.md) | disallow standalone backslashes (`\`) |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
-| [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group |  |
+| [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group | :wrench: |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |

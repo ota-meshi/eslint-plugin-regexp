@@ -15,8 +15,10 @@ import {
     extractPropertyReferences,
 } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import type { CapturingGroup } from "regexpp/ast"
+import type { CapturingGroup, Pattern } from "regexpp/ast"
 import { parseReplacementsForString } from "../utils/replacements-utils"
+import { getCapturingGroupNumber } from "regexp-ast-analysis"
+import { visitRegExpAST } from "regexpp"
 
 class CapturingData {
     private readonly unused = new Set<CapturingGroup>()
@@ -137,6 +139,35 @@ class CapturingData {
     }
 }
 
+/**
+ * Returns an identifier for the given capturing group.
+ *
+ * This is either the name of the group or its number.
+ */
+function getCapturingGroupIdentifier(group: CapturingGroup): string {
+    if (group.name) {
+        return `'${group.name}'`
+    }
+    return `number ${getCapturingGroupNumber(group)}`
+}
+
+/** Returns a list of all capturing groups in the order of their numbers. */
+function getAllCapturingGroups(pattern: Pattern): CapturingGroup[] {
+    const groups: CapturingGroup[] = []
+
+    visitRegExpAST(pattern, {
+        onCapturingGroupEnter(group) {
+            groups.push(group)
+        },
+    })
+
+    // visitRegExpAST given no guarantees in which order nodes are visited.
+    // Sort the list to guarantee order.
+    groups.sort((a, b) => a.start - b.start)
+
+    return groups
+}
+
 export default createRule("no-unused-capturing-group", {
     meta: {
         docs: {
@@ -144,17 +175,31 @@ export default createRule("no-unused-capturing-group", {
             category: "Best Practices",
             recommended: false,
         },
-        schema: [],
+        fixable: "code",
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    fixable: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
-            unusedCapturingGroup: "Capturing group is defined but never used.",
-            unusedNamedCapturingGroup:
-                "'{{name}}' capturing group is defined but never used.",
+            unusedCapturingGroup:
+                "Capturing group {{identifier}} is defined but never used.",
             unusedName:
-                "'{{name}}' is defined for capturing group, but it name is never used.",
+                "Capturing group {{identifier}} has a name, but its name is never used.",
+
+            // suggestions
+            makeNonCapturing: "Making this a non-capturing group.",
+            removeName: "Remove the unused name.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
+        const fixable: boolean = context.options[0]?.fixable ?? false
+
         const typeTracer = createTypeTracker(context)
         const capturingDataMap = new Map<Expression, CapturingData>()
 
@@ -162,27 +207,59 @@ export default createRule("no-unused-capturing-group", {
          * Report for unused
          */
         function reportUnused(capturingData: CapturingData) {
-            const { node, getRegexpLocation } = capturingData.regexpContext
+            const {
+                node,
+                getRegexpLocation,
+                fixReplaceNode,
+                patternAst,
+            } = capturingData.regexpContext
             const {
                 unusedCapturingGroups,
                 unusedNames,
             } = capturingData.getUnused()
+
+            const fixableGroups = new Set<CapturingGroup>()
+            for (const group of getAllCapturingGroups(patternAst).reverse()) {
+                if (unusedCapturingGroups.has(group)) {
+                    fixableGroups.add(group)
+                } else {
+                    break
+                }
+            }
+
             for (const cgNode of unusedCapturingGroups) {
+                const fix = fixableGroups.has(cgNode)
+                    ? fixReplaceNode(
+                          cgNode,
+                          cgNode.raw.replace(/^\((?:\?<[^<>]+>)?/, "(?:"),
+                      )
+                    : null
+
                 context.report({
                     node,
                     loc: getRegexpLocation(cgNode),
-                    messageId: cgNode.name
-                        ? "unusedNamedCapturingGroup"
-                        : "unusedCapturingGroup",
-                    data: cgNode.name ? { name: cgNode.name } : {},
+                    messageId: "unusedCapturingGroup",
+                    data: { identifier: getCapturingGroupIdentifier(cgNode) },
+                    fix: fixable ? fix : null,
+                    suggest: fix
+                        ? [{ messageId: "makeNonCapturing", fix }]
+                        : null,
                 })
             }
+
             for (const cgNode of unusedNames) {
+                const fix = fixReplaceNode(
+                    cgNode,
+                    cgNode.raw.replace(/^\(\?<[^<>]+>/, "("),
+                )
+
                 context.report({
                     node,
                     loc: getRegexpLocation(cgNode),
                     messageId: "unusedName",
-                    data: { name: cgNode.name },
+                    data: { identifier: getCapturingGroupIdentifier(cgNode) },
+                    fix: fixable ? fix : null,
+                    suggest: [{ messageId: "removeName", fix }],
                 })
             }
         }

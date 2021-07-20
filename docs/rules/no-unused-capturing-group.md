@@ -9,14 +9,16 @@ since: "v0.6.0"
 
 > disallow unused capturing group
 
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 ## :book: Rule Details
 
 This rule aims to optimize regular expressions by replacing unused capturing groups with non-capturing groups.
 
-<eslint-code-block>
+<eslint-code-block fix>
 
 ```js
-/* eslint regexp/no-unused-capturing-group: "error" */
+/* eslint regexp/no-unused-capturing-group: ["error", { fixable: true }] */
 
 /* ✓ GOOD */
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2/$3') // "2000/12/31"
@@ -50,7 +52,20 @@ var index = '2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0
 
 ## :wrench: Options
 
-Nothing.
+```json
+{
+  "regexp/no-unused-capturing-group": ["error", {
+    "fixable": true
+  }]
+}
+```
+
+- `fixable: true | false`
+
+  This option controls whether the rule is fixable. Defaults to `false`.
+
+  This rule is not fixable by default. Unused capturing groups can indicate a mistake in the code that uses the regex, so changing the regex might not be the right fix. When enabling this option, be sure to carefully check its changes.
+
 
 ## :couple: Related rules
 
