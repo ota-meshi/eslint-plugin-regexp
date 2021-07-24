@@ -184,6 +184,26 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
                 "'[ab]*' and '(?:a|bb)+' can be replaced with '[ab]*(?:a|bb)'.",
             ],
         },
+        {
+            code: String.raw`/(?:\d+|abc)\w+/`,
+            output: String.raw`/(?:\d|abc)\w+/`,
+            errors: ["'\\d+' can be replaced with '\\d' because of '\\w+'."],
+        },
+        {
+            code: String.raw`/(^[ \t]*)[a-z\d].+(?::{2,4}|;;)(?=\s)/im`,
+            output: String.raw`/(^[ \t]*)[a-z\d].+(?::{2}|;;)(?=\s)/im`,
+            errors: ["':{2,4}' can be replaced with ':{2}' because of '.+'."],
+        },
+        {
+            code: String.raw`/(^[\t ]*)#(?:const|else(?:[\t ]+if)?|end[\t ]+if|error|if).*/im`,
+            output: String.raw`/(^[\t ]*)#(?:const|else|end[\t ]+if|error|if).*/im`,
+            errors: ["'(?:[\\t ]+if)?' can be removed because of '.*'."],
+        },
+        {
+            code: String.raw`/(&(?:\r\n?|\n)\s*)!.*/`,
+            output: String.raw`/(&(?:\r|\n)\s*)!.*/`,
+            errors: ["'\\n?' can be removed because of '\\s*'."],
+        },
 
         // careful with capturing groups
         {

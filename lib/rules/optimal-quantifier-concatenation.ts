@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair -- x
+/* eslint-disable complexity -- x */
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Alternative,
@@ -135,17 +137,26 @@ function isGroupOrCharacter(element: Element): element is GroupOrCharacter {
     }
 }
 
-interface Replacement {
-    raw: string
+type Replacement = BothReplacement | NestedReplacement
+/** Replace both the left and right quantifiers. */
+interface BothReplacement {
+    type: "Both"
     messageId: string
+    raw: string
+}
+/** Replace only the nested quantifier. */
+interface NestedReplacement {
+    type: "Nested"
+    messageId: string
+    raw: string
+    dominate: Quantifier
+    nested: Quantifier
 }
 
-/* eslint-disable complexity -- x */
 /**
  * Returns the replacement for the two adjacent elements.
  */
 function getQuantifiersReplacement(
-    /* eslint-enable complexity -- x */
     left: Quantifier,
     right: Quantifier,
     context: RegExpContext,
@@ -214,24 +225,24 @@ function getQuantifiersReplacement(
     const raw = quantize(left.element, lQuant) + quantize(right.element, rQuant)
 
     // eslint-disable-next-line one-var -- rule error
-    let message
+    let messageId
     if (
         lQuant.max === 0 &&
         right.max === rQuant.max &&
         right.min === rQuant.min
     ) {
-        message = "removeLeft"
+        messageId = "removeLeft"
     } else if (
         rQuant.max === 0 &&
         left.max === lQuant.max &&
         left.min === lQuant.min
     ) {
-        message = "removeRight"
+        messageId = "removeRight"
     } else {
-        message = "replace"
+        messageId = "replace"
     }
 
-    return { raw, messageId: message }
+    return { type: "Both", raw, messageId }
 }
 
 /**
@@ -303,7 +314,86 @@ function getQuantifierRepeatedElementReplacement(
 
     const raw = elementRaw + quantToString(quant)
 
-    return { messageId: "combine", raw }
+    return { type: "Both", messageId: "combine", raw }
+}
+
+/**
+ * Returns a replacement for the nested quantifier.
+ */
+function getNestedReplacement(
+    dominate: Quantifier,
+    nested: Quantifier,
+    context: RegExpContext,
+): Replacement | null {
+    if (dominate.greedy !== nested.greedy) {
+        return null
+    }
+
+    if (dominate.max < Infinity || nested.min === nested.max) {
+        return null
+    }
+
+    const single = getSingleConsumedChar(dominate.element, context)
+    if (single.char.isEmpty) {
+        return null
+    }
+
+    const nestedPossible = getPossiblyConsumedChar(nested.element, context)
+    if (single.char.isSupersetOf(nestedPossible.char)) {
+        const { min } = nested
+        if (min === 0) {
+            return {
+                type: "Nested",
+                messageId: "nestedRemove",
+                raw: "",
+                nested,
+                dominate,
+            }
+        }
+        return {
+            type: "Nested",
+            messageId: "nestedReplace",
+            raw: quantize(nested.element, { ...nested, max: min }),
+            nested,
+            dominate,
+        }
+    }
+
+    return null
+}
+
+/** Yields all quantifiers at the start/end of the given element. */
+function* nestedQuantifiers(
+    root: Element | Alternative,
+    direction: "start" | "end",
+): Iterable<Quantifier> {
+    switch (root.type) {
+        case "Alternative":
+            if (root.elements.length > 0) {
+                const index =
+                    direction === "start" ? 0 : root.elements.length - 1
+                yield* nestedQuantifiers(root.elements[index], direction)
+            }
+            break
+
+        case "CapturingGroup":
+        case "Group":
+            for (const a of root.alternatives) {
+                yield* nestedQuantifiers(a, direction)
+            }
+            break
+
+        case "Quantifier":
+            yield root
+
+            if (root.max === 1) {
+                yield* nestedQuantifiers(root.element, direction)
+            }
+            break
+
+        default:
+            break
+    }
 }
 
 /**
@@ -376,6 +466,20 @@ function getReplacement(
         }
     }
 
+    if (left.type === "Quantifier" && left.max === Infinity) {
+        for (const nested of nestedQuantifiers(right, "start")) {
+            const result = getNestedReplacement(left, nested, context)
+            if (result) return result
+        }
+    }
+
+    if (right.type === "Quantifier" && right.max === Infinity) {
+        for (const nested of nestedQuantifiers(left, "end")) {
+            const result = getNestedReplacement(right, nested, context)
+            if (result) return result
+        }
+    }
+
     return null
 }
 
@@ -422,6 +526,10 @@ export default createRule("optimal-quantifier-concatenation", {
                 "'{{right}}' can be removed because it is already included by '{{left}}'.{{cap}}",
             replace:
                 "'{{left}}' and '{{right}}' can be replaced with '{{fix}}'.{{cap}}",
+            nestedRemove:
+                "'{{nested}}' can be removed because of '{{dominate}}'.{{cap}}",
+            nestedReplace:
+                "'{{nested}}' can be replaced with '{{fix}}' because of '{{dominate}}'.{{cap}}",
         },
         type: "suggestion",
     },
@@ -452,40 +560,62 @@ export default createRule("optimal-quantifier-concatenation", {
                         const involvesCapturingGroup =
                             hasCapturingGroup(left) || hasCapturingGroup(right)
 
-                        context.report({
-                            node,
-                            loc:
-                                getLoc(
-                                    left,
-                                    right,
-                                    context.getSourceCode(),
-                                    regexpContext,
-                                ) ?? getRegexpLocation(aNode),
-                            messageId: replacement.messageId,
-                            data: {
-                                left: left.raw,
-                                right: right.raw,
-                                fix: replacement.raw,
-                                cap: involvesCapturingGroup
-                                    ? " This cannot be fixed automatically because it might change or remove a capturing group."
-                                    : "",
-                            },
-                            fix: fixReplaceNode(aNode, () => {
-                                if (involvesCapturingGroup) {
-                                    return null
-                                }
+                        const cap = involvesCapturingGroup
+                            ? " This cannot be fixed automatically because it might change or remove a capturing group."
+                            : ""
 
-                                const before = aNode.raw.slice(
-                                    0,
-                                    left.start - aNode.start,
-                                )
-                                const after = aNode.raw.slice(
-                                    right.end - aNode.start,
-                                )
+                        if (replacement.type === "Both") {
+                            context.report({
+                                node,
+                                loc:
+                                    getLoc(
+                                        left,
+                                        right,
+                                        context.getSourceCode(),
+                                        regexpContext,
+                                    ) ?? getRegexpLocation(aNode),
+                                messageId: replacement.messageId,
+                                data: {
+                                    left: left.raw,
+                                    right: right.raw,
+                                    fix: replacement.raw,
+                                    cap,
+                                },
+                                fix: fixReplaceNode(aNode, () => {
+                                    if (involvesCapturingGroup) {
+                                        return null
+                                    }
 
-                                return before + replacement.raw + after
-                            }),
-                        })
+                                    const before = aNode.raw.slice(
+                                        0,
+                                        left.start - aNode.start,
+                                    )
+                                    const after = aNode.raw.slice(
+                                        right.end - aNode.start,
+                                    )
+
+                                    return before + replacement.raw + after
+                                }),
+                            })
+                        } else {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(replacement.nested),
+                                messageId: replacement.messageId,
+                                data: {
+                                    nested: replacement.nested.raw,
+                                    dominate: replacement.dominate.raw,
+                                    fix: replacement.raw,
+                                    cap,
+                                },
+                                fix: fixReplaceNode(replacement.nested, () => {
+                                    if (involvesCapturingGroup) {
+                                        return null
+                                    }
+                                    return replacement.raw
+                                }),
+                            })
+                        }
                     }
                 },
             }
