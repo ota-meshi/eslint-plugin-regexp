@@ -1,5 +1,6 @@
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
+    Alternative,
     CapturingGroup,
     Character,
     CharacterClass,
@@ -14,6 +15,7 @@ import type { AST, SourceCode } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
 import { Chars, hasSomeDescendant } from "regexp-ast-analysis"
+import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
 
 /**
@@ -23,54 +25,61 @@ function hasCapturingGroup(node: Node): boolean {
     return hasSomeDescendant(node, (d) => d.type === "CapturingGroup")
 }
 
-interface Chars {
-    readonly chars: CharSet
+interface SingleConsumedChar {
+    readonly char: CharSet
+    /**
+     * Whether the entire element is a single character.
+     *
+     * If `true`, the element is equivalent to `[char]`.
+     *
+     * If `false`, the element is equivalent to `[char]|unknown`.
+     */
     readonly complete: boolean
 }
 
-const EMPTY_UTF16: Chars = {
-    chars: Chars.empty({}),
+const EMPTY_UTF16: SingleConsumedChar = {
+    char: Chars.empty({}),
     complete: false,
 }
-const EMPTY_UNICODE: Chars = {
-    chars: Chars.empty({ unicode: true }),
+const EMPTY_UNICODE: SingleConsumedChar = {
+    char: Chars.empty({ unicode: true }),
     complete: false,
 }
 
 /**
- * Creates a `Chars` object from the given element.
+ * If the given element is guaranteed to only consume a single character set,
+ * then this character set will be returned, `null` otherwise.
  */
-function createChars(element: Element, context: RegExpContext): Chars {
+function getSingleConsumedChar(
+    element: Element | Alternative,
+    context: RegExpContext,
+): SingleConsumedChar {
     const empty = context.flags.unicode ? EMPTY_UNICODE : EMPTY_UTF16
 
     switch (element.type) {
+        case "Alternative":
+            if (element.elements.length === 1) {
+                return getSingleConsumedChar(element.elements[0], context)
+            }
+            return empty
+
         case "Character":
         case "CharacterSet":
-            return {
-                chars: context.toCharSet(element),
-                complete: true,
-            }
-
         case "CharacterClass":
             return {
-                chars: context.toCharSet(element),
+                char: context.toCharSet(element),
                 complete: true,
             }
 
         case "Group":
         case "CapturingGroup": {
-            const results = element.alternatives.map((a) => {
-                if (a.elements.length === 1) {
-                    return createChars(a.elements[0], context)
-                }
-                return empty
-            })
-            const union = empty.chars.union(
-                ...results.map(({ chars }) => chars),
+            const results = element.alternatives.map((a) =>
+                getSingleConsumedChar(a, context),
             )
+
             return {
-                chars: union,
-                complete: results.every(({ complete }) => complete),
+                char: empty.char.union(...results.map((r) => r.char)),
+                complete: results.every((r) => r.complete),
             }
         }
 
@@ -153,15 +162,21 @@ function getQuantifiersReplacement(
     }
 
     // compare
-    const lChars = createChars(left.element, context)
-    const rChars = createChars(right.element, context)
+    const lSingle = getSingleConsumedChar(left.element, context)
+    const rSingle = getSingleConsumedChar(right.element, context)
+    const lPossibleChar = lSingle.complete
+        ? lSingle.char
+        : getPossiblyConsumedChar(left.element, context).char
+    const rPossibleChar = rSingle.complete
+        ? rSingle.char
+        : getPossiblyConsumedChar(right.element, context).char
     const greedy = left.greedy
 
     let lQuant: Readonly<Quant>, rQuant: Readonly<Quant>
     if (
-        lChars.complete &&
-        rChars.complete &&
-        lChars.chars.equals(rChars.chars)
+        lSingle.complete &&
+        rSingle.complete &&
+        lSingle.char.equals(rSingle.char)
     ) {
         // left is equal to right
         lQuant = {
@@ -172,8 +187,7 @@ function getQuantifiersReplacement(
         rQuant = { min: 0, max: 0, greedy }
     } else if (
         right.max === Infinity &&
-        lChars.complete &&
-        lChars.chars.isSubsetOf(rChars.chars)
+        rSingle.char.isSupersetOf(lPossibleChar)
     ) {
         // left is a subset of right
         lQuant = {
@@ -184,8 +198,7 @@ function getQuantifiersReplacement(
         rQuant = right // unchanged
     } else if (
         left.max === Infinity &&
-        rChars.complete &&
-        rChars.chars.isSubsetOf(lChars.chars)
+        lSingle.char.isSupersetOf(rPossibleChar)
     ) {
         // right is a subset of left
         lQuant = left // unchanged
@@ -263,17 +276,17 @@ function getQuantifierRepeatedElementReplacement(
     const [left, right] = pair
 
     // the characters of both elements have to be complete and equal
-    const leftChar = createChars(left.element, context)
-    if (!leftChar.complete) {
+    const lSingle = getSingleConsumedChar(left.element, context)
+    if (!lSingle.complete) {
         return null
     }
 
-    const rightChar = createChars(right.element, context)
-    if (!rightChar.complete) {
+    const rSingle = getSingleConsumedChar(right.element, context)
+    if (!rSingle.complete) {
         return null
     }
 
-    if (!rightChar.chars.equals(leftChar.chars)) {
+    if (!rSingle.char.equals(lSingle.char)) {
         return null
     }
 
