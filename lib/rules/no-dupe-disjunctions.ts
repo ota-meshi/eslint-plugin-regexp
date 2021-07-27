@@ -530,7 +530,6 @@ function* findDuplicationNfa(
                     const reorder = canReorder(
                         [alternative, ...others],
                         context,
-                        { ignoreCapturingGroups: true },
                     )
 
                     if (reorder) {
