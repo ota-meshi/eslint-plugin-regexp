@@ -137,7 +137,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-standalone-backslash](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-standalone-backslash.html) | disallow standalone backslashes (`\`) |  |
 | [regexp/no-trivially-nested-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-assertion.html) | disallow trivially nested assertions | :wrench: |
 | [regexp/no-trivially-nested-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-quantifier.html) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
-| [regexp/no-unused-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-unused-capturing-group.html) | disallow unused capturing group |  |
+| [regexp/no-unused-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-unused-capturing-group.html) | disallow unused capturing group | :wrench: |
 | [regexp/no-useless-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-character-class.html) | disallow character class with one character | :wrench: |
 | [regexp/no-useless-exactly-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-exactly-quantifier.html) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-flag.html) | disallow unnecessary regex flags | :wrench: |
