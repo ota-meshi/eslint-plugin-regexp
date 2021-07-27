@@ -29,6 +29,7 @@ import {
 } from "regexp-ast-analysis"
 import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
+import { canReorder } from "../utils/reorder-alternatives"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -482,6 +483,7 @@ function* findPrefixDuplicationNfa(
  */
 function* findDuplicationNfa(
     alternatives: Alternative[],
+    context: RegExpContext,
     { hasNothingAfter, parser, ignoreOverlap }: Options,
 ): Iterable<Result> {
     const previous: [NFA, boolean, Alternative][] = []
@@ -524,9 +526,29 @@ function* findDuplicationNfa(
                     yield { type: "Subset", alternative, others }
                     break
 
-                case SubsetRelation.leftSupersetOfRight:
-                    yield { type: "Superset", alternative, others }
+                case SubsetRelation.leftSupersetOfRight: {
+                    const reorder = canReorder(
+                        [alternative, ...others],
+                        context,
+                        { ignoreCapturingGroups: true },
+                    )
+
+                    if (reorder) {
+                        // We are allowed to freely reorder the alternatives.
+                        // This means that we can reverse the order of our
+                        // alternatives to convert the superset into a subset.
+                        for (const other of others) {
+                            yield {
+                                type: "Subset",
+                                alternative: other,
+                                others: [alternative],
+                            }
+                        }
+                    } else {
+                        yield { type: "Superset", alternative, others }
+                    }
                     break
+                }
 
                 case SubsetRelation.none:
                 case SubsetRelation.unknown:
@@ -574,7 +596,7 @@ function* findDuplication(
 
     // NFA-based approach
     if (!options.noNfa) {
-        yield* findDuplicationNfa(alternatives, options)
+        yield* findDuplicationNfa(alternatives, context, options)
     }
 }
 
