@@ -16,6 +16,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
         String.raw`/\w{3,5}\d*/`,
         String.raw`/a+b+c+d+[abc]+/`,
         String.raw`/(?:a|::)?\w+/`,
+        String.raw`/\d+(?:\w+|-\d+)/`,
         String.raw`/aa?/`,
         String.raw`/\w?\w/`,
     ],
@@ -168,6 +169,40 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/a.{1,3}.{2,4}c/`,
             output: String.raw`/a.{3,7}c/`,
             errors: ["'.{1,3}' and '.{2,4}' can be replaced with '.{3,7}'."],
+        },
+        {
+            code: String.raw`/\w+(?:foo|bar)?/`,
+            output: String.raw`/\w+/`,
+            errors: [
+                "'(?:foo|bar)?' can be removed because it is already included by '\\w+'.",
+            ],
+        },
+        {
+            code: String.raw`/[ab]*(?:a|bb)+/`,
+            output: String.raw`/[ab]*(?:a|bb)/`,
+            errors: [
+                "'[ab]*' and '(?:a|bb)+' can be replaced with '[ab]*(?:a|bb)'.",
+            ],
+        },
+        {
+            code: String.raw`/(?:\d+|abc)\w+/`,
+            output: String.raw`/(?:\d|abc)\w+/`,
+            errors: ["'\\d+' can be replaced with '\\d' because of '\\w+'."],
+        },
+        {
+            code: String.raw`/(^[ \t]*)[a-z\d].+(?::{2,4}|;;)(?=\s)/im`,
+            output: String.raw`/(^[ \t]*)[a-z\d].+(?::{2}|;;)(?=\s)/im`,
+            errors: ["':{2,4}' can be replaced with ':{2}' because of '.+'."],
+        },
+        {
+            code: String.raw`/(^[\t ]*)#(?:const|else(?:[\t ]+if)?|end[\t ]+if|error|if).*/im`,
+            output: String.raw`/(^[\t ]*)#(?:const|else|end[\t ]+if|error|if).*/im`,
+            errors: ["'(?:[\\t ]+if)?' can be removed because of '.*'."],
+        },
+        {
+            code: String.raw`/(&(?:\r\n?|\n)\s*)!.*/`,
+            output: String.raw`/(&(?:\r|\n)\s*)!.*/`,
+            errors: ["'\\n?' can be removed because of '\\s*'."],
         },
 
         // careful with capturing groups

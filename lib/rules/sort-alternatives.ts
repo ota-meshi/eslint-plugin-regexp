@@ -13,12 +13,12 @@ import {
     Chars,
     getFirstConsumedChar,
     hasSomeDescendant,
-    isEmptyBackreference,
 } from "regexp-ast-analysis"
-import type { CharRange, CharSet } from "refa"
+import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { SourceLocation, Position } from "estree"
 import { canReorder } from "../utils/reorder-alternatives"
+import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 
 interface AllowedChars {
     allowed: CharSet
@@ -46,40 +46,6 @@ function getAllowedChars(flags: ReadonlyFlags) {
         cache.set(cacheKey, result)
     }
     return result
-}
-
-/**
- * Returns the union of all characters that can possibly be consumed by the
- * given element.
- */
-function getConsumedChars(
-    element: Element | Pattern | Alternative,
-    context: RegExpContext,
-): CharSet {
-    const ranges: CharRange[] = []
-
-    // we misuse hasSomeDescendant to iterate all relevant elements
-    hasSomeDescendant(
-        element,
-        (d) => {
-            if (
-                d.type === "Character" ||
-                d.type === "CharacterClass" ||
-                d.type === "CharacterSet"
-            ) {
-                ranges.push(...context.toCharSet(d).ranges)
-            } else if (d.type === "Backreference" && !isEmptyBackreference(d)) {
-                ranges.push(...getConsumedChars(d.resolved, context).ranges)
-            }
-
-            // always continue to the next element
-            return false
-        },
-        // don't go into assertions
-        (d) => d.type !== "Assertion" && d.type !== "CharacterClass",
-    )
-
-    return Chars.empty(context.flags).union(ranges)
 }
 
 /**
@@ -361,7 +327,10 @@ export default createRule("sort-alternatives", {
                     return
                 }
 
-                const consumedChars = getConsumedChars(parent, regexpContext)
+                const consumedChars = getPossiblyConsumedChar(
+                    parent,
+                    regexpContext,
+                ).char
                 if (consumedChars.isEmpty) {
                     // all alternatives are either empty or only contain
                     // assertions

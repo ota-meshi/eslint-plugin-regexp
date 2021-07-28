@@ -1,5 +1,8 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair -- x
+/* eslint-disable complexity -- x */
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
+    Alternative,
     CapturingGroup,
     Character,
     CharacterClass,
@@ -14,6 +17,7 @@ import type { AST, SourceCode } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
 import { Chars, hasSomeDescendant } from "regexp-ast-analysis"
+import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
 
 /**
@@ -23,54 +27,61 @@ function hasCapturingGroup(node: Node): boolean {
     return hasSomeDescendant(node, (d) => d.type === "CapturingGroup")
 }
 
-interface Chars {
-    readonly chars: CharSet
+interface SingleConsumedChar {
+    readonly char: CharSet
+    /**
+     * Whether the entire element is a single character.
+     *
+     * If `true`, the element is equivalent to `[char]`.
+     *
+     * If `false`, the element is equivalent to `[char]|unknown`.
+     */
     readonly complete: boolean
 }
 
-const EMPTY_UTF16: Chars = {
-    chars: Chars.empty({}),
+const EMPTY_UTF16: SingleConsumedChar = {
+    char: Chars.empty({}),
     complete: false,
 }
-const EMPTY_UNICODE: Chars = {
-    chars: Chars.empty({ unicode: true }),
+const EMPTY_UNICODE: SingleConsumedChar = {
+    char: Chars.empty({ unicode: true }),
     complete: false,
 }
 
 /**
- * Creates a `Chars` object from the given element.
+ * If the given element is guaranteed to only consume a single character set,
+ * then this character set will be returned, `null` otherwise.
  */
-function createChars(element: Element, context: RegExpContext): Chars {
+function getSingleConsumedChar(
+    element: Element | Alternative,
+    context: RegExpContext,
+): SingleConsumedChar {
     const empty = context.flags.unicode ? EMPTY_UNICODE : EMPTY_UTF16
 
     switch (element.type) {
+        case "Alternative":
+            if (element.elements.length === 1) {
+                return getSingleConsumedChar(element.elements[0], context)
+            }
+            return empty
+
         case "Character":
         case "CharacterSet":
-            return {
-                chars: context.toCharSet(element),
-                complete: true,
-            }
-
         case "CharacterClass":
             return {
-                chars: context.toCharSet(element),
+                char: context.toCharSet(element),
                 complete: true,
             }
 
         case "Group":
         case "CapturingGroup": {
-            const results = element.alternatives.map((a) => {
-                if (a.elements.length === 1) {
-                    return createChars(a.elements[0], context)
-                }
-                return empty
-            })
-            const union = empty.chars.union(
-                ...results.map(({ chars }) => chars),
+            const results = element.alternatives.map((a) =>
+                getSingleConsumedChar(a, context),
             )
+
             return {
-                chars: union,
-                complete: results.every(({ complete }) => complete),
+                char: empty.char.union(...results.map((r) => r.char)),
+                complete: results.every((r) => r.complete),
             }
         }
 
@@ -126,17 +137,26 @@ function isGroupOrCharacter(element: Element): element is GroupOrCharacter {
     }
 }
 
-interface Replacement {
-    raw: string
+type Replacement = BothReplacement | NestedReplacement
+/** Replace both the left and right quantifiers. */
+interface BothReplacement {
+    type: "Both"
     messageId: string
+    raw: string
+}
+/** Replace only the nested quantifier. */
+interface NestedReplacement {
+    type: "Nested"
+    messageId: string
+    raw: string
+    dominate: Quantifier
+    nested: Quantifier
 }
 
-/* eslint-disable complexity -- x */
 /**
  * Returns the replacement for the two adjacent elements.
  */
 function getQuantifiersReplacement(
-    /* eslint-enable complexity -- x */
     left: Quantifier,
     right: Quantifier,
     context: RegExpContext,
@@ -153,15 +173,21 @@ function getQuantifiersReplacement(
     }
 
     // compare
-    const lChars = createChars(left.element, context)
-    const rChars = createChars(right.element, context)
+    const lSingle = getSingleConsumedChar(left.element, context)
+    const rSingle = getSingleConsumedChar(right.element, context)
+    const lPossibleChar = lSingle.complete
+        ? lSingle.char
+        : getPossiblyConsumedChar(left.element, context).char
+    const rPossibleChar = rSingle.complete
+        ? rSingle.char
+        : getPossiblyConsumedChar(right.element, context).char
     const greedy = left.greedy
 
     let lQuant: Readonly<Quant>, rQuant: Readonly<Quant>
     if (
-        lChars.complete &&
-        rChars.complete &&
-        lChars.chars.equals(rChars.chars)
+        lSingle.complete &&
+        rSingle.complete &&
+        lSingle.char.equals(rSingle.char)
     ) {
         // left is equal to right
         lQuant = {
@@ -172,8 +198,7 @@ function getQuantifiersReplacement(
         rQuant = { min: 0, max: 0, greedy }
     } else if (
         right.max === Infinity &&
-        lChars.complete &&
-        lChars.chars.isSubsetOf(rChars.chars)
+        rSingle.char.isSupersetOf(lPossibleChar)
     ) {
         // left is a subset of right
         lQuant = {
@@ -184,8 +209,7 @@ function getQuantifiersReplacement(
         rQuant = right // unchanged
     } else if (
         left.max === Infinity &&
-        rChars.complete &&
-        rChars.chars.isSubsetOf(lChars.chars)
+        lSingle.char.isSupersetOf(rPossibleChar)
     ) {
         // right is a subset of left
         lQuant = left // unchanged
@@ -201,24 +225,24 @@ function getQuantifiersReplacement(
     const raw = quantize(left.element, lQuant) + quantize(right.element, rQuant)
 
     // eslint-disable-next-line one-var -- rule error
-    let message
+    let messageId
     if (
         lQuant.max === 0 &&
         right.max === rQuant.max &&
         right.min === rQuant.min
     ) {
-        message = "removeLeft"
+        messageId = "removeLeft"
     } else if (
         rQuant.max === 0 &&
         left.max === lQuant.max &&
         left.min === lQuant.min
     ) {
-        message = "removeRight"
+        messageId = "removeRight"
     } else {
-        message = "replace"
+        messageId = "replace"
     }
 
-    return { raw, messageId: message }
+    return { type: "Both", raw, messageId }
 }
 
 /**
@@ -263,17 +287,17 @@ function getQuantifierRepeatedElementReplacement(
     const [left, right] = pair
 
     // the characters of both elements have to be complete and equal
-    const leftChar = createChars(left.element, context)
-    if (!leftChar.complete) {
+    const lSingle = getSingleConsumedChar(left.element, context)
+    if (!lSingle.complete) {
         return null
     }
 
-    const rightChar = createChars(right.element, context)
-    if (!rightChar.complete) {
+    const rSingle = getSingleConsumedChar(right.element, context)
+    if (!rSingle.complete) {
         return null
     }
 
-    if (!rightChar.chars.equals(leftChar.chars)) {
+    if (!rSingle.char.equals(lSingle.char)) {
         return null
     }
 
@@ -290,7 +314,86 @@ function getQuantifierRepeatedElementReplacement(
 
     const raw = elementRaw + quantToString(quant)
 
-    return { messageId: "combine", raw }
+    return { type: "Both", messageId: "combine", raw }
+}
+
+/**
+ * Returns a replacement for the nested quantifier.
+ */
+function getNestedReplacement(
+    dominate: Quantifier,
+    nested: Quantifier,
+    context: RegExpContext,
+): Replacement | null {
+    if (dominate.greedy !== nested.greedy) {
+        return null
+    }
+
+    if (dominate.max < Infinity || nested.min === nested.max) {
+        return null
+    }
+
+    const single = getSingleConsumedChar(dominate.element, context)
+    if (single.char.isEmpty) {
+        return null
+    }
+
+    const nestedPossible = getPossiblyConsumedChar(nested.element, context)
+    if (single.char.isSupersetOf(nestedPossible.char)) {
+        const { min } = nested
+        if (min === 0) {
+            return {
+                type: "Nested",
+                messageId: "nestedRemove",
+                raw: "",
+                nested,
+                dominate,
+            }
+        }
+        return {
+            type: "Nested",
+            messageId: "nestedReplace",
+            raw: quantize(nested.element, { ...nested, max: min }),
+            nested,
+            dominate,
+        }
+    }
+
+    return null
+}
+
+/** Yields all quantifiers at the start/end of the given element. */
+function* nestedQuantifiers(
+    root: Element | Alternative,
+    direction: "start" | "end",
+): Iterable<Quantifier> {
+    switch (root.type) {
+        case "Alternative":
+            if (root.elements.length > 0) {
+                const index =
+                    direction === "start" ? 0 : root.elements.length - 1
+                yield* nestedQuantifiers(root.elements[index], direction)
+            }
+            break
+
+        case "CapturingGroup":
+        case "Group":
+            for (const a of root.alternatives) {
+                yield* nestedQuantifiers(a, direction)
+            }
+            break
+
+        case "Quantifier":
+            yield root
+
+            if (root.max === 1) {
+                yield* nestedQuantifiers(root.element, direction)
+            }
+            break
+
+        default:
+            break
+    }
 }
 
 /**
@@ -363,6 +466,20 @@ function getReplacement(
         }
     }
 
+    if (left.type === "Quantifier" && left.max === Infinity) {
+        for (const nested of nestedQuantifiers(right, "start")) {
+            const result = getNestedReplacement(left, nested, context)
+            if (result) return result
+        }
+    }
+
+    if (right.type === "Quantifier" && right.max === Infinity) {
+        for (const nested of nestedQuantifiers(left, "end")) {
+            const result = getNestedReplacement(right, nested, context)
+            if (result) return result
+        }
+    }
+
     return null
 }
 
@@ -409,6 +526,10 @@ export default createRule("optimal-quantifier-concatenation", {
                 "'{{right}}' can be removed because it is already included by '{{left}}'.{{cap}}",
             replace:
                 "'{{left}}' and '{{right}}' can be replaced with '{{fix}}'.{{cap}}",
+            nestedRemove:
+                "'{{nested}}' can be removed because of '{{dominate}}'.{{cap}}",
+            nestedReplace:
+                "'{{nested}}' can be replaced with '{{fix}}' because of '{{dominate}}'.{{cap}}",
         },
         type: "suggestion",
     },
@@ -439,40 +560,62 @@ export default createRule("optimal-quantifier-concatenation", {
                         const involvesCapturingGroup =
                             hasCapturingGroup(left) || hasCapturingGroup(right)
 
-                        context.report({
-                            node,
-                            loc:
-                                getLoc(
-                                    left,
-                                    right,
-                                    context.getSourceCode(),
-                                    regexpContext,
-                                ) ?? getRegexpLocation(aNode),
-                            messageId: replacement.messageId,
-                            data: {
-                                left: left.raw,
-                                right: right.raw,
-                                fix: replacement.raw,
-                                cap: involvesCapturingGroup
-                                    ? " This cannot be fixed automatically because it might change or remove a capturing group."
-                                    : "",
-                            },
-                            fix: fixReplaceNode(aNode, () => {
-                                if (involvesCapturingGroup) {
-                                    return null
-                                }
+                        const cap = involvesCapturingGroup
+                            ? " This cannot be fixed automatically because it might change or remove a capturing group."
+                            : ""
 
-                                const before = aNode.raw.slice(
-                                    0,
-                                    left.start - aNode.start,
-                                )
-                                const after = aNode.raw.slice(
-                                    right.end - aNode.start,
-                                )
+                        if (replacement.type === "Both") {
+                            context.report({
+                                node,
+                                loc:
+                                    getLoc(
+                                        left,
+                                        right,
+                                        context.getSourceCode(),
+                                        regexpContext,
+                                    ) ?? getRegexpLocation(aNode),
+                                messageId: replacement.messageId,
+                                data: {
+                                    left: left.raw,
+                                    right: right.raw,
+                                    fix: replacement.raw,
+                                    cap,
+                                },
+                                fix: fixReplaceNode(aNode, () => {
+                                    if (involvesCapturingGroup) {
+                                        return null
+                                    }
 
-                                return before + replacement.raw + after
-                            }),
-                        })
+                                    const before = aNode.raw.slice(
+                                        0,
+                                        left.start - aNode.start,
+                                    )
+                                    const after = aNode.raw.slice(
+                                        right.end - aNode.start,
+                                    )
+
+                                    return before + replacement.raw + after
+                                }),
+                            })
+                        } else {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(replacement.nested),
+                                messageId: replacement.messageId,
+                                data: {
+                                    nested: replacement.nested.raw,
+                                    dominate: replacement.dominate.raw,
+                                    fix: replacement.raw,
+                                    cap,
+                                },
+                                fix: fixReplaceNode(replacement.nested, () => {
+                                    if (involvesCapturingGroup) {
+                                        return null
+                                    }
+                                    return replacement.raw
+                                }),
+                            })
+                        }
                     }
                 },
             }
