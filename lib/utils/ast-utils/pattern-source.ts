@@ -383,7 +383,7 @@ function dereferenceOwnedConstant(
             return expression
         }
 
-        return def.node.init
+        return dereferenceOwnedConstant(context, def.node.init)
     }
 
     return expression
