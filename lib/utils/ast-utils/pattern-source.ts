@@ -18,6 +18,9 @@ export interface PatternRange {
     readonly end: number
 }
 
+/**
+ * A range in source code that can be edited.
+ */
 export class PatternReplaceRange {
     public range: AST.Range
 
@@ -267,6 +270,12 @@ export class PatternSource {
         return null
     }
 
+    /**
+     * Returns an approximate AST range for the given pattern range.
+     *
+     * DO NOT use this in fixes to edit source code. Use
+     * {@link PatternSource.getReplaceRange} instead.
+     */
     public getAstRange(range: PatternRange): AST.Range {
         const overlapping = this.getSegments(range)
 
@@ -290,6 +299,12 @@ export class PatternSource {
         return [min, max]
     }
 
+    /**
+     * Returns an approximate AST source location for the given pattern range.
+     *
+     * DO NOT use this in fixes to edit source code. Use
+     * {@link PatternSource.getReplaceRange} instead.
+     */
     public getAstLocation(range: PatternRange): AST.SourceLocation {
         return astRangeToLocation(this.sourceCode, this.getAstRange(range))
     }
