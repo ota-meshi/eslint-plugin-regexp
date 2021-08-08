@@ -5,7 +5,7 @@ import type { Element, Node, Pattern, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
-import { findVariable, getStaticValue, getStringIfConstant } from "./ast-utils"
+import { getStaticValue, getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
@@ -318,7 +318,6 @@ function buildRegexpVisitor(
                 },
             )
         },
-        // eslint-disable-next-line complexity -- X(
         Program() {
             const tracker = new ReferenceTracker(context.getScope())
 
@@ -394,55 +393,16 @@ function buildRegexpVisitor(
                 ownsFlags,
             } of regexpDataList) {
                 if (typeof pattern === "string") {
-                    let verifyPatternNode = patternNode
-                    if (patternNode.type === "Identifier") {
-                        const variable = findVariable(context, patternNode)
-                        if (variable && variable.defs.length === 1) {
-                            const def = variable.defs[0]
-                            if (
-                                def.type === "Variable" &&
-                                def.parent.kind === "const" &&
-                                def.node.init &&
-                                def.node.init.type === "Literal"
-                            ) {
-                                let useInit = false
-                                if (variable.references.length > 2) {
-                                    if (
-                                        variable.references.every((ref) => {
-                                            if (ref.isWriteOnly()) {
-                                                return true
-                                            }
-                                            return regexpDataList.some(
-                                                (r) =>
-                                                    r.patternNode ===
-                                                        ref.identifier &&
-                                                    r.flagsString ===
-                                                        flagsString,
-                                            )
-                                        })
-                                    ) {
-                                        useInit = true
-                                    }
-                                } else {
-                                    useInit = true
-                                }
-
-                                if (useInit) {
-                                    verifyPatternNode = def.node.init
-                                }
-                            }
-                        }
-                    }
                     const flags = parseFlags(flagsString || "")
                     verify(
-                        verifyPatternNode,
+                        patternNode,
                         newOrCall,
                         patternSource,
                         pattern,
                         flags,
                         function* (helpers) {
                             const regexpContext: RegExpContextForSource = {
-                                node: verifyPatternNode,
+                                node: patternNode,
                                 flagsString,
                                 ownsFlags,
                                 regexpNode: newOrCall,
