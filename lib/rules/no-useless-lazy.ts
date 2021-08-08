@@ -13,13 +13,20 @@ import { createRule, defineRegexpVisitor } from "../utils"
 /**
  * Returns a fix that makes the given quantifier greedy.
  */
-function makeGreedy({ getRegexpRange }: RegExpContext, qNode: Quantifier) {
+function makeGreedy({ patternSource }: RegExpContext, qNode: Quantifier) {
     return (fixer: Rule.RuleFixer): Rule.Fix | null => {
-        const range = getRegexpRange(qNode)
-        if (range == null) {
+        if (qNode.greedy) {
             return null
         }
-        return fixer.removeRange([range[1] - 1, range[1]])
+
+        const range = patternSource?.getReplaceRange({
+            start: qNode.end - 1,
+            end: qNode.end,
+        })
+        if (!range) {
+            return null
+        }
+        return range.remove(fixer)
     }
 }
 

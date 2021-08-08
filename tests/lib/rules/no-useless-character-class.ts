@@ -140,8 +140,8 @@ tester.run("no-useless-character-class", rule as any, {
             errors: 18,
         },
         {
-            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:]"+" [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
-            output: null,
+            code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:]" + " [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
+            output: String.raw`new RegExp("\\. \\* \\+ \\? \\^ = ! :" + " \\$ \\{ } \\( \\) \\| \\[ \\] \\/ \\\\")`,
             options: [{ ignores: [] }],
             errors: 18,
         },

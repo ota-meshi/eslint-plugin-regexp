@@ -1,4 +1,4 @@
-import type { Rule } from "eslint"
+import type { Rule, SourceCode, AST } from "eslint"
 import * as eslintUtils from "eslint-utils"
 import type {
     ArrowFunctionExpression,
@@ -10,8 +10,9 @@ import type {
     Literal,
     MemberExpression,
     Node,
+    RegExpLiteral,
 } from "estree"
-import { parseStringLiteral } from "../string-literal-parser"
+import { parseStringLiteral, parseStringTokens } from "../string-literal-parser"
 import { baseParseReplacements } from "../replacements-utils"
 import type { Scope, Variable } from "eslint-scope"
 
@@ -88,9 +89,7 @@ export function getStaticValue(
             }
         }
     } else if (node.type === "MemberExpression") {
-        const propName: string | null = !node.computed
-            ? (node.property as Identifier).name
-            : getStringIfConstant(context, node.property)
+        const propName = getPropertyName(node, context)
         if (propName === "source") {
             const object = getStaticValue(context, node.object)
             if (object && object.value instanceof RegExp) {
@@ -276,4 +275,107 @@ export function parseReplacements(
             range: [start.range[0], end.range[1]],
         }
     })
+}
+
+/**
+ * Creates source range from the given offset range of the value of the given
+ * string literal.
+ *
+ * @param sourceCode The ESLint source code instance.
+ * @param node The string literal to report.
+ * @returns
+ */
+export function getStringValueRange(
+    sourceCode: SourceCode,
+    node: Literal & { value: string },
+    startOffset: number,
+    endOffset: number,
+): AST.Range | null {
+    if (!node.range) {
+        // no range information
+        return null
+    }
+    if (node.value.length < endOffset) {
+        return null
+    }
+
+    try {
+        const raw = sourceCode.text.slice(node.range[0] + 1, node.range[1] - 1)
+        let valueIndex = 0
+        let start: number | null = null
+        for (const t of parseStringTokens(raw)) {
+            const endIndex = valueIndex + t.value.length
+
+            // find start
+            if (
+                start == null &&
+                valueIndex <= startOffset &&
+                startOffset < endIndex
+            ) {
+                start = t.range[0]
+            }
+
+            // find end
+            if (
+                start != null &&
+                valueIndex < endOffset &&
+                endOffset <= endIndex
+            ) {
+                const end = t.range[1]
+                const nodeStart = node.range[0] + 1
+                return [nodeStart + start, nodeStart + end]
+            }
+
+            valueIndex = endIndex
+        }
+    } catch {
+        // ignore
+    }
+
+    return null
+}
+
+/**
+ * Check if the given expression node is regexp literal.
+ */
+export function isRegexpLiteral(node: Expression): node is RegExpLiteral {
+    return node.type === "Literal" && "regex" in node
+}
+
+/**
+ * Check if the given expression node is string literal.
+ */
+export function isStringLiteral(
+    node: Expression,
+): node is Literal & { value: string } {
+    return node.type === "Literal" && typeof node.value === "string"
+}
+
+/**
+ * Returns the string value of the property name accessed.
+ *
+ * This is guaranteed to return `null` for private properties.
+ *
+ * @param node
+ * @returns
+ */
+export function getPropertyName(
+    node: MemberExpression,
+    context?: Rule.RuleContext,
+): string | null {
+    const prop = node.property
+    if (prop.type === "PrivateIdentifier") {
+        return null
+    }
+
+    if (!node.computed) {
+        return (prop as Identifier).name
+    }
+    if (context) {
+        return getStringIfConstant(context, prop)
+    }
+    if (isStringLiteral(prop)) {
+        return prop.value
+    }
+    return null
 }

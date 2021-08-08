@@ -13,7 +13,7 @@ import type {
     QuantifiableElement,
     Quantifier,
 } from "regexpp/ast"
-import type { AST, SourceCode } from "eslint"
+import type { AST } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
 import { Chars, hasSomeDescendant } from "regexp-ast-analysis"
@@ -489,20 +489,12 @@ function getReplacement(
 function getLoc(
     left: Element,
     right: Element,
-    sourceCode: SourceCode,
-    { getRegexpRange }: RegExpContext,
+    { patternSource }: RegExpContext,
 ): AST.SourceLocation | undefined {
-    const firstRange = getRegexpRange(left)
-    const lastRange = getRegexpRange(right)
-
-    if (firstRange && lastRange) {
-        return {
-            start: sourceCode.getLocFromIndex(firstRange[0]),
-            end: sourceCode.getLocFromIndex(lastRange[1]),
-        }
-    }
-
-    return undefined
+    return patternSource?.getAstLocation({
+        start: Math.min(left.start, right.start),
+        end: Math.max(left.end, right.end),
+    })
 }
 
 export default createRule("optimal-quantifier-concatenation", {
@@ -568,12 +560,8 @@ export default createRule("optimal-quantifier-concatenation", {
                             context.report({
                                 node,
                                 loc:
-                                    getLoc(
-                                        left,
-                                        right,
-                                        context.getSourceCode(),
-                                        regexpContext,
-                                    ) ?? getRegexpLocation(aNode),
+                                    getLoc(left, right, regexpContext) ??
+                                    getRegexpLocation(aNode),
                                 messageId: replacement.messageId,
                                 data: {
                                     left: left.raw,

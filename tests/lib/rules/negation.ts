@@ -117,9 +117,7 @@ tester.run("negation", rule as any, {
             code: String.raw`const s ="[^\\w]"
             new RegExp(s)
             new RegExp(s)`,
-            output: String.raw`const s ="\\W"
-            new RegExp(s)
-            new RegExp(s)`,
+            output: null,
             errors: [
                 "Unexpected negated character class. Use '\\W' instead.",
                 "Unexpected negated character class. Use '\\W' instead.",

@@ -9,6 +9,7 @@ import {
     isSymbol,
     quantToString,
 } from "../utils"
+import type { PatternRange } from "../utils/ast-utils/pattern-source"
 
 type CharTarget = CharacterSet | Character
 
@@ -112,15 +113,12 @@ export default createRule("prefer-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         /**
          * Create visitor
          */
         function createVisitor({
             node,
-            fixerApplyEscape,
-            getRegexpRange,
+            patternSource,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAlternativeEnter(aNode) {
@@ -151,24 +149,16 @@ export default createRule("prefer-quantifier", {
                         if (!buffer || buffer.isValid()) {
                             return
                         }
-                        const firstRange = getRegexpRange(buffer.elements[0])
-                        const lastRange = getRegexpRange(
-                            buffer.elements[buffer.elements.length - 1],
-                        )
-                        let range: [number, number] | null = null
-                        if (firstRange && lastRange) {
-                            range = [firstRange[0], lastRange[1]]
+
+                        const bufferRange: PatternRange = {
+                            start: buffer.elements[0].start,
+                            end:
+                                buffer.elements[buffer.elements.length - 1].end,
                         }
+
                         context.report({
                             node,
-                            loc: range
-                                ? {
-                                      start: sourceCode.getLocFromIndex(
-                                          range[0],
-                                      ),
-                                      end: sourceCode.getLocFromIndex(range[1]),
-                                  }
-                                : undefined,
+                            loc: patternSource?.getAstLocation(bufferRange),
                             messageId: "unexpected",
                             data: {
                                 type:
@@ -180,13 +170,15 @@ export default createRule("prefer-quantifier", {
                                 quantifier: buffer.getQuantifier(),
                             },
                             fix(fixer) {
-                                if (range == null) {
+                                const range = patternSource?.getReplaceRange(
+                                    bufferRange,
+                                )
+                                if (!range) {
                                     return null
                                 }
-                                return fixer.replaceTextRange(
-                                    range,
-                                    fixerApplyEscape(buffer.target.raw) +
-                                        buffer.getQuantifier(),
+                                return range.replace(
+                                    fixer,
+                                    buffer.target.raw + buffer.getQuantifier(),
                                 )
                             },
                         })

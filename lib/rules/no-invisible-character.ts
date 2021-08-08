@@ -33,7 +33,7 @@ export default createRule("no-invisible-character", {
             node,
             flags,
             getRegexpLocation,
-            getRegexpRange,
+            fixReplaceNode,
         }: RegExpContextForLiteral): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
@@ -49,11 +49,7 @@ export default createRule("no-invisible-character", {
                             data: {
                                 instead,
                             },
-                            fix(fixer) {
-                                const range = getRegexpRange(cNode)
-
-                                return fixer.replaceTextRange(range, instead)
-                            },
+                            fix: fixReplaceNode(cNode, instead),
                         })
                     }
                 },

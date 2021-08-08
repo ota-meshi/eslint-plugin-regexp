@@ -8,8 +8,8 @@ import {
     CP_TAB,
     createRule,
     defineRegexpVisitor,
-    isRegexpLiteral,
 } from "../utils"
+import { isRegexpLiteral } from "../utils/ast-utils/utils"
 
 const CONTROL_CHARS = new Map<number, string>([
     [0, "\\0"],

@@ -7,6 +7,7 @@ import {
     getAllowedCharValueSchema,
     inRange,
 } from "../utils/char-ranges"
+import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
 
 export default createRule("prefer-range", {
     meta: {
@@ -52,26 +53,36 @@ export default createRule("prefer-range", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpRange } = regexpContext
+            const { node, patternSource } = regexpContext
 
             /** Get report location ranges */
             function getReportRanges(
                 nodes: (Character | CharacterClassRange)[],
-            ): [number, number][] | null {
-                const ranges: [number, number][] = []
+            ): PatternReplaceRange[] | null {
+                const ranges: PatternReplaceRange[] = []
                 for (const reportNode of nodes) {
-                    const reportRange = getRegexpRange(reportNode)
+                    const reportRange = patternSource?.getReplaceRange(
+                        reportNode,
+                    )
                     if (!reportRange) {
                         return null
                     }
                     const range = ranges.find(
-                        (r) => r[0] <= reportRange[1] && reportRange[0] <= r[1],
+                        (r) =>
+                            r.range[0] <= reportRange.range[1] &&
+                            reportRange.range[0] <= r.range[1],
                     )
                     if (range) {
-                        range[0] = Math.min(range[0], reportRange[0])
-                        range[1] = Math.max(range[1], reportRange[1])
+                        range.range[0] = Math.min(
+                            range.range[0],
+                            reportRange.range[0],
+                        )
+                        range.range[1] = Math.max(
+                            range.range[1],
+                            reportRange.range[1],
+                        )
                     } else {
-                        ranges.push([...reportRange])
+                        ranges.push(reportRange)
                     }
                 }
                 return ranges
@@ -143,36 +154,32 @@ export default createRule("prefer-range", {
                             group.max.value - group.min.value > 1 &&
                             group.nodes.length > 1
                         ) {
-                            const ranges = getReportRanges(group.nodes)
                             const newText = `${group.min.raw}-${group.max.raw}`
-                            for (const range of ranges || [node.range!]) {
+                            const ranges = getReportRanges(group.nodes)
+                            if (!ranges) {
                                 context.report({
                                     node,
-                                    loc: {
-                                        start: sourceCode.getLocFromIndex(
-                                            range[0],
-                                        ),
-                                        end: sourceCode.getLocFromIndex(
-                                            range[1],
-                                        ),
-                                    },
+                                    loc: node.loc!,
                                     messageId: "unexpected",
-                                    data: {
-                                        range: newText,
+                                    data: { range: newText },
+                                })
+                                continue
+                            }
+
+                            for (const range of ranges) {
+                                context.report({
+                                    node,
+                                    loc: range.getAstLocation(sourceCode),
+                                    messageId: "unexpected",
+                                    data: { range: newText },
+                                    fix: (fixer) => {
+                                        return ranges.map((r, index) => {
+                                            if (index === 0) {
+                                                return r.replace(fixer, newText)
+                                            }
+                                            return r.remove(fixer)
+                                        })
                                     },
-                                    fix: ranges
-                                        ? (fixer) => {
-                                              return ranges.map((r, index) => {
-                                                  if (index === 0) {
-                                                      return fixer.replaceTextRange(
-                                                          r,
-                                                          newText,
-                                                      )
-                                                  }
-                                                  return fixer.removeRange(r)
-                                              })
-                                          }
-                                        : undefined,
                                 })
                             }
                         }

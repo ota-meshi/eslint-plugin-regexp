@@ -2,7 +2,8 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { Rule } from "eslint"
 import type { CharacterClass, Node as RegExpNode } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, isRegexpLiteral } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
+import { isRegexpLiteral } from "../utils/ast-utils/utils"
 import { matchesAllCharacters } from "regexp-ast-analysis"
 
 const OPTION_SS1 = "[\\s\\S]" as const
@@ -64,27 +65,45 @@ export default createRule("match-any", {
          * Fix source code
          * @param fixer
          */
-        function* fix(
+        function fix(
             fixer: Rule.RuleFixer,
-            { node, flags, getRegexpRange, fixerApplyEscape }: RegExpContext,
+            { node, flags, patternSource }: RegExpContext,
             regexpNode: RegExpNode,
-        ) {
-            if (!preference) {
-                return
+        ): null | Rule.Fix | Rule.Fix[] {
+            if (!preference || !patternSource) {
+                return null
             }
+
             if (preference === OPTION_DOTALL) {
                 if (!flags.dotAll) {
                     // since we can't just add flags, we cannot fix this
-                    return
+                    return null
                 }
                 if (!isRegexpLiteral(node)) {
                     // Flag conflicts may be unavoidable and will not be autofix.
-                    return
+                    return null
                 }
-            }
-            const range = getRegexpRange(regexpNode)
-            if (range == null) {
-                return
+
+                const range = patternSource.getReplaceRange(regexpNode)
+                if (range == null) {
+                    return null
+                }
+
+                // Autofix to dotAll depends on the flag.
+                // Modify the entire regular expression literal to avoid conflicts due to flag changes.
+                const afterRange: [number, number] = [
+                    range.range[1],
+                    node.range![1],
+                ]
+
+                return [
+                    range.replace(fixer, "."),
+                    // Mark regular expression flag changes to avoid conflicts due to flag changes.
+                    fixer.replaceTextRange(
+                        afterRange,
+                        sourceCode.text.slice(...afterRange),
+                    ),
+                ]
             }
 
             if (
@@ -92,27 +111,18 @@ export default createRule("match-any", {
                 preference.startsWith("[") &&
                 preference.endsWith("]")
             ) {
-                yield fixer.replaceTextRange(
-                    [range[0] + 1, range[1] - 1],
-                    fixerApplyEscape(preference.slice(1, -1)),
-                )
-                return
+                // We know that the first and last character are the same,
+                // so we only change the contents of the character class.
+                // This will avoid unnecessary conflicts between fixes.
+                const range = patternSource.getReplaceRange({
+                    start: regexpNode.start + 1,
+                    end: regexpNode.end - 1,
+                })
+                return range?.replace(fixer, preference.slice(1, -1)) ?? null
             }
 
-            const replacement = preference === OPTION_DOTALL ? "." : preference
-            yield fixer.replaceTextRange(range, fixerApplyEscape(replacement))
-
-            if (preference === OPTION_DOTALL) {
-                // Autofix to dotAll depends on the flag.
-                // Modify the entire regular expression literal to avoid conflicts due to flag changes.
-
-                // Mark regular expression flag changes to avoid conflicts due to flag changes.
-                const afterRange: [number, number] = [range[1], node.range![1]]
-                yield fixer.replaceTextRange(
-                    afterRange,
-                    sourceCode.text.slice(...afterRange),
-                )
-            }
+            const range = patternSource.getReplaceRange(regexpNode)
+            return range?.replace(fixer, preference) ?? null
         }
 
         /**

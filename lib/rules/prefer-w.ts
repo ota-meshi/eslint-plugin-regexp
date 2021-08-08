@@ -84,8 +84,7 @@ export default createRule("prefer-w", {
             flags,
             getRegexpLocation,
             fixReplaceNode,
-            getRegexpRange,
-            fixerApplyEscape,
+            patternSource,
             toCharSet,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
@@ -162,22 +161,24 @@ export default createRule("prefer-w", {
                                     .join("")}]`,
                                 instead: "\\w",
                             },
-                            *fix(fixer: Rule.RuleFixer) {
-                                const range = getRegexpRange(ccNode)
-                                if (range == null) {
-                                    return
-                                }
-                                yield fixer.replaceTextRange(
-                                    getRegexpRange(
-                                        unexpectedElements.shift()!,
-                                    )!,
-                                    fixerApplyEscape("\\w"),
-                                )
+                            fix(fixer: Rule.RuleFixer) {
+                                const fixes: Rule.Fix[] = []
                                 for (const element of unexpectedElements) {
-                                    yield fixer.removeRange(
-                                        getRegexpRange(element)!,
+                                    const range = patternSource?.getReplaceRange(
+                                        element,
                                     )
+                                    if (!range) {
+                                        return null
+                                    }
+
+                                    if (fixes.length === 0) {
+                                        // first
+                                        fixes.push(range.replace(fixer, "\\w"))
+                                    } else {
+                                        fixes.push(range.remove(fixer))
+                                    }
                                 }
+                                return fixes
                             },
                         })
                     }

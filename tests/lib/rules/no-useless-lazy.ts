@@ -62,7 +62,8 @@ tester.run("no-useless-lazy", rule as any, {
         {
             code: String.raw`const s = "\\d"+"{1}?"
             new RegExp(s)`,
-            output: null,
+            output: String.raw`const s = "\\d"+"{1}"
+            new RegExp(s)`,
             errors: [{ messageId: "constant" }],
         },
 
