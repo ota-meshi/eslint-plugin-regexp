@@ -158,7 +158,7 @@ export default createRule("prefer-quantifier", {
 
                         context.report({
                             node,
-                            loc: patternSource?.getAstLocation(bufferRange),
+                            loc: patternSource.getAstLocation(bufferRange),
                             messageId: "unexpected",
                             data: {
                                 type:
@@ -170,7 +170,7 @@ export default createRule("prefer-quantifier", {
                                 quantifier: buffer.getQuantifier(),
                             },
                             fix(fixer) {
-                                const range = patternSource?.getReplaceRange(
+                                const range = patternSource.getReplaceRange(
                                     bufferRange,
                                 )
                                 if (!range) {

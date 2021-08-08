@@ -379,3 +379,76 @@ export function getPropertyName(
     }
     return null
 }
+
+/**
+ * Converts an range into a source location.
+ */
+export function astRangeToLocation(
+    sourceCode: SourceCode,
+    range: AST.Range,
+): AST.SourceLocation {
+    return {
+        start: sourceCode.getLocFromIndex(range[0]),
+        end: sourceCode.getLocFromIndex(range[1]),
+    }
+}
+
+/**
+ * If the given expression is a variables, this will dereference the variables
+ * if the variable is constant and only referenced by this expression.
+ *
+ * This means that only variables that are owned by this expression are
+ * dereferenced.
+ *
+ * In all other cases, the given expression will be returned as is.
+ *
+ * @param expression
+ */
+export function dereferenceOwnedVariable(
+    context: Rule.RuleContext,
+    expression: Expression,
+): Expression {
+    if (expression.type === "Identifier") {
+        const variable = findVariable(context, expression)
+        if (!variable || variable.defs.length !== 1) {
+            // we want a variable with 1 definition
+            return expression
+        }
+
+        const def = variable.defs[0]
+        if (def.type !== "Variable") {
+            // we want a variable
+            return expression
+        }
+
+        const grandParent = getParent(def.parent)
+        if (grandParent && grandParent.type === "ExportNamedDeclaration") {
+            // exported variables are not owned because they can be referenced
+            // by modules that import this module
+            return expression
+        }
+
+        // we expect there two be exactly 2 references:
+        //  1. for initializing the variable
+        //  2. the reference given to this function
+        if (variable.references.length !== 2) {
+            return expression
+        }
+
+        const [initRef, thisRef] = variable.references
+        if (
+            !(
+                initRef.init &&
+                initRef.writeExpr &&
+                initRef.writeExpr === def.node.init
+            ) ||
+            thisRef.identifier !== expression
+        ) {
+            return expression
+        }
+
+        return dereferenceOwnedVariable(context, def.node.init)
+    }
+
+    return expression
+}

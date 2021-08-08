@@ -5,7 +5,7 @@ import type { Element, Node, Pattern, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
-import { getStaticValue, getStringIfConstant } from "./ast-utils"
+import { getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
@@ -78,31 +78,24 @@ type RegExpHelpersBase = {
     getUsageOfPattern: () => UsageOfPattern
 
     pattern: string
-
     patternAst: Pattern
+    patternSource: PatternSource
 
     flags: ReadonlyFlags
 }
-export type RegExpHelpersForLiteral = {
-    patternSource: PatternSource
-} & RegExpHelpersBase
-export type RegExpHelpersForSource = {
-    patternSource: PatternSource | null
-} & RegExpHelpersBase
-export type RegExpHelpers = RegExpHelpersForLiteral & RegExpHelpersForSource
 
 export type RegExpContextForLiteral = {
     node: ESTree.RegExpLiteral
     flagsString: string
     ownsFlags: true
     regexpNode: ESTree.RegExpLiteral
-} & RegExpHelpersForLiteral
+} & RegExpHelpersBase
 export type RegExpContextForSource = {
     node: ESTree.Expression
     flagsString: string | null
     ownsFlags: boolean
     regexpNode: ESTree.NewExpression | ESTree.CallExpression
-} & RegExpHelpersForSource
+} & RegExpHelpersBase
 export type RegExpContext = RegExpContextForLiteral | RegExpContextForSource
 
 type RegexpRule = {
@@ -227,8 +220,7 @@ function buildRegexpVisitor(
     function verify(
         exprNode: ESTree.Expression,
         regexpNode: ESTree.RegExpLiteral | ESTree.CallExpression,
-        patternSource: PatternSource | null,
-        pattern: string,
+        patternSource: PatternSource,
         flags: ReadonlyFlags,
         createVisitors: (
             helpers: RegExpHelpersBase,
@@ -238,9 +230,9 @@ function buildRegexpVisitor(
 
         try {
             parsedPattern = parser.parsePattern(
-                pattern,
+                patternSource.value,
                 0,
-                pattern.length,
+                patternSource.value.length,
                 flags.unicode,
             )
         } catch {
@@ -293,30 +285,21 @@ function buildRegexpVisitor(
             }
             const flagsString = node.regex.flags
             const flags = parseFlags(flagsString)
-            const pattern = node.regex.pattern
             const patternSource = PatternSource.fromRegExpLiteral(context, node)
-            verify(
-                node,
-                node,
-                patternSource,
-                pattern,
-                flags,
-                function* (helpers) {
-                    const regexpContext: RegExpContextForLiteral = {
-                        node,
-                        flagsString,
-                        ownsFlags: true,
-                        patternSource,
-                        regexpNode: node,
-                        ...helpers,
+            verify(node, node, patternSource, flags, function* (helpers) {
+                const regexpContext: RegExpContextForLiteral = {
+                    node,
+                    flagsString,
+                    ownsFlags: true,
+                    regexpNode: node,
+                    ...helpers,
+                }
+                for (const rule of rules) {
+                    if (rule.createLiteralVisitor) {
+                        yield rule.createLiteralVisitor(regexpContext)
                     }
-                    for (const rule of rules) {
-                        if (rule.createLiteralVisitor) {
-                            yield rule.createLiteralVisitor(regexpContext)
-                        }
-                    }
-                },
-            )
+                }
+            })
         },
         Program() {
             const tracker = new ReferenceTracker(context.getScope())
@@ -327,9 +310,7 @@ function buildRegexpVisitor(
             const regexpDataList: {
                 newOrCall: ESTree.NewExpression | ESTree.CallExpression
                 patternNode: ESTree.Expression
-                pattern: string | null
-                patternSource: PatternSource | null
-                flagsNode: ESTree.Expression | ESTree.SpreadElement | undefined
+                patternSource: PatternSource
                 flagsString: string | null
                 ownsFlags: boolean
             }[] = []
@@ -343,43 +324,29 @@ function buildRegexpVisitor(
                 if (!patternNode || patternNode.type === "SpreadElement") {
                     continue
                 }
-                const patternResult = getStaticValue(context, patternNode)
-                if (!patternResult || patternResult.value == null) {
-                    continue
-                }
-                let pattern: string | null = null
-                let { flagsString, ownsFlags } =
-                    flagsNode && flagsNode.type !== "SpreadElement"
-                        ? {
-                              flagsString: getStringIfConstant(
-                                  context,
-                                  flagsNode,
-                              ),
-                              ownsFlags: isStringLiteral(flagsNode),
-                          }
-                        : { flagsString: null, ownsFlags: false }
-                if (patternResult.value instanceof RegExp) {
-                    pattern = patternResult.value.source
-                    if (!flagsNode) {
-                        // If no flag is given, the flag is also cloned.
-                        flagsString = patternResult.value.flags
-                        ownsFlags = true
-                    }
-                } else {
-                    pattern = String(patternResult.value)
-                }
 
                 const patternSource = PatternSource.fromExpression(
                     context,
                     patternNode,
                 )
+                if (!patternSource) {
+                    continue
+                }
+
+                let flagsString = null
+                let ownsFlags = false
+                if (flagsNode && flagsNode.type !== "SpreadElement") {
+                    flagsString = getStringIfConstant(context, flagsNode)
+                    ownsFlags = isStringLiteral(flagsNode)
+                } else if (patternSource.regexpValue) {
+                    flagsString = patternSource.regexpValue.flags
+                    ownsFlags = Boolean(patternSource.regexpValue.ownedNode)
+                }
 
                 regexpDataList.push({
                     newOrCall,
                     patternNode,
-                    pattern,
                     patternSource,
-                    flagsNode,
                     flagsString,
                     ownsFlags,
                 })
@@ -387,38 +354,31 @@ function buildRegexpVisitor(
             for (const {
                 newOrCall,
                 patternNode,
-                pattern,
                 patternSource,
                 flagsString,
                 ownsFlags,
             } of regexpDataList) {
-                if (typeof pattern === "string") {
-                    const flags = parseFlags(flagsString || "")
-                    verify(
-                        patternNode,
-                        newOrCall,
-                        patternSource,
-                        pattern,
-                        flags,
-                        function* (helpers) {
-                            const regexpContext: RegExpContextForSource = {
-                                node: patternNode,
-                                flagsString,
-                                ownsFlags,
-                                regexpNode: newOrCall,
-                                patternSource,
-                                ...helpers,
+                const flags = parseFlags(flagsString || "")
+                verify(
+                    patternNode,
+                    newOrCall,
+                    patternSource,
+                    flags,
+                    function* (helpers) {
+                        const regexpContext: RegExpContextForSource = {
+                            node: patternNode,
+                            flagsString,
+                            ownsFlags,
+                            regexpNode: newOrCall,
+                            ...helpers,
+                        }
+                        for (const rule of rules) {
+                            if (rule.createSourceVisitor) {
+                                yield rule.createSourceVisitor(regexpContext)
                             }
-                            for (const rule of rules) {
-                                if (rule.createSourceVisitor) {
-                                    yield rule.createSourceVisitor(
-                                        regexpContext,
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
+                        }
+                    },
+                )
             }
         },
     }
@@ -460,7 +420,7 @@ function buildRegExpHelperBase({
     flags,
     parsedPattern,
 }: {
-    patternSource: PatternSource | null
+    patternSource: PatternSource
     exprNode: ESTree.Expression
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral
     context: Rule.RuleContext
@@ -522,6 +482,7 @@ function buildRegExpHelperBase({
 
         pattern: parsedPattern.raw,
         patternAst: parsedPattern,
+        patternSource,
         flags,
     }
 }

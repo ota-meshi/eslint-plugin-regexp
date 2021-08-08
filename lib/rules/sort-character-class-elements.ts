@@ -111,10 +111,10 @@ export default createRule("sort-character-class-elements", {
                                         prev: moveTarget.raw,
                                     },
                                     *fix(fixer) {
-                                        const nextRange = patternSource?.getReplaceRange(
+                                        const nextRange = patternSource.getReplaceRange(
                                             next,
                                         )
-                                        const targetRange = patternSource?.getReplaceRange(
+                                        const targetRange = patternSource.getReplaceRange(
                                             moveTarget,
                                         )
 

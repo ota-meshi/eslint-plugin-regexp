@@ -2,8 +2,8 @@ import type { Expression, Literal, RegExpLiteral } from "estree"
 import type { Rule, AST, SourceCode } from "eslint"
 import { getStaticValue } from "."
 import {
-    findVariable,
-    getParent,
+    dereferenceOwnedVariable,
+    astRangeToLocation,
     getPropertyName,
     getStringValueRange,
     isRegexpLiteral,
@@ -170,6 +170,19 @@ class PatternSegment implements PatternRange {
     }
 }
 
+export interface RegExpValue {
+    readonly source: string
+    readonly flags: string
+    /**
+     * If the RegExp object is an owned RegExp literal, then this value will be
+     * non-null.
+     *
+     * If the RegExp object is shared or not created a literal, this will be
+     * `null`.
+     */
+    readonly ownedNode: RegExpLiteral | null
+}
+
 export class PatternSource {
     private readonly sourceCode: SourceCode
 
@@ -179,16 +192,34 @@ export class PatternSource {
 
     private readonly segments: readonly PatternSegment[]
 
+    /**
+     * If the pattern of a regexp is defined by a RegExp object, this value
+     * will be non-null. This is the case for simple RegExp literals
+     * (e.g. `/foo/`) and RegExp constructors (e.g. `RegExp(/foo/, "i")`).
+     *
+     * If the pattern source is defined by a string value
+     * (e.g. `RegExp("foo")`), then this will be `null`.
+     */
+    public readonly regexpValue: RegExpValue | null
+
+    public isStringValue(): this is PatternSource & {
+        readonly regexpValue: null
+    } {
+        return this.regexpValue === null
+    }
+
     private constructor(
         sourceCode: SourceCode,
         node: Expression,
         value: string,
-        items: readonly PatternSegment[],
+        segments: readonly PatternSegment[],
+        regexpValue: RegExpValue | null,
     ) {
         this.sourceCode = sourceCode
         this.node = node
         this.value = value
-        this.segments = items
+        this.segments = segments
+        this.regexpValue = regexpValue
     }
 
     public static fromExpression(
@@ -196,7 +227,7 @@ export class PatternSource {
         expression: Expression,
     ): PatternSource | null {
         // eslint-disable-next-line no-param-reassign -- x
-        expression = dereferenceOwnedConstant(context, expression)
+        expression = dereferenceOwnedVariable(context, expression)
 
         if (isRegexpLiteral(expression)) {
             return PatternSource.fromRegExpLiteral(context, expression)
@@ -204,12 +235,29 @@ export class PatternSource {
 
         const sourceCode = context.getSourceCode()
 
+        const flat = flattenPlus(context, expression)
+
         const items: PatternSegment[] = []
         let value = ""
 
-        for (const e of flattenPlus(context, expression)) {
+        for (const e of flat) {
             const staticValue = getStaticValue(context, e)
-            if (!staticValue || typeof staticValue.value !== "string") {
+            if (!staticValue) {
+                return null
+            }
+
+            if (flat.length === 1 && staticValue.value instanceof RegExp) {
+                // This means we have a non-owned reference to something that
+                // evaluates to an RegExp object
+                return PatternSource.fromRegExpObject(
+                    context,
+                    e,
+                    staticValue.value.source,
+                    staticValue.value.flags,
+                )
+            }
+
+            if (typeof staticValue.value !== "string") {
                 return null
             }
 
@@ -224,7 +272,28 @@ export class PatternSource {
             value += staticValue.value
         }
 
-        return new PatternSource(sourceCode, expression, value, items)
+        return new PatternSource(sourceCode, expression, value, items, null)
+    }
+
+    private static fromRegExpObject(
+        context: Rule.RuleContext,
+        expression: Expression,
+        source: string,
+        flags: string,
+    ): PatternSource {
+        const sourceCode = context.getSourceCode()
+
+        return new PatternSource(
+            sourceCode,
+            expression,
+            source,
+            [new PatternSegment(sourceCode, expression, source, 0)],
+            {
+                source,
+                flags,
+                ownedNode: null,
+            },
+        )
     }
 
     public static fromRegExpLiteral(
@@ -245,6 +314,11 @@ export class PatternSource {
                     0,
                 ),
             ],
+            {
+                source: expression.regex.pattern,
+                flags: expression.regex.flags,
+                ownedNode: expression,
+            },
         )
     }
 
@@ -323,83 +397,10 @@ function flattenPlus(context: Rule.RuleContext, e: Expression): Expression[] {
         ]
     }
 
-    const deRef = dereferenceOwnedConstant(context, e)
+    const deRef = dereferenceOwnedVariable(context, e)
     if (deRef !== e) {
         return flattenPlus(context, deRef)
     }
 
     return [e]
-}
-
-/**
- * Converts an range into a source location.
- */
-function astRangeToLocation(
-    sourceCode: SourceCode,
-    range: AST.Range,
-): AST.SourceLocation {
-    return {
-        start: sourceCode.getLocFromIndex(range[0]),
-        end: sourceCode.getLocFromIndex(range[1]),
-    }
-}
-
-/**
- * If the given expression is a variables, this will dereference the variables
- * if the variable is constant and only referenced by this expression.
- *
- * This means that only variables that are owned by this expression are
- * dereferenced.
- *
- * In all other cases, the given expression will be returned as is.
- *
- * @param expression
- */
-function dereferenceOwnedConstant(
-    context: Rule.RuleContext,
-    expression: Expression,
-): Expression {
-    if (expression.type === "Identifier") {
-        const variable = findVariable(context, expression)
-        if (!variable || variable.defs.length !== 1) {
-            // we want a variable with 1 definition
-            return expression
-        }
-
-        const def = variable.defs[0]
-        if (def.type !== "Variable") {
-            // we want a variable
-            return expression
-        }
-
-        const grandParent = getParent(def.parent)
-        if (grandParent && grandParent.type === "ExportNamedDeclaration") {
-            // exported variables are not owned because they can be referenced
-            // by modules that import this module
-            return expression
-        }
-
-        // we expect there two be exactly 2 references:
-        //  1. for initializing the variable
-        //  2. the reference given to this function
-        if (variable.references.length !== 2) {
-            return expression
-        }
-
-        const [initRef, thisRef] = variable.references
-        if (
-            !(
-                initRef.init &&
-                initRef.writeExpr &&
-                initRef.writeExpr === def.node.init
-            ) ||
-            thisRef.identifier !== expression
-        ) {
-            return expression
-        }
-
-        return dereferenceOwnedConstant(context, def.node.init)
-    }
-
-    return expression
 }

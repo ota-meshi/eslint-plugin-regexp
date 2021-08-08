@@ -70,7 +70,7 @@ export default createRule("match-any", {
             { node, flags, patternSource }: RegExpContext,
             regexpNode: RegExpNode,
         ): null | Rule.Fix | Rule.Fix[] {
-            if (!preference || !patternSource) {
+            if (!preference) {
                 return null
             }
 

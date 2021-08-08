@@ -61,7 +61,7 @@ export default createRule("prefer-range", {
             ): PatternReplaceRange[] | null {
                 const ranges: PatternReplaceRange[] = []
                 for (const reportNode of nodes) {
-                    const reportRange = patternSource?.getReplaceRange(
+                    const reportRange = patternSource.getReplaceRange(
                         reportNode,
                     )
                     if (!reportRange) {

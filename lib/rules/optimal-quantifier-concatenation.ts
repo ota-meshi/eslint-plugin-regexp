@@ -490,8 +490,8 @@ function getLoc(
     left: Element,
     right: Element,
     { patternSource }: RegExpContext,
-): AST.SourceLocation | undefined {
-    return patternSource?.getAstLocation({
+): AST.SourceLocation {
+    return patternSource.getAstLocation({
         start: Math.min(left.start, right.start),
         end: Math.max(left.end, right.end),
     })
@@ -559,9 +559,7 @@ export default createRule("optimal-quantifier-concatenation", {
                         if (replacement.type === "Both") {
                             context.report({
                                 node,
-                                loc:
-                                    getLoc(left, right, regexpContext) ??
-                                    getRegexpLocation(aNode),
+                                loc: getLoc(left, right, regexpContext),
                                 messageId: replacement.messageId,
                                 data: {
                                     left: left.raw,

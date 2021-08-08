@@ -19,7 +19,7 @@ function makeGreedy({ patternSource }: RegExpContext, qNode: Quantifier) {
             return null
         }
 
-        const range = patternSource?.getReplaceRange({
+        const range = patternSource.getReplaceRange({
             start: qNode.end - 1,
             end: qNode.end,
         })
