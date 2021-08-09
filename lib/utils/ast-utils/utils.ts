@@ -394,15 +394,27 @@ export function astRangeToLocation(
 }
 
 /**
- * If the given expression is a variables, this will dereference the variables
- * if the variable is constant and only referenced by this expression.
+ * If the given expression is the identifier of an owned variable, then the
+ * value of the variable will be returned.
  *
- * This means that only variables that are owned by this expression are
- * dereferenced.
+ * Owned means that the variable is readonly and only referenced by this
+ * expression.
  *
  * In all other cases, the given expression will be returned as is.
  *
- * @param expression
+ * Note: This will recursively dereference owned variables. I.e. of the given
+ * identifier resolves to a variable `a` that is assigned an owned variable `b`,
+ * then this will return the value of `b`. Example:
+ *
+ * ```js
+ * const c = 5;
+ * const b = c;
+ * const a = b;
+ *
+ * foo(a);
+ * ```
+ *
+ * Dereferencing `a` in `foo(a)` will return `5`.
  */
 export function dereferenceOwnedVariable(
     context: Rule.RuleContext,
@@ -416,8 +428,8 @@ export function dereferenceOwnedVariable(
         }
 
         const def = variable.defs[0]
-        if (def.type !== "Variable") {
-            // we want a variable
+        if (def.type !== "Variable" || def.node.id.type !== "Identifier") {
+            // we want a simple variable
             return expression
         }
 
