@@ -1,4 +1,4 @@
-import type { Rule, SourceCode, AST } from "eslint"
+import type { Rule, SourceCode, AST, Scope } from "eslint"
 import * as eslintUtils from "eslint-utils"
 import type {
     ArrowFunctionExpression,
@@ -14,7 +14,6 @@ import type {
 } from "estree"
 import { parseStringLiteral, parseStringTokens } from "../string-literal-parser"
 import { baseParseReplacements } from "../replacements-utils"
-import type { Scope, Variable } from "eslint-scope"
 
 /**
  * Get a parent node
@@ -34,8 +33,42 @@ export function getParent<E extends Node>(node: Node | null): E | null {
 export function findVariable(
     context: Rule.RuleContext,
     node: Identifier,
-): Variable | null {
+): Scope.Variable | null {
     return eslintUtils.findVariable(getScope(context, node), node)
+}
+
+type SimpleVariable = Scope.Variable & {
+    defs: [
+        Scope.Definition & { type: "Variable" } & { node: { id: Identifier } },
+    ]
+}
+
+/**
+ * Finds a variable of the form `{var,let,const} identifier ( = <init> )?`.
+ *
+ * The returned variable is also guaranteed to have exactly one definition.
+ *
+ * @param context
+ * @param expression
+ */
+function findSimpleVariable(
+    context: Rule.RuleContext,
+    identifier: Identifier,
+): SimpleVariable | null {
+    const variable = findVariable(context, identifier)
+
+    if (!variable || variable.defs.length !== 1) {
+        // we want a variable with 1 definition
+        return null
+    }
+
+    const def = variable.defs[0]
+    if (def.type !== "Variable" || def.node.id.type !== "Identifier") {
+        // we want a simple variable
+        return null
+    }
+
+    return variable as SimpleVariable
 }
 
 /**
@@ -62,12 +95,10 @@ type GetStaticValueResult =
     | { value: unknown }
     | { value: undefined; optional?: true }
 
-/* eslint-disable complexity -- ignore */
 /**
  * Get the value of a given node if it's a static value.
  */
 export function getStaticValue(
-    /* eslint-enable complexity -- ignore */
     context: Rule.RuleContext,
     node: Node,
 ): GetStaticValueResult | null {
@@ -113,20 +144,9 @@ export function getStaticValue(
         }
         return { value }
     } else if (node.type === "Identifier") {
-        const variable = findVariable(context, node)
-
-        if (variable != null && variable.defs.length === 1) {
-            const def = variable.defs[0]
-            if (
-                def.type === "Variable" &&
-                def.parent &&
-                def.parent.type === "VariableDeclaration" &&
-                def.parent.kind === "const" &&
-                def.node.id.type === "Identifier" &&
-                def.node.init
-            ) {
-                return getStaticValue(context, def.node.init)
-            }
+        const deRef = dereferenceVariable(context, node)
+        if (deRef !== node) {
+            return getStaticValue(context, deRef)
         }
     }
     return eslintUtils.getStaticValue(node, getScope(context, node))
@@ -135,9 +155,13 @@ export function getStaticValue(
 /**
  * Gets the scope for the current node
  */
-export function getScope(context: Rule.RuleContext, currentNode: Node): Scope {
+export function getScope(
+    context: Rule.RuleContext,
+    currentNode: Node,
+): Scope.Scope {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    const scopeManager = (context.getSourceCode() as any).scopeManager
+    const scopeManager: Scope.ScopeManager = (context.getSourceCode() as any)
+        .scopeManager
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
     let node: any = currentNode
@@ -421,17 +445,14 @@ export function dereferenceOwnedVariable(
     expression: Expression,
 ): Expression {
     if (expression.type === "Identifier") {
-        const variable = findVariable(context, expression)
-        if (!variable || variable.defs.length !== 1) {
+        const variable = findSimpleVariable(context, expression)
+
+        if (!variable) {
             // we want a variable with 1 definition
             return expression
         }
 
         const def = variable.defs[0]
-        if (def.type !== "Variable" || def.node.id.type !== "Identifier") {
-            // we want a simple variable
-            return expression
-        }
 
         const grandParent = getParent(def.parent)
         if (grandParent && grandParent.type === "ExportNamedDeclaration") {
@@ -460,6 +481,51 @@ export function dereferenceOwnedVariable(
         }
 
         return dereferenceOwnedVariable(context, def.node.init)
+    }
+
+    return expression
+}
+
+/**
+ * If the given expression is the identifier of a variable, then the value of
+ * the variable will be returned if that value can be statically known.
+ *
+ * This method assumes that the value of the variable is immutable. This is
+ * important because it means that expression that resolve to primitives
+ * (numbers, string, ...) behave as expected. However, if the value is mutable
+ * (e.g. arrays and objects), then the object might be mutated. This is because
+ * objects are passed by reference. So the reference can be statically known
+ * (the value of the variable) but the value of the object cannot be statically
+ * known. If the object is immutable (e.g. RegExp and symbols), then they behave
+ * like primitives.
+ */
+export function dereferenceVariable(
+    context: Rule.RuleContext,
+    expression: Expression,
+): Expression {
+    if (expression.type === "Identifier") {
+        const variable = findSimpleVariable(context, expression)
+
+        if (variable) {
+            const def = variable.defs[0]
+            if (def.node.init) {
+                if (def.parent.kind === "const") {
+                    // const variables are always what they are initialized to
+                    return dereferenceVariable(context, def.node.init)
+                }
+
+                // we might still be able to dereference var and let variables,
+                // they just have to never re-assigned
+                const refs = variable.references
+
+                const inits = refs.filter((r) => r.init).length
+                const reads = refs.filter((r) => r.isReadOnly()).length
+                if (inits === 1 && reads + inits === refs.length) {
+                    // there is only one init and all other references only read
+                    return dereferenceVariable(context, def.node.init)
+                }
+            }
+        }
     }
 
     return expression
