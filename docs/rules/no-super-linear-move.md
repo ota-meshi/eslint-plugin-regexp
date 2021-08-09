@@ -49,7 +49,7 @@ If a regex is moved across the string and takes _O(n)_ steps (on average) to rej
 
 There are multiple ways to fix this kind of super-linear runtime.
 
-However, there is no one-site-fits-all solution. Adequate testing and code review are necessary to ensure that the fixed regex is still correct.
+However, there is no one-size-fits-all solution. Adequate testing and code review are necessary to ensure that the fixed regex is still correct.
 
 #### Change the quantifier
 
