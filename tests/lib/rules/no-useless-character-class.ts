@@ -145,5 +145,11 @@ tester.run("no-useless-character-class", rule as any, {
             options: [{ ignores: [] }],
             errors: 18,
         },
+        {
+            code: String.raw`RegExp("[\"]" + '[\']')`,
+            output: String.raw`RegExp("\"" + '\'')`,
+            options: [{ ignores: [] }],
+            errors: 2,
+        },
     ],
 })
