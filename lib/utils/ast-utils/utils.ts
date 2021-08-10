@@ -1,4 +1,4 @@
-import type { Rule } from "eslint"
+import type { Rule, SourceCode, AST, Scope } from "eslint"
 import * as eslintUtils from "eslint-utils"
 import type {
     ArrowFunctionExpression,
@@ -10,10 +10,10 @@ import type {
     Literal,
     MemberExpression,
     Node,
+    RegExpLiteral,
 } from "estree"
-import { parseStringLiteral } from "../string-literal-parser"
+import { parseStringLiteral, parseStringTokens } from "../string-literal-parser"
 import { baseParseReplacements } from "../replacements-utils"
-import type { Scope, Variable } from "eslint-scope"
 
 /**
  * Get a parent node
@@ -33,8 +33,42 @@ export function getParent<E extends Node>(node: Node | null): E | null {
 export function findVariable(
     context: Rule.RuleContext,
     node: Identifier,
-): Variable | null {
+): Scope.Variable | null {
     return eslintUtils.findVariable(getScope(context, node), node)
+}
+
+type SimpleVariable = Scope.Variable & {
+    defs: [
+        Scope.Definition & { type: "Variable" } & { node: { id: Identifier } },
+    ]
+}
+
+/**
+ * Finds a variable of the form `{var,let,const} identifier ( = <init> )?`.
+ *
+ * The returned variable is also guaranteed to have exactly one definition.
+ *
+ * @param context
+ * @param expression
+ */
+function findSimpleVariable(
+    context: Rule.RuleContext,
+    identifier: Identifier,
+): SimpleVariable | null {
+    const variable = findVariable(context, identifier)
+
+    if (!variable || variable.defs.length !== 1) {
+        // we want a variable with 1 definition
+        return null
+    }
+
+    const def = variable.defs[0]
+    if (def.type !== "Variable" || def.node.id.type !== "Identifier") {
+        // we want a simple variable
+        return null
+    }
+
+    return variable as SimpleVariable
 }
 
 /**
@@ -61,12 +95,10 @@ type GetStaticValueResult =
     | { value: unknown }
     | { value: undefined; optional?: true }
 
-/* eslint-disable complexity -- ignore */
 /**
  * Get the value of a given node if it's a static value.
  */
 export function getStaticValue(
-    /* eslint-enable complexity -- ignore */
     context: Rule.RuleContext,
     node: Node,
 ): GetStaticValueResult | null {
@@ -88,9 +120,7 @@ export function getStaticValue(
             }
         }
     } else if (node.type === "MemberExpression") {
-        const propName: string | null = !node.computed
-            ? (node.property as Identifier).name
-            : getStringIfConstant(context, node.property)
+        const propName = getPropertyName(node, context)
         if (propName === "source") {
             const object = getStaticValue(context, node.object)
             if (object && object.value instanceof RegExp) {
@@ -114,20 +144,9 @@ export function getStaticValue(
         }
         return { value }
     } else if (node.type === "Identifier") {
-        const variable = findVariable(context, node)
-
-        if (variable != null && variable.defs.length === 1) {
-            const def = variable.defs[0]
-            if (
-                def.type === "Variable" &&
-                def.parent &&
-                def.parent.type === "VariableDeclaration" &&
-                def.parent.kind === "const" &&
-                def.node.id.type === "Identifier" &&
-                def.node.init
-            ) {
-                return getStaticValue(context, def.node.init)
-            }
+        const deRef = dereferenceVariable(context, node)
+        if (deRef !== node) {
+            return getStaticValue(context, deRef)
         }
     }
     return eslintUtils.getStaticValue(node, getScope(context, node))
@@ -136,9 +155,13 @@ export function getStaticValue(
 /**
  * Gets the scope for the current node
  */
-export function getScope(context: Rule.RuleContext, currentNode: Node): Scope {
+export function getScope(
+    context: Rule.RuleContext,
+    currentNode: Node,
+): Scope.Scope {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    const scopeManager = (context.getSourceCode() as any).scopeManager
+    const scopeManager: Scope.ScopeManager = (context.getSourceCode() as any)
+        .scopeManager
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
     let node: any = currentNode
@@ -276,4 +299,234 @@ export function parseReplacements(
             range: [start.range[0], end.range[1]],
         }
     })
+}
+
+/**
+ * Creates source range from the given offset range of the value of the given
+ * string literal.
+ *
+ * @param sourceCode The ESLint source code instance.
+ * @param node The string literal to report.
+ * @returns
+ */
+export function getStringValueRange(
+    sourceCode: SourceCode,
+    node: Literal & { value: string },
+    startOffset: number,
+    endOffset: number,
+): AST.Range | null {
+    if (!node.range) {
+        // no range information
+        return null
+    }
+    if (node.value.length < endOffset) {
+        return null
+    }
+
+    try {
+        const raw = sourceCode.text.slice(node.range[0] + 1, node.range[1] - 1)
+        let valueIndex = 0
+        let start: number | null = null
+        for (const t of parseStringTokens(raw)) {
+            const endIndex = valueIndex + t.value.length
+
+            // find start
+            if (
+                start == null &&
+                valueIndex <= startOffset &&
+                startOffset < endIndex
+            ) {
+                start = t.range[0]
+            }
+
+            // find end
+            if (
+                start != null &&
+                valueIndex < endOffset &&
+                endOffset <= endIndex
+            ) {
+                const end = t.range[1]
+                const nodeStart = node.range[0] + 1
+                return [nodeStart + start, nodeStart + end]
+            }
+
+            valueIndex = endIndex
+        }
+    } catch {
+        // ignore
+    }
+
+    return null
+}
+
+/**
+ * Check if the given expression node is regexp literal.
+ */
+export function isRegexpLiteral(node: Expression): node is RegExpLiteral {
+    return node.type === "Literal" && "regex" in node
+}
+
+/**
+ * Check if the given expression node is string literal.
+ */
+export function isStringLiteral(
+    node: Expression,
+): node is Literal & { value: string } {
+    return node.type === "Literal" && typeof node.value === "string"
+}
+
+/**
+ * Returns the string value of the property name accessed.
+ *
+ * This is guaranteed to return `null` for private properties.
+ *
+ * @param node
+ * @returns
+ */
+export function getPropertyName(
+    node: MemberExpression,
+    context?: Rule.RuleContext,
+): string | null {
+    const prop = node.property
+    if (prop.type === "PrivateIdentifier") {
+        return null
+    }
+
+    if (!node.computed) {
+        return (prop as Identifier).name
+    }
+    if (context) {
+        return getStringIfConstant(context, prop)
+    }
+    if (isStringLiteral(prop)) {
+        return prop.value
+    }
+    return null
+}
+
+/**
+ * Converts an range into a source location.
+ */
+export function astRangeToLocation(
+    sourceCode: SourceCode,
+    range: AST.Range,
+): AST.SourceLocation {
+    return {
+        start: sourceCode.getLocFromIndex(range[0]),
+        end: sourceCode.getLocFromIndex(range[1]),
+    }
+}
+
+/**
+ * If the given expression is the identifier of an owned variable, then the
+ * value of the variable will be returned.
+ *
+ * Owned means that the variable is readonly and only referenced by this
+ * expression.
+ *
+ * In all other cases, the given expression will be returned as is.
+ *
+ * Note: This will recursively dereference owned variables. I.e. of the given
+ * identifier resolves to a variable `a` that is assigned an owned variable `b`,
+ * then this will return the value of `b`. Example:
+ *
+ * ```js
+ * const c = 5;
+ * const b = c;
+ * const a = b;
+ *
+ * foo(a);
+ * ```
+ *
+ * Dereferencing `a` in `foo(a)` will return `5`.
+ */
+export function dereferenceOwnedVariable(
+    context: Rule.RuleContext,
+    expression: Expression,
+): Expression {
+    if (expression.type === "Identifier") {
+        const variable = findSimpleVariable(context, expression)
+
+        if (!variable) {
+            // we want a variable with 1 definition
+            return expression
+        }
+
+        const def = variable.defs[0]
+
+        const grandParent = getParent(def.parent)
+        if (grandParent && grandParent.type === "ExportNamedDeclaration") {
+            // exported variables are not owned because they can be referenced
+            // by modules that import this module
+            return expression
+        }
+
+        // we expect there two be exactly 2 references:
+        //  1. for initializing the variable
+        //  2. the reference given to this function
+        if (variable.references.length !== 2) {
+            return expression
+        }
+
+        const [initRef, thisRef] = variable.references
+        if (
+            !(
+                initRef.init &&
+                initRef.writeExpr &&
+                initRef.writeExpr === def.node.init
+            ) ||
+            thisRef.identifier !== expression
+        ) {
+            return expression
+        }
+
+        return dereferenceOwnedVariable(context, def.node.init)
+    }
+
+    return expression
+}
+
+/**
+ * If the given expression is the identifier of a variable, then the value of
+ * the variable will be returned if that value can be statically known.
+ *
+ * This method assumes that the value of the variable is immutable. This is
+ * important because it means that expression that resolve to primitives
+ * (numbers, string, ...) behave as expected. However, if the value is mutable
+ * (e.g. arrays and objects), then the object might be mutated. This is because
+ * objects are passed by reference. So the reference can be statically known
+ * (the value of the variable) but the value of the object cannot be statically
+ * known. If the object is immutable (e.g. RegExp and symbols), then they behave
+ * like primitives.
+ */
+export function dereferenceVariable(
+    context: Rule.RuleContext,
+    expression: Expression,
+): Expression {
+    if (expression.type === "Identifier") {
+        const variable = findSimpleVariable(context, expression)
+
+        if (variable) {
+            const def = variable.defs[0]
+            if (def.node.init) {
+                if (def.parent.kind === "const") {
+                    // const variables are always what they are initialized to
+                    return dereferenceVariable(context, def.node.init)
+                }
+
+                // we might still be able to dereference var and let variables,
+                // they just have to never re-assigned
+                const refs = variable.references
+
+                const inits = refs.filter((r) => r.init).length
+                const reads = refs.filter((r) => r.isReadOnly()).length
+                if (inits === 1 && reads + inits === refs.length) {
+                    // there is only one init and all other references only read
+                    return dereferenceVariable(context, def.node.init)
+                }
+            }
+        }
+    }
+
+    return expression
 }

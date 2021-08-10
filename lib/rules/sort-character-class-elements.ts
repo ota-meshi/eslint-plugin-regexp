@@ -84,9 +84,8 @@ export default createRule("sort-character-class-elements", {
          */
         function createVisitor({
             node,
-            fixerApplyEscape,
             getRegexpLocation,
-            getRegexpRange,
+            patternSource,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
@@ -112,22 +111,23 @@ export default createRule("sort-character-class-elements", {
                                         prev: moveTarget.raw,
                                     },
                                     *fix(fixer) {
-                                        const nextRange = getRegexpRange(next)
-                                        const targetRange = getRegexpRange(
+                                        const nextRange = patternSource.getReplaceRange(
+                                            next,
+                                        )
+                                        const targetRange = patternSource.getReplaceRange(
                                             moveTarget,
                                         )
+
                                         if (!targetRange || !nextRange) {
                                             return
                                         }
 
-                                        yield fixer.insertTextBeforeRange(
-                                            targetRange,
-                                            fixerApplyEscape(
-                                                escapeRaw(next, moveTarget),
-                                            ),
+                                        yield targetRange.insertBefore(
+                                            fixer,
+                                            escapeRaw(next, moveTarget),
                                         )
 
-                                        yield fixer.removeRange(nextRange)
+                                        yield nextRange.remove(fixer)
                                     },
                                 })
                             }

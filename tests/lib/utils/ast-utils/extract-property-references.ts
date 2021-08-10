@@ -4,7 +4,7 @@ import type * as ESTree from "estree"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { PropertyReference } from "../../../../lib/utils/ast-utils"
 import { extractPropertyReferences } from "../../../../lib/utils/ast-utils"
-import { isRegexpLiteral } from "../../../../lib/utils"
+import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
 
 type PropertyReferenceResult = {
     [key: string]: { type: string; refs?: PropertyReferenceResult }

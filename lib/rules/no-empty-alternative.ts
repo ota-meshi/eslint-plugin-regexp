@@ -38,10 +38,24 @@ export default createRule("no-empty-alternative", {
                     // the parser and one alternative is already handled by other rules.
                     for (let i = 0; i < regexpNode.alternatives.length; i++) {
                         const alt = regexpNode.alternatives[i]
+                        const last = i === regexpNode.alternatives.length - 1
                         if (alt.elements.length === 0) {
+                            // Since empty alternative have a width of 0, it's hard to underline their location.
+                            // So we will report the location of the `|` that causes the empty alternative.
+                            const index = alt.start
+                            const loc = last
+                                ? getRegexpLocation({
+                                      start: index - 1,
+                                      end: index,
+                                  })
+                                : getRegexpLocation({
+                                      start: index,
+                                      end: index + 1,
+                                  })
+
                             context.report({
                                 node,
-                                loc: getRegexpLocation(alt),
+                                loc,
                                 messageId: "empty",
                             })
                             // don't report the same node multiple times

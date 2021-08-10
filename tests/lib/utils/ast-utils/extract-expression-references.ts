@@ -5,7 +5,7 @@ import type * as ESTree from "estree"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { ExpressionReference } from "../../../../lib/utils/ast-utils"
 import { extractExpressionReferences } from "../../../../lib/utils/ast-utils"
-import { isRegexpLiteral } from "../../../../lib/utils"
+import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
 
 type ExpressionReferenceResult = { type: string; [key: string]: any }
 
@@ -81,7 +81,7 @@ const TESTCASES: TestCase[] = [
     {
         code: `const a = /a/
         fn(a)
-        
+
         function fn(b) { b.source }`,
         results: [
             [{ type: "member", node: "b", memberExpression: "b.source" }],

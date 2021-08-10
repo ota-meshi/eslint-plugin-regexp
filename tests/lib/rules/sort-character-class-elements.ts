@@ -219,7 +219,8 @@ tester.run("sort-character-class-elements", rule as any, {
         {
             code: String.raw`const s = "[\\d"+"\\w]"
             new RegExp(s, 'u')`,
-            output: null,
+            output: String.raw`const s = "[\\w\\d"+"]"
+            new RegExp(s, 'u')`,
             options: [{ order: [] }],
             errors: [
                 "Expected character class elements to be in ascending order. '\\w' should be before '\\d'.",
