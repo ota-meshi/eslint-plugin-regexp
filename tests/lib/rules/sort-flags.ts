@@ -31,7 +31,8 @@ tester.run("sort-flags", rule as any, {
             output: String.raw`/\w/gimsuy`,
             errors: [
                 {
-                    message: "The flags 'yusimg' should in the order 'gimsuy'.",
+                    message:
+                        "The flags 'yusimg' should be in the order 'gimsuy'.",
                     column: 5,
                 },
             ],
@@ -41,7 +42,8 @@ tester.run("sort-flags", rule as any, {
             output: String.raw`new RegExp("\\w", "gimsuy")`,
             errors: [
                 {
-                    message: "The flags 'yusimg' should in the order 'gimsuy'.",
+                    message:
+                        "The flags 'yusimg' should be in the order 'gimsuy'.",
                     column: 20,
                 },
             ],
@@ -52,8 +54,19 @@ tester.run("sort-flags", rule as any, {
             errors: [
                 {
                     message:
-                        "The flags 'yusimgd' should in the order 'dgimsuy'.",
+                        "The flags 'yusimgd' should be in the order 'dgimsuy'.",
                     column: 20,
+                },
+            ],
+        },
+        {
+            // sort flags even on invalid patterns
+            code: String.raw`new RegExp("\\w)", "ui")`,
+            output: String.raw`new RegExp("\\w)", "iu")`,
+            errors: [
+                {
+                    message: "The flags 'ui' should be in the order 'iu'.",
+                    column: 21,
                 },
             ],
         },
