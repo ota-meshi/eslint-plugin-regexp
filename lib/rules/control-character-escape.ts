@@ -10,6 +10,7 @@ import {
     defineRegexpVisitor,
 } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
+import { mentionChar } from "../utils/mention"
 
 const CONTROL_CHARS = new Map<number, string>([
     [0, "\\0"],
@@ -33,7 +34,7 @@ export default createRule("control-character-escape", {
         schema: [],
         messages: {
             unexpected:
-                "Unexpected control character escape '{{actual}}' ({{cp}}). Use '{{expected}}' instead.",
+                "Unexpected control character escape {{actual}}. Use '{{expected}}' instead.",
         },
         type: "suggestion", // "problem",
     },
@@ -77,10 +78,7 @@ export default createRule("control-character-escape", {
                         loc: getRegexpLocation(cNode),
                         messageId: "unexpected",
                         data: {
-                            actual: cNode.raw,
-                            cp: `U+${cNode.value
-                                .toString(16)
-                                .padStart(4, "0")}`,
+                            actual: mentionChar(cNode),
                             expected: expectedRaw,
                         },
                         fix: fixReplaceNode(cNode, expectedRaw),
