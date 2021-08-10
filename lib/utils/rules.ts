@@ -13,6 +13,7 @@ import noEmptyCapturingGroup from "../rules/no-empty-capturing-group"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
+import noInvalidRegexp from "../rules/no-invalid-regexp"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
@@ -80,6 +81,7 @@ export const rules = [
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
+    noInvalidRegexp,
     noInvisibleCharacter,
     noLazyEnds,
     noLegacyFeatures,
