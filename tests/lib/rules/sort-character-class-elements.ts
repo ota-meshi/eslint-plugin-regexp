@@ -217,13 +217,17 @@ tester.run("sort-character-class-elements", rule as any, {
             ],
         },
         {
-            code: String.raw`const s = "[\\d"+"\\w]"
-            new RegExp(s, 'u')`,
-            output: String.raw`const s = "[\\w\\d"+"]"
-            new RegExp(s, 'u')`,
-            options: [{ order: [] }],
+            code: String.raw`
+            const jsxWhitespaceChars = " \n\r\t";
+            const matchJsxWhitespaceRegex = new RegExp("([" + jsxWhitespaceChars + "]+)");
+            `,
+            output: String.raw`
+            const jsxWhitespaceChars = "\n \r\t";
+            const matchJsxWhitespaceRegex = new RegExp("([" + jsxWhitespaceChars + "]+)");
+            `,
             errors: [
-                "Expected character class elements to be in ascending order. '\\w' should be before '\\d'.",
+                "Expected character class elements to be in ascending order. '\\n' should be before ' '.",
+                "Expected character class elements to be in ascending order. '\t' should be before ' '.",
             ],
         },
     ],

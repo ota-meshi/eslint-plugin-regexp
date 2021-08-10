@@ -21,6 +21,7 @@ import { JS } from "refa"
 // eslint-disable-next-line no-restricted-imports -- there's no way around it
 import { toCharSet as uncachedToCharSet } from "regexp-ast-analysis"
 import type { Rule } from "eslint"
+import { mentionChar } from "../utils/mention"
 
 interface Grouping {
     duplicates: {
@@ -160,25 +161,6 @@ function fixRemove(
     })
 }
 
-/**
- * Creates a string that mentions the given element.
- */
-function mention(element: CharacterClassElement): string {
-    /** Creates a "U+FFFF" string */
-    function unicode(value: number): string {
-        return `U+${value.toString(16).padStart(4, "0")}`
-    }
-
-    if (element.type === "Character") {
-        return `'${element.raw}' (${unicode(element.value)})`
-    } else if (element.type === "CharacterClassRange") {
-        return `'${element.raw}' (${unicode(element.min.value)} - ${unicode(
-            element.max.value,
-        )})`
-    }
-    return `'${element.raw}'`
-}
-
 export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
@@ -218,7 +200,7 @@ export default createRule("no-dupe-characters-character-class", {
                     loc: getRegexpLocation(duplicate),
                     messageId: "duplicate",
                     data: {
-                        duplicate: mention(duplicate),
+                        duplicate: mentionChar(duplicate),
                     },
                     fix: fixRemove(regexpContext, duplicate),
                 })
@@ -228,8 +210,8 @@ export default createRule("no-dupe-characters-character-class", {
                     loc: getRegexpLocation(duplicate),
                     messageId: "duplicateNonObvious",
                     data: {
-                        duplicate: mention(duplicate),
-                        element: mention(element),
+                        duplicate: mentionChar(duplicate),
+                        element: mentionChar(element),
                     },
                     fix: fixRemove(regexpContext, duplicate),
                 })
@@ -250,8 +232,8 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(element),
                 messageId: "overlap",
                 data: {
-                    elementA: mention(element),
-                    elementB: mention(intersectElement),
+                    elementA: mentionChar(element),
+                    elementB: mentionChar(intersectElement),
                     overlap,
                 },
             })
@@ -274,8 +256,8 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(subsetElement),
                 messageId: "subset",
                 data: {
-                    subsetElement: mention(subsetElement),
-                    element: mention(element),
+                    subsetElement: mentionChar(subsetElement),
+                    element: mentionChar(element),
                 },
                 fix: fixRemove(regexpContext, subsetElement),
             })
@@ -296,10 +278,10 @@ export default createRule("no-dupe-characters-character-class", {
                 loc: getRegexpLocation(subsetElement),
                 messageId: "subsetOfMany",
                 data: {
-                    subsetElement: mention(subsetElement),
+                    subsetElement: mentionChar(subsetElement),
                     elements: `'${elements
                         .map((e) => e.raw)
-                        .join("")}' (${elements.map(mention).join(", ")})`,
+                        .join("")}' (${elements.map(mentionChar).join(", ")})`,
                 },
                 fix: fixRemove(regexpContext, subsetElement),
             })

@@ -13,6 +13,7 @@ import {
     isUseHexEscape,
     isOctalEscape,
 } from "../utils"
+import { mentionChar } from "../utils/mention"
 
 export default createRule("no-obscure-range", {
     meta: {
@@ -34,7 +35,7 @@ export default createRule("no-obscure-range", {
         ],
         messages: {
             unexpected:
-                "Unexpected obscure character range. The characters of '{{range}}' ({{unicode}}) are not obvious.",
+                "Unexpected obscure character range. The characters of {{range}} are not obvious.",
         },
         type: "suggestion", // "problem",
     },
@@ -84,16 +85,12 @@ export default createRule("no-obscure-range", {
                         return
                     }
 
-                    const uMin = `U+${min.value.toString(16).padStart(4, "0")}`
-                    const uMax = `U+${max.value.toString(16).padStart(4, "0")}`
-
                     context.report({
                         node,
                         loc: getRegexpLocation(rNode),
                         messageId: "unexpected",
                         data: {
-                            range: rNode.raw,
-                            unicode: `${uMin} - ${uMax}`,
+                            range: mentionChar(rNode),
                         },
                     })
                 },
