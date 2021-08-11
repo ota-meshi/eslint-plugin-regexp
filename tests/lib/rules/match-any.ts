@@ -162,7 +162,10 @@ tester.run("match-any", rule as any, {
             const s = "[\\s\\S]"+"[\\S\\s][^]."
             new RegExp(s, 's')
             `,
-            output: null,
+            output: String.raw`
+            const s = "[^]"+"[^][^][^]"
+            new RegExp(s, 's')
+            `,
             options: [{ allows: ["[^]"] }],
             errors: [
                 "Unexpected using '[\\s\\S]' to match any character.",

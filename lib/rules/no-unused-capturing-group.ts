@@ -3,24 +3,22 @@ import type {
     CallExpression,
     Expression,
     FunctionExpression,
-    MemberExpression,
-    Node as ESTreeNode,
-    Pattern,
-    Property,
 } from "estree"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, compositingVisitors } from "../utils"
-import type { KnownMethodCall } from "../utils/ast-utils"
+import type { KnownMethodCall, PropertyReference } from "../utils/ast-utils"
 import {
-    findVariable,
     isKnownMethodCall,
     getStaticValue,
+    extractExpressionReferences,
+    extractPropertyReferences,
 } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import type { CapturingGroup } from "regexpp/ast"
+import type { CapturingGroup, Pattern } from "regexpp/ast"
 import { parseReplacementsForString } from "../utils/replacements-utils"
-import type { Rule } from "eslint"
+import { getCapturingGroupNumber } from "regexp-ast-analysis"
+import { visitRegExpAST } from "regexpp"
 
 class CapturingData {
     private readonly unused = new Set<CapturingGroup>()
@@ -142,151 +140,32 @@ class CapturingData {
 }
 
 /**
- * Get property from given node
+ * Returns an identifier for the given capturing group.
+ *
+ * This is either the name of the group or its number.
  */
-function getProperty(node: MemberExpression | Property): null | string {
-    if (node.type === "MemberExpression") {
-        if (node.computed) {
-            if (node.property.type === "Literal") {
-                if (
-                    typeof node.property.value === "string" ||
-                    typeof node.property.value === "number"
-                )
-                    return String(node.property.value)
-            }
-        } else if (node.property.type === "Identifier") {
-            return node.property.name
-        }
-        return null
+function getCapturingGroupIdentifier(group: CapturingGroup): string {
+    if (group.name) {
+        return `'${group.name}'`
     }
-    if (node.type === "Property") {
-        if (node.computed) {
-            if (node.key.type === "Literal") {
-                if (
-                    typeof node.key.value === "string" ||
-                    typeof node.key.value === "number"
-                )
-                    return String(node.key.value)
-            }
-        } else if (node.key.type === "Identifier") {
-            return node.key.name
-        }
-        return null
-    }
-    return null
+    return `number ${getCapturingGroupNumber(group)}`
 }
 
-type UsedReference = {
-    ref: string
-    node: Expression | Pattern
-    getSubReferences: () => UsedReference[] | null
-}
+/** Returns a list of all capturing groups in the order of their numbers. */
+function getAllCapturingGroups(pattern: Pattern): CapturingGroup[] {
+    const groups: CapturingGroup[] = []
 
-/**
- * Extract used references
- */
-function extractUsedReferencesFromPattern(
-    node: Pattern,
-    context: Rule.RuleContext,
-): UsedReference[] | null {
-    const references: UsedReference[] = []
+    visitRegExpAST(pattern, {
+        onCapturingGroupEnter(group) {
+            groups.push(group)
+        },
+    })
 
-    if (node.type === "ArrayPattern") {
-        for (let index = 0; index < node.elements.length; index++) {
-            const element = node.elements[index]
-            if (!element) {
-                continue
-            }
-            if (element.type === "RestElement") {
-                return null
-            }
-            references.push({
-                ref: String(index),
-                node: element,
-                getSubReferences: () =>
-                    extractUsedReferencesFromPattern(element, context),
-            })
-        }
-        return references
-    }
-    if (node.type === "ObjectPattern") {
-        for (const prop of node.properties) {
-            if (prop.type === "RestElement") {
-                return null
-            }
-            const property = getProperty(prop)
-            if (property == null) return null
-            references.push({
-                ref: property,
-                node: prop.value,
-                getSubReferences: () =>
-                    extractUsedReferencesFromPattern(prop.value, context),
-            })
-        }
-        return references
-    }
-    if (node.type === "AssignmentPattern") {
-        return extractUsedReferencesFromPattern(node.left, context)
-    }
-    if (node.type === "Identifier") {
-        // Track vars
-        const variable = findVariable(context, node)
-        if (!variable) {
-            return null
-        }
-        for (const reference of variable.references) {
-            if (reference.isRead()) {
-                const res = extractUsedReferencesFromExpression(
-                    reference.identifier,
-                    context,
-                )
-                if (res == null) {
-                    return null
-                }
-                references.push(...res)
-            }
-        }
-        return references
-    }
+    // visitRegExpAST given no guarantees in which order nodes are visited.
+    // Sort the list to guarantee order.
+    groups.sort((a, b) => a.start - b.start)
 
-    return null
-}
-
-/**
- * Extract used references
- */
-function extractUsedReferencesFromExpression(
-    node: Expression,
-    context: Rule.RuleContext,
-): UsedReference[] | null {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    const parent: ESTreeNode = (node as any).parent
-    if (parent.type === "MemberExpression") {
-        if (parent.object !== node) {
-            return null
-        }
-        const property = getProperty(parent)
-        if (property == null) return null
-        return [
-            {
-                ref: property,
-                node: parent,
-                getSubReferences: () =>
-                    extractUsedReferencesFromExpression(parent, context),
-            },
-        ]
-    } else if (parent.type === "AssignmentExpression") {
-        if (parent.right !== node || parent.operator !== "=") {
-            return null
-        }
-        return extractUsedReferencesFromPattern(parent.left, context)
-    } else if (parent.type === "VariableDeclarator") {
-        if (parent.init !== node) {
-            return null
-        }
-        return extractUsedReferencesFromPattern(parent.id, context)
-    }
-    return null
+    return groups
 }
 
 export default createRule("no-unused-capturing-group", {
@@ -296,77 +175,98 @@ export default createRule("no-unused-capturing-group", {
             category: "Best Practices",
             recommended: false,
         },
-        schema: [],
+        fixable: "code",
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    fixable: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
-            unusedCapturingGroup: "Capturing group is defined but never used.",
-            unusedNamedCapturingGroup:
-                "'{{name}}' capturing group is defined but never used.",
+            unusedCapturingGroup:
+                "Capturing group {{identifier}} is defined but never used.",
             unusedName:
-                "'{{name}}' is defined for capturing group, but it name is never used.",
+                "Capturing group {{identifier}} has a name, but its name is never used.",
+
+            // suggestions
+            makeNonCapturing: "Making this a non-capturing group.",
+            removeName: "Remove the unused name.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
+        const fixable: boolean = context.options[0]?.fixable ?? false
+
         const typeTracer = createTypeTracker(context)
         const capturingDataMap = new Map<Expression, CapturingData>()
-
-        /**
-         * Get CapturingData
-         */
-        function getCapturingData(node: Expression): CapturingData | null {
-            const re = capturingDataMap.get(node)
-            if (re) {
-                return re
-            }
-            if (node.type === "Identifier") {
-                const variable = findVariable(context, node)
-                if (variable && variable.defs.length === 1) {
-                    const def = variable.defs[0]
-                    if (
-                        def.type === "Variable" &&
-                        def.parent.kind === "const" &&
-                        def.node.init
-                    ) {
-                        return getCapturingData(def.node.init)
-                    }
-                }
-            }
-
-            return null
-        }
 
         /**
          * Report for unused
          */
         function reportUnused(capturingData: CapturingData) {
-            const { node, getRegexpLocation } = capturingData.regexpContext
+            const {
+                node,
+                getRegexpLocation,
+                fixReplaceNode,
+                patternAst,
+            } = capturingData.regexpContext
             const {
                 unusedCapturingGroups,
                 unusedNames,
             } = capturingData.getUnused()
+
+            const fixableGroups = new Set<CapturingGroup>()
+            for (const group of getAllCapturingGroups(patternAst).reverse()) {
+                if (unusedCapturingGroups.has(group)) {
+                    fixableGroups.add(group)
+                } else {
+                    break
+                }
+            }
+
             for (const cgNode of unusedCapturingGroups) {
+                const fix = fixableGroups.has(cgNode)
+                    ? fixReplaceNode(
+                          cgNode,
+                          cgNode.raw.replace(/^\((?:\?<[^<>]+>)?/, "(?:"),
+                      )
+                    : null
+
                 context.report({
                     node,
                     loc: getRegexpLocation(cgNode),
-                    messageId: cgNode.name
-                        ? "unusedNamedCapturingGroup"
-                        : "unusedCapturingGroup",
-                    data: cgNode.name ? { name: cgNode.name } : {},
+                    messageId: "unusedCapturingGroup",
+                    data: { identifier: getCapturingGroupIdentifier(cgNode) },
+                    fix: fixable ? fix : null,
+                    suggest: fix
+                        ? [{ messageId: "makeNonCapturing", fix }]
+                        : null,
                 })
             }
+
             for (const cgNode of unusedNames) {
+                const fix = fixReplaceNode(
+                    cgNode,
+                    cgNode.raw.replace(/^\(\?<[^<>]+>/, "("),
+                )
+
                 context.report({
                     node,
                     loc: getRegexpLocation(cgNode),
                     messageId: "unusedName",
-                    data: { name: cgNode.name },
+                    data: { identifier: getCapturingGroupIdentifier(cgNode) },
+                    fix: fixable ? fix : null,
+                    suggest: [{ messageId: "removeName", fix }],
                 })
             }
         }
 
         /** Verify for String.prototype.match() */
         function verifyForMatch(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.arguments[0])
+            const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -385,7 +285,7 @@ export default createRule("no-unused-capturing-group", {
 
         /** Verify for String.prototype.search() */
         function verifyForSearch(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.arguments[0])
+            const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -399,7 +299,7 @@ export default createRule("no-unused-capturing-group", {
 
         /** Verify for RegExp.prototype.test() */
         function verifyForTest(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.callee.object)
+            const capturingData = capturingDataMap.get(node.callee.object)
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -409,7 +309,7 @@ export default createRule("no-unused-capturing-group", {
 
         /** Verify for String.prototype.replace() and String.prototype.replaceAll() */
         function verifyForReplace(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.arguments[0])
+            const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -481,7 +381,7 @@ export default createRule("no-unused-capturing-group", {
 
         /** Verify for RegExp.prototype.exec() */
         function verifyForExec(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.callee.object)
+            const capturingData = capturingDataMap.get(node.callee.object)
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -494,31 +394,30 @@ export default createRule("no-unused-capturing-group", {
             node: KnownMethodCall,
             capturingData: CapturingData,
         ) {
-            const refs = extractUsedReferencesFromExpression(node, context)
-            if (refs == null) {
-                capturingData.markAsCannotTrack()
-                return
-            }
-            for (const ref of refs) {
-                if (ref.ref === "groups") {
-                    const sub = ref.getSubReferences()
-                    if (sub == null) {
-                        // unknown used as name
-                        capturingData.usedAllNames()
-                    } else {
-                        for (const namedRef of sub) {
-                            capturingData.usedName(namedRef.ref)
+            for (const ref of extractPropertyReferences(node, context)) {
+                if (hasNameRef(ref)) {
+                    if (ref.name === "groups") {
+                        for (const namedRef of ref.extractPropertyReferences()) {
+                            if (hasNameRef(namedRef)) {
+                                capturingData.usedName(namedRef.name)
+                            } else {
+                                // unknown used as name
+                                capturingData.usedAllNames()
+                            }
                         }
+                    } else {
+                        capturingData.usedIndex(Number(ref.name))
                     }
                 } else {
-                    capturingData.usedIndex(Number(ref.ref))
+                    capturingData.markAsCannotTrack()
+                    return
                 }
             }
         }
 
         /** Verify for String.prototype.matchAll() */
         function verifyForMatchAll(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.arguments[0])
+            const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -527,93 +426,45 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             capturingData.markAsUsed()
-            const refs = extractUsedReferencesForIteration(node)
-            if (refs == null) {
-                capturingData.markAsCannotTrack()
-                return
-            }
-            for (const ref of refs) {
-                if (ref.ref === "groups") {
-                    const sub = ref.getSubReferences()
-                    if (sub == null) {
-                        // unknown used as name
-                        capturingData.usedAllNames()
-                    } else {
-                        for (const namedRef of sub) {
-                            capturingData.usedName(namedRef.ref)
-                        }
-                    }
-                } else {
-                    capturingData.usedIndex(Number(ref.ref))
+            for (const iterationRef of extractPropertyReferences(
+                node,
+                context,
+            )) {
+                if (!iterationRef.extractPropertyReferences) {
+                    capturingData.markAsCannotTrack()
+                    return
                 }
-            }
-
-            /**
-             * Extract used references
-             */
-            function extractUsedReferencesForIteration(
-                expr: Expression,
-            ): UsedReference[] | null {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-                const parent: ESTreeNode = (expr as any).parent
-                if (parent.type === "AssignmentExpression") {
-                    if (parent.right !== expr || parent.operator !== "=") {
-                        return null
+                if (hasNameRef(iterationRef)) {
+                    if (Number.isNaN(Number(iterationRef.name))) {
+                        // Not aimed to iteration.
+                        continue
                     }
-                    return extractUsedReferencesForIdIteration(parent.left)
-                } else if (parent.type === "VariableDeclarator") {
-                    if (parent.init !== expr) {
-                        return null
-                    }
-                    return extractUsedReferencesForIdIteration(parent.id)
-                } else if (parent.type === "ForOfStatement") {
-                    if (parent.right !== expr) {
-                        return null
-                    }
-                    let left = parent.left
-                    if (left.type === "VariableDeclaration") {
-                        left = left.declarations[0].id
-                    }
-                    return extractUsedReferencesFromPattern(left, context)
                 }
-
-                return null
-            }
-
-            /**
-             * Extract used references
-             */
-            function extractUsedReferencesForIdIteration(
-                ptn: Pattern,
-            ): UsedReference[] | null {
-                if (ptn.type === "Identifier") {
-                    const references = []
-                    // Track vars
-                    const variable = findVariable(context, ptn)
-                    if (!variable) {
-                        return null
-                    }
-                    for (const reference of variable.references) {
-                        if (reference.isRead()) {
-                            const resForId = extractUsedReferencesForIteration(
-                                reference.identifier,
-                            )
-                            if (resForId == null) {
-                                return null
+                for (const ref of iterationRef.extractPropertyReferences()) {
+                    if (hasNameRef(ref)) {
+                        if (ref.name === "groups") {
+                            for (const namedRef of ref.extractPropertyReferences()) {
+                                if (hasNameRef(namedRef)) {
+                                    capturingData.usedName(namedRef.name)
+                                } else {
+                                    // unknown used as name
+                                    capturingData.usedAllNames()
+                                }
                             }
-                            references.push(...resForId)
+                        } else {
+                            capturingData.usedIndex(Number(ref.name))
                         }
+                    } else {
+                        capturingData.markAsCannotTrack()
+                        return
                     }
-                    return references
                 }
-
-                return null
             }
         }
 
         /** Verify for String.prototype.split() */
         function verifyForSplit(node: KnownMethodCall) {
-            const capturingData = getCapturingData(node.arguments[0])
+            const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
@@ -634,6 +485,16 @@ export default createRule("no-unused-capturing-group", {
             const { regexpNode } = regexpContext
             const capturingData = new CapturingData(regexpContext)
             capturingDataMap.set(regexpNode, capturingData)
+            for (const ref of extractExpressionReferences(
+                regexpNode,
+                context,
+            )) {
+                if (ref.type === "argument" || ref.type === "member") {
+                    capturingDataMap.set(ref.node, capturingData)
+                } else {
+                    capturingData.markAsCannotTrack()
+                }
+            }
             return capturingData.visitor()
         }
 
@@ -643,7 +504,9 @@ export default createRule("no-unused-capturing-group", {
             }),
             {
                 "Program:exit"() {
-                    for (const capturingData of capturingDataMap.values()) {
+                    for (const capturingData of new Set(
+                        capturingDataMap.values(),
+                    )) {
                         if (capturingData.isNeedReport()) {
                             reportUnused(capturingData)
                         }
@@ -687,3 +550,10 @@ export default createRule("no-unused-capturing-group", {
         )
     },
 })
+
+/** Checks whether the given reference is a named reference. */
+function hasNameRef(
+    ref: PropertyReference,
+): ref is PropertyReference & { type: "member" | "destructuring" } {
+    return ref.type === "destructuring" || ref.type === "member"
+}

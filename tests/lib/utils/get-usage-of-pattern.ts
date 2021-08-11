@@ -1,7 +1,7 @@
 import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
-import { isRegexpLiteral } from "../../../lib/utils"
+import { isRegexpLiteral } from "../../../lib/utils/ast-utils/utils"
 import {
     getUsageOfPattern,
     UsageOfPattern,
@@ -11,6 +11,7 @@ import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 type TestCase = {
     code: string
     results: UsageOfPattern[]
+    sourceType?: "script" | "module"
 }
 const TESTCASES: TestCase[] = [
     {
@@ -105,7 +106,7 @@ const TESTCASES: TestCase[] = [
         code: `
         getSource(/a/)
         toString(/b/)
-        
+
         function getSource(p) {
             return p.source
         }
@@ -141,7 +142,7 @@ const TESTCASES: TestCase[] = [
         code: `
         getSource(42, /a/)
         getSource(/b/, 42)
-        
+
         function getSource(p, p2) {
             return p2.source
         }
@@ -151,7 +152,7 @@ const TESTCASES: TestCase[] = [
     {
         code: `
         fn(/a/)
-        
+
         function fn(p) {
             return fn(p)
         }
@@ -163,7 +164,7 @@ const TESTCASES: TestCase[] = [
         const fn = getSource
         fn(42, /a/)
         fn(/b/, 42)
-        
+
         function getSource(p, p2) {
             return p2.source
         }
@@ -173,7 +174,7 @@ const TESTCASES: TestCase[] = [
     {
         code: `
         getSource(42, /a/)
-        
+
         function getSource(p) {
             return p.source
         }
@@ -211,6 +212,40 @@ const TESTCASES: TestCase[] = [
         b.exec(str)
         `,
         results: [UsageOfPattern.partial, UsageOfPattern.whole],
+    },
+    {
+        code: `
+        /* exported a */
+        const a = /a/
+        const b = new RegExp(a.source+'b')
+        b.exec(str)
+        `,
+        results: [UsageOfPattern.unknown, UsageOfPattern.whole],
+        sourceType: "script",
+    },
+    {
+        code: `
+        export const a = /a/
+        const b = new RegExp(a.source+'b')
+        b.exec(str)
+        `,
+        results: [UsageOfPattern.unknown, UsageOfPattern.whole],
+        sourceType: "module",
+    },
+    {
+        code: `foo(/[a-zA-Z]\\w*/)`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `foo({ pattern: /[a-zA-Z]\\w*/ })`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        const a = /a/
+        'str'.replace(b, a/*unknown*/)
+        `,
+        results: [UsageOfPattern.unknown],
     },
 ]
 describe("getUsageOfPattern", () => {
@@ -274,6 +309,7 @@ describe("getUsageOfPattern", () => {
                     },
                     parserOptions: {
                         ecmaVersion: 2020,
+                        sourceType: testCase.sourceType,
                     },
                     rules: {
                         test: "error",

@@ -16,6 +16,18 @@ tester.run("no-lazy-ends", rule as any, {
         `/a??/`, // UsageOfPattern.unknown
 
         `/a{3}?/.test(str)`, // uselessly lazy but that's not for this rule to correct
+
+        // exported
+        {
+            code: `
+            /* exported a */
+            const a = /a??/
+            a.test(str)`,
+            parserOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
+            },
+        },
     ],
     invalid: [
         {
