@@ -164,7 +164,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/match-any](https://ota-meshi.github.io/eslint-plugin-regexp/rules/match-any.html) | enforce match any character style | :star::wrench: |
 | [regexp/no-useless-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-escape.html) | disallow unnecessary escape characters in RegExp | :wrench: |
 | [regexp/no-useless-non-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-capturing-group.html) | disallow unnecessary Non-capturing group | :wrench: |
-| [regexp/order-in-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/order-in-character-class.html) | enforces elements order in character class | :wrench: |
 | [regexp/prefer-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-character-class.html) | enforce using character class | :wrench: |
 | [regexp/prefer-d](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-d.html) | enforce using `\d` | :star::wrench: |
 | [regexp/prefer-named-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-named-backreference.html) | enforce using named backreferences | :wrench: |
@@ -187,6 +186,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-assertion-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-assertion-capturing-group.html) | [regexp/no-empty-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-capturing-group.html) |
 | [regexp/no-useless-exactly-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-exactly-quantifier.html) | [regexp/no-useless-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html), [regexp/no-zero-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-zero-quantifier.html) |
 | [regexp/no-useless-non-greedy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-greedy.html) | [regexp/no-useless-lazy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lazy.html) |
+| [regexp/order-in-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/order-in-character-class.html) | [regexp/sort-character-class-elements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html) |
 | [regexp/prefer-t](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-t.html) | [regexp/control-character-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/control-character-escape.html) |
 
 <!--RULES_TABLE_END-->
