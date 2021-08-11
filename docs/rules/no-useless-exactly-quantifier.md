@@ -9,7 +9,7 @@ since: "v0.1.0"
 
 > disallow unnecessary exactly quantifier
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+- :warning: This rule was **deprecated** and replaced by [regexp/no-useless-quantifier](no-useless-quantifier.md) rule and [regexp/no-zero-quantifier](no-zero-quantifier.md) rule.
 
 ## :book: Rule Details
 

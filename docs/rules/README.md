@@ -49,7 +49,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :wrench: |
 | [regexp/no-unused-capturing-group](./no-unused-capturing-group.md) | disallow unused capturing group | :wrench: |
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :wrench: |
-| [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |
 | [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-quantifier](./no-useless-quantifier.md) | disallow quantifiers that can be removed | :wrench: |
@@ -95,5 +94,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Replaced by |
 |:--------|:------------|
-| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md.md) |
-| [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md.md) |
+| [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | [regexp/no-useless-quantifier](./no-useless-quantifier.md), [regexp/no-zero-quantifier](./no-zero-quantifier.md) |
+| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md) |
+| [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md) |
