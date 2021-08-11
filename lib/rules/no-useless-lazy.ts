@@ -94,7 +94,7 @@ export default createRule("no-useless-lazy", {
 
                     const matchingDir = getMatchingDirection(qNode)
                     const firstChar = getFirstConsumedChar(
-                        qNode,
+                        qNode.element,
                         matchingDir,
                         flags,
                     )
