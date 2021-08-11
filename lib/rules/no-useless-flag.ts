@@ -3,14 +3,16 @@ import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type {
     CallExpression,
     Expression,
-    Identifier,
     NewExpression,
     Node,
     RegExpLiteral,
     Statement,
 } from "estree"
 import type { KnownMethodCall } from "../utils/ast-utils"
-import { findVariable, isKnownMethodCall, getParent } from "../utils/ast-utils"
+import {
+    isKnownMethodCall,
+    extractExpressionReferences,
+} from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
@@ -32,79 +34,50 @@ type CodePathId = {
     loopNode: Statement | undefined
 }
 
-class GlobalRegExpData {
+type RegExpMethodKind =
+    | "search"
+    | "split"
+    | "exec"
+    | "test"
+    | "match"
+    | "matchAll"
+    | "replace"
+    | "replaceAll"
+
+class RegExpReference {
+    public regExpContext: RegExpContext
+
     public readonly defineNode: RegExpExpression
 
-    private defineId?: CodePathId
+    public defineId?: CodePathId
 
-    private readonly readNodes = new Map<
+    public readonly readNodes = new Map<
         Expression,
         {
             marked?: boolean
-            usedInSearchOrSplit?: boolean
-            usedInExecOrTest?: { id: CodePathId }
+            usedInExec?: { id: CodePathId }
+            usedInTest?: { id: CodePathId }
         }
     >()
 
-    private readonly state = {
-        used: false,
+    private readonly state: {
+        track: boolean
+        usedNodes: Map<RegExpMethodKind, Expression[]>
+        hasUnusedExpression?: boolean
+    } = {
+        usedNodes: new Map(),
         track: true,
     }
 
-    public constructor(defineNode: RegExpExpression) {
+    public constructor(
+        regExpContext: RegExpContext,
+        defineNode: RegExpExpression,
+    ) {
+        this.regExpContext = regExpContext
         this.defineNode = defineNode
     }
 
-    public isNeedReport(): boolean {
-        if (!this.readNodes.size) {
-            // Unused variable
-            return false
-        }
-        if (this.state.used) {
-            // The global flag was used.
-            return false
-        }
-        if (!this.state.track) {
-            // There is expression node whose usage is unknown.
-            return false
-        }
-        let countOfUsedInExecOrTest = 0
-        for (const readData of this.readNodes.values()) {
-            if (!readData.marked) {
-                // There is expression node whose usage is unknown.
-                return false
-            }
-            if (readData.usedInSearchOrSplit) {
-                continue
-            }
-            if (readData.usedInExecOrTest) {
-                if (!this.defineId) {
-                    // The definition scope is unknown. Probably broken.
-                    return false
-                }
-                if (
-                    this.defineId.codePathId ===
-                        readData.usedInExecOrTest.id.codePathId &&
-                    this.defineId.loopNode ===
-                        readData.usedInExecOrTest.id.loopNode
-                ) {
-                    countOfUsedInExecOrTest++
-                    if (countOfUsedInExecOrTest > 1) {
-                        // Multiple `exec` or `test` have been used.
-                        return false
-                    }
-                    continue
-                } else {
-                    // Used `exec` or` test` in different scopes. It may be called multiple times.
-                    return false
-                }
-            }
-        }
-        // Need to report
-        return true
-    }
-
-    public pushReadNode(node: Expression) {
+    public addReadNode(node: Expression) {
         this.readNodes.set(node, {})
     }
 
@@ -112,15 +85,23 @@ class GlobalRegExpData {
         this.defineId = { codePathId, loopNode }
     }
 
-    public markAsUsedInSearchOrSplit(node: Expression) {
+    public markAsUsedInSearch(node: Expression) {
         const exprState = this.readNodes.get(node)
         if (exprState) {
             exprState.marked = true
-            exprState.usedInSearchOrSplit = true
         }
+        this.addUsedNode("search", node)
     }
 
-    public markAsUsedInExecOrTest(
+    public markAsUsedInSplit(node: Expression) {
+        const exprState = this.readNodes.get(node)
+        if (exprState) {
+            exprState.marked = true
+        }
+        this.addUsedNode("split", node)
+    }
+
+    public markAsUsedInExec(
         node: Expression,
         codePathId: string,
         loopNode: Statement | undefined,
@@ -128,41 +109,60 @@ class GlobalRegExpData {
         const exprState = this.readNodes.get(node)
         if (exprState) {
             exprState.marked = true
-            exprState.usedInExecOrTest = { id: { codePathId, loopNode } }
+            exprState.usedInExec = { id: { codePathId, loopNode } }
         }
+        this.addUsedNode("exec", node)
     }
 
-    public isUsed() {
-        return this.state.used
+    public markAsUsedInTest(
+        node: Expression,
+        codePathId: string,
+        loopNode: Statement | undefined,
+    ) {
+        const exprState = this.readNodes.get(node)
+        if (exprState) {
+            exprState.marked = true
+            exprState.usedInTest = { id: { codePathId, loopNode } }
+        }
+        this.addUsedNode("test", node)
     }
 
-    public markAsUsed() {
-        this.state.used = true
+    public isUsed(kinds: RegExpMethodKind[]) {
+        for (const kind of kinds) {
+            if (this.state.usedNodes.has(kind)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    public isCannotTrack() {
+        return !this.state.track
+    }
+
+    public markAsUsed(
+        kind: "match" | "matchAll" | "replace" | "replaceAll",
+        exprNode: Expression,
+    ) {
+        this.addUsedNode(kind, exprNode)
     }
 
     public markAsCannotTrack() {
         this.state.track = false
     }
-}
 
-/**
- * If the given expression node is assigned with a variable declaration, it returns the variable name node.
- */
-function getVariableId(node: Expression) {
-    const parent = getParent(node)
-    if (
-        !parent ||
-        parent.type !== "VariableDeclarator" ||
-        parent.init !== node ||
-        parent.id.type !== "Identifier"
-    ) {
-        return null
+    public getUsedNodes() {
+        return this.state.usedNodes
     }
-    const decl = getParent(parent)
-    if (decl && decl.type === "VariableDeclaration" && decl.kind === "const") {
-        return parent.id
+
+    private addUsedNode(kind: RegExpMethodKind, exprNode: Expression) {
+        const list = this.state.usedNodes.get(kind)
+        if (list) {
+            list.push(exprNode)
+        } else {
+            this.state.usedNodes.set(kind, [exprNode])
+        }
     }
-    return null
 }
 
 /**
@@ -171,7 +171,7 @@ function getVariableId(node: Expression) {
 function getFlagLocation(
     context: Rule.RuleContext,
     node: RegExpExpression,
-    flag: "i" | "m" | "s" | "g",
+    flag: "i" | "m" | "s" | "g" | "y",
 ) {
     const sourceCode = context.getSourceCode()
     if (node.type === "Literal") {
@@ -184,7 +184,10 @@ function getFlagLocation(
             end: sourceCode.getLocFromIndex(flagIndex + 1),
         }
     }
-    return node.arguments[1].loc!
+    if (node.arguments.length >= 2) {
+        return node.arguments[1].loc!
+    }
+    return context.getSourceCode().getTokenAfter(node.arguments[0])!.loc!
 }
 
 /**
@@ -192,7 +195,7 @@ function getFlagLocation(
  */
 function fixRemoveFlag(
     { flagsString, fixReplaceFlags }: RegExpContext,
-    flag: "i" | "m" | "s" | "g",
+    flag: "i" | "m" | "s" | "g" | "y",
 ) {
     if (flagsString) {
         return fixReplaceFlags(flagsString.replace(flag, ""))
@@ -338,93 +341,321 @@ function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
 /**
  * Create visitor for verify unnecessary g flag
  */
-function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
-    const typeTracer = createTypeTracker(context)
+function createUselessGlobalFlagVisitor(
+    context: Rule.RuleContext,
+    strictTypes: boolean,
+) {
+    const enum ReportKind {
+        // It is used only in "split".
+        usedOnlyInSplit,
+        // It is used only in "search".
+        usedOnlyInSearch,
+        // It is used only once in "exec".
+        usedOnlyOnceInExec,
+        // It is used only once in "test".
+        usedOnlyOnceInTest,
+        // The global flag is given, but it is not used.
+        unused,
+    }
 
-    let stack: CodePathStack | null = null
-
-    const globalRegExpMap = new Map<Node, GlobalRegExpData>()
-    const globalRegExpList: GlobalRegExpData[] = []
+    type ReportData = { kind: ReportKind; fixable?: boolean }
 
     /**
      * Report for useless global flag
      */
-    function reportUselessGlobalFlag(globalRegExp: GlobalRegExpData) {
-        const node = globalRegExp.defineNode
+    function reportUselessGlobalFlag(
+        regExpReference: RegExpReference,
+        data: ReportData,
+    ) {
+        const node = regExpReference.defineNode
         context.report({
             node,
             loc: getFlagLocation(context, node, "g"),
-            messageId: "uselessGlobalFlag",
+            messageId:
+                data.kind === ReportKind.usedOnlyInSplit
+                    ? "uselessGlobalFlagForSplit"
+                    : data.kind === ReportKind.usedOnlyInSearch
+                    ? "uselessGlobalFlagForSearch"
+                    : data.kind === ReportKind.usedOnlyOnceInTest
+                    ? "uselessGlobalFlagForTest"
+                    : data.kind === ReportKind.usedOnlyOnceInExec
+                    ? "uselessGlobalFlagForExec"
+                    : "uselessGlobalFlag",
+            fix: data.fixable
+                ? fixRemoveFlag(regExpReference.regExpContext, "g")
+                : null,
         })
     }
 
     /**
-     * Extract read references
+     * Checks if it needs to be reported and returns the report data if it needs to be reported.
      */
-    function extractReadReferences(node: Identifier): Identifier[] {
-        const references: Identifier[] = []
-        const variable = findVariable(context, node)
-        if (!variable) {
-            return references
-        }
-        for (const reference of variable.references) {
-            if (reference.isRead()) {
-                const id = getVariableId(reference.identifier)
-                if (id) {
-                    references.push(...extractReadReferences(id))
+    function getReportData(
+        regExpReference: RegExpReference,
+    ): null | ReportData {
+        let countOfUsedInExecOrTest = 0
+        for (const readData of regExpReference.readNodes.values()) {
+            if (!readData.marked) {
+                // There is expression node whose usage is unknown.
+                return null
+            }
+            const usedInExecOrTest = readData.usedInExec || readData.usedInTest
+            if (usedInExecOrTest) {
+                if (!regExpReference.defineId) {
+                    // The definition scope is unknown. Probably broken.
+                    return null
+                }
+                if (
+                    regExpReference.defineId.codePathId ===
+                        usedInExecOrTest.id.codePathId &&
+                    regExpReference.defineId.loopNode ===
+                        usedInExecOrTest.id.loopNode
+                ) {
+                    countOfUsedInExecOrTest++
+                    if (countOfUsedInExecOrTest > 1) {
+                        // Multiple `exec` or `test` have been used.
+                        return null
+                    }
+                    continue
                 } else {
-                    references.push(reference.identifier)
+                    // Used `exec` or` test` in different scopes. It may be called multiple times.
+                    return null
                 }
             }
         }
-
-        return references
+        // Need to report
+        return buildReportData(regExpReference)
     }
+
+    /**
+     * Build the report data.
+     */
+    function buildReportData(regExpReference: RegExpReference) {
+        const usedNodes = regExpReference.getUsedNodes()
+        if (usedNodes.size === 1) {
+            const [[method, nodes]] = usedNodes
+            // Make it fixable only if the regex is used directly.
+            const fixable =
+                nodes.length === 1 && nodes.includes(regExpReference.defineNode)
+            if (method === "split") {
+                return {
+                    kind: ReportKind.usedOnlyInSplit,
+                    fixable,
+                }
+            }
+            if (method === "search") {
+                return { kind: ReportKind.usedOnlyInSearch, fixable }
+            }
+            if (method === "exec" && nodes.length === 1)
+                return { kind: ReportKind.usedOnlyOnceInExec, fixable }
+            if (method === "test" && nodes.length === 1)
+                return { kind: ReportKind.usedOnlyOnceInTest, fixable }
+        }
+        return { kind: ReportKind.unused }
+    }
+
+    return createRegExpReferenceExtractVisitor(context, {
+        flag: "global",
+        exit(regExpReferenceList) {
+            for (const regExpReference of regExpReferenceList) {
+                const report = getReportData(regExpReference)
+                if (report != null) {
+                    reportUselessGlobalFlag(regExpReference, report)
+                }
+            }
+        },
+        isUsedShortCircuit(regExpReference) {
+            return regExpReference.isUsed([
+                "match",
+                "matchAll",
+                "replace",
+                "replaceAll",
+            ])
+        },
+        strictTypes,
+    })
+}
+
+/**
+ * Create visitor for verify unnecessary y flag
+ */
+function createUselessStickyFlagVisitor(
+    context: Rule.RuleContext,
+    strictTypes: boolean,
+) {
+    type ReportData = { fixable?: boolean }
+
+    /**
+     * Report for useless sticky flag
+     */
+    function reportUselessStickyFlag(
+        regExpReference: RegExpReference,
+        data: ReportData,
+    ) {
+        const node = regExpReference.defineNode
+        context.report({
+            node,
+            loc: getFlagLocation(context, node, "y"),
+            messageId: "uselessStickyFlag",
+            fix: data.fixable
+                ? fixRemoveFlag(regExpReference.regExpContext, "y")
+                : null,
+        })
+    }
+
+    /**
+     * Checks if it needs to be reported and returns the report data if it needs to be reported.
+     */
+    function getReportData(
+        regExpReference: RegExpReference,
+    ): null | ReportData {
+        for (const readData of regExpReference.readNodes.values()) {
+            if (!readData.marked) {
+                // There is expression node whose usage is unknown.
+                return null
+            }
+        } // Need to report
+        return buildReportData(regExpReference)
+    }
+
+    /**
+     * Build the report data.
+     */
+    function buildReportData(regExpReference: RegExpReference) {
+        const usedNodes = regExpReference.getUsedNodes()
+        if (usedNodes.size === 1) {
+            const [[method, nodes]] = usedNodes
+            // Make it fixable only if the regex is used directly.
+            const fixable =
+                nodes.length === 1 && nodes.includes(regExpReference.defineNode)
+            if (method === "split") {
+                return {
+                    fixable,
+                }
+            }
+        }
+        return {}
+    }
+
+    return createRegExpReferenceExtractVisitor(context, {
+        flag: "sticky",
+        exit(regExpReferenceList) {
+            for (const regExpReference of regExpReferenceList) {
+                const report = getReportData(regExpReference)
+                if (report != null) {
+                    reportUselessStickyFlag(regExpReference, report)
+                }
+            }
+        },
+        isUsedShortCircuit(regExpReference) {
+            return regExpReference.isUsed([
+                "search",
+                "exec",
+                "test",
+                "match",
+                "matchAll",
+                "replace",
+                "replaceAll",
+            ])
+        },
+        strictTypes,
+    })
+}
+
+/**
+ * Create a visitor that extracts RegExpReference.
+ */
+function createRegExpReferenceExtractVisitor(
+    context: Rule.RuleContext,
+    {
+        flag,
+        exit,
+        isUsedShortCircuit,
+        strictTypes,
+    }: {
+        flag: "global" | "sticky"
+        exit: (list: RegExpReference[]) => void
+        isUsedShortCircuit: (regExpReference: RegExpReference) => boolean
+        strictTypes: boolean
+    },
+) {
+    const typeTracer = createTypeTracker(context)
+
+    let stack: CodePathStack | null = null
+
+    const regExpReferenceMap = new Map<Node, RegExpReference>()
+    const regExpReferenceList: RegExpReference[] = []
 
     /** Verify for String.prototype.search() or String.prototype.split() */
-    function verifyForSearchOrSplit(node: KnownMethodCall) {
-        const globalRegExp = globalRegExpMap.get(node.arguments[0])
-        if (globalRegExp == null || globalRegExp.isUsed()) {
+    function verifyForSearchOrSplit(
+        node: KnownMethodCall,
+        kind: "search" | "split",
+    ) {
+        const regExpReference = regExpReferenceMap.get(node.arguments[0])
+        if (regExpReference == null || isUsedShortCircuit(regExpReference)) {
             return
         }
-        if (!typeTracer.isString(node.callee.object)) {
-            globalRegExp.markAsCannotTrack()
+        if (
+            strictTypes
+                ? !typeTracer.isString(node.callee.object)
+                : !typeTracer.maybeString(node.callee.object)
+        ) {
+            regExpReference.markAsCannotTrack()
             return
         }
-        // String.prototype.search() or String.prototype.split()
-        globalRegExp.markAsUsedInSearchOrSplit(node.arguments[0])
+        if (kind === "search") {
+            // String.prototype.search()
+            regExpReference.markAsUsedInSearch(node.arguments[0])
+        } else {
+            // String.prototype.split()
+            regExpReference.markAsUsedInSplit(node.arguments[0])
+        }
     }
 
-    /** Verify for RegExp.prototype.test() */
-    function verifyForExecOrTest(node: KnownMethodCall) {
-        const globalRegExp = globalRegExpMap.get(node.callee.object)
-        if (globalRegExp == null || globalRegExp.isUsed()) {
+    /** Verify for RegExp.prototype.exec() or RegExp.prototype.test() */
+    function verifyForExecOrTest(node: KnownMethodCall, kind: "exec" | "test") {
+        const regExpReference = regExpReferenceMap.get(node.callee.object)
+        if (regExpReference == null || isUsedShortCircuit(regExpReference)) {
             return
         }
-        // RegExp.prototype.test()
-        globalRegExp.markAsUsedInExecOrTest(
-            node.callee.object,
-            stack!.codePathId,
-            stack!.loopStack[0],
-        )
+        if (kind === "exec") {
+            // RegExp.prototype.exec()
+            regExpReference.markAsUsedInExec(
+                node.callee.object,
+                stack!.codePathId,
+                stack!.loopStack[0],
+            )
+        } else {
+            // RegExp.prototype.test()
+            regExpReference.markAsUsedInTest(
+                node.callee.object,
+                stack!.codePathId,
+                stack!.loopStack[0],
+            )
+        }
     }
 
     return compositingVisitors(
         defineRegexpVisitor(context, {
-            createVisitor({ flags, regexpNode }: RegExpContext) {
-                if (flags.global) {
-                    const globalRegExp = new GlobalRegExpData(regexpNode)
-                    globalRegExpList.push(globalRegExp)
-                    globalRegExpMap.set(regexpNode, globalRegExp)
-                    const id = getVariableId(regexpNode)
-                    if (id) {
-                        const readReferences = extractReadReferences(id)
-                        for (const ref of readReferences) {
-                            globalRegExpMap.set(ref, globalRegExp)
-                            globalRegExp.pushReadNode(ref)
+            createVisitor(regExpContext: RegExpContext) {
+                const { flags, regexpNode } = regExpContext
+                if (flags[flag]) {
+                    const regExpReference = new RegExpReference(
+                        regExpContext,
+                        regexpNode,
+                    )
+                    regExpReferenceList.push(regExpReference)
+                    regExpReferenceMap.set(regexpNode, regExpReference)
+                    for (const ref of extractExpressionReferences(
+                        regexpNode,
+                        context,
+                    )) {
+                        if (ref.type === "argument" || ref.type === "member") {
+                            regExpReferenceMap.set(ref.node, regExpReference)
+                            regExpReference.addReadNode(ref.node)
+                        } else {
+                            regExpReference.markAsCannotTrack()
                         }
-                    } else {
-                        globalRegExp.pushReadNode(regexpNode)
                     }
                 }
                 return {} // not visit RegExpNodes
@@ -432,11 +663,24 @@ function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
         }),
         {
             "Program:exit"() {
-                for (const globalRegExp of globalRegExpList) {
-                    if (globalRegExp.isNeedReport()) {
-                        reportUselessGlobalFlag(globalRegExp)
-                    }
-                }
+                exit(
+                    regExpReferenceList.filter((regExpReference) => {
+                        if (!regExpReference.readNodes.size) {
+                            // Unused variable
+                            return false
+                        }
+                        if (regExpReference.isCannotTrack()) {
+                            // There is expression node whose usage is unknown.
+                            return false
+                        }
+                        if (isUsedShortCircuit(regExpReference)) {
+                            // The flag was used.
+                            return false
+                        }
+
+                        return true
+                    }),
+                )
             },
             onCodePathStart(codePath) {
                 stack = {
@@ -467,11 +711,14 @@ function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
                 if (!stack) {
                     return
                 }
-                const globalRegExp = globalRegExpMap.get(node)
-                if (!globalRegExp || globalRegExp.defineNode !== node) {
+                const regExpReference = regExpReferenceMap.get(node)
+                if (!regExpReference || regExpReference.defineNode !== node) {
                     return
                 }
-                globalRegExp.setDefineId(stack.codePathId, stack.loopStack[0])
+                regExpReference.setDefineId(
+                    stack.codePathId,
+                    stack.loopStack[0],
+                )
             },
             "CallExpression:exit"(node: CallExpression) {
                 if (!stack) {
@@ -500,24 +747,57 @@ function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
                     node.callee.property.name === "search" ||
                     node.callee.property.name === "split"
                 ) {
-                    verifyForSearchOrSplit(node)
+                    verifyForSearchOrSplit(node, node.callee.property.name)
                 } else if (
                     node.callee.property.name === "test" ||
                     node.callee.property.name === "exec"
                 ) {
-                    verifyForExecOrTest(node)
+                    verifyForExecOrTest(node, node.callee.property.name)
                 } else if (
                     node.callee.property.name === "match" ||
                     node.callee.property.name === "matchAll" ||
                     node.callee.property.name === "replace" ||
                     node.callee.property.name === "replaceAll"
                 ) {
-                    const globalRegExp = globalRegExpMap.get(node.arguments[0])
-                    globalRegExp?.markAsUsed()
+                    const regExpReference = regExpReferenceMap.get(
+                        node.arguments[0],
+                    )
+                    regExpReference?.markAsUsed(
+                        node.callee.property.name,
+                        node.arguments[0],
+                    )
                 }
             },
         },
     )
+}
+
+/**
+ * Parse option
+ */
+function parseOption(
+    userOption:
+        | {
+              ignore?: ("i" | "m" | "s" | "g" | "y")[]
+              strictTypes?: boolean
+          }
+        | undefined,
+) {
+    const ignore = new Set<"i" | "m" | "s" | "g" | "y">()
+    let strictTypes = true
+    if (userOption) {
+        for (const i of userOption.ignore ?? []) {
+            ignore.add(i)
+        }
+        if (userOption.strictTypes != null) {
+            strictTypes = userOption.strictTypes
+        }
+    }
+
+    return {
+        ignore,
+        strictTypes,
+    }
 }
 
 export default createRule("no-useless-flag", {
@@ -538,10 +818,11 @@ export default createRule("no-useless-flag", {
                     ignore: {
                         type: "array",
                         items: {
-                            enum: ["i", "m", "s", "g"],
+                            enum: ["i", "m", "s", "g", "y"],
                         },
                         uniqueItems: true,
                     },
+                    strictTypes: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
@@ -554,14 +835,22 @@ export default createRule("no-useless-flag", {
             uselessDotAllFlag:
                 "The 's' flag is unnecessary because the pattern does not contain dots (.).",
             uselessGlobalFlag:
-                "The 'g' flag is unnecessary because not using global testing.",
+                "The 'g' flag is unnecessary because the regex does not use global search.",
+            uselessGlobalFlagForTest:
+                "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
+            uselessGlobalFlagForExec:
+                "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.",
+            uselessGlobalFlagForSplit:
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+            uselessGlobalFlagForSearch:
+                "The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.",
+            uselessStickyFlag:
+                "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
-        const ignore = new Set<"i" | "m" | "s" | "g">(
-            context.options[0]?.ignore ?? [],
-        )
+        const { ignore, strictTypes } = parseOption(context.options[0])
 
         let visitor: RuleListener = {}
         if (!ignore.has("i")) {
@@ -585,7 +874,13 @@ export default createRule("no-useless-flag", {
         if (!ignore.has("g")) {
             visitor = compositingVisitors(
                 visitor,
-                createUselessGlobalFlagVisitor(context),
+                createUselessGlobalFlagVisitor(context, strictTypes),
+            )
+        }
+        if (!ignore.has("y")) {
+            visitor = compositingVisitors(
+                visitor,
+                createUselessStickyFlagVisitor(context, strictTypes),
             )
         }
         return visitor

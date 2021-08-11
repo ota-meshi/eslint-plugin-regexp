@@ -9,9 +9,11 @@ import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
 import noDupeDisjunctions from "../rules/no-dupe-disjunctions"
 import noEmptyAlternative from "../rules/no-empty-alternative"
+import noEmptyCapturingGroup from "../rules/no-empty-capturing-group"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
+import noInvalidRegexp from "../rules/no-invalid-regexp"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
@@ -21,6 +23,8 @@ import noOctal from "../rules/no-octal"
 import noOptionalAssertion from "../rules/no-optional-assertion"
 import noPotentiallyUselessBackreference from "../rules/no-potentially-useless-backreference"
 import noStandaloneBackslash from "../rules/no-standalone-backslash"
+import noSuperLinearBacktracking from "../rules/no-super-linear-backtracking"
+import noSuperLinearMove from "../rules/no-super-linear-move"
 import noTriviallyNestedAssertion from "../rules/no-trivially-nested-assertion"
 import noTriviallyNestedQuantifier from "../rules/no-trivially-nested-quantifier"
 import noUnusedCapturingGroup from "../rules/no-unused-capturing-group"
@@ -56,7 +60,10 @@ import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
+import sortAlternatives from "../rules/sort-alternatives"
+import sortCharacterClassElements from "../rules/sort-character-class-elements"
 import sortFlags from "../rules/sort-flags"
+import strict from "../rules/strict"
 import unicodeEscape from "../rules/unicode-escape"
 
 export const rules = [
@@ -70,9 +77,11 @@ export const rules = [
     noDupeCharactersCharacterClass,
     noDupeDisjunctions,
     noEmptyAlternative,
+    noEmptyCapturingGroup,
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
+    noInvalidRegexp,
     noInvisibleCharacter,
     noLazyEnds,
     noLegacyFeatures,
@@ -82,6 +91,8 @@ export const rules = [
     noOptionalAssertion,
     noPotentiallyUselessBackreference,
     noStandaloneBackslash,
+    noSuperLinearBacktracking,
+    noSuperLinearMove,
     noTriviallyNestedAssertion,
     noTriviallyNestedQuantifier,
     noUnusedCapturingGroup,
@@ -117,6 +128,9 @@ export const rules = [
     preferT,
     preferUnicodeCodepointEscapes,
     preferW,
+    sortAlternatives,
+    sortCharacterClassElements,
     sortFlags,
+    strict,
     unicodeEscape,
 ] as RuleModule[]

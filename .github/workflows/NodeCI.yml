@@ -13,7 +13,7 @@ jobs:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v2
               with:
-                  node-version: 14
+                  node-version: 16
             - name: Install Packages
               run: npm ci
             - name: Build
@@ -24,7 +24,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [10.13.x, 12.x, 13.x, 14.x]
+                node-version: [12.x, 14.x, 16.x]
         steps:
             - uses: actions/checkout@v2
             - name: Use Node.js ${{ matrix.node-version }}
@@ -41,10 +41,10 @@ jobs:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v2
               with:
-                  node-version: 8.10.x
+                  node-version: 12.13.x
             - name: Install Target Packages
               run: |+
-                  npm i -D eslint@6 mocha@7 @typescript-eslint/parser@3
+                  npm i -D eslint@6
                   npx rimraf node_modules
                   npm install
             - name: Test
@@ -59,7 +59,7 @@ jobs:
             - name: Test
               run: npm run test:nyc
             - name: Coveralls GitHub Action
-              uses: coverallsapp/github-action@v1.1.2
+              uses: coverallsapp/github-action@1.1.3
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
     update:

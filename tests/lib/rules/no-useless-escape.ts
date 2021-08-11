@@ -69,6 +69,7 @@ tester.run("no-useless-escape", rule as any, {
     invalid: [
         {
             code: String.raw`/\a/`,
+            output: String.raw`/a/`,
             errors: [
                 {
                     message: "Unnecessary escape character: \\a.",
@@ -81,18 +82,22 @@ tester.run("no-useless-escape", rule as any, {
         },
         {
             code: `/\\x7/`,
+            output: null,
             errors: ["Unnecessary escape character: \\x."],
         },
         {
             code: `/\\u41/`,
+            output: null,
             errors: ["Unnecessary escape character: \\u."],
         },
         {
             code: `/\\u{[41]}/`,
+            output: null,
             errors: ["Unnecessary escape character: \\u."],
         },
         {
             code: String.raw`/[ \^ \/ \. \$ \* \+ \? \[ \{ \} \| \( \) \k<title> \B \8 \9]/`,
+            output: String.raw`/[ ^ / . $ * + ? [ { } | ( ) \k<title> B 8 9]/`,
             errors: [
                 "Unnecessary escape character: \\^.",
                 "Unnecessary escape character: \\/.",
@@ -115,6 +120,7 @@ tester.run("no-useless-escape", rule as any, {
         },
         {
             code: String.raw`/\p{ASCII}/; /[\p{ASCII}]/; /\P{ASCII}/; /[\P{ASCII}]/`, // Missing u flag
+            output: null,
             errors: [
                 "Unnecessary escape character: \\p.",
                 "Unnecessary escape character: \\p.",

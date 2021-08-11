@@ -9,12 +9,14 @@ since: "v0.4.0"
 
 > disallow unnecessary escape characters in RegExp
 
+- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 ## :book: Rule Details
 
 This rule reports unnecessary escape characters in RegExp.  
 You may be able to find another mistake by finding unnecessary escapes.
 
-<eslint-code-block>
+<eslint-code-block fix>
 
 ```js
 /* eslint regexp/no-useless-escape: "error" */
@@ -34,7 +36,7 @@ var foo = /\u{[41]}/
 
 This rule checks for unnecessary escapes with deeper regular expression parsing than the ESLint core's [no-useless-escape] rule.
 
-<eslint-code-block>
+<eslint-code-block fix>
 
 ```js
 /* eslint no-useless-escape: "error" */
