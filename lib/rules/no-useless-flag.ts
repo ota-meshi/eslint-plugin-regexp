@@ -776,10 +776,12 @@ function createRegExpReferenceExtractVisitor(
  * Parse option
  */
 function parseOption(
-    userOption: {
-        ignore?: ("i" | "m" | "s" | "g" | "y")[]
-        strictTypes?: boolean
-    } | undefined,
+    userOption:
+        | {
+              ignore?: ("i" | "m" | "s" | "g" | "y")[]
+              strictTypes?: boolean
+          }
+        | undefined,
 ) {
     const ignore = new Set<"i" | "m" | "s" | "g" | "y">()
     let strictTypes = true
