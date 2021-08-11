@@ -52,7 +52,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | disallow unnecessary exactly quantifier | :star: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :wrench: |
 | [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
-| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | disallow unnecessarily non-greedy quantifiers | :wrench: |
 | [regexp/no-useless-quantifier](./no-useless-quantifier.md) | disallow quantifiers that can be removed | :wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
@@ -96,4 +95,5 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Replaced by |
 |:--------|:------------|
+| [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md.md) |
 | [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md.md) |
