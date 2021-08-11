@@ -106,6 +106,12 @@ tester.run("no-useless-flag", rule as any, {
         const regex = /foo/g;
         unknown.exec(regex)
         `,
+        `
+        const notStr = {}
+        notStr.split(/foo/g);
+        
+        maybeStr.split(/foo/g);
+        `,
 
         // y
         `
@@ -330,11 +336,38 @@ tester.run("no-useless-flag", rule as any, {
 
             str.search(/foo/g);
             `,
-            output: null,
+            output: `
+            /* ✓ GOOD */
+            const regex1 = /foo/g;
+            const str = 'table football, foosball';
+            while ((array = regex1.exec(str)) !== null) {
+              //
+            }
+
+            const regex2 = /foo/g;
+            regex2.test(string);
+            regex2.test(string);
+
+            str.replace(/foo/g, 'bar');
+            str.replaceAll(/foo/g, 'bar');
+
+            /* ✗ BAD */
+            /foo/.test(string);
+            const regex3 = /foo/g;
+            regex3.test(string); // You have used it only once.
+
+            /foo/.exec(string);
+            const regex4 = /foo/g;
+            regex4.exec(string); // You have used it only once.
+
+            new RegExp('foo', '').test(string);
+
+            str.search(/foo/);
+            `,
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 17,
                     column: 18,
                     endLine: 17,
@@ -342,7 +375,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 18,
                     column: 33,
                     endLine: 18,
@@ -350,7 +383,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.",
                     line: 21,
                     column: 18,
                     endLine: 21,
@@ -358,7 +391,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.",
                     line: 22,
                     column: 33,
                     endLine: 22,
@@ -366,7 +399,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 25,
                     column: 31,
                     endLine: 25,
@@ -374,7 +407,7 @@ tester.run("no-useless-flag", rule as any, {
                 },
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.",
                     line: 27,
                     column: 29,
                     endLine: 27,
@@ -386,11 +419,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             /foo/g.test(bar);
             `,
-            output: null,
+            output: `
+            /foo/.test(bar);
+            `,
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 2,
                     column: 18,
                 },
@@ -400,11 +435,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             /foo/g.exec(bar);
             `,
-            output: null,
+            output: `
+            /foo/.exec(bar);
+            `,
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.",
                     line: 2,
                     column: 18,
                 },
@@ -414,11 +451,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             new RegExp('foo', 'g').test(bar);
             `,
-            output: null,
+            output: `
+            new RegExp('foo', '').test(bar);
+            `,
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 2,
                     column: 31,
                 },
@@ -428,11 +467,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             "foo foo".search(/foo/g);
             `,
-            output: null,
+            output: `
+            "foo foo".search(/foo/);
+            `,
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.",
                     line: 2,
                     column: 35,
                 },
@@ -447,7 +488,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 2,
                     column: 32,
                 },
@@ -464,7 +505,7 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 3,
                     column: 36,
                 },
@@ -484,10 +525,78 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'g' flag is unnecessary because not using global testing.",
+                        "The 'g' flag is unnecessary because the regex does not use global search.",
                     line: 2,
                     column: 28,
                 },
+            ],
+        },
+        {
+            code: `
+            const a = /foo/g;
+            'str'.split(a)
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+                    line: 2,
+                    column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            const a = /foo/g;
+            'str'.split(a)
+            'str'.split(a)
+            `,
+            output: null,
+            errors: [
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+            ],
+        },
+        {
+            code: `
+            const notStr = {}
+            notStr.split(/foo/g);
+
+            maybeStr.split(/foo/g);
+            `,
+            output: `
+            const notStr = {}
+            notStr.split(/foo/g);
+
+            maybeStr.split(/foo/);
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+            ],
+        },
+        {
+            code: `
+            /** @param {object} obj */
+            function fn1 (obj) {
+                obj.search(/foo/g);
+            }
+            function fn2 (maybeStr) {
+                maybeStr.split(/foo/g);
+            }
+            `,
+            output: `
+            /** @param {object} obj */
+            function fn1 (obj) {
+                obj.search(/foo/g);
+            }
+            function fn2 (maybeStr) {
+                maybeStr.split(/foo/);
+            }
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
             ],
         },
 
@@ -513,11 +622,30 @@ tester.run("no-useless-flag", rule as any, {
             /* ✗ BAD */
             str.split(/foo/y);
             `,
-            output: null,
+            output: `
+            /* ✓ GOOD */
+            const regex1 = /foo/y;
+            const str = 'table football, foosball';
+            regex1.lastIndex = 6
+            var array = regex1.exec(str)
+            
+            const regex2 = /foo/y;
+            regex2.test(string);
+            regex2.test(string);
+            
+            str.replace(/foo/y, 'bar');
+            str.replaceAll(/foo/gy, 'bar');
+
+            const regexp3 = /foo/y
+            str.search(regexp3)
+            
+            /* ✗ BAD */
+            str.split(/foo/);
+            `,
             errors: [
                 {
                     message:
-                        "The 'y' flag is unnecessary because not using sticky search.",
+                        "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
                     line: 19,
                     column: 28,
                 },
@@ -527,11 +655,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             "str".split(/foo/y)
             `,
-            output: null,
+            output: `
+            "str".split(/foo/)
+            `,
             errors: [
                 {
                     message:
-                        "The 'y' flag is unnecessary because not using sticky search.",
+                        "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
                     line: 2,
                     column: 30,
                 },
@@ -541,11 +671,13 @@ tester.run("no-useless-flag", rule as any, {
             code: `
             "str".split(new RegExp('foo', 'y'));
             `,
-            output: null,
+            output: `
+            "str".split(new RegExp('foo', ''));
+            `,
             errors: [
                 {
                     message:
-                        "The 'y' flag is unnecessary because not using sticky search.",
+                        "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
                     line: 2,
                     column: 43,
                 },
@@ -563,10 +695,28 @@ tester.run("no-useless-flag", rule as any, {
             errors: [
                 {
                     message:
-                        "The 'y' flag is unnecessary because not using sticky search.",
+                        "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
                     line: 2,
                     column: 28,
                 },
+            ],
+        },
+        {
+            code: `
+            const notStr = {}
+            notStr.split(/foo/y);
+
+            maybeStr.split(/foo/y);
+            `,
+            output: `
+            const notStr = {}
+            notStr.split(/foo/y);
+
+            maybeStr.split(/foo/);
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
             ],
         },
 

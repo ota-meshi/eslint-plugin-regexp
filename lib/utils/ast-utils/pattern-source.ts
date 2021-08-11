@@ -24,7 +24,7 @@ export interface PatternRange {
 export class PatternReplaceRange {
     public range: AST.Range
 
-    public type: "RegExp" | "String"
+    public type: "RegExp" | "SingleQuotedString" | "DoubleQuotedString"
 
     public constructor(range: AST.Range, type: PatternReplaceRange["type"]) {
         if (!range || range[0] < 0 || range[0] > range[1]) {
@@ -60,7 +60,11 @@ export class PatternReplaceRange {
             const astRange = getStringValueRange(sourceCode, node, start, end)
 
             if (astRange) {
-                return new PatternReplaceRange(astRange, "String")
+                const quote = sourceCode.text[node.range[0]]
+                return new PatternReplaceRange(
+                    astRange,
+                    quote === "'" ? "SingleQuotedString" : "DoubleQuotedString",
+                )
             }
         }
         return null
@@ -71,15 +75,23 @@ export class PatternReplaceRange {
     }
 
     public escape(text: string): string {
-        if (this.type === "String") {
-            return text
+        if (
+            this.type === "DoubleQuotedString" ||
+            this.type === "SingleQuotedString"
+        ) {
+            const base = text
                 .replace(/\\/g, "\\\\")
                 .replace(/\n/g, "\\n")
                 .replace(/\r/g, "\\r")
                 .replace(/\t/g, "\\t")
+
+            if (this.type === "DoubleQuotedString") {
+                return base.replace(/"/g, '\\"')
+            }
+            return base.replace(/'/g, "\\'")
         }
 
-        return text
+        return text.replace(/\n/g, "\\n").replace(/\r/g, "\\r")
     }
 
     public replace(fixer: Rule.RuleFixer, text: string): Rule.Fix {

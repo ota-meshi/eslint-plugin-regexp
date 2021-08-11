@@ -20,6 +20,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
+| [regexp/no-invalid-regexp](./no-invalid-regexp.md) | disallow invalid regular expression strings in `RegExp` constructors |  |
 | [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression |  |
 | [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions |  |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched |  |
@@ -81,7 +82,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
-| [regexp/prefer-t](./prefer-t.md) | enforce using `\t` | :star::wrench: |
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |
 | [regexp/sort-character-class-elements](./sort-character-class-elements.md) | enforces elements order in character class | :wrench: |
@@ -96,3 +96,4 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | Rule ID | Replaced by |
 |:--------|:------------|
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md.md) |
+| [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md.md) |

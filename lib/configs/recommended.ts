@@ -26,7 +26,6 @@ export = {
         "regexp/prefer-plus-quantifier": "error",
         "regexp/prefer-question-quantifier": "error",
         "regexp/prefer-star-quantifier": "error",
-        "regexp/prefer-t": "error",
         "regexp/prefer-w": "error",
     },
 }

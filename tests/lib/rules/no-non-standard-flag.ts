@@ -24,5 +24,34 @@ tester.run("no-non-standard-flag", rule as any, {
                 },
             ],
         },
+        {
+            code: `RegExp("foo", "l")`,
+            errors: [
+                {
+                    message: "Unexpected non-standard flag 'l'.",
+                    column: 16,
+                },
+            ],
+        },
+        {
+            // unknown pattern
+            code: `RegExp(someVariable, "l")`,
+            errors: [
+                {
+                    message: "Unexpected non-standard flag 'l'.",
+                    column: 23,
+                },
+            ],
+        },
+        {
+            // invalid pattern
+            code: `RegExp("(", "l")`,
+            errors: [
+                {
+                    message: "Unexpected non-standard flag 'l'.",
+                    column: 14,
+                },
+            ],
+        },
     ],
 })
