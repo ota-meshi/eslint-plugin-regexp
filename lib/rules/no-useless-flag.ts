@@ -779,7 +779,7 @@ function parseOption(
     userOption: {
         ignore?: ("i" | "m" | "s" | "g" | "y")[]
         strictTypes?: boolean
-    } | void,
+    } | undefined,
 ) {
     const ignore = new Set<"i" | "m" | "s" | "g" | "y">()
     let strictTypes = true
