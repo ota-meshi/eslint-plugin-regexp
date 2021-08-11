@@ -341,7 +341,10 @@ function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
 /**
  * Create visitor for verify unnecessary g flag
  */
-function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
+function createUselessGlobalFlagVisitor(
+    context: Rule.RuleContext,
+    strictTypes: boolean,
+) {
     const enum ReportKind {
         // It is used only in "split".
         usedOnlyInSplit,
@@ -469,13 +472,17 @@ function createUselessGlobalFlagVisitor(context: Rule.RuleContext) {
                 "replaceAll",
             ])
         },
+        strictTypes,
     })
 }
 
 /**
  * Create visitor for verify unnecessary y flag
  */
-function createUselessStickyFlagVisitor(context: Rule.RuleContext) {
+function createUselessStickyFlagVisitor(
+    context: Rule.RuleContext,
+    strictTypes: boolean,
+) {
     type ReportData = { fixable?: boolean }
 
     /**
@@ -551,6 +558,7 @@ function createUselessStickyFlagVisitor(context: Rule.RuleContext) {
                 "replaceAll",
             ])
         },
+        strictTypes,
     })
 }
 
@@ -563,10 +571,12 @@ function createRegExpReferenceExtractVisitor(
         flag,
         exit,
         isUsedShortCircuit,
+        strictTypes,
     }: {
         flag: "global" | "sticky"
         exit: (list: RegExpReference[]) => void
         isUsedShortCircuit: (regExpReference: RegExpReference) => boolean
+        strictTypes: boolean
     },
 ) {
     const typeTracer = createTypeTracker(context)
@@ -585,7 +595,11 @@ function createRegExpReferenceExtractVisitor(
         if (regExpReference == null || isUsedShortCircuit(regExpReference)) {
             return
         }
-        if (!typeTracer.isString(node.callee.object)) {
+        if (
+            strictTypes
+                ? !typeTracer.isString(node.callee.object)
+                : !typeTracer.maybeString(node.callee.object)
+        ) {
             regExpReference.markAsCannotTrack()
             return
         }
@@ -758,6 +772,34 @@ function createRegExpReferenceExtractVisitor(
     )
 }
 
+/**
+ * Parse option
+ */
+function parseOption(
+    userOption:
+        | {
+              ignore?: ("i" | "m" | "s" | "g" | "y")[]
+              strictTypes?: boolean
+          }
+        | undefined,
+) {
+    const ignore = new Set<"i" | "m" | "s" | "g" | "y">()
+    let strictTypes = true
+    if (userOption) {
+        for (const i of userOption.ignore ?? []) {
+            ignore.add(i)
+        }
+        if (userOption.strictTypes != null) {
+            strictTypes = userOption.strictTypes
+        }
+    }
+
+    return {
+        ignore,
+        strictTypes,
+    }
+}
+
 export default createRule("no-useless-flag", {
     meta: {
         docs: {
@@ -780,6 +822,7 @@ export default createRule("no-useless-flag", {
                         },
                         uniqueItems: true,
                     },
+                    strictTypes: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
@@ -807,9 +850,7 @@ export default createRule("no-useless-flag", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const ignore = new Set<"i" | "m" | "s" | "g" | "y">(
-            context.options[0]?.ignore ?? [],
-        )
+        const { ignore, strictTypes } = parseOption(context.options[0])
 
         let visitor: RuleListener = {}
         if (!ignore.has("i")) {
@@ -833,13 +874,13 @@ export default createRule("no-useless-flag", {
         if (!ignore.has("g")) {
             visitor = compositingVisitors(
                 visitor,
-                createUselessGlobalFlagVisitor(context),
+                createUselessGlobalFlagVisitor(context, strictTypes),
             )
         }
         if (!ignore.has("y")) {
             visitor = compositingVisitors(
                 visitor,
-                createUselessStickyFlagVisitor(context),
+                createUselessStickyFlagVisitor(context, strictTypes),
             )
         }
         return visitor
