@@ -13,7 +13,6 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Description |    |
 |:--------|:------------|:---|
-| [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | disallow capturing group that captures empty. | :star: |
 | [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions |  |
 | [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements |  |
 | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. |  |
@@ -94,6 +93,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 
 | Rule ID | Replaced by |
 |:--------|:------------|
+| [regexp/no-assertion-capturing-group](./no-assertion-capturing-group.md) | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) |
 | [regexp/no-useless-exactly-quantifier](./no-useless-exactly-quantifier.md) | [regexp/no-useless-quantifier](./no-useless-quantifier.md), [regexp/no-zero-quantifier](./no-zero-quantifier.md) |
 | [regexp/no-useless-non-greedy](./no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md) |
 | [regexp/prefer-t](./prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md) |
