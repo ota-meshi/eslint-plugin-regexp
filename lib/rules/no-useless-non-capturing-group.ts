@@ -125,7 +125,7 @@ export default createRule("no-useless-non-capturing-group", {
 
                     context.report({
                         node,
-                        loc: getRegexpLocation(gNode),
+                        loc: getRegexpLocation(gNode, [0, 3]),
                         messageId: "unexpected",
                         fix: fixReplaceNode(gNode, () => {
                             if (
