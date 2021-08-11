@@ -19,6 +19,7 @@ import { createRule, defineRegexpVisitor, quantToString } from "../utils"
 import { Chars, hasSomeDescendant } from "regexp-ast-analysis"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
+import { mention } from "../utils/mention"
 
 /**
  * Returns whether the given node is or contains a capturing group.
@@ -511,17 +512,17 @@ export default createRule("optimal-quantifier-concatenation", {
         schema: [],
         messages: {
             combine:
-                "'{{left}}' and '{{right}}' can be combined into one quantifier '{{fix}}'.{{cap}}",
+                "{{left}} and {{right}} can be combined into one quantifier {{fix}}.{{cap}}",
             removeLeft:
-                "'{{left}}' can be removed because it is already included by '{{right}}'.{{cap}}",
+                "{{left}} can be removed because it is already included by {{right}}.{{cap}}",
             removeRight:
-                "'{{right}}' can be removed because it is already included by '{{left}}'.{{cap}}",
+                "{{right}} can be removed because it is already included by {{left}}.{{cap}}",
             replace:
-                "'{{left}}' and '{{right}}' can be replaced with '{{fix}}'.{{cap}}",
+                "{{left}} and {{right}} can be replaced with {{fix}}.{{cap}}",
             nestedRemove:
-                "'{{nested}}' can be removed because of '{{dominate}}'.{{cap}}",
+                "{{nested}} can be removed because of {{dominate}}.{{cap}}",
             nestedReplace:
-                "'{{nested}}' can be replaced with '{{fix}}' because of '{{dominate}}'.{{cap}}",
+                "{{nested}} can be replaced with {{fix}} because of {{dominate}}.{{cap}}",
         },
         type: "suggestion",
     },
@@ -562,9 +563,9 @@ export default createRule("optimal-quantifier-concatenation", {
                                 loc: getLoc(left, right, regexpContext),
                                 messageId: replacement.messageId,
                                 data: {
-                                    left: left.raw,
-                                    right: right.raw,
-                                    fix: replacement.raw,
+                                    left: mention(left),
+                                    right: mention(right),
+                                    fix: mention(replacement.raw),
                                     cap,
                                 },
                                 fix: fixReplaceNode(aNode, () => {
@@ -589,9 +590,9 @@ export default createRule("optimal-quantifier-concatenation", {
                                 loc: getRegexpLocation(replacement.nested),
                                 messageId: replacement.messageId,
                                 data: {
-                                    nested: replacement.nested.raw,
-                                    dominate: replacement.dominate.raw,
-                                    fix: replacement.raw,
+                                    nested: mention(replacement.nested),
+                                    dominate: mention(replacement.dominate),
+                                    fix: mention(replacement.raw),
                                     cap,
                                 },
                                 fix: fixReplaceNode(replacement.nested, () => {

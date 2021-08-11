@@ -28,8 +28,8 @@ export function mentionChar(element: CharacterClassElement): string {
 /**
  * Creates a string that mentions the given character class element.
  */
-export function mention(element: Node): string {
-    return `'${escape(element.raw)}'`
+export function mention(element: Node | string): string {
+    return `'${escape(typeof element === "string" ? element : element.raw)}'`
 }
 
 /** Escape control characters in the given string */

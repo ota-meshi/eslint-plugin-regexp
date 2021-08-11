@@ -1,3 +1,4 @@
+import { mention } from "../utils/mention"
 import { RegExpValidator } from "regexpp"
 import type { CharacterClassElement, Element } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
@@ -46,14 +47,14 @@ export default createRule("strict", {
             invalidControlEscape:
                 "Invalid or incomplete control escape sequence. Either use a valid control escape sequence or escaping the standalone backslash.",
             incompleteEscapeSequence:
-                "Incomplete escape sequence '{{expr}}'. Either use a valid escape sequence or remove the useless escaping.",
+                "Incomplete escape sequence {{expr}}. Either use a valid escape sequence or remove the useless escaping.",
             invalidPropertyEscape:
-                "Invalid property escape sequence '{{expr}}'. Either use a valid property escape sequence or remove the useless escaping.",
+                "Invalid property escape sequence {{expr}}. Either use a valid property escape sequence or remove the useless escaping.",
             incompleteBackreference:
-                "Incomplete backreference '{{expr}}'. Either use a valid backreference or remove the useless escaping.",
-            unescapedSourceCharacter: "Unescaped source character '{{expr}}'.",
+                "Incomplete backreference {{expr}}. Either use a valid backreference or remove the useless escaping.",
+            unescapedSourceCharacter: "Unescaped source character {{expr}}.",
             octalEscape:
-                "Invalid legacy octal escape sequence '{{expr}}'. Use a hexadecimal escape instead.",
+                "Invalid legacy octal escape sequence {{expr}}. Use a hexadecimal escape instead.",
             uselessEscape:
                 "Useless identity escapes with non-syntax characters are forbidden.",
 
@@ -111,7 +112,7 @@ export default createRule("strict", {
                         loc: getRegexpLocation(element),
                         messageId,
                         data: {
-                            expr: element.raw,
+                            expr: mention(element),
                         },
                         suggest: [
                             {
@@ -126,7 +127,7 @@ export default createRule("strict", {
                         loc: getRegexpLocation(element),
                         messageId,
                         data: {
-                            expr: element.raw,
+                            expr: mention(element),
                         },
                         fix: fix ? fixReplaceNode(element, fix) : null,
                     })

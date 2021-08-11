@@ -1,3 +1,4 @@
+import { mention } from "../utils/mention"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, CP_TAB } from "../utils"
@@ -13,7 +14,7 @@ export default createRule("prefer-t", {
         fixable: "code",
         schema: [],
         messages: {
-            unexpected: "Unexpected character '{{expr}}'. Use '\\t' instead.",
+            unexpected: "Unexpected character {{expr}}. Use '\\t' instead.",
         },
         type: "suggestion", // "problem",
         deprecated: true,
@@ -39,7 +40,7 @@ export default createRule("prefer-t", {
                             loc: getRegexpLocation(cNode),
                             messageId: "unexpected",
                             data: {
-                                expr: cNode.raw,
+                                expr: mention(cNode),
                             },
                             fix: fixReplaceNode(cNode, "\\t"),
                         })

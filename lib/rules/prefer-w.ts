@@ -14,6 +14,7 @@ import {
     CP_LOW_LINE,
 } from "../utils"
 import { Chars } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 /**
  * Checks if small letter char class range
@@ -71,7 +72,7 @@ export default createRule("prefer-w", {
         schema: [],
         messages: {
             unexpected:
-                "Unexpected {{type}} '{{expr}}'. Use '{{instead}}' instead.",
+                "Unexpected {{type}} {{expr}}. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },
@@ -105,7 +106,7 @@ export default createRule("prefer-w", {
                             messageId: "unexpected",
                             data: {
                                 type: "character class",
-                                expr: ccNode.raw,
+                                expr: mention(ccNode),
                                 instead: predefined,
                             },
                             fix: fixReplaceNode(ccNode, predefined),
@@ -156,9 +157,9 @@ export default createRule("prefer-w", {
                             messageId: "unexpected",
                             data: {
                                 type: "character class ranges",
-                                expr: `[${unexpectedElements
+                                expr: `'[${unexpectedElements
                                     .map((e) => e.raw)
-                                    .join("")}]`,
+                                    .join("")}]'`,
                                 instead: "\\w",
                             },
                             fix(fixer: Rule.RuleFixer) {

@@ -16,26 +16,27 @@ import {
     hasSomeDescendant,
     isPotentiallyEmpty,
 } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 const messages = {
     alwaysRejectByChar:
-        "'{{assertion}}' will always reject because it is {{followedOrPreceded}} by a character.",
+        "{{assertion}} will always reject because it is {{followedOrPreceded}} by a character.",
     alwaysRejectByNonLineTerminator:
-        "'{{assertion}}' will always reject because it is {{followedOrPreceded}} by a non-line-terminator character.",
+        "{{assertion}} will always reject because it is {{followedOrPreceded}} by a non-line-terminator character.",
     alwaysAcceptByLineTerminator:
-        "'{{assertion}}' will always accept because it is {{followedOrPreceded}} by a line-terminator character.",
+        "{{assertion}} will always accept because it is {{followedOrPreceded}} by a line-terminator character.",
     alwaysAcceptOrRejectFollowedByWord:
-        "'{{assertion}}' will always {{acceptOrReject}} because it is preceded by a non-word character and followed by a word character.",
+        "{{assertion}} will always {{acceptOrReject}} because it is preceded by a non-word character and followed by a word character.",
     alwaysAcceptOrRejectFollowedByNonWord:
-        "'{{assertion}}' will always {{acceptOrReject}} because it is preceded by a non-word character and followed by a non-word character.",
+        "{{assertion}} will always {{acceptOrReject}} because it is preceded by a non-word character and followed by a non-word character.",
     alwaysAcceptOrRejectPrecededByWordFollowedByNonWord:
-        "'{{assertion}}' will always {{acceptOrReject}} because it is preceded by a word character and followed by a non-word character.",
+        "{{assertion}} will always {{acceptOrReject}} because it is preceded by a word character and followed by a non-word character.",
     alwaysAcceptOrRejectPrecededByWordFollowedByWord:
-        "'{{assertion}}' will always {{acceptOrReject}} because it is preceded by a word character and followed by a word character.",
+        "{{assertion}} will always {{acceptOrReject}} because it is preceded by a word character and followed by a word character.",
     alwaysForLookaround:
-        "The {{kind}} '{{assertion}}' will always {{acceptOrReject}}.",
+        "The {{kind}} {{assertion}} will always {{acceptOrReject}}.",
     alwaysForNegativeLookaround:
-        "The negative {{kind}} '{{assertion}}' will always {{acceptOrReject}}.",
+        "The negative {{kind}} {{assertion}} will always {{acceptOrReject}}.",
 }
 
 export default createRule("no-useless-assertions", {
@@ -72,7 +73,7 @@ export default createRule("no-useless-assertions", {
                     loc: getRegexpLocation(assertion),
                     messageId,
                     data: {
-                        assertion: assertion.raw,
+                        assertion: mention(assertion),
                         ...data,
                     },
                 })

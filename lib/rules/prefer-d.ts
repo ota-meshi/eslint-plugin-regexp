@@ -7,6 +7,7 @@ import {
     CP_DIGIT_NINE,
 } from "../utils"
 import { Chars } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 export default createRule("prefer-d", {
     meta: {
@@ -19,7 +20,7 @@ export default createRule("prefer-d", {
         schema: [],
         messages: {
             unexpected:
-                "Unexpected {{type}} '{{expr}}'. Use '{{instead}}' instead.",
+                "Unexpected {{type}} {{expr}}. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },
@@ -56,7 +57,7 @@ export default createRule("prefer-d", {
                             messageId: "unexpected",
                             data: {
                                 type: "character class",
-                                expr: ccNode.raw,
+                                expr: mention(ccNode),
                                 instead: predefined,
                             },
                             fix: fixReplaceNode(ccNode, predefined),
@@ -83,7 +84,7 @@ export default createRule("prefer-d", {
                             messageId: "unexpected",
                             data: {
                                 type: "character class range",
-                                expr: ccrNode.raw,
+                                expr: mention(ccrNode),
                                 instead,
                             },
                             fix: fixReplaceNode(ccrNode, instead),

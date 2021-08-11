@@ -5,6 +5,7 @@ import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import type { ParsedLiteral } from "scslre"
 import { analyse } from "scslre"
 import type { Position, SourceLocation } from "estree"
+import { mention } from "../utils/mention"
 
 /**
  * Returns the combined source location of the two given locations.
@@ -74,11 +75,11 @@ export default createRule("no-super-linear-backtracking", {
         ],
         messages: {
             self:
-                "This quantifier can reach itself via the loop '{{parent}}'." +
+                "This quantifier can reach itself via the loop {{parent}}." +
                 " Using any string accepted by {{attack}}, this can be exploited to cause at least polynomial backtracking." +
                 "{{exp}}",
             trade:
-                "The quantifier '{{start}}' can exchange characters with '{{end}}'." +
+                "The quantifier {{start}} can exchange characters with {{end}}." +
                 " Using any string accepted by {{attack}}, this can be exploited to cause at least polynomial backtracking." +
                 "{{exp}}",
         },
@@ -134,7 +135,7 @@ export default createRule("no-super-linear-backtracking", {
                         data: {
                             exp,
                             attack,
-                            parent: report.parentQuant.raw,
+                            parent: mention(report.parentQuant),
                         },
                         fix,
                     })
@@ -149,8 +150,8 @@ export default createRule("no-super-linear-backtracking", {
                         data: {
                             exp,
                             attack,
-                            start: report.startQuant.raw,
-                            end: report.endQuant.raw,
+                            start: mention(report.startQuant),
+                            end: mention(report.endQuant),
                         },
                         fix,
                     })

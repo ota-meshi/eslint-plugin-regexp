@@ -30,6 +30,7 @@ import {
 import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { canReorder } from "../utils/reorder-alternatives"
+import { mention } from "../utils/mention"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -714,13 +715,13 @@ export default createRule("no-dupe-disjunctions", {
             duplicate:
                 "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
             subset:
-                "Unexpected useless alternative. This alternative is a strict subset of '{{others}}' and can be removed.{{cap}}{{exp}}",
+                "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
             prefixSubset:
-                "Unexpected useless alternative. This alternative is already covered by '{{others}}' and can be removed.{{cap}}",
+                "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
             superset:
-                "Unexpected superset. This alternative is a superset of '{{others}}'. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
+                "Unexpected superset. This alternative is a superset of {{others}}. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
-                "Unexpected overlap. This alternative overlaps with '{{others}}'. The overlap is '{{expr}}'.{{cap}}{{exp}}",
+                "Unexpected overlap. This alternative overlaps with {{others}}. The overlap is {{expr}}.{{cap}}{{exp}}",
         },
         type: "suggestion", // "problem",
     },
@@ -936,7 +937,9 @@ export default createRule("no-dupe-disjunctions", {
                     ? " Careful! This alternative contains capturing groups which might be difficult to remove."
                     : ""
 
-                const others = result.others.map((a) => a.raw).join("|")
+                const others = mention(
+                    result.others.map((a) => a.raw).join("|"),
+                )
 
                 switch (result.type) {
                     case "Duplicate":
@@ -984,7 +987,9 @@ export default createRule("no-dupe-disjunctions", {
                                 exp,
                                 cap,
                                 others,
-                                expr: faToSource(result.overlap, flags),
+                                expr: mention(
+                                    faToSource(result.overlap, flags),
+                                ),
                             },
                         })
                         break
