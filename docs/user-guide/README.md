@@ -9,7 +9,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 ::: tip Requirements
 
 - ESLint v6.0.0 and above
-- Node.js v8.10.0 and above
+- Node.js v12.x, v14.x and above
 
 :::
 
@@ -17,13 +17,13 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 <!--USAGE_SECTION_START-->
 
-Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix)  
-and either use the recommended configuration or configure the rules you want:
+Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix)
+and either use one of the two configurations available (`recommended` or `all`) or configure the rules you want:
 
 ### The recommended configuration
 
 The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/README.md) that should be most useful to most users.
-*See [https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for more details.*
+*See [lib/configs/recommended.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/recommended.ts) for more details.*
 
 ```js
 // .eslintrc.js
@@ -55,6 +55,11 @@ module.exports = {
     }
 }
 ```
+
+### Using `"plugin:regexp/all"`
+
+The `plugin:regexp/all` config enables all rules. It's meant for testing, not for production use because it changes with every minor and major version of the plugin. Use it at your own risk.
+*See [lib/configs/all.ts](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/configs/all.ts) for more details.*
 
 <!--USAGE_SECTION_END-->
 

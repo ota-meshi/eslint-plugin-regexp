@@ -31,23 +31,51 @@ export default createRule("negation", {
             node,
             getRegexpLocation,
             fixReplaceNode,
+            toCharSet,
+            flags,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
                     if (!ccNode.negate || ccNode.elements.length !== 1) {
                         return
                     }
+
                     const element = ccNode.elements[0]
-                    if (element.type === "CharacterSet") {
-                        const negatedCharSet = getNegationText(element)
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(ccNode),
-                            messageId: "unexpected",
-                            data: { negatedCharSet },
-                            fix: fixReplaceNode(ccNode, negatedCharSet),
-                        })
+                    if (element.type !== "CharacterSet") {
+                        return
                     }
+
+                    if (flags.ignoreCase && element.kind === "property") {
+                        // The ignore case canonicalization affects negated
+                        // Unicode property escapes in a weird way. In short,
+                        // /\p{Foo}/i is not the same as /[^\P{Foo}]/i if
+                        // \p{Foo} contains case-varying characters.
+                        //
+                        // Note: This only affects Unicode property escapes.
+                        // All other character sets are either case-invariant
+                        // (/./, /\s/, /\d/) or inconsistent (/\w/).
+
+                        const ccSet = toCharSet(ccNode)
+
+                        const negatedElementSet = toCharSet({
+                            ...element,
+                            negate: !element.negate,
+                        })
+
+                        if (!ccSet.equals(negatedElementSet)) {
+                            // We cannot remove the negative
+                            return
+                        }
+                    }
+
+                    const negatedCharSet = getNegationText(element)
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(ccNode),
+                        messageId: "unexpected",
+                        data: { negatedCharSet },
+                        fix: fixReplaceNode(ccNode, negatedCharSet),
+                    })
                 },
             }
         }
@@ -64,28 +92,14 @@ export default createRule("negation", {
 function getNegationText(
     node: EscapeCharacterSet | UnicodePropertyCharacterSet,
 ) {
-    let text: string
-    if (node.kind === "digit") {
-        text = "d"
-    } else if (node.kind === "space") {
-        text = "s"
-    } else if (node.kind === "word") {
-        text = "w"
-    } else if (node.kind === "property") {
-        text = "p"
+    // they are all of the form: /\\[dswp](?:\{[^{}]+\})?/
+    let kind = node.raw[1]
+
+    if (kind.toLowerCase() === kind) {
+        kind = kind.toUpperCase()
     } else {
-        throw new Error(`unknown kind:${node.kind}`)
-    }
-    if (!node.negate) {
-        text = text.toUpperCase()
-    }
-    if (node.kind === "property") {
-        if (node.value != null) {
-            text += `{${node.key}=${node.value}}`
-        } else {
-            text += `{${node.key}}`
-        }
+        kind = kind.toLowerCase()
     }
 
-    return `\\${text}`
+    return `\\${kind}${node.raw.slice(2)}`
 }

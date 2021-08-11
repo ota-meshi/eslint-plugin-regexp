@@ -9,11 +9,18 @@ const tester = new RuleTester({
 })
 
 tester.run("sort-alternatives", rule as any, {
-    valid: [String.raw`/c|bb|a/`, String.raw`/\b(?:a|\d+|c|b)\b/`],
+    valid: [String.raw`/\b(?:a|\d+|c|b)\b/`],
     invalid: [
         {
             code: String.raw`/c|b|a/`,
             output: String.raw`/a|b|c/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/c|bb|a/`,
+            output: String.raw`/a|bb|c/`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
             ],

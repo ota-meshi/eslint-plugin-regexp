@@ -1,12 +1,5 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type {
-    Alternative,
-    CapturingGroup,
-    Element,
-    Group,
-    LookaroundAssertion,
-    Pattern,
-} from "regexpp/ast"
+import type { Alternative, Element, Pattern } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_MINUS,
@@ -17,16 +10,15 @@ import {
 } from "../utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
-    getLengthRange,
     Chars,
-    getFirstCharAfter,
     getFirstConsumedChar,
     hasSomeDescendant,
-    isEmptyBackreference,
 } from "regexp-ast-analysis"
-import type { CharRange, CharSet } from "refa"
+import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { SourceLocation, Position } from "estree"
+import { canReorder } from "../utils/reorder-alternatives"
+import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 
 interface AllowedChars {
     allowed: CharSet
@@ -54,74 +46,6 @@ function getAllowedChars(flags: ReadonlyFlags) {
         cache.set(cacheKey, result)
     }
     return result
-}
-
-/**
- * Returns the union of all characters that can possibly be consumed by the
- * given element.
- */
-function getConsumedChars(
-    element: Element | Pattern | Alternative,
-    context: RegExpContext,
-): CharSet {
-    const ranges: CharRange[] = []
-
-    // we misuse hasSomeDescendant to iterate all relevant elements
-    hasSomeDescendant(
-        element,
-        (d) => {
-            if (
-                d.type === "Character" ||
-                d.type === "CharacterClass" ||
-                d.type === "CharacterSet"
-            ) {
-                ranges.push(...context.toCharSet(d).ranges)
-            } else if (d.type === "Backreference" && !isEmptyBackreference(d)) {
-                ranges.push(...getConsumedChars(d.resolved, context).ranges)
-            }
-
-            // always continue to the next element
-            return false
-        },
-        // don't go into assertions
-        (d) => d.type !== "Assertion" && d.type !== "CharacterClass",
-    )
-
-    return Chars.empty(context.flags).union(ranges)
-}
-
-type Parent = Group | CapturingGroup | Pattern | LookaroundAssertion
-
-/**
- * Assuming that the given group only consumes the given characters, this will
- * return whether the alternatives of the group can be reordered freely without
- * affecting the behavior of the regex.
- *
- * This also assumes that the alternatives of the given group do not contain
- * capturing group in such a way that their order matters.
- */
-function canReorder(
-    parent: Parent,
-    consumedChars: CharSet,
-    context: RegExpContext,
-): boolean {
-    const lengthRange = getLengthRange(parent.alternatives)
-    if (lengthRange && lengthRange.min === lengthRange.max) {
-        return true
-    }
-
-    if (parent.type === "Pattern" || parent.type === "Assertion") {
-        return false
-    }
-
-    return (
-        getFirstCharAfter(parent, "rtl", context.flags).char.isDisjointWith(
-            consumedChars,
-        ) &&
-        getFirstCharAfter(parent, "ltr", context.flags).char.isDisjointWith(
-            consumedChars,
-        )
-    )
 }
 
 /**
@@ -196,6 +120,15 @@ function sortAlternatives(
 }
 
 /**
+ * Returns whether the given string is a valid integer.
+ * @param str
+ * @returns
+ */
+function isIntegerString(str: string): boolean {
+    return /^(?:0|[1-9]\d*)$/.test(str)
+}
+
+/**
  * This tries to sort the given alternatives by assuming that all alternatives
  * are a number.
  */
@@ -204,7 +137,7 @@ function trySortNumberAlternatives(alternatives: Alternative[]): void {
     {
         let start = 0
         for (let i = 0; i < alternatives.length; i++) {
-            if (!/^0|[1-9]\d*$/.test(alternatives[i].raw)) {
+            if (!isIntegerString(alternatives[i].raw)) {
                 if (start < i) {
                     numberRanges.push([start, i])
                 }
@@ -272,6 +205,36 @@ function getReorderingBounds<T>(
     for (; last >= 0 && original[last] === reorder[last]; last--);
 
     return [first, last]
+}
+
+interface Run<T> {
+    index: number
+    elements: T[]
+}
+
+/**
+ * Returns an array of runs of elements that fulfill the given condition.
+ */
+function getRuns<T>(iter: Iterable<T>, condFn: (item: T) => boolean): Run<T>[] {
+    const runs: Run<T>[] = []
+
+    let elements: T[] = []
+    let index = 0
+
+    for (const item of iter) {
+        if (condFn(item)) {
+            elements.push(item)
+        } else {
+            if (elements.length > 0) {
+                runs.push({ index, elements })
+                elements = []
+            }
+        }
+
+        index++
+    }
+
+    return runs
 }
 
 export default createRule("sort-alternatives", {
@@ -345,7 +308,7 @@ export default createRule("sort-alternatives", {
             }
 
             /** The handler for parents */
-            function onParent(parent: Parent): void {
+            function onParent(parent: Alternative["parent"]): void {
                 if (parent.alternatives.length < 2) {
                     return
                 }
@@ -364,7 +327,10 @@ export default createRule("sort-alternatives", {
                     return
                 }
 
-                const consumedChars = getConsumedChars(parent, regexpContext)
+                const consumedChars = getPossiblyConsumedChar(
+                    parent,
+                    regexpContext,
+                ).char
                 if (consumedChars.isEmpty) {
                     // all alternatives are either empty or only contain
                     // assertions
@@ -381,20 +347,28 @@ export default createRule("sort-alternatives", {
 
                 const alternatives = [...parent.alternatives]
 
-                if (canReorder(parent, consumedChars, regexpContext)) {
+                if (canReorder(alternatives, regexpContext)) {
                     // alternatives can be reordered freely
                     sortAlternatives(alternatives, regexpContext)
                     trySortNumberAlternatives(alternatives)
-                } else if (
-                    !consumedChars.isDisjointWith(Chars.digit(flags)) &&
-                    canReorder(
-                        parent,
-                        consumedChars.intersect(Chars.digit(flags)),
-                        regexpContext,
-                    )
-                ) {
+                } else if (!consumedChars.isDisjointWith(Chars.digit(flags))) {
                     // let's try to at least sort numbers
-                    trySortNumberAlternatives(alternatives)
+                    const runs = getRuns(alternatives, (a) =>
+                        isIntegerString(a.raw),
+                    )
+                    for (const { index, elements } of runs) {
+                        if (
+                            elements.length > 1 &&
+                            canReorder(elements, regexpContext)
+                        ) {
+                            trySortNumberAlternatives(elements)
+                            alternatives.splice(
+                                index,
+                                elements.length,
+                                ...elements,
+                            )
+                        }
+                    }
                 }
 
                 enforceSorted(alternatives)

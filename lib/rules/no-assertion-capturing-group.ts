@@ -7,13 +7,10 @@ export default createRule("no-assertion-capturing-group", {
         ...noEmptyCapturingGroup.meta,
         docs: {
             ...noEmptyCapturingGroup.meta.docs,
-            // TODO Switch to recommended in the major version.
-            // recommended: false,
-            recommended: true,
+            recommended: false,
             replacedBy: ["no-empty-capturing-group"],
         },
-        // TODO Switch to deprecated in the major version.
-        // deprecated: true,
+        deprecated: true,
     },
     create(context) {
         return noEmptyCapturingGroup.create(context)

@@ -27,7 +27,7 @@ tester.run("no-empty-alternative", rule as any, {
                 {
                     message: "No empty alternatives. Use quantifiers instead.",
                     line: 1,
-                    column: 9,
+                    column: 8,
                 },
             ],
         },

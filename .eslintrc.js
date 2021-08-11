@@ -25,7 +25,6 @@ module.exports = {
         "plugin:@ota-meshi/+prettier",
     ],
     rules: {
-        // eslint-disable-next-line node/no-unsupported-features/es-syntax -- Lint only
         ...enableAllRules,
         "require-jsdoc": "error",
         "no-warning-comments": "warn",

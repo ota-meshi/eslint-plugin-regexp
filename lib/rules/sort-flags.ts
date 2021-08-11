@@ -1,5 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { RegExpContext } from "../utils"
+import type { RegExpContext, UnparsableRegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("sort-flags", {
@@ -15,7 +14,7 @@ export default createRule("sort-flags", {
         schema: [],
         messages: {
             sortFlags:
-                "The flags '{{flags}}' should in the order '{{sortedFlags}}'.",
+                "The flags '{{flags}}' should be in the order '{{sortedFlags}}'.",
         },
         type: "suggestion", // "problem",
     },
@@ -29,16 +28,14 @@ export default createRule("sort-flags", {
                 .join("")
         }
 
-        /**
-         * Create visitor
-         */
-        function createVisitor({
+        /** The logic of this rule */
+        function visit({
             regexpNode,
             flagsString,
             ownsFlags,
             getFlagsLocation,
             fixReplaceFlags,
-        }: RegExpContext): RegExpVisitor.Handlers {
+        }: RegExpContext | UnparsableRegExpContext) {
             if (flagsString && ownsFlags) {
                 const sortedFlags = sortFlags(flagsString)
                 if (flagsString !== sortedFlags) {
@@ -51,12 +48,15 @@ export default createRule("sort-flags", {
                     })
                 }
             }
-
-            return {} // not visit RegExpNodes
         }
 
         return defineRegexpVisitor(context, {
-            createVisitor,
+            createVisitor(regexpContext) {
+                visit(regexpContext)
+                return {}
+            },
+            visitInvalid: visit,
+            visitUnknown: visit,
         })
     },
 })

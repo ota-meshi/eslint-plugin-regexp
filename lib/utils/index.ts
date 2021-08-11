@@ -5,8 +5,7 @@ import type { Element, Node, Pattern, Quantifier } from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
-import { parseStringTokens } from "./string-literal-parser"
-import { findVariable, getStringIfConstant } from "./ast-utils"
+import { getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
 import { toCharSet } from "regexp-ast-analysis"
@@ -14,13 +13,17 @@ import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
 import { getUsageOfPattern } from "./get-usage-of-pattern"
+import { isRegexpLiteral, isStringLiteral } from "./ast-utils/utils"
+import type { PatternRange } from "./ast-utils/pattern-source"
+import { PatternSource } from "./ast-utils/pattern-source"
 export * from "./unicode"
 
 export type ToCharSet = (
     node: ToCharSetElement,
     flags?: ReadonlyFlags,
 ) => CharSet
-type RegExpHelpersBase = {
+
+type RegExpContextBase = {
     toCharSet: ToCharSet
 
     /**
@@ -32,7 +35,7 @@ type RegExpHelpersBase = {
      * @returns The SourceLocation
      */
     getRegexpLocation: (
-        regexpNode: Node,
+        regexpNode: PatternRange,
         offsets?: [number, number],
     ) => AST.SourceLocation
 
@@ -42,12 +45,6 @@ type RegExpHelpersBase = {
      * @returns The SourceLocation
      */
     getFlagsLocation: () => AST.SourceLocation
-
-    /**
-     * Escape depending on which node the string applied to fixer is applied.
-     * @see fixerApplyEscape
-     */
-    fixerApplyEscape: (text: string) => string
 
     /**
      * Creates a new fix that replaces the given node with a given string.
@@ -81,45 +78,59 @@ type RegExpHelpersBase = {
      */
     getUsageOfPattern: () => UsageOfPattern
 
+    pattern: string
     patternAst: Pattern
-}
-export type RegExpHelpersForLiteral = {
-    /**
-     * Creates source range from the given regexp node
-     * @param regexpNode The regexp node to report.
-     * @returns The SourceLocation
-     */
-    getRegexpRange: (regexpNode: Node) => AST.Range
-} & RegExpHelpersBase
-export type RegExpHelpersForSource = {
-    /**
-     * Creates source range from the given regexp node
-     * @param regexpNode The regexp node to report.
-     * @returns The SourceLocation
-     */
-    getRegexpRange: (regexpNode: Node) => AST.Range | null
-} & RegExpHelpersBase
-export type RegExpHelpers = RegExpHelpersForLiteral & RegExpHelpersForSource
+    patternSource: PatternSource
 
+    flags: ReadonlyFlags
+}
 export type RegExpContextForLiteral = {
     node: ESTree.RegExpLiteral
-    pattern: string
-    flags: ReadonlyFlags
     flagsString: string
     ownsFlags: true
     regexpNode: ESTree.RegExpLiteral
-} & RegExpHelpersForLiteral
+} & RegExpContextBase
 export type RegExpContextForSource = {
     node: ESTree.Expression
-    pattern: string
+    flagsString: string | null
+    ownsFlags: boolean
+    regexpNode: ESTree.CallExpression
+} & RegExpContextBase
+export type RegExpContext = RegExpContextForLiteral | RegExpContextForSource
+
+type UnparsableRegExpContextBase = {
+    node: ESTree.Expression
+    regexpNode: ESTree.RegExpLiteral | ESTree.CallExpression
+
     flags: ReadonlyFlags
     flagsString: string | null
     ownsFlags: boolean
-    regexpNode: ESTree.NewExpression | ESTree.CallExpression
-} & RegExpHelpersForSource
-export type RegExpContext = RegExpContextForLiteral | RegExpContextForSource
 
-type RegexpRule = {
+    /**
+     * Creates SourceLocation from the regexp flags
+     *
+     * @returns The SourceLocation
+     */
+    getFlagsLocation: () => AST.SourceLocation
+
+    fixReplaceFlags: (
+        newFlags: string | (() => string | null),
+    ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
+}
+export type RegExpContextForInvalid = {
+    pattern: string
+    patternSource: PatternSource
+    error: SyntaxError
+} & UnparsableRegExpContextBase
+export type RegExpContextForUnknown = {
+    pattern: null
+    patternSource: null
+} & UnparsableRegExpContextBase
+export type UnparsableRegExpContext =
+    | RegExpContextForInvalid
+    | RegExpContextForUnknown
+
+type ParsableRegexpRule = {
     createLiteralVisitor?: (
         context: RegExpContextForLiteral,
     ) => RegExpVisitor.Handlers
@@ -127,6 +138,12 @@ type RegexpRule = {
         context: RegExpContextForSource,
     ) => RegExpVisitor.Handlers
 }
+type UnparsableRegexpRule = {
+    visitInvalid?: (context: RegExpContextForInvalid) => void
+    visitUnknown?: (context: RegExpContextForUnknown) => void
+}
+type RegexpRule = ParsableRegexpRule & UnparsableRegexpRule
+
 const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
 
 export const FLAG_GLOBAL = "g"
@@ -182,16 +199,20 @@ export function createRule(
     }
 }
 
+type DefineRegexpVisitorRule = UnparsableRegexpRule &
+    (
+        | ParsableRegexpRule
+        | {
+              createVisitor: (context: RegExpContext) => RegExpVisitor.Handlers
+          }
+    )
+
 /**
  * Define the RegExp visitor rule.
  */
 export function defineRegexpVisitor(
     context: Rule.RuleContext,
-    rule:
-        | RegexpRule
-        | {
-              createVisitor?: (context: RegExpContext) => RegExpVisitor.Handlers
-          },
+    rule: DefineRegexpVisitorRule,
 ): RuleListener {
     const programNode = context.getSourceCode().ast
 
@@ -207,20 +228,22 @@ export function defineRegexpVisitor(
         visitor = {}
     }
 
-    const createLiteralVisitor =
-        "createVisitor" in rule
-            ? rule.createVisitor
-            : "createLiteralVisitor" in rule
-            ? rule.createLiteralVisitor
-            : undefined
-    const createSourceVisitor =
-        "createVisitor" in rule
-            ? rule.createVisitor
-            : "createSourceVisitor" in rule
-            ? rule.createSourceVisitor
-            : undefined
+    let createLiteralVisitor = undefined
+    let createSourceVisitor = undefined
+    if ("createVisitor" in rule) {
+        createLiteralVisitor = rule.createVisitor
+        createSourceVisitor = rule.createVisitor
+    } else {
+        createLiteralVisitor = rule.createLiteralVisitor
+        createSourceVisitor = rule.createSourceVisitor
+    }
 
-    rules.push({ createLiteralVisitor, createSourceVisitor })
+    rules.push({
+        createLiteralVisitor,
+        createSourceVisitor,
+        visitInvalid: rule.visitInvalid,
+        visitUnknown: rule.visitUnknown,
+    })
 
     return visitor
 }
@@ -231,71 +254,80 @@ function buildRegexpVisitor(
     rules: RegexpRule[],
     programExit: (node: ESTree.Program) => void,
 ): RuleListener {
-    const sourceCode = context.getSourceCode()
     const parser = new RegExpParser()
 
     /**
      * Verify a given regular expression.
-     * @param pattern The regular expression pattern to verify.
+     * @param patternNode The regular expression pattern to verify.
      * @param flags The flags of the regular expression.
      */
     function verify(
-        exprNode: ESTree.Expression,
+        patternNode: ESTree.Expression,
         regexpNode: ESTree.RegExpLiteral | ESTree.CallExpression,
-        pattern: string,
-        flags: ReadonlyFlags,
-        createVisitors: (
-            helpers: RegExpHelpersBase,
-        ) => IterableIterator<RegExpVisitor.Handlers>,
+        patternSource: PatternSource | null,
+        flagsString: string | null,
+        ownsFlags: boolean,
+        createVisitor: (helpers: RegExpContextBase) => RegExpVisitor.Handlers,
     ) {
-        let parsedPattern
+        const flags = parseFlags(flagsString || "")
 
-        try {
-            parsedPattern = parser.parsePattern(
-                pattern,
-                0,
-                pattern.length,
-                flags.unicode,
-            )
-        } catch {
-            // Ignore regular expressions with syntax errors
+        if (!patternSource) {
+            visitUnknownForRules(rules, {
+                pattern: null,
+                patternSource: null,
+
+                ...buildUnparsableRegExpContextBase({
+                    patternSource,
+                    patternNode,
+                    regexpNode,
+                    context,
+                    flags,
+                    flagsString,
+                    ownsFlags,
+                }),
+            })
             return
         }
 
-        const helpers = buildRegExpHelperBase({
-            exprNode,
+        let parsedPattern
+        try {
+            parsedPattern = parser.parsePattern(
+                patternSource.value,
+                0,
+                patternSource.value.length,
+                flags.unicode,
+            )
+        } catch (error: unknown) {
+            if (error instanceof SyntaxError) {
+                // regex with syntax error
+                visitInvalidForRules(rules, {
+                    pattern: patternSource.value,
+                    patternSource,
+                    error,
+
+                    ...buildUnparsableRegExpContextBase({
+                        patternSource,
+                        patternNode,
+                        regexpNode,
+                        context,
+                        flags,
+                        flagsString,
+                        ownsFlags,
+                    }),
+                })
+            }
+            return
+        }
+
+        const helpers = buildRegExpContextBase({
+            patternSource,
             regexpNode,
             context,
             flags,
             parsedPattern,
         })
 
-        const handler: RegExpVisitor.Handlers = {}
-        for (const visitor of createVisitors(helpers)) {
-            for (const [key, fn] of Object.entries(visitor) as [
-                keyof RegExpVisitor.Handlers,
-                RegExpVisitor.Handlers[keyof RegExpVisitor.Handlers],
-            ][]) {
-                const orig = handler[key]
-                if (orig) {
-                    handler[key] = (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-                        node: any,
-                    ) => {
-                        orig(node)
-                        fn!(node)
-                    }
-                } else {
-                    // @ts-expect-error -- ignore
-                    handler[key] = fn
-                }
-            }
-        }
-        if (Object.keys(handler).length === 0) {
-            return
-        }
-
-        visitRegExpAST(parsedPattern, handler)
+        visitRegExpAST(parsedPattern, createVisitor(helpers))
     }
 
     return {
@@ -305,27 +337,17 @@ function buildRegexpVisitor(
                 return
             }
             const flagsString = node.regex.flags
-            const flags = parseFlags(flagsString)
-            verify(node, node, node.regex.pattern, flags, function* (helpers) {
-                const regexpContext: RegExpContextForLiteral = {
+            const patternSource = PatternSource.fromRegExpLiteral(context, node)
+            verify(node, node, patternSource, flagsString, true, (base) => {
+                return createLiteralVisitorFromRules(rules, {
                     node,
-                    pattern: node.regex.pattern,
-                    flags,
                     flagsString,
                     ownsFlags: true,
                     regexpNode: node,
-                    ...helpers,
-                    getRegexpRange: (regexpNode) =>
-                        getRegexpRange(sourceCode, node, regexpNode),
-                }
-                for (const rule of rules) {
-                    if (rule.createLiteralVisitor) {
-                        yield rule.createLiteralVisitor(regexpContext)
-                    }
-                }
+                    ...base,
+                })
             })
         },
-        // eslint-disable-next-line complexity -- X(
         Program() {
             const tracker = new ReferenceTracker(context.getScope())
 
@@ -333,121 +355,151 @@ function buildRegexpVisitor(
             // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
             //       `const {RegExp: a} = window; new a()`, etc...
             const regexpDataList: {
-                newOrCall: ESTree.NewExpression | ESTree.CallExpression
+                call: ESTree.CallExpression
                 patternNode: ESTree.Expression
-                pattern: string | null
-                flagsNode: ESTree.Expression | ESTree.SpreadElement | undefined
+                patternSource: PatternSource | null
                 flagsString: string | null
+                ownsFlags: boolean
             }[] = []
             for (const { node } of tracker.iterateGlobalReferences({
                 RegExp: { [CALL]: true, [CONSTRUCT]: true },
             })) {
-                const newOrCall = node as
-                    | ESTree.NewExpression
-                    | ESTree.CallExpression
+                const newOrCall = node as ESTree.CallExpression
                 const [patternNode, flagsNode] = newOrCall.arguments
                 if (!patternNode || patternNode.type === "SpreadElement") {
                     continue
                 }
-                const pattern = getStringIfConstant(context, patternNode)
-                const flagsString = flagsNode
-                    ? getStringIfConstant(context, flagsNode)
-                    : null
+
+                const patternSource = PatternSource.fromExpression(
+                    context,
+                    patternNode,
+                )
+
+                let flagsString = null
+                let ownsFlags = false
+                if (flagsNode && flagsNode.type !== "SpreadElement") {
+                    flagsString = getStringIfConstant(context, flagsNode)
+                    ownsFlags = isStringLiteral(flagsNode)
+                } else if (patternSource && patternSource.regexpValue) {
+                    flagsString = patternSource.regexpValue.flags
+                    ownsFlags = Boolean(patternSource.regexpValue.ownedNode)
+                }
 
                 regexpDataList.push({
-                    newOrCall,
+                    call: newOrCall,
                     patternNode,
-                    pattern,
-                    flagsNode,
+                    patternSource,
                     flagsString,
+                    ownsFlags,
                 })
             }
-            for (const {
-                newOrCall,
-                patternNode,
-                pattern,
-                flagsNode,
-                flagsString,
-            } of regexpDataList) {
-                if (typeof pattern === "string") {
-                    let verifyPatternNode = patternNode
-                    if (patternNode.type === "Identifier") {
-                        const variable = findVariable(context, patternNode)
-                        if (variable && variable.defs.length === 1) {
-                            const def = variable.defs[0]
-                            if (
-                                def.type === "Variable" &&
-                                def.parent.kind === "const" &&
-                                def.node.init &&
-                                def.node.init.type === "Literal"
-                            ) {
-                                let useInit = false
-                                if (variable.references.length > 2) {
-                                    if (
-                                        variable.references.every((ref) => {
-                                            if (ref.isWriteOnly()) {
-                                                return true
-                                            }
-                                            return regexpDataList.some(
-                                                (r) =>
-                                                    r.patternNode ===
-                                                        ref.identifier &&
-                                                    r.flagsString ===
-                                                        flagsString,
-                                            )
-                                        })
-                                    ) {
-                                        useInit = true
-                                    }
-                                } else {
-                                    useInit = true
-                                }
 
-                                if (useInit) {
-                                    verifyPatternNode = def.node.init
-                                }
-                            }
-                        }
-                    }
-                    const flags = parseFlags(flagsString || "")
-                    verify(
-                        verifyPatternNode,
-                        newOrCall,
-                        pattern,
-                        flags,
-                        function* (helpers) {
-                            const regexpContext: RegExpContextForSource = {
-                                node: verifyPatternNode,
-                                pattern,
-                                flags,
-                                flagsString,
-                                ownsFlags: Boolean(
-                                    flagsNode &&
-                                        flagsNode.type !== "SpreadElement" &&
-                                        isStringLiteral(flagsNode),
-                                ),
-                                regexpNode: newOrCall,
-                                ...helpers,
-                                getRegexpRange: (regexpNode) =>
-                                    getRegexpRange(
-                                        sourceCode,
-                                        verifyPatternNode,
-                                        regexpNode,
-                                    ),
-                            }
-                            for (const rule of rules) {
-                                if (rule.createSourceVisitor) {
-                                    yield rule.createSourceVisitor(
-                                        regexpContext,
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
+            for (const {
+                call,
+                patternNode,
+                patternSource,
+                flagsString,
+                ownsFlags,
+            } of regexpDataList) {
+                verify(
+                    patternNode,
+                    call,
+                    patternSource,
+                    flagsString,
+                    ownsFlags,
+                    (base) => {
+                        return createSourceVisitorFromRules(rules, {
+                            node: patternNode,
+                            flagsString,
+                            ownsFlags,
+                            regexpNode: call,
+                            ...base,
+                        })
+                    },
+                )
             }
         },
     }
+}
+
+/** Create a visitor handler from the given rules */
+function createLiteralVisitorFromRules(
+    rules: Iterable<RegexpRule>,
+    context: RegExpContextForLiteral,
+): RegExpVisitor.Handlers {
+    const handlers: RegExpVisitor.Handlers[] = []
+    for (const rule of rules) {
+        if (rule.createLiteralVisitor) {
+            handlers.push(rule.createLiteralVisitor(context))
+        }
+    }
+    return composeRegExpVisitors(handlers)
+}
+
+/** Create a visitor handler from the given rules */
+function createSourceVisitorFromRules(
+    rules: Iterable<RegexpRule>,
+    context: RegExpContextForSource,
+): RegExpVisitor.Handlers {
+    const handlers: RegExpVisitor.Handlers[] = []
+    for (const rule of rules) {
+        if (rule.createSourceVisitor) {
+            handlers.push(rule.createSourceVisitor(context))
+        }
+    }
+    return composeRegExpVisitors(handlers)
+}
+
+/** Calls a visit function for all the given rules */
+function visitInvalidForRules(
+    rules: Iterable<RegexpRule>,
+    context: RegExpContextForInvalid,
+): void {
+    for (const rule of rules) {
+        rule.visitInvalid?.(context)
+    }
+}
+
+/** Calls a visit function for all the given rules */
+function visitUnknownForRules(
+    rules: Iterable<RegexpRule>,
+    context: RegExpContextForUnknown,
+): void {
+    for (const rule of rules) {
+        rule.visitUnknown?.(context)
+    }
+}
+
+/** Returns a single visitor handler that executes all the given handlers. */
+function composeRegExpVisitors(
+    handlers: Iterable<RegExpVisitor.Handlers>,
+): RegExpVisitor.Handlers {
+    const handler: RegExpVisitor.Handlers = {}
+
+    for (const visitor of handlers) {
+        const entries = Object.entries(visitor) as [
+            keyof RegExpVisitor.Handlers,
+            RegExpVisitor.Handlers[keyof RegExpVisitor.Handlers],
+        ][]
+
+        for (const [key, fn] of entries) {
+            const orig = handler[key]
+            if (orig) {
+                handler[key] = (
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+                    node: any,
+                ) => {
+                    orig(node)
+                    fn!(node)
+                }
+            } else {
+                // @ts-expect-error -- ignore
+                handler[key] = fn
+            }
+        }
+    }
+
+    return handler
 }
 
 /**
@@ -476,21 +528,21 @@ export function compositingVisitors(
 }
 
 /**
- * Build RegExpHelperBase
+ * Build RegExpContextBase
  */
-function buildRegExpHelperBase({
-    exprNode,
+function buildRegExpContextBase({
+    patternSource,
     regexpNode,
     context,
     flags,
     parsedPattern,
 }: {
-    exprNode: ESTree.Expression
+    patternSource: PatternSource
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral
     context: Rule.RuleContext
     flags: ReadonlyFlags
     parsedPattern: Pattern
-}): RegExpHelpersBase {
+}): RegExpContextBase {
     const sourceCode = context.getSourceCode()
 
     const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
@@ -499,7 +551,7 @@ function buildRegExpHelperBase({
         toCharSet: (node, optionFlags) => {
             if (optionFlags) {
                 // Ignore the cache if the flag is specified.
-                return toCharSet(node, flags)
+                return toCharSet(node, optionFlags)
             }
 
             let charSet = cacheCharSet.get(node)
@@ -510,126 +562,73 @@ function buildRegExpHelperBase({
             cacheCharSet.set(node, charSet)
             return charSet
         },
-        getRegexpLocation: (node, offsets) =>
-            getRegexpLocation(sourceCode, exprNode, node, offsets),
+        getRegexpLocation: (range, offsets) => {
+            if (offsets) {
+                return patternSource.getAstLocation({
+                    start: range.start + offsets[0],
+                    end: range.start + offsets[1],
+                })
+            }
+            return patternSource.getAstLocation(range)
+        },
         getFlagsLocation: () => getFlagsLocation(sourceCode, regexpNode),
-        fixerApplyEscape: (text) => fixerApplyEscape(text, exprNode),
-        fixReplaceNode: (node, replacement) =>
-            fixReplaceNode(sourceCode, exprNode, node, replacement),
-        fixReplaceQuant: (qNode, replacement) =>
-            fixReplaceQuant(sourceCode, exprNode, qNode, replacement),
-        fixReplaceFlags: (newFlags) =>
-            fixReplaceFlags(
-                sourceCode,
-                exprNode,
-                parsedPattern,
-                regexpNode,
-                newFlags,
-            ),
+        fixReplaceNode: (node, replacement) => {
+            return fixReplaceNode(patternSource, node, replacement)
+        },
+        fixReplaceQuant: (qNode, replacement) => {
+            return fixReplaceQuant(patternSource, qNode, replacement)
+        },
+        fixReplaceFlags: (newFlags) => {
+            return fixReplaceFlags(patternSource, regexpNode, newFlags)
+        },
         getUsageOfPattern: () =>
             (cacheUsageOfPattern ??= getUsageOfPattern(regexpNode, context)),
 
+        pattern: parsedPattern.raw,
         patternAst: parsedPattern,
+        patternSource,
+        flags,
     }
 }
 
-function getRegexpRange(
-    sourceCode: SourceCode,
-    node: ESTree.RegExpLiteral,
-    regexpNode: Node,
-): AST.Range
-function getRegexpRange(
-    sourceCode: SourceCode,
-    node: ESTree.Expression,
-    regexpNode: Node,
-): AST.Range | null
 /**
- * Creates source range from the given regexp node
- * @param sourceCode The ESLint source code instance.
- * @param node The node to report.
- * @param regexpNode The regexp node to report.
- * @returns The SourceLocation
+ * Build UnparsableRegExpContextBase
  */
-function getRegexpRange(
-    sourceCode: SourceCode,
-    node: ESTree.Expression,
-    regexpNode: Node,
-    offsets?: [number, number],
-): AST.Range | null {
-    const startOffset = regexpNode.start + (offsets?.[0] ?? 0)
-    const endOffset = regexpNode.end + (offsets?.[1] ?? 0)
-    if (isRegexpLiteral(node)) {
-        const nodeStart = node.range![0] + 1
-        return [nodeStart + startOffset, nodeStart + endOffset]
-    }
-    if (isStringLiteral(node)) {
-        let start: number | null = null
-        let end: number | null = null
-        try {
-            const sourceText = sourceCode.text.slice(
-                node.range![0] + 1,
-                node.range![1] - 1,
-            )
-            let startIndex = 0
-            for (const t of parseStringTokens(sourceText)) {
-                const endIndex = startIndex + t.value.length
+function buildUnparsableRegExpContextBase({
+    patternSource,
+    patternNode,
+    regexpNode,
+    context,
+    flags,
+    flagsString,
+    ownsFlags,
+}: {
+    patternSource: PatternSource | null
+    patternNode: ESTree.Expression
+    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral
+    context: Rule.RuleContext
+    flags: ReadonlyFlags
+    flagsString: string | null
+    ownsFlags: boolean
+}): UnparsableRegExpContextBase {
+    const sourceCode = context.getSourceCode()
 
-                if (
-                    start == null &&
-                    startIndex <= startOffset &&
-                    startOffset < endIndex
-                ) {
-                    start = t.range[0]
-                }
-                if (
-                    start != null &&
-                    end == null &&
-                    startIndex < endOffset &&
-                    endOffset <= endIndex
-                ) {
-                    end = t.range[1]
-                    break
-                }
-                startIndex = endIndex
-            }
-            if (start != null && end != null) {
-                const nodeStart = node.range![0] + 1
-                return [nodeStart + start, nodeStart + end]
-            }
-        } catch {
-            // ignore
-        }
-    }
-    return null
-}
-
-/**
- * Creates SourceLocation from the given regexp node
- * @param sourceCode The ESLint source code instance.
- * @param node The node to report.
- * @param regexpNode The regexp node to report.
- * @param offsets The report location offsets.
- * @returns The SourceLocation
- */
-function getRegexpLocation(
-    sourceCode: SourceCode,
-    node: ESTree.Expression,
-    regexpNode: Node,
-    offsets?: [number, number],
-): AST.SourceLocation {
-    const range = getRegexpRange(sourceCode, node, regexpNode)
-    if (range == null) {
-        return node.loc!
-    }
-    if (offsets) {
-        return {
-            start: sourceCode.getLocFromIndex(range[0] + offsets[0]),
-            end: sourceCode.getLocFromIndex(range[0] + offsets[1]),
-        }
-    }
     return {
-        start: sourceCode.getLocFromIndex(range[0]),
-        end: sourceCode.getLocFromIndex(range[1]),
+        regexpNode,
+        node: patternNode,
+
+        flags,
+        flagsString,
+        ownsFlags,
+
+        getFlagsLocation: () => getFlagsLocation(sourceCode, regexpNode),
+
+        fixReplaceFlags: (newFlags) => {
+            if (!patternSource) {
+                return () => null
+            }
+            return fixReplaceFlags(patternSource, regexpNode, newFlags)
+        },
     }
 }
 
@@ -684,61 +683,17 @@ function getFlagsLocation(
 }
 
 /**
- * Check if the given expression node is regexp literal.
- */
-export function isRegexpLiteral(
-    node: ESTree.Expression,
-): node is ESTree.RegExpLiteral {
-    if (node.type !== "Literal") {
-        return false
-    }
-    if (!(node as ESTree.RegExpLiteral).regex) {
-        return false
-    }
-    return true
-}
-
-/**
- * Check if the given expression node is string literal.
- */
-function isStringLiteral(
-    node: ESTree.Expression,
-): node is ESTree.Literal & { value: string } {
-    if (node.type !== "Literal") {
-        return false
-    }
-    if (typeof node.value !== "string") {
-        return false
-    }
-    return true
-}
-
-/**
- * Escape depending on which node the string applied to fixer is applied.
- */
-function fixerApplyEscape(text: string, node: ESTree.Expression): string {
-    if (node.type !== "Literal") {
-        throw new Error(`illegal node type:${node.type}`)
-    }
-    if (!(node as ESTree.RegExpLiteral).regex) {
-        return text.replace(/\\/gu, "\\\\")
-    }
-    return text
-}
-
-/**
  * Creates a new fix that replaces the given node with a given string.
  *
  * The string will automatically be escaped if necessary.
  */
 function fixReplaceNode(
-    sourceCode: SourceCode,
-    node: ESTree.Expression,
+    patternSource: PatternSource,
     regexpNode: Node,
     replacement: string | (() => string | null),
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix | null => {
-        const range = getRegexpRange(sourceCode, node, regexpNode)
+        const range = patternSource.getReplaceRange(regexpNode)
         if (range == null) {
             return null
         }
@@ -753,7 +708,7 @@ function fixReplaceNode(
             }
         }
 
-        return fixer.replaceTextRange(range, fixerApplyEscape(text, node))
+        return range.replace(fixer, text)
     }
 }
 
@@ -764,17 +719,11 @@ function fixReplaceNode(
  * This will not change the greediness of the quantifier.
  */
 function fixReplaceQuant(
-    sourceCode: SourceCode,
-    node: ESTree.Expression,
+    patternSource: PatternSource,
     quantifier: Quantifier,
     replacement: string | Quant | (() => string | Quant | null),
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix | null => {
-        const range = getRegexpRange(sourceCode, node, quantifier)
-        if (range == null) {
-            return null
-        }
-
         let text
         if (typeof replacement !== "function") {
             text = replacement
@@ -798,10 +747,15 @@ function fixReplaceQuant(
             text = quantToString(text)
         }
 
-        return fixer.replaceTextRange(
-            [range[0] + offset[0], range[0] + offset[1]],
-            text,
-        )
+        const range = patternSource.getReplaceRange({
+            start: quantifier.start + offset[0],
+            end: quantifier.start + offset[1],
+        })
+        if (range == null) {
+            return null
+        }
+
+        return range.replace(fixer, text)
     }
 }
 
@@ -809,9 +763,7 @@ function fixReplaceQuant(
  * Returns a new fixer that replaces the current flags with the given flags.
  */
 function fixReplaceFlags(
-    sourceCode: SourceCode,
-    patternNode: ESTree.Expression,
-    pattern: Pattern,
+    patternSource: PatternSource,
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
     replacement: string | (() => string | null),
 ) {
@@ -849,16 +801,16 @@ function fixReplaceFlags(
         // fixes that change the pattern generally assume that flags don't
         // change, so we have to create conflicts.
 
-        const patternRange = getRegexpRange(sourceCode, patternNode, pattern)
+        const patternRange = patternSource.getReplaceRange({
+            start: 0,
+            end: patternSource.value.length,
+        })
         if (patternRange == null) {
             return null
         }
 
         return [
-            fixer.replaceTextRange(
-                patternRange,
-                fixerApplyEscape(pattern.raw, patternNode),
-            ),
+            patternRange.replace(fixer, patternSource.value),
             fixer.replaceTextRange(range, newFlags),
         ]
     }

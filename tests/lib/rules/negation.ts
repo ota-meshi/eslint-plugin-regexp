@@ -9,7 +9,12 @@ const tester = new RuleTester({
 })
 
 tester.run("negation", rule as any, {
-    valid: [String.raw`/[\d]/`, String.raw`/[^\d\s]/`],
+    valid: [
+        String.raw`/[\d]/`,
+        String.raw`/[^\d\s]/`,
+        String.raw`/[^\p{ASCII}]/iu`,
+        String.raw`/[^\P{Ll}]/iu`,
+    ],
     invalid: [
         {
             code: String.raw`/[^\d]/`,
@@ -88,6 +93,20 @@ tester.run("negation", rule as any, {
             ],
         },
         {
+            code: String.raw`/[^\P{Ll}]/u;`,
+            output: String.raw`/\p{Ll}/u;`,
+            errors: [
+                "Unexpected negated character class. Use '\\p{Ll}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^\P{White_Space}]/iu;`,
+            output: String.raw`/\p{White_Space}/iu;`,
+            errors: [
+                "Unexpected negated character class. Use '\\p{White_Space}' instead.",
+            ],
+        },
+        {
             code: String.raw`const s ="[^\\w]"
             new RegExp(s)`,
             output: String.raw`const s ="\\W"
@@ -98,9 +117,7 @@ tester.run("negation", rule as any, {
             code: String.raw`const s ="[^\\w]"
             new RegExp(s)
             new RegExp(s)`,
-            output: String.raw`const s ="\\W"
-            new RegExp(s)
-            new RegExp(s)`,
+            output: null,
             errors: [
                 "Unexpected negated character class. Use '\\W' instead.",
                 "Unexpected negated character class. Use '\\W' instead.",

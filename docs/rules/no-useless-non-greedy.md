@@ -9,12 +9,12 @@ since: "v0.3.0"
 
 > disallow unnecessarily non-greedy quantifiers
 
+- :warning: This rule was **deprecated** and replaced by [regexp/no-useless-lazy](no-useless-lazy.md) rule.
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
 
-This rule is the same as the [regexp/no-useless-lazy] rule. Use [regexp/no-useless-lazy] instead.
-Replaced by [regexp/no-useless-lazy] in v1.0.0, this rule will be marked as **deprecated**.
+This rule has been renamed. Use [regexp/no-useless-lazy] instead.
 
 [regexp/no-useless-lazy]: no-useless-lazy.md
 

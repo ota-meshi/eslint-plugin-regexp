@@ -1,7 +1,7 @@
 import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
-import { isRegexpLiteral } from "../../../lib/utils"
+import { isRegexpLiteral } from "../../../lib/utils/ast-utils/utils"
 import {
     getUsageOfPattern,
     UsageOfPattern,
@@ -106,7 +106,7 @@ const TESTCASES: TestCase[] = [
         code: `
         getSource(/a/)
         toString(/b/)
-        
+
         function getSource(p) {
             return p.source
         }
@@ -142,7 +142,7 @@ const TESTCASES: TestCase[] = [
         code: `
         getSource(42, /a/)
         getSource(/b/, 42)
-        
+
         function getSource(p, p2) {
             return p2.source
         }
@@ -152,7 +152,7 @@ const TESTCASES: TestCase[] = [
     {
         code: `
         fn(/a/)
-        
+
         function fn(p) {
             return fn(p)
         }
@@ -164,7 +164,7 @@ const TESTCASES: TestCase[] = [
         const fn = getSource
         fn(42, /a/)
         fn(/b/, 42)
-        
+
         function getSource(p, p2) {
             return p2.source
         }
@@ -174,7 +174,7 @@ const TESTCASES: TestCase[] = [
     {
         code: `
         getSource(42, /a/)
-        
+
         function getSource(p) {
             return p.source
         }
@@ -231,6 +231,21 @@ const TESTCASES: TestCase[] = [
         `,
         results: [UsageOfPattern.unknown, UsageOfPattern.whole],
         sourceType: "module",
+    },
+    {
+        code: `foo(/[a-zA-Z]\\w*/)`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `foo({ pattern: /[a-zA-Z]\\w*/ })`,
+        results: [UsageOfPattern.unknown],
+    },
+    {
+        code: `
+        const a = /a/
+        'str'.replace(b, a/*unknown*/)
+        `,
+        results: [UsageOfPattern.unknown],
     },
 ]
 describe("getUsageOfPattern", () => {

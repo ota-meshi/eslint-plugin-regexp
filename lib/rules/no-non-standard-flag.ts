@@ -1,8 +1,7 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { RegExpContext } from "../utils"
+import type { RegExpContext, UnparsableRegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
-const STANDARD_FLAGS = "gimsuy"
+const STANDARD_FLAGS = "dgimsuy"
 
 export default createRule("no-non-standard-flag", {
     meta: {
@@ -20,14 +19,12 @@ export default createRule("no-non-standard-flag", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
-        function createVisitor({
-            node,
+        /** The logic of this rule */
+        function visit({
+            regexpNode,
             getFlagsLocation,
             flagsString,
-        }: RegExpContext): RegExpVisitor.Handlers {
+        }: RegExpContext | UnparsableRegExpContext) {
             if (flagsString) {
                 const nonStandard = [...flagsString].filter(
                     (f) => !STANDARD_FLAGS.includes(f),
@@ -35,18 +32,22 @@ export default createRule("no-non-standard-flag", {
 
                 if (nonStandard.length > 0) {
                     context.report({
-                        node,
+                        node: regexpNode,
                         loc: getFlagsLocation(),
                         messageId: "unexpected",
                         data: { flag: nonStandard[0] },
                     })
                 }
             }
-            return {}
         }
 
         return defineRegexpVisitor(context, {
-            createVisitor,
+            createVisitor(regexpContext) {
+                visit(regexpContext)
+                return {}
+            },
+            visitInvalid: visit,
+            visitUnknown: visit,
         })
     },
 })

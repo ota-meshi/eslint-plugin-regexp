@@ -365,6 +365,21 @@ tester.run("no-dupe-disjunctions", rule as any, {
         },
         {
             code: String(/\b(?:\d|foo|\w+)\b/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '\\w+' and can be removed.",
+                    column: 7,
+                },
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '\\w+' and can be removed.",
+                    column: 10,
+                },
+            ],
+        },
+        {
+            code: String(/(?:\d|foo|\w+)a/),
             options: [{ report: "interesting" }],
             errors: [
                 "Unexpected superset. This alternative is a superset of '\\d|foo'. It might be possible to remove the other alternative(s).",

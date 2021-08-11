@@ -11,6 +11,7 @@ import {
     createRule,
     defineRegexpVisitor,
 } from "../utils"
+import { mention } from "../utils/mention"
 
 type CharacterClassElementKind = "\\w" | "\\d" | "\\s" | "\\p" | "*"
 const DEFAULT_ORDER: CharacterClassElementKind[] = [
@@ -61,7 +62,7 @@ export default createRule("sort-character-class-elements", {
         ],
         messages: {
             sortElements:
-                "Expected character class elements to be in ascending order. '{{next}}' should be before '{{prev}}'.",
+                "Expected character class elements to be in ascending order. {{next}} should be before {{prev}}.",
         },
         type: "layout",
     },
@@ -84,9 +85,8 @@ export default createRule("sort-character-class-elements", {
          */
         function createVisitor({
             node,
-            fixerApplyEscape,
             getRegexpLocation,
-            getRegexpRange,
+            patternSource,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
@@ -108,26 +108,27 @@ export default createRule("sort-character-class-elements", {
                                     loc: getRegexpLocation(next),
                                     messageId: "sortElements",
                                     data: {
-                                        next: next.raw,
-                                        prev: moveTarget.raw,
+                                        next: mention(next),
+                                        prev: mention(moveTarget),
                                     },
                                     *fix(fixer) {
-                                        const nextRange = getRegexpRange(next)
-                                        const targetRange = getRegexpRange(
+                                        const nextRange = patternSource.getReplaceRange(
+                                            next,
+                                        )
+                                        const targetRange = patternSource.getReplaceRange(
                                             moveTarget,
                                         )
+
                                         if (!targetRange || !nextRange) {
                                             return
                                         }
 
-                                        yield fixer.insertTextBeforeRange(
-                                            targetRange,
-                                            fixerApplyEscape(
-                                                escapeRaw(next, moveTarget),
-                                            ),
+                                        yield targetRange.insertBefore(
+                                            fixer,
+                                            escapeRaw(next, moveTarget),
                                         )
 
-                                        yield fixer.removeRange(nextRange)
+                                        yield nextRange.remove(fixer)
                                     },
                                 })
                             }
