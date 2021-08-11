@@ -106,6 +106,12 @@ tester.run("no-useless-flag", rule as any, {
         const regex = /foo/g;
         unknown.exec(regex)
         `,
+        `
+        const notStr = {}
+        notStr.split(/foo/g);
+        
+        maybeStr.split(/foo/g);
+        `,
 
         // y
         `
@@ -551,6 +557,48 @@ tester.run("no-useless-flag", rule as any, {
                 "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
             ],
         },
+        {
+            code: `
+            const notStr = {}
+            notStr.split(/foo/g);
+
+            maybeStr.split(/foo/g);
+            `,
+            output: `
+            const notStr = {}
+            notStr.split(/foo/g);
+
+            maybeStr.split(/foo/);
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+            ],
+        },
+        {
+            code: `
+            /** @param {object} obj */
+            function fn1 (obj) {
+                obj.search(/foo/g);
+            }
+            function fn2 (maybeStr) {
+                maybeStr.split(/foo/g);
+            }
+            `,
+            output: `
+            /** @param {object} obj */
+            function fn1 (obj) {
+                obj.search(/foo/g);
+            }
+            function fn2 (maybeStr) {
+                maybeStr.split(/foo/);
+            }
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.",
+            ],
+        },
 
         // y
         {
@@ -651,6 +699,24 @@ tester.run("no-useless-flag", rule as any, {
                     line: 2,
                     column: 28,
                 },
+            ],
+        },
+        {
+            code: `
+            const notStr = {}
+            notStr.split(/foo/y);
+
+            maybeStr.split(/foo/y);
+            `,
+            output: `
+            const notStr = {}
+            notStr.split(/foo/y);
+
+            maybeStr.split(/foo/);
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
             ],
         },
 
