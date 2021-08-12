@@ -3,6 +3,10 @@ import type { Alternative, Element, Pattern } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_MINUS,
+    CP_PLUS,
+    CP_STAR,
+    CP_QUESTION,
+    CP_SLASH,
     CP_SPACE,
     CP_APOSTROPHE,
     createRule,
@@ -16,7 +20,6 @@ import {
 } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
-import type { SourceLocation, Position } from "estree"
 import { canReorder } from "../utils/reorder-alternatives"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 
@@ -36,8 +39,15 @@ function getAllowedChars(flags: ReadonlyFlags) {
                 [
                     { kind: "word", negate: false },
                     { min: CP_SPACE, max: CP_SPACE },
+
+                    // common punctuation and operators
+                    { min: CP_PLUS, max: CP_PLUS },
                     { min: CP_MINUS, max: CP_MINUS },
+                    { min: CP_STAR, max: CP_STAR },
+                    { min: CP_SLASH, max: CP_SLASH },
+
                     { min: CP_APOSTROPHE, max: CP_APOSTROPHE },
+                    { min: CP_QUESTION, max: CP_QUESTION },
                 ],
                 flags,
             ),
@@ -133,50 +143,12 @@ function isIntegerString(str: string): boolean {
  * are a number.
  */
 function trySortNumberAlternatives(alternatives: Alternative[]): void {
-    const numberRanges: [number, number][] = []
-    {
-        let start = 0
-        for (let i = 0; i < alternatives.length; i++) {
-            if (!isIntegerString(alternatives[i].raw)) {
-                if (start < i) {
-                    numberRanges.push([start, i])
-                }
-                start = i + 1
-            }
-        }
-        if (start < alternatives.length) {
-            numberRanges.push([start, alternatives.length])
-        }
-    }
-
-    for (const [start, end] of numberRanges) {
-        const slice = alternatives.slice(start, end)
-
-        slice.sort((a, b) => {
+    const runs = getRuns(alternatives, (a) => isIntegerString(a.raw))
+    for (const { startIndex, elements } of runs) {
+        elements.sort((a, b) => {
             return Number(a.raw) - Number(b.raw)
         })
-
-        alternatives.splice(start, end - start, ...slice)
-    }
-}
-
-/**
- * Returns the combined source location of the two given locations.
- */
-function unionLocations(a: SourceLocation, b: SourceLocation): SourceLocation {
-    /** x < y */
-    function less(x: Position, y: Position): boolean {
-        if (x.line < y.line) {
-            return true
-        } else if (x.line > y.line) {
-            return false
-        }
-        return x.column < y.column
-    }
-
-    return {
-        start: { ...(less(a.start, b.start) ? a.start : b.start) },
-        end: { ...(less(a.end, b.end) ? b.end : a.end) },
+        alternatives.splice(startIndex, elements.length, ...elements)
     }
 }
 
@@ -208,7 +180,7 @@ function getReorderingBounds<T>(
 }
 
 interface Run<T> {
-    index: number
+    startIndex: number
     elements: T[]
 }
 
@@ -226,12 +198,17 @@ function getRuns<T>(iter: Iterable<T>, condFn: (item: T) => boolean): Run<T>[] {
             elements.push(item)
         } else {
             if (elements.length > 0) {
-                runs.push({ index, elements })
+                runs.push({ startIndex: index - elements.length, elements })
                 elements = []
             }
         }
 
         index++
+    }
+
+    if (elements.length > 0) {
+        runs.push({ startIndex: index - elements.length, elements })
+        elements = []
     }
 
     return runs
@@ -253,6 +230,8 @@ export default createRule("sort-alternatives", {
         type: "suggestion", // "problem",
     },
     create(context) {
+        const sliceMinLength = 3
+
         /**
          * Create visitor
          */
@@ -268,23 +247,76 @@ export default createRule("sort-alternatives", {
 
             const allowedChars = getAllowedChars(flags)
 
+            const possibleCharsCache = new Map<Alternative, CharSet>()
+
+            /** A cached version of getPossiblyConsumedChar */
+            function getPossibleChars(a: Alternative): CharSet {
+                let chars = possibleCharsCache.get(a)
+                if (chars === undefined) {
+                    chars = getPossiblyConsumedChar(a, regexpContext).char
+                    possibleCharsCache.set(a, chars)
+                }
+                return chars
+            }
+
+            /** Tries to sort the given alternatives. */
+            function trySortRun(run: Run<Alternative>): void {
+                const alternatives = run.elements
+
+                if (canReorder(alternatives, regexpContext)) {
+                    // alternatives can be reordered freely
+                    sortAlternatives(alternatives, regexpContext)
+                    trySortNumberAlternatives(alternatives)
+                } else {
+                    const consumedChars = Chars.empty(flags).union(
+                        ...alternatives.map(getPossibleChars),
+                    )
+                    if (!consumedChars.isDisjointWith(Chars.digit(flags))) {
+                        // let's try to at least sort numbers
+                        const runs = getRuns(alternatives, (a) =>
+                            isIntegerString(a.raw),
+                        )
+
+                        for (const { startIndex: index, elements } of runs) {
+                            if (
+                                elements.length > 1 &&
+                                canReorder(elements, regexpContext)
+                            ) {
+                                trySortNumberAlternatives(elements)
+                                alternatives.splice(
+                                    index,
+                                    elements.length,
+                                    ...elements,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                enforceSorted(run)
+            }
+
             /**
              * Creates a report if the sorted alternatives are different from
              * the unsorted ones.
              */
-            function enforceSorted(sorted: Alternative[]): void {
+            function enforceSorted(run: Run<Alternative>): void {
+                const sorted = run.elements
                 const parent = sorted[0].parent
-                const unsorted = parent.alternatives
+                const unsorted = parent.alternatives.slice(
+                    run.startIndex,
+                    run.startIndex + sorted.length,
+                )
 
                 const bounds = getReorderingBounds(unsorted, sorted)
                 if (!bounds) {
                     return
                 }
 
-                const loc = unionLocations(
-                    getRegexpLocation(unsorted[bounds[0]]),
-                    getRegexpLocation(unsorted[bounds[1]]),
-                )
+                const loc = getRegexpLocation({
+                    start: unsorted[bounds[0]].start,
+                    end: unsorted[bounds[1]].end,
+                })
 
                 context.report({
                     node,
@@ -293,11 +325,10 @@ export default createRule("sort-alternatives", {
                     fix: fixReplaceNode(parent, () => {
                         const prefix = parent.raw.slice(
                             0,
-                            parent.alternatives[0].start - parent.start,
+                            unsorted[0].start - parent.start,
                         )
                         const suffix = parent.raw.slice(
-                            parent.alternatives[parent.alternatives.length - 1]
-                                .end - parent.start,
+                            unsorted[unsorted.length - 1].end - parent.start,
                         )
 
                         return (
@@ -313,65 +344,46 @@ export default createRule("sort-alternatives", {
                     return
                 }
 
-                if (!containsOnlyLiterals(parent)) {
-                    return
-                }
+                const runs = getRuns(parent.alternatives, (a) => {
+                    if (!containsOnlyLiterals(a)) {
+                        return false
+                    }
+
+                    const consumedChars = getPossibleChars(a)
+                    if (consumedChars.isEmpty) {
+                        // the alternative is either empty or only contains
+                        // assertions
+                        return false
+                    }
+                    if (!consumedChars.isSubsetOf(allowedChars.allowed)) {
+                        // contains some chars that are not allowed
+                        return false
+                    }
+                    if (consumedChars.isDisjointWith(allowedChars.required)) {
+                        // doesn't contain required chars
+                        return false
+                    }
+
+                    return true
+                })
 
                 if (
-                    hasSomeDescendant(
-                        parent,
-                        (d) => d !== parent && d.type === "CapturingGroup",
-                    )
+                    runs.length === 1 &&
+                    runs[0].elements.length === parent.alternatives.length
                 ) {
-                    // it's not safe to reorder alternatives with capturing groups
-                    return
-                }
-
-                const consumedChars = getPossiblyConsumedChar(
-                    parent,
-                    regexpContext,
-                ).char
-                if (consumedChars.isEmpty) {
-                    // all alternatives are either empty or only contain
-                    // assertions
-                    return
-                }
-                if (!consumedChars.isSubsetOf(allowedChars.allowed)) {
-                    // contains some chars that are not allowed
-                    return
-                }
-                if (consumedChars.isDisjointWith(allowedChars.required)) {
-                    // doesn't contain required chars
-                    return
-                }
-
-                const alternatives = [...parent.alternatives]
-
-                if (canReorder(alternatives, regexpContext)) {
-                    // alternatives can be reordered freely
-                    sortAlternatives(alternatives, regexpContext)
-                    trySortNumberAlternatives(alternatives)
-                } else if (!consumedChars.isDisjointWith(Chars.digit(flags))) {
-                    // let's try to at least sort numbers
-                    const runs = getRuns(alternatives, (a) =>
-                        isIntegerString(a.raw),
-                    )
-                    for (const { index, elements } of runs) {
+                    // All alternatives are to be sorted
+                    trySortRun(runs[0])
+                } else {
+                    // Some slices are to be sorted
+                    for (const run of runs) {
                         if (
-                            elements.length > 1 &&
-                            canReorder(elements, regexpContext)
+                            run.elements.length >= sliceMinLength &&
+                            run.elements.length >= 2
                         ) {
-                            trySortNumberAlternatives(elements)
-                            alternatives.splice(
-                                index,
-                                elements.length,
-                                ...elements,
-                            )
+                            trySortRun(run)
                         }
                     }
                 }
-
-                enforceSorted(alternatives)
             }
 
             return {
