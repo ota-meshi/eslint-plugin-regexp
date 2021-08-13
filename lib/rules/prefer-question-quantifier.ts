@@ -1,3 +1,4 @@
+import { mention } from "../utils/mention"
 import type { Group, Quantifier } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
@@ -15,7 +16,7 @@ export default createRule("prefer-question-quantifier", {
         messages: {
             unexpected: "Unexpected quantifier '{{expr}}'. Use '?' instead.",
             unexpectedGroup:
-                "Unexpected group '{{expr}}'. Use '{{instead}}' instead.",
+                "Unexpected group {{expr}}. Use '{{instead}}' instead.",
         },
         type: "suggestion", // "problem",
     },
@@ -96,7 +97,7 @@ export default createRule("prefer-question-quantifier", {
                             loc: getRegexpLocation(reportNode),
                             messageId: "unexpectedGroup",
                             data: {
-                                expr: reportNode.raw,
+                                expr: mention(reportNode),
                                 instead,
                             },
                             fix: fixReplaceNode(reportNode, instead),

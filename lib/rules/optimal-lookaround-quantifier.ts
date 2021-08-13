@@ -3,6 +3,7 @@ import type { Alternative, LookaroundAssertion, Quantifier } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { hasSomeDescendant } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 /**
  * Extract invalid quantifiers for lookarounds
@@ -65,9 +66,9 @@ export default createRule("optimal-lookaround-quantifier", {
         schema: [],
         messages: {
             remove:
-                "The quantified expression '{{expr}}' at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                "The quantified expression {{expr}} at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
             replacedWith:
-                "The quantified expression '{{expr}}' at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be replaced with {{replacer}} without affecting the lookaround.",
+                "The quantified expression {{expr}} at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be replaced with {{replacer}} without affecting the lookaround.",
         },
         type: "problem",
     },
@@ -105,7 +106,7 @@ export default createRule("optimal-lookaround-quantifier", {
                                 messageId:
                                     q.min === 0 ? "remove" : "replacedWith",
                                 data: {
-                                    expr: q.raw,
+                                    expr: mention(q),
                                     endOrStart,
                                     replacer,
                                 },

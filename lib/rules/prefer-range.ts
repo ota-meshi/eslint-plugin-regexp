@@ -8,6 +8,7 @@ import {
     inRange,
 } from "../utils/char-ranges"
 import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
+import { mention } from "../utils/mention"
 
 export default createRule("prefer-range", {
     meta: {
@@ -30,7 +31,7 @@ export default createRule("prefer-range", {
         ],
         messages: {
             unexpected:
-                "Unexpected multiple adjacent characters. Use '{{range}}' instead.",
+                "Unexpected multiple adjacent characters. Use {{range}} instead.",
         },
         type: "suggestion", // "problem",
     },
@@ -161,7 +162,7 @@ export default createRule("prefer-range", {
                                     node,
                                     loc: node.loc!,
                                     messageId: "unexpected",
-                                    data: { range: newText },
+                                    data: { range: mention(newText) },
                                 })
                                 continue
                             }
@@ -171,7 +172,7 @@ export default createRule("prefer-range", {
                                     node,
                                     loc: range.getAstLocation(sourceCode),
                                     messageId: "unexpected",
-                                    data: { range: newText },
+                                    data: { range: mention(newText) },
                                     fix: (fixer) => {
                                         return ranges.map((r, index) => {
                                             if (index === 0) {

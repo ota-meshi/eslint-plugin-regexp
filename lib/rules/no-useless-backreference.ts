@@ -12,6 +12,7 @@ import {
     getMatchingDirection,
     isZeroLength,
 } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 /**
  * Returns whether the list of ancestors from `from` to `to` contains a negated
@@ -89,17 +90,17 @@ export default createRule("no-useless-backreference", {
         schema: [],
         messages: {
             nested:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' from within that group.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} from within that group.",
             forward:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which appears later in the pattern.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} which appears later in the pattern.",
             backward:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which appears before in the same lookbehind.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} which appears before in the same lookbehind.",
             disjunctive:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which is in another alternative.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in another alternative.",
             intoNegativeLookaround:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which is in a negative lookaround.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in a negative lookaround.",
             empty:
-                "Backreference '{{ bref }}' will be ignored. It references group '{{ group }}' which always captures zero characters.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }} which always captures zero characters.",
         },
         type: "suggestion", // "problem",
     },
@@ -121,8 +122,8 @@ export default createRule("no-useless-backreference", {
                             loc: getRegexpLocation(backRef),
                             messageId,
                             data: {
-                                bref: backRef.raw,
-                                group: backRef.resolved.raw,
+                                bref: mention(backRef),
+                                group: mention(backRef.resolved),
                             },
                         })
                     }

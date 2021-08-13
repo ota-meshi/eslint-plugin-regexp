@@ -5,6 +5,7 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
 import { matchesAllCharacters } from "regexp-ast-analysis"
+import { mention } from "../utils/mention"
 
 const OPTION_SS1 = "[\\s\\S]" as const
 const OPTION_SS2 = "[\\S\\s]" as const
@@ -47,7 +48,7 @@ export default createRule("match-any", {
             },
         ],
         messages: {
-            unexpected: "Unexpected using '{{expr}}' to match any character.",
+            unexpected: "Unexpected using {{expr}} to match any character.",
         },
         type: "suggestion", // "problem",
     },
@@ -145,7 +146,7 @@ export default createRule("match-any", {
                             loc: getRegexpLocation(csNode),
                             messageId: "unexpected",
                             data: {
-                                expr: ".",
+                                expr: mention(csNode),
                             },
                             fix(fixer) {
                                 return fix(fixer, regexpContext, csNode)
@@ -163,7 +164,7 @@ export default createRule("match-any", {
                             loc: getRegexpLocation(ccNode),
                             messageId: "unexpected",
                             data: {
-                                expr: ccNode.raw,
+                                expr: mention(ccNode),
                             },
                             fix(fixer) {
                                 return fix(fixer, regexpContext, ccNode)
