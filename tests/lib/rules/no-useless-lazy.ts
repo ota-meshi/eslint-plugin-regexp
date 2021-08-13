@@ -73,6 +73,11 @@ tester.run("no-useless-lazy", rule as any, {
             errors: [{ messageId: "possessive" }],
         },
         {
+            code: `/a*?b+/`,
+            output: `/a*b+/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
             code: `/(?:a|cd)+?(?:b+|zzz)/`,
             output: `/(?:a|cd)+(?:b+|zzz)/`,
             errors: [{ messageId: "possessive" }],
