@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("sort-alternatives", rule as any, {
-    valid: [String.raw`/\b(?:a|\d+|c|b)\b/`],
+    valid: [String.raw`/\b(?:a|\d+|c|b)\b/`, String.raw`/\b(?:\^|c|b)\b/`],
     invalid: [
         {
             code: String.raw`/c|b|a/`,
@@ -99,6 +99,16 @@ tester.run("sort-alternatives", rule as any, {
         {
             code: String.raw`/\((?:TM|R|C)\)/`,
             output: String.raw`/\((?:C|R|TM)\)/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+
+        // sorting slices
+
+        {
+            code: String.raw`/\b(?:\^|c|b|a)\b/`,
+            output: String.raw`/\b(?:\^|a|b|c)\b/`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
             ],
