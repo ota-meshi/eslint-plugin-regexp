@@ -173,7 +173,7 @@ export default createRule("no-unused-capturing-group", {
         docs: {
             description: "disallow unused capturing group",
             category: "Best Practices",
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [

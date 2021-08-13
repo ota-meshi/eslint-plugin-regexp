@@ -11,9 +11,7 @@ export default createRule("negation", {
         docs: {
             description: "enforce use of escapes on negation",
             category: "Best Practices",
-            // TODO In the major version
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

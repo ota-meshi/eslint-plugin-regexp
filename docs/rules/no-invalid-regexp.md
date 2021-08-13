@@ -9,6 +9,7 @@ description: "disallow invalid regular expression strings in `RegExp` constructo
 > disallow invalid regular expression strings in `RegExp` constructors
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
 
 ## :book: Rule Details
 

@@ -17,10 +17,7 @@ export default createRule("no-invalid-regexp", {
             description:
                 "disallow invalid regular expression strings in `RegExp` constructors",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // TODO When setting `recommended: true`, do not forget to disable ESLint's no-invalid-regexp in recommended.ts
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {

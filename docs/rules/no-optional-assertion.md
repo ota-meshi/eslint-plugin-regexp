@@ -9,6 +9,8 @@ since: "v0.9.0"
 
 > disallow optional assertions
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 Assertions that are quantified (directly or indirectly) can be considered optional if the quantifier has a minimum of zero.

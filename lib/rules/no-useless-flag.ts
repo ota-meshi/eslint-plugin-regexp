@@ -805,9 +805,7 @@ export default createRule("no-useless-flag", {
         docs: {
             description: "disallow unnecessary regex flags",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
             default: "warn",
         },
         fixable: "code",

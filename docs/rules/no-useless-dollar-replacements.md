@@ -9,6 +9,8 @@ since: "v0.6.0"
 
 > disallow useless `$` replacements in replacement string
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 This rule aims to detect and disallow useless `$` replacements in regular expression replacements.

@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 > disallow the alternatives of lookarounds that end with a non-constant quantifier
 
+- :gear: This rule is included in `"plugin:regexp/recommended"`.
+
 ## :book: Rule Details
 
 Non-constant quantifiers are quantifiers that describe a range (e.g. `?`, `*`,

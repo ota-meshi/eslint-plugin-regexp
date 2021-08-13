@@ -689,9 +689,7 @@ export default createRule("no-dupe-disjunctions", {
         docs: {
             description: "disallow duplicate disjunctions",
             category: "Possible Errors",
-            // TODO In the major version
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [
             {

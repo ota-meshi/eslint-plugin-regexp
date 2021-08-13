@@ -13,9 +13,7 @@ export default createRule("confusing-quantifier", {
         docs: {
             description: "disallow confusing quantifiers",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
             default: "warn",
         },
         schema: [],

@@ -7,9 +7,7 @@ export default createRule("no-standalone-backslash", {
         docs: {
             description: "disallow standalone backslashes (`\\`)",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: false, //  `regexp/strict` rule meets this rule.
         },
         schema: [],
         messages: {
