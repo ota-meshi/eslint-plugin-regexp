@@ -18,7 +18,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 <!--USAGE_SECTION_START-->
 
 Add `regexp` to the plugins section of your `.eslintrc` configuration file (you can omit the `eslint-plugin-` prefix)
-and either use one of the two configurations available (`recommended` or `all`) or configure the rules you want:
+and configure the rules you want or either use one of the two configurations available (`recommended` or `all`):
 
 ### The recommended configuration
 
@@ -28,9 +28,6 @@ The `plugin:regexp/recommended` config enables a subset of [the rules](../rules/
 ```js
 // .eslintrc.js
 module.exports = {
-    "plugins": [
-        "regexp"
-    ],
     "extends": [
          // add more generic rulesets here, such as:
          // 'eslint:recommended',
