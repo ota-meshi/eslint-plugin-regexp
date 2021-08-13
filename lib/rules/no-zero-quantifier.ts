@@ -22,6 +22,7 @@ export default createRule("no-zero-quantifier", {
             remove: "Remove this zero quantifier.",
         },
         type: "suggestion", // "problem",
+        hasSuggestions: true,
     },
     create(context) {
         /**

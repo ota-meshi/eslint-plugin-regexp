@@ -72,6 +72,7 @@ export default createRule("strict", {
                 "Replace the octal escape with a hexadecimal escape.",
         },
         type: "suggestion",
+        hasSuggestions: true,
     },
     create(context) {
         /**

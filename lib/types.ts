@@ -29,6 +29,7 @@ export interface RuleMetaData {
     schema: JSONSchema4 | JSONSchema4[]
     deprecated?: boolean
     type: "problem" | "suggestion" | "layout"
+    hasSuggestions?: boolean
 }
 
 export interface PartialRuleModule {
@@ -49,4 +50,5 @@ export interface PartialRuleMetaData {
     schema: JSONSchema4 | JSONSchema4[]
     deprecated?: boolean
     type: "problem" | "suggestion" | "layout"
+    hasSuggestions?: boolean
 }
