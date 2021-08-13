@@ -19,8 +19,8 @@ describe("Integration with eslint-plugin-regexp", () => {
             })
             results = await eslint.lintFiles(["test.js"])
         } else {
-            // eslint-disable-next-line new-cap, @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
-            const engine = require("eslint").CLIEngine({
+            // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
+            const engine = new (require("eslint").CLIEngine)({
                 cwd: TEST_CWD,
             })
             engine.addPlugin("eslint-plugin-regexp", plugin)
