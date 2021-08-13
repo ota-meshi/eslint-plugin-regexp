@@ -7,7 +7,7 @@ export default createRule("no-octal", {
         docs: {
             description: "disallow octal escape sequence",
             category: "Best Practices",
-            recommended: true,
+            recommended: false, //  `regexp/strict` rule meets this rule.
         },
         schema: [],
         messages: {

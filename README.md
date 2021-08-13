@@ -133,7 +133,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-legacy-features](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-legacy-features.html) | disallow legacy RegExp features | :star: |
 | [regexp/no-non-standard-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-non-standard-flag.html) | disallow non-standard flags | :star: |
 | [regexp/no-obscure-range](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-obscure-range.html) | disallow obscure character ranges | :star: |
-| [regexp/no-octal](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-octal.html) | disallow octal escape sequence | :star: |
+| [regexp/no-octal](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-octal.html) | disallow octal escape sequence |  |
 | [regexp/no-standalone-backslash](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-standalone-backslash.html) | disallow standalone backslashes (`\`) |  |
 | [regexp/no-trivially-nested-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-assertion.html) | disallow trivially nested assertions | :star::wrench: |
 | [regexp/no-trivially-nested-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-trivially-nested-quantifier.html) | disallow nested quantifiers that can be rewritten as one quantifier | :star::wrench: |

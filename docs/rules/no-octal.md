@@ -9,8 +9,6 @@ since: "v0.1.0"
 
 > disallow octal escape sequence
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-
 ## :book: Rule Details
 
 This rule reports octal escapes.

@@ -29,7 +29,6 @@ export = {
         "regexp/no-legacy-features": "error",
         "regexp/no-non-standard-flag": "error",
         "regexp/no-obscure-range": "error",
-        "regexp/no-octal": "error",
         "regexp/no-optional-assertion": "error",
         "regexp/no-potentially-useless-backreference": "warn",
         "regexp/no-super-linear-backtracking": "error",

@@ -42,7 +42,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features | :star: |
 | [regexp/no-non-standard-flag](./no-non-standard-flag.md) | disallow non-standard flags | :star: |
 | [regexp/no-obscure-range](./no-obscure-range.md) | disallow obscure character ranges | :star: |
-| [regexp/no-octal](./no-octal.md) | disallow octal escape sequence | :star: |
+| [regexp/no-octal](./no-octal.md) | disallow octal escape sequence |  |
 | [regexp/no-standalone-backslash](./no-standalone-backslash.md) | disallow standalone backslashes (`\`) |  |
 | [regexp/no-trivially-nested-assertion](./no-trivially-nested-assertion.md) | disallow trivially nested assertions | :star::wrench: |
 | [regexp/no-trivially-nested-quantifier](./no-trivially-nested-quantifier.md) | disallow nested quantifiers that can be rewritten as one quantifier | :star::wrench: |
