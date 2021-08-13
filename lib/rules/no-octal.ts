@@ -16,6 +16,7 @@ export default createRule("no-octal", {
                 "Replace the octal escape sequence with a hexadecimal escape sequence.",
         },
         type: "suggestion", // "problem",
+        hasSuggestions: true,
     },
     create(context) {
         /**

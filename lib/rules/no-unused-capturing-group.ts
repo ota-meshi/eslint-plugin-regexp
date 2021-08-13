@@ -196,6 +196,7 @@ export default createRule("no-unused-capturing-group", {
             removeName: "Remove the unused name.",
         },
         type: "suggestion", // "problem",
+        hasSuggestions: true,
     },
     create(context) {
         const fixable: boolean = context.options[0]?.fixable ?? false

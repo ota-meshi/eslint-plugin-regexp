@@ -27,6 +27,7 @@ export default createRule("no-useless-quantifier", {
             remove: "Remove the '{{quant}}' quantifier.",
         },
         type: "suggestion", // "problem",
+        hasSuggestions: true,
     },
     create(context) {
         /**
