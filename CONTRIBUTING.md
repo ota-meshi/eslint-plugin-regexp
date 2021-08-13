@@ -127,4 +127,4 @@ Aside from `npm test`, there are also a few other ways to manually test new feat
 
 <!-- Important links -->
 
-[new-issue]: https://github.com/PrismJS/prism/issues/new/choose
+[new-issue]: https://github.com/ota-meshi/eslint-plugin-regexp/issues/new/choose
