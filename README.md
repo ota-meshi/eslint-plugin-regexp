@@ -198,15 +198,17 @@ See [Settings](https://ota-meshi.github.io/eslint-plugin-regexp/settings/).
 
 <!--DOCS_IGNORE_START-->
 
-<!-- ## :traffic_light: Semantic Versioning Policy
+## :traffic_light: Semantic Versioning Policy
 
-**eslint-plugin-jsonc** follows [Semantic Versioning](http://semver.org/) and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy). -->
+**eslint-plugin-regexp** follows [Semantic Versioning](http://semver.org/) and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
 
 ## :beers: Contributing
 
 Welcome contributing!
 
 Please use GitHub's Issues/PRs.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Development Tools
 
