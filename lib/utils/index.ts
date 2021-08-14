@@ -330,10 +330,12 @@ function buildRegexpVisitor(
         visitRegExpAST(parsedPattern, createVisitor(helpers))
     }
 
+    const ownedRegExpLiterals = new Set<ESTree.RegExpLiteral>()
+
     return {
         "Program:exit": programExit,
         Literal(node: ESTree.Literal) {
-            if (!isRegexpLiteral(node)) {
+            if (!isRegexpLiteral(node) || ownedRegExpLiterals.has(node)) {
                 return
             }
             const flagsString = node.regex.flags
@@ -374,6 +376,11 @@ function buildRegexpVisitor(
                     context,
                     patternNode,
                 )
+
+                // avoid double reporting
+                patternSource
+                    ?.getOwnedRegExpLiterals()
+                    .forEach((n) => ownedRegExpLiterals.add(n))
 
                 let flagsString = null
                 let ownsFlags = false
