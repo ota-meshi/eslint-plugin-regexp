@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-invalid-regexp"
 description: "disallow invalid regular expression strings in `RegExp` constructors"
+since: "v1.0.0"
 ---
 # regexp/no-invalid-regexp
 
 > disallow invalid regular expression strings in `RegExp` constructors
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :gear: This rule is included in `"plugin:regexp/recommended"`.
 
 ## :book: Rule Details
@@ -58,6 +58,10 @@ Nothing.
 - [no-invalid-regexp]
 
 [no-invalid-regexp]: https://eslint.org/docs/rules/no-invalid-regexp
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.0.0
 
 ## :mag: Implementation
 
