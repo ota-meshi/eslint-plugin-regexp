@@ -52,7 +52,7 @@
         "eslint": ">=6.0.0"
     },
     "devDependencies": {
-        "@ota-meshi/eslint-plugin": "^0.7.0",
+        "@ota-meshi/eslint-plugin": "^0.8.0",
         "@types/chai": "^4.2.18",
         "@types/eslint": "^7.2.0",
         "@types/eslint-scope": "^3.7.0",
