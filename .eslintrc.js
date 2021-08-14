@@ -49,14 +49,6 @@ module.exports = {
                 ],
             },
         ],
-
-        "no-empty-character-class": "error",
-
-        "regexp/no-dupe-disjunctions": ["error", { disallowNeverMatch: true }],
-        "regexp/letter-case": [
-            "error",
-            { hexadecimalEscape: "lowercase", controlEscape: "uppercase" },
-        ],
     },
     overrides: [
         {
