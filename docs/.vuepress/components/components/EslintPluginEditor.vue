@@ -17,6 +17,7 @@
 
 <script>
 import EslintEditor from "vue-eslint-editor"
+import { Linter } from "eslint/lib/linter"
 import plugin from "../../../.."
 
 export default {
@@ -46,7 +47,6 @@ export default {
 
     data() {
         return {
-            eslint4b: null,
             format: {
                 insertSpaces: true,
                 tabSize: 2,
@@ -85,7 +85,7 @@ export default {
                 rules: this.rules,
                 parserOptions: {
                     sourceType: "module",
-                    ecmaVersion: 2019,
+                    ecmaVersion: 2022,
                 },
             }
         },
@@ -96,11 +96,6 @@ export default {
             return "javascript"
         },
         linter() {
-            if (!this.eslint4b) {
-                return null
-            }
-            const Linter = this.eslint4b
-
             const linter = new Linter()
 
             for (const k of Object.keys(plugin.rules)) {
@@ -112,11 +107,7 @@ export default {
         },
     },
 
-    async mounted() {
-        // Load linter asynchronously.
-        const { default: eslint4b } = await import("eslint4b")
-        this.eslint4b = eslint4b
-
+    mounted() {
         const editor = this.$refs.editor
 
         editor.$watch("monaco", () => {

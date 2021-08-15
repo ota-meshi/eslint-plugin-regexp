@@ -1,7 +1,9 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair -- demo
 /* eslint-disable node/no-unsupported-features/es-syntax -- demo */
-import * as coreRules from "../../../../node_modules/eslint4b/dist/core-rules"
+import { Linter } from "eslint/lib/linter"
 import plugin from "../../../../"
+
+const coreRules = Object.fromEntries(new Linter().getRules())
 
 const CATEGORY_TITLES = {
     "Possible Errors": "Possible Errors",

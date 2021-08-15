@@ -1,3 +1,4 @@
+const path = require("path")
 const { rules } = require("../../dist/utils/rules")
 
 function ruleToLink({
@@ -33,9 +34,19 @@ module.exports = {
     evergreen: true,
     configureWebpack(_config, _isServer) {
         return {
+            externals: {
+                typescript: "typescript",
+            },
             resolve: {
                 alias: {
-                    eslint: require.resolve("eslint4b"),
+                    esquery: path.resolve(
+                        __dirname,
+                        "../../node_modules/esquery/dist/esquery.min.js",
+                    ),
+                    "@eslint/eslintrc/universal": path.resolve(
+                        __dirname,
+                        "../../node_modules/@eslint/eslintrc/dist/eslintrc-universal.cjs",
+                    ),
                 },
             },
         }
