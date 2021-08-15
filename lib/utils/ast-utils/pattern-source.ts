@@ -139,19 +139,9 @@ class PatternSegment implements PatternRange {
         return this.start <= range.start && range.end <= this.end
     }
 
-    public getReplaceRange(range: PatternRange): PatternReplaceRange | null {
-        if (!this.contains(range)) {
-            return null
-        }
-
-        if (this.node.type === "Literal") {
-            // This will cover string literals and RegExp literals
-            return PatternReplaceRange.fromLiteral(
-                this.node,
-                this.sourceCode,
-                this,
-                range,
-            )
+    public getOwnedRegExpLiteral(): RegExpLiteral | null {
+        if (isRegexpLiteral(this.node)) {
+            return this.node
         }
 
         // e.g. /foo/.source
@@ -161,8 +151,31 @@ class PatternSegment implements PatternRange {
             isRegexpLiteral(this.node.object) &&
             getPropertyName(this.node) === "source"
         ) {
+            return this.node.object
+        }
+
+        return null
+    }
+
+    public getReplaceRange(range: PatternRange): PatternReplaceRange | null {
+        if (!this.contains(range)) {
+            return null
+        }
+
+        const regexp = this.getOwnedRegExpLiteral()
+        if (regexp) {
             return PatternReplaceRange.fromLiteral(
-                this.node.object,
+                regexp,
+                this.sourceCode,
+                this,
+                range,
+            )
+        }
+
+        if (this.node.type === "Literal") {
+            // This will cover string literals
+            return PatternReplaceRange.fromLiteral(
+                this.node,
                 this.sourceCode,
                 this,
                 range,
@@ -393,6 +406,25 @@ export class PatternSource {
      */
     public getAstLocation(range: PatternRange): AST.SourceLocation {
         return astRangeToLocation(this.sourceCode, this.getAstRange(range))
+    }
+
+    /**
+     * Returns all RegExp literals nodes that are owned by this pattern.
+     *
+     * This means that the returned RegExp literals are only used to create
+     * this pattern and for nothing else.
+     */
+    public getOwnedRegExpLiterals(): readonly RegExpLiteral[] {
+        const literals: RegExpLiteral[] = []
+
+        for (const segment of this.segments) {
+            const regexp = segment.getOwnedRegExpLiteral()
+            if (regexp) {
+                literals.push(regexp)
+            }
+        }
+
+        return literals
     }
 }
 

@@ -13,7 +13,11 @@ import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
 import { getUsageOfPattern } from "./get-usage-of-pattern"
-import { isRegexpLiteral, isStringLiteral } from "./ast-utils/utils"
+import {
+    getStringValueRange,
+    isRegexpLiteral,
+    isStringLiteral,
+} from "./ast-utils/utils"
 import type { PatternRange } from "./ast-utils/pattern-source"
 import { PatternSource } from "./ast-utils/pattern-source"
 export * from "./unicode"
@@ -40,11 +44,14 @@ type RegExpContextBase = {
     ) => AST.SourceLocation
 
     /**
-     * Creates SourceLocation from the regexp flags
-     *
-     * @returns The SourceLocation
+     * Creates SourceLocation of the regexp flags
      */
     getFlagsLocation: () => AST.SourceLocation
+
+    /**
+     * Creates SourceLocation of the regexp flag
+     */
+    getFlagLocation: (flag: string) => AST.SourceLocation
 
     /**
      * Creates a new fix that replaces the given node with a given string.
@@ -107,11 +114,14 @@ type UnparsableRegExpContextBase = {
     ownsFlags: boolean
 
     /**
-     * Creates SourceLocation from the regexp flags
-     *
-     * @returns The SourceLocation
+     * Creates SourceLocation of the regexp flags
      */
     getFlagsLocation: () => AST.SourceLocation
+
+    /**
+     * Creates SourceLocation of the regexp flag
+     */
+    getFlagLocation: (flag: string) => AST.SourceLocation
 
     fixReplaceFlags: (
         newFlags: string | (() => string | null),
@@ -263,6 +273,7 @@ function buildRegexpVisitor(
      */
     function verify(
         patternNode: ESTree.Expression,
+        flagsNode: ESTree.Expression | null,
         regexpNode: ESTree.RegExpLiteral | ESTree.CallExpression,
         patternSource: PatternSource | null,
         flagsString: string | null,
@@ -283,6 +294,7 @@ function buildRegexpVisitor(
                     context,
                     flags,
                     flagsString,
+                    flagsNode,
                     ownsFlags,
                 }),
             })
@@ -312,6 +324,7 @@ function buildRegexpVisitor(
                         context,
                         flags,
                         flagsString,
+                        flagsNode,
                         ownsFlags,
                     }),
                 })
@@ -322,6 +335,7 @@ function buildRegexpVisitor(
         const helpers = buildRegExpContextBase({
             patternSource,
             regexpNode,
+            flagsNode,
             context,
             flags,
             parsedPattern,
@@ -330,23 +344,33 @@ function buildRegexpVisitor(
         visitRegExpAST(parsedPattern, createVisitor(helpers))
     }
 
+    const ownedRegExpLiterals = new Set<ESTree.RegExpLiteral>()
+
     return {
         "Program:exit": programExit,
         Literal(node: ESTree.Literal) {
-            if (!isRegexpLiteral(node)) {
+            if (!isRegexpLiteral(node) || ownedRegExpLiterals.has(node)) {
                 return
             }
             const flagsString = node.regex.flags
             const patternSource = PatternSource.fromRegExpLiteral(context, node)
-            verify(node, node, patternSource, flagsString, true, (base) => {
-                return createLiteralVisitorFromRules(rules, {
-                    node,
-                    flagsString,
-                    ownsFlags: true,
-                    regexpNode: node,
-                    ...base,
-                })
-            })
+            verify(
+                node,
+                node,
+                node,
+                patternSource,
+                flagsString,
+                true,
+                (base) => {
+                    return createLiteralVisitorFromRules(rules, {
+                        node,
+                        flagsString,
+                        ownsFlags: true,
+                        regexpNode: node,
+                        ...base,
+                    })
+                },
+            )
         },
         Program() {
             const tracker = new ReferenceTracker(context.getScope())
@@ -358,6 +382,7 @@ function buildRegexpVisitor(
                 call: ESTree.CallExpression
                 patternNode: ESTree.Expression
                 patternSource: PatternSource | null
+                flagsNode: ESTree.Expression | null
                 flagsString: string | null
                 ownsFlags: boolean
             }[] = []
@@ -365,30 +390,46 @@ function buildRegexpVisitor(
                 RegExp: { [CALL]: true, [CONSTRUCT]: true },
             })) {
                 const newOrCall = node as ESTree.CallExpression
-                const [patternNode, flagsNode] = newOrCall.arguments
-                if (!patternNode || patternNode.type === "SpreadElement") {
+                const args = newOrCall.arguments as (
+                    | ESTree.Expression
+                    | ESTree.SpreadElement
+                    | undefined
+                )[]
+                const [patternArg, flagsArg] = args
+                if (!patternArg || patternArg.type === "SpreadElement") {
                     continue
                 }
 
                 const patternSource = PatternSource.fromExpression(
                     context,
-                    patternNode,
+                    patternArg,
                 )
 
+                // avoid double reporting
+                patternSource
+                    ?.getOwnedRegExpLiterals()
+                    .forEach((n) => ownedRegExpLiterals.add(n))
+
+                let flagsNode = null
                 let flagsString = null
                 let ownsFlags = false
-                if (flagsNode && flagsNode.type !== "SpreadElement") {
-                    flagsString = getStringIfConstant(context, flagsNode)
-                    ownsFlags = isStringLiteral(flagsNode)
+                if (flagsArg) {
+                    if (flagsArg.type !== "SpreadElement") {
+                        flagsNode = flagsArg
+                        flagsString = getStringIfConstant(context, flagsArg)
+                        ownsFlags = isStringLiteral(flagsArg)
+                    }
                 } else if (patternSource && patternSource.regexpValue) {
                     flagsString = patternSource.regexpValue.flags
                     ownsFlags = Boolean(patternSource.regexpValue.ownedNode)
+                    flagsNode = patternSource.regexpValue.ownedNode
                 }
 
                 regexpDataList.push({
                     call: newOrCall,
-                    patternNode,
+                    patternNode: patternArg,
                     patternSource,
+                    flagsNode,
                     flagsString,
                     ownsFlags,
                 })
@@ -398,11 +439,13 @@ function buildRegexpVisitor(
                 call,
                 patternNode,
                 patternSource,
+                flagsNode,
                 flagsString,
                 ownsFlags,
             } of regexpDataList) {
                 verify(
                     patternNode,
+                    flagsNode,
                     call,
                     patternSource,
                     flagsString,
@@ -533,12 +576,14 @@ export function compositingVisitors(
 function buildRegExpContextBase({
     patternSource,
     regexpNode,
+    flagsNode,
     context,
     flags,
     parsedPattern,
 }: {
     patternSource: PatternSource
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral
+    flagsNode: ESTree.Expression | null
     context: Rule.RuleContext
     flags: ReadonlyFlags
     parsedPattern: Pattern
@@ -571,7 +616,10 @@ function buildRegExpContextBase({
             }
             return patternSource.getAstLocation(range)
         },
-        getFlagsLocation: () => getFlagsLocation(sourceCode, regexpNode),
+        getFlagsLocation: () =>
+            getFlagsLocation(sourceCode, regexpNode, flagsNode),
+        getFlagLocation: (flag) =>
+            getFlagLocation(sourceCode, regexpNode, flagsNode, flag),
         fixReplaceNode: (node, replacement) => {
             return fixReplaceNode(patternSource, node, replacement)
         },
@@ -579,7 +627,12 @@ function buildRegExpContextBase({
             return fixReplaceQuant(patternSource, qNode, replacement)
         },
         fixReplaceFlags: (newFlags) => {
-            return fixReplaceFlags(patternSource, regexpNode, newFlags)
+            return fixReplaceFlags(
+                patternSource,
+                regexpNode,
+                flagsNode,
+                newFlags,
+            )
         },
         getUsageOfPattern: () =>
             (cacheUsageOfPattern ??= getUsageOfPattern(regexpNode, context)),
@@ -601,6 +654,7 @@ function buildUnparsableRegExpContextBase({
     context,
     flags,
     flagsString,
+    flagsNode,
     ownsFlags,
 }: {
     patternSource: PatternSource | null
@@ -609,6 +663,7 @@ function buildUnparsableRegExpContextBase({
     context: Rule.RuleContext
     flags: ReadonlyFlags
     flagsString: string | null
+    flagsNode: ESTree.Expression | null
     ownsFlags: boolean
 }): UnparsableRegExpContextBase {
     const sourceCode = context.getSourceCode()
@@ -621,42 +676,48 @@ function buildUnparsableRegExpContextBase({
         flagsString,
         ownsFlags,
 
-        getFlagsLocation: () => getFlagsLocation(sourceCode, regexpNode),
+        getFlagsLocation: () =>
+            getFlagsLocation(sourceCode, regexpNode, flagsNode),
+        getFlagLocation: (flag) =>
+            getFlagLocation(sourceCode, regexpNode, flagsNode, flag),
 
         fixReplaceFlags: (newFlags) => {
             if (!patternSource) {
                 return () => null
             }
-            return fixReplaceFlags(patternSource, regexpNode, newFlags)
+            return fixReplaceFlags(
+                patternSource,
+                regexpNode,
+                flagsNode,
+                newFlags,
+            )
         },
     }
 }
 
-function getFlagsRange(regexpNode: ESTree.RegExpLiteral): AST.Range
-function getFlagsRange(
-    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
+export function getFlagsRange(flagsNode: ESTree.RegExpLiteral): AST.Range
+export function getFlagsRange(
+    flagsNode: ESTree.Expression | null,
 ): AST.Range | null
 /**
  * Creates source range of the flags of the given regexp node
- * @param regexpNode The regexp node to report.
- * @returns The SourceLocation
+ * @param flagsNode The expression that contributes the flags.
  */
-function getFlagsRange(
-    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
+export function getFlagsRange(
+    flagsNode: ESTree.Expression | null,
 ): AST.Range | null {
-    if (isRegexpLiteral(regexpNode)) {
+    if (!flagsNode) {
+        return null
+    }
+
+    if (isRegexpLiteral(flagsNode)) {
         return [
-            regexpNode.range![1] - regexpNode.regex.flags.length,
-            regexpNode.range![1],
+            flagsNode.range![1] - flagsNode.regex.flags.length,
+            flagsNode.range![1],
         ]
     }
-    const flagsArg = regexpNode.arguments[1]
-    if (
-        flagsArg &&
-        flagsArg.type === "Literal" &&
-        typeof flagsArg.value === "string"
-    ) {
-        return [flagsArg.range![0] + 1, flagsArg.range![1] - 1]
+    if (isStringLiteral(flagsNode)) {
+        return [flagsNode.range![0] + 1, flagsNode.range![1] - 1]
     }
 
     return null
@@ -666,15 +727,67 @@ function getFlagsRange(
  * Creates SourceLocation of the flags of the given regexp node
  * @param sourceCode The ESLint source code instance.
  * @param regexpNode The node to report.
- * @returns The SourceLocation
  */
-function getFlagsLocation(
+export function getFlagsLocation(
     sourceCode: SourceCode,
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
+    flagsNode: ESTree.Expression | null,
 ): AST.SourceLocation {
-    const range = getFlagsRange(regexpNode)
+    const range = getFlagsRange(flagsNode)
     if (range == null) {
-        return regexpNode.loc!
+        return flagsNode?.loc ?? regexpNode.loc!
+    }
+    return {
+        start: sourceCode.getLocFromIndex(range[0]),
+        end: sourceCode.getLocFromIndex(range[1]),
+    }
+}
+
+/**
+ * Creates source range of the given flag in the given flags node
+ * @param flagsNode The expression that contributes the flags.
+ */
+function getFlagRange(
+    sourceCode: SourceCode,
+    flagsNode: ESTree.Expression | null,
+    flag: string,
+): AST.Range | null {
+    if (!flagsNode || !flag) {
+        return null
+    }
+
+    if (isRegexpLiteral(flagsNode)) {
+        const index = flagsNode.regex.flags.indexOf(flag)
+        if (index === -1) {
+            return null
+        }
+        const start = flagsNode.range![1] - flagsNode.regex.flags.length + index
+        return [start, start + 1]
+    }
+    if (isStringLiteral(flagsNode)) {
+        const index = flagsNode.value.indexOf(flag)
+        if (index === -1) {
+            return null
+        }
+        return getStringValueRange(sourceCode, flagsNode, index, index + 1)
+    }
+
+    return null
+}
+
+/**
+ * Creates source location of the given flag in the given flags node
+ * @param flagsNode The expression that contributes the flags.
+ */
+function getFlagLocation(
+    sourceCode: SourceCode,
+    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
+    flagsNode: ESTree.Expression | null,
+    flag: string,
+): AST.SourceLocation {
+    const range = getFlagRange(sourceCode, flagsNode, flag)
+    if (range == null) {
+        return flagsNode?.loc ?? regexpNode.loc!
     }
     return {
         start: sourceCode.getLocFromIndex(range[0]),
@@ -765,6 +878,7 @@ function fixReplaceQuant(
 function fixReplaceFlags(
     patternSource: PatternSource,
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
+    flagsNode: ESTree.Expression | null,
     replacement: string | (() => string | null),
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix[] | Rule.Fix | null => {
@@ -793,7 +907,7 @@ function fixReplaceFlags(
             )
         }
 
-        const range = getFlagsRange(regexpNode)
+        const range = getFlagsRange(flagsNode)
         if (range == null) {
             return null
         }

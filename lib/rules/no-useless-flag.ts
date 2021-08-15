@@ -1,5 +1,11 @@
-import type { RegExpContext } from "../utils"
-import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext, RegExpContextForSource } from "../utils"
+import {
+    getFlagsRange,
+    compositingVisitors,
+    createRule,
+    defineRegexpVisitor,
+    getFlagsLocation,
+} from "../utils"
 import type {
     CallExpression,
     Expression,
@@ -45,9 +51,11 @@ type RegExpMethodKind =
     | "replaceAll"
 
 class RegExpReference {
-    public regExpContext: RegExpContext
+    public readonly regExpContext: RegExpContext
 
-    public readonly defineNode: RegExpExpression
+    public get defineNode(): RegExpExpression {
+        return this.regExpContext.regexpNode
+    }
 
     public defineId?: CodePathId
 
@@ -69,12 +77,8 @@ class RegExpReference {
         track: true,
     }
 
-    public constructor(
-        regExpContext: RegExpContext,
-        defineNode: RegExpExpression,
-    ) {
+    public constructor(regExpContext: RegExpContext) {
         this.regExpContext = regExpContext
-        this.defineNode = defineNode
     }
 
     public addReadNode(node: Expression) {
@@ -166,31 +170,6 @@ class RegExpReference {
 }
 
 /**
- * Gets the location for reporting the flag.
- */
-function getFlagLocation(
-    context: Rule.RuleContext,
-    node: RegExpExpression,
-    flag: "i" | "m" | "s" | "g" | "y",
-) {
-    const sourceCode = context.getSourceCode()
-    if (node.type === "Literal") {
-        const flagIndex =
-            node.range![1] -
-            node.regex.flags.length +
-            node.regex.flags.indexOf(flag)
-        return {
-            start: sourceCode.getLocFromIndex(flagIndex),
-            end: sourceCode.getLocFromIndex(flagIndex + 1),
-        }
-    }
-    if (node.arguments.length >= 2) {
-        return node.arguments[1].loc!
-    }
-    return context.getSourceCode().getTokenAfter(node.arguments[0])!.loc!
-}
-
-/**
  * Returns a fixer that removes the given flag.
  */
 function fixRemoveFlag(
@@ -209,7 +188,13 @@ function fixRemoveFlag(
 function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const { flags, regexpNode, toCharSet, ownsFlags } = regExpContext
+            const {
+                flags,
+                regexpNode,
+                toCharSet,
+                ownsFlags,
+                getFlagLocation,
+            } = regExpContext
 
             if (!flags.ignoreCase || !ownsFlags) {
                 return {}
@@ -261,7 +246,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                     if (unnecessary) {
                         context.report({
                             node: regexpNode,
-                            loc: getFlagLocation(context, regexpNode, "i"),
+                            loc: getFlagLocation("i"),
                             messageId: "uselessIgnoreCaseFlag",
                             fix: fixRemoveFlag(regExpContext, "i"),
                         })
@@ -278,7 +263,12 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
 function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const { flags, regexpNode, ownsFlags } = regExpContext
+            const {
+                flags,
+                regexpNode,
+                ownsFlags,
+                getFlagLocation,
+            } = regExpContext
 
             if (!flags.multiline || !ownsFlags) {
                 return {}
@@ -294,7 +284,7 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
                     if (unnecessary) {
                         context.report({
                             node: regexpNode,
-                            loc: getFlagLocation(context, regexpNode, "m"),
+                            loc: getFlagLocation("m"),
                             messageId: "uselessMultilineFlag",
                             fix: fixRemoveFlag(regExpContext, "m"),
                         })
@@ -311,7 +301,12 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
 function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const { flags, regexpNode, ownsFlags } = regExpContext
+            const {
+                flags,
+                regexpNode,
+                ownsFlags,
+                getFlagLocation,
+            } = regExpContext
 
             if (!flags.dotAll || !ownsFlags) {
                 return {}
@@ -327,7 +322,7 @@ function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
                     if (unnecessary) {
                         context.report({
                             node: regexpNode,
-                            loc: getFlagLocation(context, regexpNode, "s"),
+                            loc: getFlagLocation("s"),
                             messageId: "uselessDotAllFlag",
                             fix: fixRemoveFlag(regExpContext, "s"),
                         })
@@ -367,10 +362,12 @@ function createUselessGlobalFlagVisitor(
         regExpReference: RegExpReference,
         data: ReportData,
     ) {
+        const { getFlagLocation } = regExpReference.regExpContext
         const node = regExpReference.defineNode
+
         context.report({
             node,
-            loc: getFlagLocation(context, node, "g"),
+            loc: getFlagLocation("g"),
             messageId:
                 data.kind === ReportKind.usedOnlyInSplit
                     ? "uselessGlobalFlagForSplit"
@@ -492,10 +489,12 @@ function createUselessStickyFlagVisitor(
         regExpReference: RegExpReference,
         data: ReportData,
     ) {
+        const { getFlagLocation } = regExpReference.regExpContext
         const node = regExpReference.defineNode
+
         context.report({
             node,
-            loc: getFlagLocation(context, node, "y"),
+            loc: getFlagLocation("y"),
             messageId: "uselessStickyFlag",
             fix: data.fixable
                 ? fixRemoveFlag(regExpReference.regExpContext, "y")
@@ -640,10 +639,7 @@ function createRegExpReferenceExtractVisitor(
             createVisitor(regExpContext: RegExpContext) {
                 const { flags, regexpNode } = regExpContext
                 if (flags[flag]) {
-                    const regExpReference = new RegExpReference(
-                        regExpContext,
-                        regexpNode,
-                    )
+                    const regExpReference = new RegExpReference(regExpContext)
                     regExpReferenceList.push(regExpReference)
                     regExpReferenceMap.set(regexpNode, regExpReference)
                     for (const ref of extractExpressionReferences(
@@ -773,6 +769,56 @@ function createRegExpReferenceExtractVisitor(
 }
 
 /**
+ * Create visitor for verify unnecessary flags of owned RegExp literals
+ */
+function createOwnedRegExpFlagsVisitor(context: Rule.RuleContext) {
+    const sourceCode = context.getSourceCode()
+
+    /** Remove the flags of the given literal */
+    function removeFlags(node: RegExpLiteral): void {
+        // The u flag is relevant for parsing the literal, so
+        // we can't just remove it and potentially create
+        // invalid source code.
+        const newFlags = node.regex.flags.replace(/[^u]+/g, "")
+        if (newFlags === node.regex.flags) {
+            return
+        }
+
+        context.report({
+            node,
+            loc: getFlagsLocation(sourceCode, node, node),
+            messageId: "uselessFlagsOwned",
+            fix(fixer) {
+                const range = getFlagsRange(node)
+                return fixer.replaceTextRange(range, newFlags)
+            },
+        })
+    }
+
+    return defineRegexpVisitor(context, {
+        createSourceVisitor(regExpContext: RegExpContextForSource) {
+            const { patternSource, regexpNode } = regExpContext
+
+            if (patternSource.isStringValue()) {
+                // all regexp literals are used via `.source`
+                patternSource.getOwnedRegExpLiterals().forEach(removeFlags)
+            } else {
+                // The source is copied from some other regex
+                if (regexpNode.arguments.length >= 2) {
+                    // and the flags are given using the second parameter
+                    const ownedNode = patternSource.regexpValue?.ownedNode
+                    if (ownedNode) {
+                        removeFlags(ownedNode)
+                    }
+                }
+            }
+
+            return {}
+        },
+    })
+}
+
+/**
  * Parse option
  */
 function parseOption(
@@ -844,6 +890,8 @@ export default createRule("no-useless-flag", {
                 "The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.",
             uselessStickyFlag:
                 "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
+            uselessFlagsOwned:
+                "The flags of this RegExp literal are useless because only the source of the regex is used.",
         },
         type: "suggestion", // "problem",
     },
@@ -881,6 +929,10 @@ export default createRule("no-useless-flag", {
                 createUselessStickyFlagVisitor(context, strictTypes),
             )
         }
+        visitor = compositingVisitors(
+            visitor,
+            createOwnedRegExpFlagsVisitor(context),
+        )
         return visitor
     },
 })

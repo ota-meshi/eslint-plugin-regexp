@@ -109,7 +109,7 @@ tester.run("no-useless-flag", rule as any, {
         `
         const notStr = {}
         notStr.split(/foo/g);
-        
+
         maybeStr.split(/foo/g);
         `,
 
@@ -214,6 +214,10 @@ tester.run("no-useless-flag", rule as any, {
         { code: String.raw`/\w/m`, options: [{ ignore: ["m"] }] },
         { code: String.raw`/\w/s`, options: [{ ignore: ["s"] }] },
         { code: `/foo/g.test(string)`, options: [{ ignore: ["g"] }] },
+        String.raw`
+        const orig = /\w/i; // eslint-disable-line
+        const clone = new RegExp(orig);
+        `,
     ],
     invalid: [
         // i
@@ -401,9 +405,9 @@ tester.run("no-useless-flag", rule as any, {
                     message:
                         "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 25,
-                    column: 31,
+                    column: 32,
                     endLine: 25,
-                    endColumn: 34,
+                    endColumn: 33,
                 },
                 {
                     message:
@@ -459,7 +463,7 @@ tester.run("no-useless-flag", rule as any, {
                     message:
                         "The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.",
                     line: 2,
-                    column: 31,
+                    column: 32,
                 },
             ],
         },
@@ -608,17 +612,17 @@ tester.run("no-useless-flag", rule as any, {
             const str = 'table football, foosball';
             regex1.lastIndex = 6
             var array = regex1.exec(str)
-            
+
             const regex2 = /foo/y;
             regex2.test(string);
             regex2.test(string);
-            
+
             str.replace(/foo/y, 'bar');
             str.replaceAll(/foo/gy, 'bar');
 
             const regexp3 = /foo/y
             str.search(regexp3)
-            
+
             /* ✗ BAD */
             str.split(/foo/y);
             `,
@@ -628,17 +632,17 @@ tester.run("no-useless-flag", rule as any, {
             const str = 'table football, foosball';
             regex1.lastIndex = 6
             var array = regex1.exec(str)
-            
+
             const regex2 = /foo/y;
             regex2.test(string);
             regex2.test(string);
-            
+
             str.replace(/foo/y, 'bar');
             str.replaceAll(/foo/gy, 'bar');
 
             const regexp3 = /foo/y
             str.search(regexp3)
-            
+
             /* ✗ BAD */
             str.split(/foo/);
             `,
@@ -679,7 +683,7 @@ tester.run("no-useless-flag", rule as any, {
                     message:
                         "The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.",
                     line: 2,
-                    column: 43,
+                    column: 44,
                 },
             ],
         },
@@ -724,21 +728,6 @@ tester.run("no-useless-flag", rule as any, {
         {
             code: String.raw`
             const orig = /\w/i; // eslint-disable-line
-            const clone = new RegExp(orig);
-            `,
-            output: null,
-            errors: [
-                {
-                    message:
-                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
-                    line: 3,
-                    column: 42,
-                },
-            ],
-        },
-        {
-            code: String.raw`
-            const orig = /\w/i; // eslint-disable-line
             const clone = new RegExp(orig, 'i');
             `,
             output: String.raw`
@@ -750,18 +739,36 @@ tester.run("no-useless-flag", rule as any, {
                     message:
                         "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
                     line: 3,
-                    column: 44,
+                    column: 45,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const orig = /\w/iy;
+            const clone = new RegExp(orig, '');
+            `,
+            output: String.raw`
+            const orig = /\w/;
+            const clone = new RegExp(orig, '');
+            `,
+            errors: [
+                {
+                    message:
+                        "The flags of this RegExp literal are useless because only the source of the regex is used.",
+                    line: 2,
+                    column: 30,
                 },
             ],
         },
         {
             code: String.raw`
             const orig = /\w/i;
-            const clone = new RegExp(orig, '');
+            const clone = new RegExp(orig);
             `,
             output: String.raw`
             const orig = /\w/;
-            const clone = new RegExp(orig, '');
+            const clone = new RegExp(orig);
             `,
             errors: [
                 {
@@ -773,6 +780,18 @@ tester.run("no-useless-flag", rule as any, {
             ],
         },
         {
+            code: String.raw`RegExp(/\w/i);`,
+            output: String.raw`RegExp(/\w/);`,
+            errors: [
+                {
+                    message:
+                        "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
+                    line: 1,
+                    column: 12,
+                },
+            ],
+        },
+        {
             code: String.raw`
             const orig = /\w/;
             const clone = new RegExp(orig, 'i');
@@ -786,7 +805,19 @@ tester.run("no-useless-flag", rule as any, {
                     message:
                         "The 'i' flag is unnecessary because the pattern only contains case-invariant characters.",
                     line: 3,
-                    column: 44,
+                    column: 45,
+                },
+            ],
+        },
+        {
+            code: String.raw`RegExp(/\w/imu.source);`,
+            output: String.raw`RegExp(/\w/u.source);`,
+            errors: [
+                {
+                    message:
+                        "The flags of this RegExp literal are useless because only the source of the regex is used.",
+                    line: 1,
+                    column: 12,
                 },
             ],
         },
