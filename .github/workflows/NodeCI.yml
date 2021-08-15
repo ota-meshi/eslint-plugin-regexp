@@ -49,6 +49,18 @@ jobs:
                   npm install
             - name: Test
               run: npm test
+    test-with-eslint8:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+            - name: Install Target Packages
+              run: |+
+                  npm i -D eslint@^8.0.0-0
+                  npx rimraf node_modules
+                  npm install
+            - name: Test
+              run: npm test
     test-and-coverage:
         runs-on: ubuntu-latest
         steps:
