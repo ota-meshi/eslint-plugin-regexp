@@ -44,7 +44,7 @@ jobs:
                   node-version: 12.13.x
             - name: Install Target Packages
               run: |+
-                  npm install
+                  npm ci
                   npm i -D eslint@6
             - name: Test
               run: npm test
@@ -55,7 +55,7 @@ jobs:
             - uses: actions/setup-node@v2
             - name: Install Target Packages
               run: |+
-                  npm install
+                  npm ci
                   npm i -D eslint@^8.0.0-0
             - name: Test
               run: npm test
