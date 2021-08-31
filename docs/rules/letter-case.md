@@ -55,7 +55,7 @@ var foo = /\ca/
 - Properties
   - `caseInsensitive` ... Specifies the letter case when the `i` flag is present. Default is `"lowercase"`.
   - `unicodeEscape` ... Specifies the letter case when the unicode escapes. Default is `"lowercase"`.
-  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"ignolowercasere"`.
+  - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"lowercase"`.
   - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"uppercase"`.
 
 ## :rocket: Version
