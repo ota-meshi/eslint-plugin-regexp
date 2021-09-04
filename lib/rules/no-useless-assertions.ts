@@ -15,6 +15,7 @@ import {
     getMatchingDirectionFromAssertionKind,
     hasSomeDescendant,
     isPotentiallyEmpty,
+    FirstConsumedChars,
 } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
@@ -211,14 +212,13 @@ export default createRule("no-useless-assertions", {
                     return
                 }
 
-                const firstOf = getFirstConsumedChar(
-                    assertion.alternatives,
-                    direction,
-                    flags,
+                const firstOf = FirstConsumedChars.toLook(
+                    getFirstConsumedChar(
+                        assertion.alternatives,
+                        direction,
+                        flags,
+                    ),
                 )
-                if (firstOf.empty) {
-                    return
-                }
 
                 // the idea here is that a negate lookaround accepts when non-negated version reject and vise versa.
                 const accept = assertion.negate ? "reject" : "accept"
