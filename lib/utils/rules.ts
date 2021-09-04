@@ -49,6 +49,7 @@ import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
 import preferEscapeReplacementDollarChar from "../rules/prefer-escape-replacement-dollar-char"
+import preferLookaround from "../rules/prefer-lookaround"
 import preferNamedBackreference from "../rules/prefer-named-backreference"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
 import preferPredefinedAssertion from "../rules/prefer-predefined-assertion"
@@ -118,6 +119,7 @@ export const rules = [
     preferCharacterClass,
     preferD,
     preferEscapeReplacementDollarChar,
+    preferLookaround,
     preferNamedBackreference,
     preferPlusQuantifier,
     preferPredefinedAssertion,

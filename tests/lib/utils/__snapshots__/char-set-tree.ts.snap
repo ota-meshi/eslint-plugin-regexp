@@ -1,0 +1,537 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CharSetTree matching strings /a(b|c)d/ 1`] = `
+Array [
+  "abd",
+  "acd",
+]
+`;
+
+exports[`CharSetTree matching strings /a(b|c)d?(e|f|[ghi])/ 1`] = `
+Array [
+  "abde",
+  "abdf",
+  "abdg",
+  "abdh",
+  "abdi",
+  "abe",
+  "abf",
+  "abg",
+  "abh",
+  "abi",
+  "acde",
+  "acdf",
+  "acdg",
+  "acdh",
+  "acdi",
+  "ace",
+  "acf",
+  "acg",
+  "ach",
+  "aci",
+]
+`;
+
+exports[`CharSetTree matching strings /a*/ 1`] = `null`;
+
+exports[`CharSetTree matching strings /a+/ 1`] = `null`;
+
+exports[`CharSetTree matching strings /a[bc]d/ 1`] = `
+Array [
+  "abd",
+  "acd",
+]
+`;
+
+exports[`CharSetTree matching strings /a{0,10}/ 1`] = `
+Array [
+  "a",
+  "aa",
+  "aaa",
+  "aaaa",
+  "aaaaa",
+  "aaaaaa",
+  "aaaaaaa",
+  "aaaaaaaa",
+  "aaaaaaaaa",
+  "aaaaaaaaaa",
+]
+`;
+
+exports[`CharSetTree matching strings /a{0,11}/ 1`] = `null`;
+
+exports[`CharSetTree matching strings /ab(c|d)/ 1`] = `
+Array [
+  "abc",
+  "abd",
+]
+`;
+
+exports[`CharSetTree matching strings /ab?cd?/ 1`] = `
+Array [
+  "abc",
+  "abcd",
+  "ac",
+  "acd",
+]
+`;
+
+exports[`CharSetTree matching strings /ab?cd{3,6}/ 1`] = `
+Array [
+  "abcddd",
+  "abcdddd",
+  "abcddddd",
+  "abcdddddd",
+  "acddd",
+  "acdddd",
+  "acddddd",
+  "acdddddd",
+]
+`;
+
+exports[`CharSetTree matching strings /abc/ 1`] = `
+Array [
+  "abc",
+]
+`;
+
+exports[`CharSetTree matching strings /abcd/ 1`] = `
+Array [
+  "abcd",
+]
+`;
+
+exports[`CharSetTree tree /a(b|c)d/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+      Object {
+        "charSet": "c",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /a(b|c)d?(e|f|[ghi])/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": false,
+            "next": Array [
+              Object {
+                "charSet": "e",
+                "end": true,
+                "next": Array [],
+              },
+              Object {
+                "charSet": "f",
+                "end": true,
+                "next": Array [],
+              },
+              Object {
+                "charSet": "[ghi]",
+                "end": true,
+                "next": Array [],
+              },
+            ],
+          },
+          Object {
+            "charSet": "e",
+            "end": true,
+            "next": Array [],
+          },
+          Object {
+            "charSet": "f",
+            "end": true,
+            "next": Array [],
+          },
+          Object {
+            "charSet": "[ghi]",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+      Object {
+        "charSet": "c",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": false,
+            "next": Array [
+              Object {
+                "charSet": "e",
+                "end": true,
+                "next": Array [],
+              },
+              Object {
+                "charSet": "f",
+                "end": true,
+                "next": Array [],
+              },
+              Object {
+                "charSet": "[ghi]",
+                "end": true,
+                "next": Array [],
+              },
+            ],
+          },
+          Object {
+            "charSet": "e",
+            "end": true,
+            "next": Array [],
+          },
+          Object {
+            "charSet": "f",
+            "end": true,
+            "next": Array [],
+          },
+          Object {
+            "charSet": "[ghi]",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /a*/ 1`] = `null`;
+
+exports[`CharSetTree tree /a+/ 1`] = `null`;
+
+exports[`CharSetTree tree /a[bc]d/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "[bc]",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /a{0,10}/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": true,
+    "next": Array [
+      Object {
+        "charSet": "a",
+        "end": true,
+        "next": Array [
+          Object {
+            "charSet": "a",
+            "end": true,
+            "next": Array [
+              Object {
+                "charSet": "a",
+                "end": true,
+                "next": Array [
+                  Object {
+                    "charSet": "a",
+                    "end": true,
+                    "next": Array [
+                      Object {
+                        "charSet": "a",
+                        "end": true,
+                        "next": Array [
+                          Object {
+                            "charSet": "a",
+                            "end": true,
+                            "next": Array [
+                              Object {
+                                "charSet": "a",
+                                "end": true,
+                                "next": Array [
+                                  Object {
+                                    "charSet": "a",
+                                    "end": true,
+                                    "next": Array [
+                                      Object {
+                                        "charSet": "a",
+                                        "end": true,
+                                        "next": Array [],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /a{0,11}/ 1`] = `null`;
+
+exports[`CharSetTree tree /ab(c|d)/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "c",
+            "end": true,
+            "next": Array [],
+          },
+          Object {
+            "charSet": "d",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /ab?cd?/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "c",
+            "end": true,
+            "next": Array [
+              Object {
+                "charSet": "d",
+                "end": true,
+                "next": Array [],
+              },
+            ],
+          },
+        ],
+      },
+      Object {
+        "charSet": "c",
+        "end": true,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /ab?cd{3,6}/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "c",
+            "end": false,
+            "next": Array [
+              Object {
+                "charSet": "d",
+                "end": false,
+                "next": Array [
+                  Object {
+                    "charSet": "d",
+                    "end": false,
+                    "next": Array [
+                      Object {
+                        "charSet": "d",
+                        "end": true,
+                        "next": Array [
+                          Object {
+                            "charSet": "d",
+                            "end": true,
+                            "next": Array [
+                              Object {
+                                "charSet": "d",
+                                "end": true,
+                                "next": Array [
+                                  Object {
+                                    "charSet": "d",
+                                    "end": true,
+                                    "next": Array [],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      Object {
+        "charSet": "c",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "d",
+            "end": false,
+            "next": Array [
+              Object {
+                "charSet": "d",
+                "end": false,
+                "next": Array [
+                  Object {
+                    "charSet": "d",
+                    "end": true,
+                    "next": Array [
+                      Object {
+                        "charSet": "d",
+                        "end": true,
+                        "next": Array [
+                          Object {
+                            "charSet": "d",
+                            "end": true,
+                            "next": Array [
+                              Object {
+                                "charSet": "d",
+                                "end": true,
+                                "next": Array [],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /abc/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "c",
+            "end": true,
+            "next": Array [],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`CharSetTree tree /abcd/ 1`] = `
+Array [
+  Object {
+    "charSet": "a",
+    "end": false,
+    "next": Array [
+      Object {
+        "charSet": "b",
+        "end": false,
+        "next": Array [
+          Object {
+            "charSet": "c",
+            "end": false,
+            "next": Array [
+              Object {
+                "charSet": "d",
+                "end": true,
+                "next": Array [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
