@@ -356,5 +356,9 @@ tester.run("no-useless-assertions", rule as any, {
                 },
             ],
         },
+        {
+            code: String.raw`/(?=a|$)b/u`,
+            errors: ["The lookahead '(?=a|$)' will always reject."],
+        },
     ],
 })
