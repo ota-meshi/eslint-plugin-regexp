@@ -8,7 +8,7 @@ import type { Rule, AST, SourceCode } from "eslint"
 import { getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 // eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
-import { toCharSet } from "regexp-ast-analysis"
+import { toCharSet, toCache } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
@@ -89,7 +89,7 @@ type RegExpContextBase = {
     patternAst: Pattern
     patternSource: PatternSource
 
-    flags: ReadonlyFlags
+    flags: Required<ReadonlyFlags>
 }
 export type RegExpContextForLiteral = {
     node: ESTree.RegExpLiteral
@@ -109,7 +109,7 @@ type UnparsableRegExpContextBase = {
     node: ESTree.Expression
     regexpNode: ESTree.RegExpLiteral | ESTree.CallExpression
 
-    flags: ReadonlyFlags
+    flags: Required<ReadonlyFlags>
     flagsString: string | null
     ownsFlags: boolean
 
@@ -578,7 +578,7 @@ function buildRegExpContextBase({
     regexpNode,
     flagsNode,
     context,
-    flags,
+    flags: originalFlags,
     parsedPattern,
 }: {
     patternSource: PatternSource
@@ -589,8 +589,8 @@ function buildRegExpContextBase({
     parsedPattern: Pattern
 }): RegExpContextBase {
     const sourceCode = context.getSourceCode()
+    const flags = toCache(originalFlags)
 
-    const cacheCharSet = new WeakMap<ToCharSetElement, CharSet>()
     let cacheUsageOfPattern: UsageOfPattern | null = null
     return {
         toCharSet: (node, optionFlags) => {
@@ -599,13 +599,7 @@ function buildRegExpContextBase({
                 return toCharSet(node, optionFlags)
             }
 
-            let charSet = cacheCharSet.get(node)
-            if (charSet) {
-                return charSet
-            }
-            charSet = toCharSet(node, flags)
-            cacheCharSet.set(node, charSet)
-            return charSet
+            return toCharSet(node, flags)
         },
         getRegexpLocation: (range, offsets) => {
             if (offsets) {
@@ -652,7 +646,7 @@ function buildUnparsableRegExpContextBase({
     patternNode,
     regexpNode,
     context,
-    flags,
+    flags: originalFlags,
     flagsString,
     flagsNode,
     ownsFlags,
@@ -667,6 +661,7 @@ function buildUnparsableRegExpContextBase({
     ownsFlags: boolean
 }): UnparsableRegExpContextBase {
     const sourceCode = context.getSourceCode()
+    const flags = toCache(originalFlags)
 
     return {
         regexpNode,
