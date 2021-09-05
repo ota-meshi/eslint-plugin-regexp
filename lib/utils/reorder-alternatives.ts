@@ -234,7 +234,7 @@ function getDirectionIndependedDeterminismEqClasses(
     const ltr = getDirectionalDeterminismEqClasses(alternatives, "ltr", context)
     const rtl = getDirectionalDeterminismEqClasses(alternatives, "rtl", context)
 
-    const disjoint = mergeOverlappingSets(new Set([...ltr, ...rtl]), (s) => s)
+    const disjoint = mergeOverlappingSets([...ltr, ...rtl], (s) => s)
 
     const result: (readonly Alternative[])[] = []
     for (const sets of disjoint) {
@@ -325,17 +325,17 @@ function getDirectionalDeterminismEqClasses(
 
     /** Subdivide */
     function subdivide(
-        eqClass: ReadonlySet<Prefix>,
+        eqClass: readonly Prefix[],
         index: number,
     ): (readonly Prefix[])[] {
-        if (eqClass.size < 2) {
-            return [[...eqClass]]
+        if (eqClass.length < 2) {
+            return [eqClass]
         }
 
         for (const prefix of eqClass) {
             if (index >= prefix.characters.length) {
                 // ran out of characters
-                return [[...eqClass]]
+                return [eqClass]
             }
         }
 
@@ -352,9 +352,7 @@ function getDirectionalDeterminismEqClasses(
         return result
     }
 
-    return subdivide(new Set(prefixes), 0).map((eq) =>
-        eq.map((p) => p.alternative),
-    )
+    return subdivide(prefixes, 0).map((eq) => eq.map((p) => p.alternative))
 }
 
 class SetEquivalence {
@@ -432,21 +430,24 @@ class SetEquivalence {
  * This function will not merge the given sets itself. Instead, it will
  * return an iterable of sets (`Set<S>`) of sets (`S`) to merge. Each set (`S`)
  * is guaranteed to be returned exactly once.
+ *
+ * Note: Instead of actual JS `Set` instances, the implementation will treat
+ * `readonly S[]` instances as sets. This makes the whole implementation a lot
+ * more efficient.
  */
 function mergeOverlappingSets<S, E>(
-    sets: ReadonlySet<S>,
+    sets: readonly S[],
     getElements: (set: S) => Iterable<E>,
-): ReadonlySet<S>[] {
-    if (sets.size < 2) {
+): (readonly S[])[] {
+    if (sets.length < 2) {
         return [sets]
     }
 
-    const setArray: readonly S[] = [...sets]
-    const eq = new SetEquivalence(setArray.length)
+    const eq = new SetEquivalence(sets.length)
     const elementMap = new Map<E, number>()
 
-    for (let i = 0; i < setArray.length; i++) {
-        const s = setArray[i]
+    for (let i = 0; i < sets.length; i++) {
+        const s = sets[i]
         for (const e of getElements(s)) {
             const elementSet = elementMap.get(e)
             if (elementSet === undefined) {
@@ -462,12 +463,12 @@ function mergeOverlappingSets<S, E>(
 
     const eqSets = eq.getEquivalenceSets()
 
-    const result: Set<S>[] = []
+    const result: S[][] = []
     for (let i = 0; i < eqSets.count; i++) {
-        result.push(new Set())
+        result.push([])
     }
-    for (let i = 0; i < setArray.length; i++) {
-        result[eqSets.indexes[i]].add(setArray[i])
+    for (let i = 0; i < sets.length; i++) {
+        result[eqSets.indexes[i]].push(sets[i])
     }
     return result
 }
