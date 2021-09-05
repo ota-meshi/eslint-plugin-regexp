@@ -22,6 +22,7 @@ import type { CharSet } from "refa"
 import { JS } from "refa"
 import { canReorder } from "../utils/reorder-alternatives"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
+import { getLongestPrefix } from "../utils/regexp-ast/alternative-prefix"
 
 interface AllowedChars {
     allowed: CharSet
@@ -83,9 +84,61 @@ function containsOnlyLiterals(
  * Compare two string independent of the current locale by byte order.
  */
 function compareByteOrder(a: string, b: string): number {
+    if (a === b) {
+        return 0
+    }
+    return a < b ? -1 : +1
+}
+
+/**
+ * Compare two char sets by byte order.
+ */
+function compareCharSets(a: CharSet, b: CharSet): number {
+    // empty char set > everything else
+    if (a.isEmpty) {
+        return 1
+    } else if (b.isEmpty) {
+        return -1
+    }
+
+    // the first character is different
+    if (a.ranges[0].min !== b.ranges[0].min) {
+        return a.ranges[0].min - b.ranges[0].min
+    }
+
+    // Now for the difficult part: We want to compare them by byte-order but
+    // what does that mean for a set of characters?
+    // We will define it as such: Let x be the smallest character in the
+    // symmetric difference of a and b. If x is in a then a < b. Otherwise
+    // b < a. If the symmetric difference is empty, then a == b.
+
+    const symDiff = a.union(b).without(a.intersect(b))
+    if (symDiff.isEmpty) {
+        // a == b
+        return 0
+    }
+
+    const min = symDiff.ranges[0].min
+
+    if (a.has(min)) {
+        // a < b
+        return -1
+    }
+
+    // b < a
+    return 1
+}
+
+/**
+ * Compare two strings of char sets by byte order.
+ */
+function compareCharSetStrings(
+    a: readonly CharSet[],
+    b: readonly CharSet[],
+): number {
     const l = Math.min(a.length, b.length)
     for (let i = 0; i < l; i++) {
-        const diff = a.charCodeAt(i) - b.charCodeAt(i)
+        const diff = compareCharSets(a[i], b[i])
         if (diff !== 0) {
             return diff
         }
@@ -112,10 +165,12 @@ function sortAlternatives(
     }
 
     alternatives.sort((a, b) => {
-        const firstA = firstChars.get(a)!
-        const firstB = firstChars.get(b)!
-        if (firstA !== firstB) {
-            return firstA - firstB
+        const prefixDiff = compareCharSetStrings(
+            getLongestPrefix(a, "ltr", context.flags),
+            getLongestPrefix(b, "ltr", context.flags),
+        )
+        if (prefixDiff !== 0) {
+            return prefixDiff
         }
 
         if (context.flags.ignoreCase) {

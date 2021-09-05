@@ -2,29 +2,17 @@ import type { CharSet } from "refa"
 import { CharBase } from "refa"
 import type { MatchingDirection } from "regexp-ast-analysis"
 import {
-    isZeroLength,
     isPotentiallyZeroLength,
     getFirstCharAfter,
     Chars,
-    getFirstConsumedChar,
     getLengthRange,
     getMatchingDirection,
     hasSomeDescendant,
     isEmptyBackreference,
 } from "regexp-ast-analysis"
-import type {
-    Alternative,
-    CapturingGroup,
-    Character,
-    CharacterClass,
-    CharacterSet,
-    Element,
-    Group,
-    Node,
-    Pattern,
-    Quantifier,
-} from "regexpp/ast"
+import type { Alternative, Element, Node, Pattern } from "regexpp/ast"
 import type { RegExpContext } from "."
+import { getLongestPrefix } from "./regexp-ast/alternative-prefix"
 
 /**
  * This extends the {@link MatchingDirection} type to allow unknown matching
@@ -282,17 +270,22 @@ function getDirectionalDeterminismEqClasses(
     // concatenation that we are sure of. E.g. the alternative `abc*de` will
     // get the array `a, b, [cd]`, and `abc` will get `a, b, c`.
     const getPrefixCharSets = cachedFn<Alternative, readonly CharSet[]>((a) => {
-        const prefix = getTopLevelAlternativePrefix(a, dir, context)
+        let prefix = getLongestPrefix(a, dir, context.flags)
 
         // We optimize a little here.
         // All trailing all-characters sets can be removed without affecting
         // the result of the equivalence classes.
+        let all = 0
         for (let i = prefix.length - 1; i >= 0; i--) {
             if (prefix[i].isAll) {
-                prefix.pop()
+                all++
             } else {
                 break
             }
+        }
+
+        if (all > 0) {
+            prefix = prefix.slice(0, prefix.length - all)
         }
 
         return prefix
@@ -457,208 +450,6 @@ function* mergeOverlappingSets<S, E>(
             yield value.set
         }
     }
-}
-
-/**
- * Returns the longest prefix of the given alternative that we can be sure
- * about.
- *
- * Each char set is guaranteed to be non-empty.
- */
-function getTopLevelAlternativePrefix(
-    alternative: Alternative,
-    dir: MatchingDirection,
-    context: RegExpContext,
-): CharSet[] {
-    const { prefix, complete } = getAlternativePrefix(alternative, dir, context)
-
-    if (complete) {
-        // add the next char after the alternative
-
-        const last =
-            dir === "ltr"
-                ? alternative.elements[alternative.elements.length - 1]
-                : alternative.elements[0]
-
-        if (last) {
-            const cs = getFirstCharAfter(last, dir, context.flags).char
-            if (!cs.isEmpty) {
-                prefix.push(cs)
-            }
-        }
-    }
-
-    return prefix
-}
-
-interface AlternativePrefix {
-    complete: boolean
-    prefix: CharSet[]
-}
-
-/**
- * Returns the longest prefix of the given alternative that we can be sure
- * about.
- *
- * Each char set is guaranteed to be non-empty.
- */
-function getAlternativePrefix(
-    alternative: Alternative,
-    dir: MatchingDirection,
-    context: RegExpContext,
-): AlternativePrefix {
-    const prefix: CharSet[] = []
-
-    const elements =
-        dir === "ltr"
-            ? alternative.elements
-            : [...alternative.elements].reverse()
-
-    let lastComplete: Element | undefined = undefined
-
-    for (const e of elements) {
-        if (isZeroLength(e)) {
-            continue
-        }
-
-        let elementPrefix: AlternativePrefix | undefined
-        switch (e.type) {
-            case "Character":
-            case "CharacterClass":
-            case "CharacterSet":
-                elementPrefix = getCharAlternativePrefix(e, dir, context)
-                break
-            case "CapturingGroup":
-            case "Group":
-                elementPrefix = getGroupAlternativePrefix(e, dir, context)
-                break
-            case "Quantifier":
-                elementPrefix = getQuantifierAlternativePrefix(e, dir, context)
-                break
-            default:
-                elementPrefix = undefined
-        }
-
-        if (elementPrefix) {
-            prefix.push(...elementPrefix.prefix)
-
-            if (!elementPrefix.complete) {
-                return { prefix, complete: false }
-            }
-
-            lastComplete = e
-        } else {
-            let cs: CharSet
-            if (lastComplete === undefined) {
-                // we haven't consumed any characters yet
-                const fcc = getFirstConsumedChar(
-                    alternative,
-                    dir,
-                    context.flags,
-                )
-                cs = fcc.empty ? fcc.char.union(fcc.look.char) : fcc.char
-            } else {
-                cs = getFirstCharAfter(lastComplete, dir, context.flags).char
-            }
-            if (!cs.isEmpty) {
-                prefix.push(cs)
-            }
-
-            return { prefix, complete: false }
-        }
-    }
-
-    return { prefix, complete: true }
-}
-
-/**
- * Returns the longest prefix of the given group that we can be sure
- * about.
- */
-function getGroupAlternativePrefix(
-    group: Group | CapturingGroup,
-    dir: MatchingDirection,
-    context: RegExpContext,
-): AlternativePrefix | undefined {
-    if (group.alternatives.length === 1) {
-        return getAlternativePrefix(group.alternatives[0], dir, context)
-    }
-
-    return undefined
-}
-
-/**
- * Returns the longest prefix of the given quantifier that we can be sure
- * about.
- */
-function getCharAlternativePrefix(
-    element: Character | CharacterSet | CharacterClass,
-    _dir: MatchingDirection,
-    context: RegExpContext,
-): AlternativePrefix | undefined {
-    const cs = context.toCharSet(element)
-    if (cs.isEmpty) {
-        return undefined
-    }
-    return { prefix: [cs], complete: true }
-}
-
-/**
- * Returns the longest prefix of the given quantifier that we can be sure
- * about.
- */
-function getQuantifierAlternativePrefix(
-    quant: Quantifier,
-    dir: MatchingDirection,
-    context: RegExpContext,
-): AlternativePrefix | undefined {
-    if (quant.min > 100) {
-        // this is a safe-guard to protect against quantifier like `a{10000000}`
-        return undefined
-    }
-
-    if (quant.min < 1) {
-        return undefined
-    }
-
-    let inner: AlternativePrefix | undefined
-    switch (quant.element.type) {
-        case "CapturingGroup":
-        case "Group":
-            inner = getGroupAlternativePrefix(quant.element, dir, context)
-            break
-
-        case "Character":
-        case "CharacterClass":
-        case "CharacterSet":
-            inner = getCharAlternativePrefix(quant.element, dir, context)
-            break
-
-        default:
-            inner = undefined
-    }
-
-    if (!inner) {
-        return undefined
-    }
-
-    if (!inner.complete || inner.prefix.length === 0) {
-        return inner
-    }
-
-    const prefix: CharSet[] = []
-    for (let i = 0; i < quant.min; i++) {
-        prefix.push(...inner.prefix)
-    }
-
-    if (quant.min === quant.max) {
-        return { prefix, complete: true }
-    }
-
-    const after = getFirstCharAfter(quant, dir, context.flags)
-    prefix.push(prefix[0].union(after.char))
-
-    return { prefix, complete: false }
 }
 
 /**

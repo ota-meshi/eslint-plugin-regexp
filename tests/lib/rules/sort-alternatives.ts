@@ -113,5 +113,21 @@ tester.run("sort-alternatives", rule as any, {
                 "The alternatives of this group can be sorted without affecting the regex.",
             ],
         },
+
+        // issue GH#307
+        {
+            code: String.raw`/\b(?:green|gr[ae]y)\b/`,
+            output: String.raw`/\b(?:gr[ae]y|green)\b/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:(?:script|source)_foo|sample)\b/`,
+            output: String.raw`/\b(?:sample|(?:script|source)_foo)\b/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
     ],
 })
