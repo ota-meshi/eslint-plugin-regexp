@@ -70,6 +70,7 @@ describe(getDeterminismEqClasses.name, function () {
         /aaaaaaaaaaaaaaaaaaaa|bbbbbbbbbbbbbbbbbbbb|[^][^][^][^][^][^][^][^][^][^][^][^][^][^][^][^][^][^][^][^]/,
         /a{20}|b{20}|[^]{20}/,
         /a{20}c|b{20}a|[^]{20}b/,
+        /(?:script|source)_foo|sample/,
     ]
     const directionalRegexes: RegExp[] = [
         /abc|a/,

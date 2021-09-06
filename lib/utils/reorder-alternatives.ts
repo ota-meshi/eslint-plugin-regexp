@@ -234,7 +234,7 @@ function getDirectionIndependedDeterminismEqClasses(
     const ltr = getDirectionalDeterminismEqClasses(alternatives, "ltr", context)
     const rtl = getDirectionalDeterminismEqClasses(alternatives, "rtl", context)
 
-    const disjoint = mergeOverlappingSets(new Set([...ltr, ...rtl]), (s) => s)
+    const disjoint = mergeOverlappingSets([...ltr, ...rtl], (s) => s)
 
     const result: (readonly Alternative[])[] = []
     for (const sets of disjoint) {
@@ -325,17 +325,17 @@ function getDirectionalDeterminismEqClasses(
 
     /** Subdivide */
     function subdivide(
-        eqClass: ReadonlySet<Prefix>,
+        eqClass: readonly Prefix[],
         index: number,
     ): (readonly Prefix[])[] {
-        if (eqClass.size < 2) {
-            return [[...eqClass]]
+        if (eqClass.length < 2) {
+            return [eqClass]
         }
 
         for (const prefix of eqClass) {
             if (index >= prefix.characters.length) {
                 // ran out of characters
-                return [[...eqClass]]
+                return [eqClass]
             }
         }
 
@@ -352,9 +352,73 @@ function getDirectionalDeterminismEqClasses(
         return result
     }
 
-    return subdivide(new Set(prefixes), 0).map((eq) =>
-        eq.map((p) => p.alternative),
-    )
+    return subdivide(prefixes, 0).map((eq) => eq.map((p) => p.alternative))
+}
+
+class SetEquivalence {
+    private readonly indexes: number[]
+
+    public readonly count: number
+
+    public constructor(count: number) {
+        this.count = count
+        this.indexes = []
+        for (let i = 0; i < count; i++) {
+            this.indexes.push(i)
+        }
+    }
+
+    public makeEqual(a: number, b: number): void {
+        // This works using the following idea:
+        //  1. If the eq set of a and b is the same, then we can stop.
+        //  2. If indexes[a] < indexes[b], then we want to make
+        //     indexes[b] := indexes[a]. However, this means that we lose the
+        //     information about the indexes[b]! So we will store
+        //     oldB := indexes[b], then indexes[b] := indexes[a], and then
+        //     make oldB == a.
+        //  3. If indexes[a] > indexes[b], similar to 2.
+
+        let aValue = this.indexes[a]
+        let bValue = this.indexes[b]
+        while (aValue !== bValue) {
+            if (aValue < bValue) {
+                this.indexes[b] = aValue
+                // eslint-disable-next-line no-param-reassign -- x
+                b = bValue
+                bValue = this.indexes[b]
+            } else {
+                this.indexes[a] = bValue
+                // eslint-disable-next-line no-param-reassign -- x
+                a = aValue
+                aValue = this.indexes[a]
+            }
+        }
+    }
+
+    /**
+     * This returns:
+     *
+     * 1. `eqSet.count`: How many different equivalence classes there are.
+     * 2. `eqSet.indexes`: A map (array) from each element (index) to the index
+     *    of its equivalence class.
+     *
+     * All equivalence class indexes `eqSet.indexes[i]` are guaranteed to
+     * be <= `eqSet.count`.
+     */
+    public getEquivalenceSets(): { count: number; indexes: number[] } {
+        let counter = 0
+        for (let i = 0; i < this.count; i++) {
+            if (i === this.indexes[i]) {
+                this.indexes[i] = counter++
+            } else {
+                this.indexes[i] = this.indexes[this.indexes[i]]
+            }
+        }
+        return {
+            count: counter,
+            indexes: this.indexes,
+        }
+    }
 }
 
 /**
@@ -366,90 +430,47 @@ function getDirectionalDeterminismEqClasses(
  * This function will not merge the given sets itself. Instead, it will
  * return an iterable of sets (`Set<S>`) of sets (`S`) to merge. Each set (`S`)
  * is guaranteed to be returned exactly once.
+ *
+ * Note: Instead of actual JS `Set` instances, the implementation will treat
+ * `readonly S[]` instances as sets. This makes the whole implementation a lot
+ * more efficient.
  */
-function* mergeOverlappingSets<S, E>(
-    sets: ReadonlySet<S>,
+function mergeOverlappingSets<S, E>(
+    sets: readonly S[],
     getElements: (set: S) => Iterable<E>,
-): Iterable<ReadonlySet<S>> {
-    if (sets.size < 2) {
-        yield sets
-        return
+): (readonly S[])[] {
+    if (sets.length < 2) {
+        return [sets]
     }
 
-    interface SetEntry {
-        readonly type: "Set"
-        readonly set: Set<S>
-    }
-    interface RefEntry {
-        readonly type: "Ref"
-        readonly key: E
-    }
-    type Entry = SetEntry | RefEntry
+    const eq = new SetEquivalence(sets.length)
+    const elementMap = new Map<E, number>()
 
-    // map from base set (index) to prefixes with that base set
-    const map = new Map<E, Entry>()
-    let disjoint = true
-
-    for (const s of sets) {
+    for (let i = 0; i < sets.length; i++) {
+        const s = sets[i]
         for (const e of getElements(s)) {
-            const entry = map.get(e)
-            if (entry === undefined) {
-                map.set(e, { type: "Set", set: new Set([s]) })
-            } else if (entry.type === "Set") {
-                entry.set.add(s)
-                disjoint = false
-            }
-        }
-    }
-
-    // merge entries in the map
-
-    /**
-     * Resolves the given key until the key maps to a set entry.
-     */
-    function resolve(key: E): E {
-        let e = key
-        for (;;) {
-            const entry = map.get(e)
-            if (entry && entry.type === "Ref") {
-                e = entry.key
+            const elementSet = elementMap.get(e)
+            if (elementSet === undefined) {
+                // It's the first time we see this element.
+                elementMap.set(e, i)
             } else {
-                return e
+                // We've seen this element before in another set.
+                // Make the 2 sets equal.
+                eq.makeEqual(i, elementSet)
             }
         }
     }
 
-    if (!disjoint) {
-        // this step is only necessary if the sets aren't all disjoint
+    const eqSets = eq.getEquivalenceSets()
 
-        for (const s of sets) {
-            const toMergeSet = new Set<E>()
-            for (const e of getElements(s)) {
-                toMergeSet.add(resolve(e))
-            }
-
-            if (toMergeSet.size < 2) {
-                continue
-            }
-
-            const toMerge = [...toMergeSet]
-
-            const intoKey = toMerge[0]
-            const intoSet = map.get(intoKey)! as SetEntry
-            for (let i = 1; i < toMerge.length; i++) {
-                const mergeKey = toMerge[i]
-                const mergeSet = map.get(mergeKey)! as SetEntry
-                mergeSet.set.forEach((p) => intoSet.set.add(p))
-                map.set(mergeKey, { type: "Ref", key: intoKey })
-            }
-        }
+    const result: S[][] = []
+    for (let i = 0; i < eqSets.count; i++) {
+        result.push([])
     }
-
-    for (const value of map.values()) {
-        if (value.type === "Set") {
-            yield value.set
-        }
+    for (let i = 0; i < sets.length; i++) {
+        result[eqSets.indexes[i]].push(sets[i])
     }
+    return result
 }
 
 /**

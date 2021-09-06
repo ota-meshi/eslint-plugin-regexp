@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`getDeterminismEqClasses /(?:script|source)_foo|sample/ 1`] = `
+Object {
+  "(?:script|source)": Array [
+    "script",
+    "source",
+  ],
+  "(?:script|source)_foo|sample": Array [
+    "(?:script|source)_foo",
+    "sample",
+  ],
+}
+`;
+
 exports[`getDeterminismEqClasses /(int|integer)\\b/ 1`] = `
 Object {
   "(int|integer)": Array [
