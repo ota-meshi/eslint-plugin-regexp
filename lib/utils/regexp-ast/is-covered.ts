@@ -9,13 +9,12 @@ import type {
 } from "regexpp/ast"
 import { isEqualNodes } from "./is-equals"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
-import type { ToCharSet } from ".."
+import { toCharSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 
 type Options = {
     flags: ReadonlyFlags
     canOmitRight: boolean
-    toCharSet: ToCharSet
 }
 interface NormalizedNodeBase {
     readonly type: string
@@ -52,7 +51,7 @@ class NormalizedCharacter implements NormalizedNodeBase {
     public readonly charSet: CharSet
 
     public static fromElement(element: ToCharSetElement, options: Options) {
-        return new NormalizedCharacter(options.toCharSet(element))
+        return new NormalizedCharacter(toCharSet(element, options.flags))
     }
 
     private constructor(charSet: CharSet) {
@@ -379,7 +378,7 @@ function isCoveredForNormalizedNode(
             left.type === "NormalizedOther" &&
             right.type === "NormalizedOther"
         ) {
-            return isEqualNodes(left.node, right.node, options.toCharSet)
+            return isEqualNodes(left.node, right.node, options.flags)
         }
         return false
     }
@@ -399,7 +398,7 @@ function isCoveredForNormalizedNode(
                     isCoveredAnyNode(left.alternatives, r, options),
                 )
             }
-            return isEqualNodes(left.node, right.node, options.toCharSet)
+            return isEqualNodes(left.node, right.node, options.flags)
         }
         return false
     }

@@ -11,6 +11,7 @@ import {
     getFirstCharAfter,
     getMatchingDirectionFromAssertionKind,
     invertMatchingDirection,
+    toCharSet,
 } from "regexp-ast-analysis"
 
 /**
@@ -62,7 +63,6 @@ export default createRule("prefer-predefined-assertion", {
                 node,
                 flags,
                 getRegexpLocation,
-                toCharSet,
                 fixReplaceNode,
             } = regexpContext
 
@@ -207,7 +207,7 @@ export default createRule("prefer-predefined-assertion", {
                         }
                     }
 
-                    const charSet = toCharSet(chars)
+                    const charSet = toCharSet(chars, flags)
                     if (charSet.isAll) {
                         replaceEdgeAssertion(aNode, false)
                     } else if (charSet.equals(word)) {

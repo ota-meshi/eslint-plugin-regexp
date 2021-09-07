@@ -22,6 +22,7 @@ import {
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
+import { toCharSet } from "regexp-ast-analysis"
 
 type CodePathStack = {
     codePathId: string
@@ -191,7 +192,6 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
             const {
                 flags,
                 regexpNode,
-                toCharSet,
                 ownsFlags,
                 getFlagLocation,
             } = regExpContext
@@ -217,7 +217,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                     if (unnecessary) {
                         // all characters only accept themselves except if they
                         // are case sensitive
-                        if (toCharSet(cNode).size > 1) {
+                        if (toCharSet(cNode, flags).size > 1) {
                             unnecessary = false
                         }
                     }
@@ -233,7 +233,7 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                             unnecessary = false
                         }
                         if (cNode.kind === "property") {
-                            const caseInsensitive = toCharSet(cNode)
+                            const caseInsensitive = toCharSet(cNode, flags)
                             const caseSensitive = toCharSet(cNode, flagsNoI)
 
                             if (!caseInsensitive.equals(caseSensitive)) {

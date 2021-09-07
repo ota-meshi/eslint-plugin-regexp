@@ -18,8 +18,8 @@ import {
 } from "../utils"
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
-// eslint-disable-next-line no-restricted-imports -- there's no way around it
-import { toCharSet as uncachedToCharSet } from "regexp-ast-analysis"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { toCharSet } from "regexp-ast-analysis"
 import type { Rule } from "eslint"
 import { mentionChar } from "../utils/mention"
 
@@ -39,7 +39,7 @@ interface Grouping {
  */
 function groupElements(
     elements: CharacterClassElement[],
-    { toCharSet }: RegExpContext,
+    flags: ReadonlyFlags,
 ): Grouping {
     const duplicates: Grouping["duplicates"] = []
     const characters = new Map<number, Character>()
@@ -68,7 +68,7 @@ function groupElements(
     }
 
     for (const e of elements) {
-        const charSet = toCharSet(e)
+        const charSet = toCharSet(e, flags)
 
         if (e.type === "Character") {
             const key = charSet.ranges[0].min
@@ -293,7 +293,7 @@ export default createRule("no-dupe-characters-character-class", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { toCharSet, flags } = regexpContext
+            const { flags } = regexpContext
 
             return {
                 // eslint-disable-next-line complexity -- X
@@ -303,7 +303,7 @@ export default createRule("no-dupe-characters-character-class", {
                         characters,
                         characterRanges,
                         characterSets,
-                    } = groupElements(ccNode.elements, regexpContext)
+                    } = groupElements(ccNode.elements, flags)
                     const rangesAndSets = [...characterRanges, ...characterSets]
 
                     // keep track of all reported subset elements
@@ -318,7 +318,7 @@ export default createRule("no-dupe-characters-character-class", {
                     // report characters that are already matched by some range or set
                     for (const char of characters) {
                         for (const other of rangesAndSets) {
-                            if (toCharSet(other).has(char.value)) {
+                            if (toCharSet(other, flags).has(char.value)) {
                                 reportSubset(regexpContext, char, other)
                                 subsets.add(char)
                                 break
@@ -334,7 +334,9 @@ export default createRule("no-dupe-characters-character-class", {
                             }
 
                             if (
-                                toCharSet(element).isSubsetOf(toCharSet(other))
+                                toCharSet(element, flags).isSubsetOf(
+                                    toCharSet(other, flags),
+                                )
                             ) {
                                 reportSubset(regexpContext, element, other)
                                 subsets.add(element)
@@ -345,7 +347,7 @@ export default createRule("no-dupe-characters-character-class", {
 
                     // character ranges and sets might be a subset of a combination of other elements
                     // e.g. `b-d` is a subset of `a-cd-f`
-                    const characterTotal = uncachedToCharSet(
+                    const characterTotal = toCharSet(
                         characters.filter((c) => !subsets.has(c)),
                         flags,
                     )
@@ -357,16 +359,16 @@ export default createRule("no-dupe-characters-character-class", {
                         const totalOthers = characterTotal.union(
                             ...rangesAndSets
                                 .filter((e) => !subsets.has(e) && e !== element)
-                                .map((e) => toCharSet(e)),
+                                .map((e) => toCharSet(e, flags)),
                         )
 
-                        const elementCharSet = toCharSet(element)
+                        const elementCharSet = toCharSet(element, flags)
                         if (elementCharSet.isSubsetOf(totalOthers)) {
                             const superSetElements = ccNode.elements
                                 .filter((e) => !subsets.has(e) && e !== element)
                                 .filter(
                                     (e) =>
-                                        !toCharSet(e).isDisjointWith(
+                                        !toCharSet(e, flags).isDisjointWith(
                                             elementCharSet,
                                         ),
                                 )
@@ -394,9 +396,10 @@ export default createRule("no-dupe-characters-character-class", {
                                 continue
                             }
 
-                            const intersection = toCharSet(range).intersect(
-                                toCharSet(other),
-                            )
+                            const intersection = toCharSet(
+                                range,
+                                flags,
+                            ).intersect(toCharSet(other, flags))
                             if (intersection.isEmpty) {
                                 continue
                             }

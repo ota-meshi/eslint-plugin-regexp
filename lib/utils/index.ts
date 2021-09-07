@@ -6,9 +6,8 @@ import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { getStringIfConstant } from "./ast-utils"
-import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
-// eslint-disable-next-line no-restricted-imports -- Implement RegExpContext#toCharSet
-import { toCharSet, toCache } from "regexp-ast-analysis"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { toCache } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
@@ -22,14 +21,7 @@ import type { PatternRange } from "./ast-utils/pattern-source"
 import { PatternSource } from "./ast-utils/pattern-source"
 export * from "./unicode"
 
-export type ToCharSet = (
-    node: ToCharSetElement,
-    flags?: ReadonlyFlags,
-) => CharSet
-
 type RegExpContextBase = {
-    toCharSet: ToCharSet
-
     /**
      * Creates SourceLocation from the given regexp node
      * @see getRegexpLocation
@@ -578,7 +570,7 @@ function buildRegExpContextBase({
     regexpNode,
     flagsNode,
     context,
-    flags: originalFlags,
+    flags,
     parsedPattern,
 }: {
     patternSource: PatternSource
@@ -589,18 +581,9 @@ function buildRegExpContextBase({
     parsedPattern: Pattern
 }): RegExpContextBase {
     const sourceCode = context.getSourceCode()
-    const flags = toCache(originalFlags)
 
     let cacheUsageOfPattern: UsageOfPattern | null = null
     return {
-        toCharSet: (node, optionFlags) => {
-            if (optionFlags) {
-                // Ignore the cache if the flag is specified.
-                return toCharSet(node, optionFlags)
-            }
-
-            return toCharSet(node, flags)
-        },
         getRegexpLocation: (range, offsets) => {
             if (offsets) {
                 return patternSource.getAstLocation({
@@ -634,7 +617,7 @@ function buildRegExpContextBase({
         pattern: parsedPattern.raw,
         patternAst: parsedPattern,
         patternSource,
-        flags,
+        flags: toCache(flags),
     }
 }
 

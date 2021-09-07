@@ -15,8 +15,12 @@ import type {
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { CharSet } from "refa"
-import type { FirstConsumedChar } from "regexp-ast-analysis"
-import { getFirstConsumedChar, getMatchingDirection } from "regexp-ast-analysis"
+import type { FirstConsumedChar, ReadonlyFlags } from "regexp-ast-analysis"
+import {
+    toCharSet,
+    getFirstConsumedChar,
+    getMatchingDirection,
+} from "regexp-ast-analysis"
 import type { Position, SourceLocation } from "estree"
 
 /**
@@ -135,7 +139,7 @@ function elementsToCharacterClass(elements: CharElementArray): string {
  */
 function categorizeRawAlts(
     alternatives: readonly Alternative[],
-    { toCharSet }: RegExpContext,
+    flags: ReadonlyFlags,
 ): RawAlternative[] {
     return alternatives.map<RawAlternative>((alternative) => {
         if (alternative.elements.length === 1) {
@@ -149,7 +153,7 @@ function categorizeRawAlts(
                     isCharacter: true,
                     alternative,
                     element,
-                    char: toCharSet(element),
+                    char: toCharSet(element, flags),
                 }
             }
         }
@@ -204,7 +208,7 @@ function toCharacterClassElement(element: Element): CharElementArray | null {
  */
 function parseRawAlts(
     alternatives: readonly RawAlternative[],
-    { flags, toCharSet }: RegExpContext,
+    flags: ReadonlyFlags,
 ): ParsedAlternative[] {
     return alternatives.map<ParsedAlternative>((a) => {
         if (a.isCharacter) {
@@ -213,7 +217,7 @@ function parseRawAlts(
                 return {
                     isCharacter: true,
                     elements,
-                    char: toCharSet(a.element),
+                    char: toCharSet(a.element, flags),
                     raw: a.alternative.raw,
                 }
             }
@@ -340,15 +344,15 @@ function findNonDisjointAlt(
  */
 function totalIsAll(
     alternatives: readonly RawAlternative[],
-    { toCharSet }: RegExpContext,
+    { flags }: RegExpContext,
 ): boolean {
     let total: CharSet | undefined = undefined
     for (const a of alternatives) {
         if (a.isCharacter) {
             if (total === undefined) {
-                total = toCharSet(a.element)
+                total = toCharSet(a.element, flags)
             } else {
-                total = total.union(toCharSet(a.element))
+                total = total.union(toCharSet(a.element, flags))
             }
         }
     }
@@ -433,7 +437,12 @@ export default createRule("prefer-character-class", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
+            const {
+                node,
+                flags,
+                getRegexpLocation,
+                fixReplaceNode,
+            } = regexpContext
 
             /**
              * Replaces the alternatives of the given node with the given
@@ -470,7 +479,7 @@ export default createRule("prefer-character-class", {
                     return
                 }
 
-                const alts = categorizeRawAlts(n.alternatives, regexpContext)
+                const alts = categorizeRawAlts(n.alternatives, flags)
                 const characterAltsCount = alts.filter((a) => a.isCharacter)
                     .length
 
@@ -506,7 +515,7 @@ export default createRule("prefer-character-class", {
                 // 2) the characters of the character alternatives are not disjoint, or
                 // 3) the union of all character alternatives is the "all" set.
 
-                const parsedAlts = parseRawAlts(alts, regexpContext)
+                const parsedAlts = parseRawAlts(alts, flags)
 
                 if (
                     characterAltsCount >= 3 ||

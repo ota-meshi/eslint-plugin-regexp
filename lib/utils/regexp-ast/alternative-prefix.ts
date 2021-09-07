@@ -6,7 +6,6 @@ import type {
 } from "regexp-ast-analysis"
 import {
     getFirstCharAfter,
-    // eslint-disable-next-line no-restricted-imports -- x
     toCharSet,
     getFirstConsumedChar,
     getFirstConsumedCharAfter,

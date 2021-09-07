@@ -4,12 +4,13 @@ import type { Expression } from "estree"
 import { parseRegExpLiteral, RegExpParser, visitRegExpAST } from "regexpp"
 import { getStaticValue } from "../ast-utils"
 import type { CharRange, CharSet } from "refa"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     Chars,
     hasSomeDescendant,
     isEmptyBackreference,
+    toCharSet,
 } from "regexp-ast-analysis"
-import type { RegExpContext } from ".."
 export { ShortCircuit } from "./common"
 export * from "./is-covered"
 export * from "./is-equals"
@@ -85,7 +86,7 @@ export interface PossiblyConsumedChar {
  */
 export function getPossiblyConsumedChar(
     element: Element | Pattern | Alternative,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): PossiblyConsumedChar {
     const ranges: CharRange[] = []
     let exact = true
@@ -99,11 +100,11 @@ export function getPossiblyConsumedChar(
                 d.type === "CharacterClass" ||
                 d.type === "CharacterSet"
             ) {
-                const c = context.toCharSet(d)
+                const c = toCharSet(d, flags)
                 ranges.push(...c.ranges)
                 exact = exact && !c.isEmpty
             } else if (d.type === "Backreference" && !isEmptyBackreference(d)) {
-                const c = getPossiblyConsumedChar(d.resolved, context)
+                const c = getPossiblyConsumedChar(d.resolved, flags)
                 ranges.push(...c.char.ranges)
                 exact = exact && c.exact && c.char.size < 2
             }
@@ -124,7 +125,7 @@ export function getPossiblyConsumedChar(
         },
     )
 
-    const char = Chars.empty(context.flags).union(ranges)
+    const char = Chars.empty(flags).union(ranges)
 
     return { char, exact }
 }

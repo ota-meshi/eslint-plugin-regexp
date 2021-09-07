@@ -1,15 +1,12 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- x
-/* eslint-disable func-style, no-restricted-imports -- x */
 import chai from "chai"
 import { RegExpParser, visitRegExpAST } from "regexpp"
-import type { Alternative, Node } from "regexpp/ast"
+import type { Alternative, Node, Pattern } from "regexpp/ast"
 import type { OptionalMatchingDirection } from "../../../lib/utils/reorder-alternatives"
 import {
     canReorder,
     getDeterminismEqClasses,
 } from "../../../lib/utils/reorder-alternatives"
-import type { RegExpContext, ToCharSet } from "../../../lib/utils"
-import * as RAA from "regexp-ast-analysis"
+import type * as RAA from "regexp-ast-analysis"
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot"
 
 chai.use(jestSnapshotPlugin())
@@ -31,7 +28,7 @@ describe(canReorder.name, function () {
             let all = true
 
             visitParents(context.patternAst, (parent) => {
-                if (!canReorder(parent.alternatives, context)) {
+                if (!canReorder(parent.alternatives, context.flags)) {
                     all = false
                 }
             })
@@ -104,7 +101,7 @@ describe(getDeterminismEqClasses.name, function () {
                 const classes = getDeterminismEqClasses(
                     parent.alternatives,
                     dir,
-                    context,
+                    context.flags,
                 )
 
                 chai.assert.equal(
@@ -169,21 +166,20 @@ function visitParents(
     })
 }
 
-function getFakeRegExpContext(regex: RegExp): RegExpContext {
+interface FakeContext {
+    pattern: string
+    patternAst: Pattern
+    flags: RAA.ReadonlyFlags
+    flagsString: string
+}
+
+function getFakeRegExpContext(regex: RegExp): FakeContext {
     const literal = new RegExpParser().parseLiteral(regex.toString())
 
-    const toCharSet: ToCharSet = (node, flags) => {
-        return RAA.toCharSet(node, flags ?? literal.flags)
-    }
-
-    const partialContext: Partial<RegExpContext> = {
+    return {
         pattern: regex.source,
         patternAst: literal.pattern,
         flags: literal.flags,
         flagsString: regex.flags,
-
-        toCharSet,
     }
-
-    return partialContext as RegExpContext
 }

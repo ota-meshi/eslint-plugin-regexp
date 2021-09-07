@@ -1,3 +1,4 @@
+import { toCharSet } from "regexp-ast-analysis"
 import type {
     EscapeCharacterSet,
     UnicodePropertyCharacterSet,
@@ -29,7 +30,6 @@ export default createRule("negation", {
             node,
             getRegexpLocation,
             fixReplaceNode,
-            toCharSet,
             flags,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
@@ -53,12 +53,15 @@ export default createRule("negation", {
                         // All other character sets are either case-invariant
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
 
-                        const ccSet = toCharSet(ccNode)
+                        const ccSet = toCharSet(ccNode, flags)
 
-                        const negatedElementSet = toCharSet({
-                            ...element,
-                            negate: !element.negate,
-                        })
+                        const negatedElementSet = toCharSet(
+                            {
+                                ...element,
+                                negate: !element.negate,
+                            },
+                            flags,
+                        )
 
                         if (!ccSet.equals(negatedElementSet)) {
                             // We cannot remove the negative

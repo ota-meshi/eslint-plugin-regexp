@@ -1,8 +1,5 @@
 import assert from "assert"
-// eslint-disable-next-line no-restricted-imports -- it's fine
-import { toCharSet } from "regexp-ast-analysis"
 import { parseRegExpLiteral } from "regexpp"
-import { parseFlags } from "../../../lib/utils"
 import { isCoveredNode, isEqualNodes } from "../../../lib/utils/regexp-ast"
 type TestCase = {
     a: RegExp | string
@@ -217,7 +214,7 @@ describe("regexp-ast isEqualNodes", () => {
             const ast2 = parseRegExpLiteral(testCase.b)
 
             assert.deepStrictEqual(
-                isEqualNodes(ast1, ast2, (e) => toCharSet(e, ast1.flags)),
+                isEqualNodes(ast1, ast2, ast1.flags),
                 testCase.result,
             )
         })
@@ -536,9 +533,8 @@ describe("regexp-ast isCoveredNode", () => {
 
             assert.deepStrictEqual(
                 isCoveredNode(ast1, ast2, {
-                    flags: parseFlags(ast1.flags.raw),
+                    flags: ast1.flags,
                     canOmitRight: true,
-                    toCharSet: (e) => toCharSet(e, ast1.flags),
                 }),
                 testCase.result,
             )

@@ -6,7 +6,7 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
 } from "../utils"
-import { Chars } from "regexp-ast-analysis"
+import { Chars, toCharSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 export default createRule("prefer-d", {
@@ -33,13 +33,12 @@ export default createRule("prefer-d", {
             flags,
             getRegexpLocation,
             fixReplaceNode,
-            toCharSet,
         }: RegExpContext): RegExpVisitor.Handlers {
             let reportedCharacterClass = false
 
             return {
                 onCharacterClassEnter(ccNode) {
-                    const charSet = toCharSet(ccNode)
+                    const charSet = toCharSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined
                     if (charSet.equals(Chars.digit(flags))) {

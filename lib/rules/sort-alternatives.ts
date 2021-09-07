@@ -152,11 +152,11 @@ function compareCharSetStrings(
  */
 function sortAlternatives(
     alternatives: Alternative[],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): void {
     const firstChars = new Map<Alternative, number>()
     for (const a of alternatives) {
-        const chars = getFirstConsumedChar(a, "ltr", context.flags)
+        const chars = getFirstConsumedChar(a, "ltr", flags)
         const char =
             chars.empty || chars.char.isEmpty
                 ? Infinity
@@ -166,14 +166,14 @@ function sortAlternatives(
 
     alternatives.sort((a, b) => {
         const prefixDiff = compareCharSetStrings(
-            getLongestPrefix(a, "ltr", context.flags),
-            getLongestPrefix(b, "ltr", context.flags),
+            getLongestPrefix(a, "ltr", flags),
+            getLongestPrefix(b, "ltr", flags),
         )
         if (prefixDiff !== 0) {
             return prefixDiff
         }
 
-        if (context.flags.ignoreCase) {
+        if (flags.ignoreCase) {
             return (
                 compareByteOrder(a.raw.toUpperCase(), b.raw.toUpperCase()) ||
                 compareByteOrder(a.raw, b.raw)
@@ -308,7 +308,7 @@ export default createRule("sort-alternatives", {
             function getPossibleChars(a: Alternative): CharSet {
                 let chars = possibleCharsCache.get(a)
                 if (chars === undefined) {
-                    chars = getPossiblyConsumedChar(a, regexpContext).char
+                    chars = getPossiblyConsumedChar(a, flags).char
                     possibleCharsCache.set(a, chars)
                 }
                 return chars
@@ -318,9 +318,9 @@ export default createRule("sort-alternatives", {
             function trySortRun(run: Run<Alternative>): void {
                 const alternatives = run.elements
 
-                if (canReorder(alternatives, regexpContext)) {
+                if (canReorder(alternatives, flags)) {
                     // alternatives can be reordered freely
-                    sortAlternatives(alternatives, regexpContext)
+                    sortAlternatives(alternatives, flags)
                     trySortNumberAlternatives(alternatives)
                 } else {
                     const consumedChars = Chars.empty(flags).union(
@@ -335,7 +335,7 @@ export default createRule("sort-alternatives", {
                         for (const { startIndex: index, elements } of runs) {
                             if (
                                 elements.length > 1 &&
-                                canReorder(elements, regexpContext)
+                                canReorder(elements, flags)
                             ) {
                                 trySortNumberAlternatives(elements)
                                 alternatives.splice(

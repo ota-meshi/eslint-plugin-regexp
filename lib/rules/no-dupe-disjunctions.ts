@@ -362,7 +362,7 @@ interface Options {
  */
 function* findDuplicationAstFast(
     alternatives: Alternative[],
-    { toCharSet }: RegExpContext,
+    flags: ReadonlyFlags,
 ): Iterable<Result> {
     // eslint-disable-next-line func-style -- x
     const shortCircuit: Parameters<typeof isEqualNodes>[3] = (a) => {
@@ -375,7 +375,7 @@ function* findDuplicationAstFast(
         for (let j = 0; j < i; j++) {
             const other = alternatives[j]
 
-            if (isEqualNodes(other, alternative, toCharSet, shortCircuit)) {
+            if (isEqualNodes(other, alternative, flags, shortCircuit)) {
                 yield { type: "Duplicate", alternative, others: [other] }
             }
         }
@@ -387,20 +387,16 @@ function* findDuplicationAstFast(
  */
 function* findDuplicationAst(
     alternatives: Alternative[],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
     hasNothingAfter: boolean,
 ): Iterable<Result> {
-    const { flags, toCharSet } = context
-
     const isCoveredOptions: Parameters<typeof isCoveredNode>[2] = {
         flags,
         canOmitRight: hasNothingAfter,
-        toCharSet,
     }
     const isCoveredOptionsNoPrefix: Parameters<typeof isCoveredNode>[2] = {
         flags,
         canOmitRight: false,
-        toCharSet,
     }
 
     for (let i = 0; i < alternatives.length; i++) {
@@ -410,7 +406,7 @@ function* findDuplicationAst(
             const other = alternatives[j]
 
             if (isCoveredNode(other, alternative, isCoveredOptions)) {
-                if (isEqualNodes(other, alternative, toCharSet)) {
+                if (isEqualNodes(other, alternative, flags)) {
                     yield {
                         type: "Duplicate",
                         alternative,
@@ -484,7 +480,7 @@ function* findPrefixDuplicationNfa(
  */
 function* findDuplicationNfa(
     alternatives: Alternative[],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
     { hasNothingAfter, parser, ignoreOverlap }: Options,
 ): Iterable<Result> {
     const previous: [NFA, boolean, Alternative][] = []
@@ -528,10 +524,7 @@ function* findDuplicationNfa(
                     break
 
                 case SubsetRelation.leftSupersetOfRight: {
-                    const reorder = canReorder(
-                        [alternative, ...others],
-                        context,
-                    )
+                    const reorder = canReorder([alternative, ...others], flags)
 
                     if (reorder) {
                         // We are allowed to freely reorder the alternatives.
@@ -580,23 +573,19 @@ function* findDuplicationNfa(
  */
 function* findDuplication(
     alternatives: Alternative[],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
     options: Options,
 ): Iterable<Result> {
     // AST-based approach
     if (options.fastAst) {
-        yield* findDuplicationAstFast(alternatives, context)
+        yield* findDuplicationAstFast(alternatives, flags)
     } else {
-        yield* findDuplicationAst(
-            alternatives,
-            context,
-            options.hasNothingAfter,
-        )
+        yield* findDuplicationAst(alternatives, flags, options.hasNothingAfter)
     }
 
     // NFA-based approach
     if (!options.noNfa) {
-        yield* findDuplicationNfa(alternatives, context, options)
+        yield* findDuplicationNfa(alternatives, flags, options)
     }
 }
 
@@ -830,7 +819,7 @@ export default createRule("no-dupe-disjunctions", {
 
                 const rawResults = findDuplication(
                     parentNode.alternatives,
-                    regexpContext,
+                    flags,
                     {
                         fastAst: false,
                         noNfa: false,
