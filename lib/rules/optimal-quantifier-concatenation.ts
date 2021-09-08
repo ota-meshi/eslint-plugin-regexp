@@ -16,7 +16,8 @@ import type {
 import type { AST } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
-import { Chars, hasSomeDescendant } from "regexp-ast-analysis"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { Chars, hasSomeDescendant, toCharSet } from "regexp-ast-analysis"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
 import { mention } from "../utils/mention"
@@ -55,14 +56,14 @@ const EMPTY_UNICODE: SingleConsumedChar = {
  */
 function getSingleConsumedChar(
     element: Element | Alternative,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): SingleConsumedChar {
-    const empty = context.flags.unicode ? EMPTY_UNICODE : EMPTY_UTF16
+    const empty = flags.unicode ? EMPTY_UNICODE : EMPTY_UTF16
 
     switch (element.type) {
         case "Alternative":
             if (element.elements.length === 1) {
-                return getSingleConsumedChar(element.elements[0], context)
+                return getSingleConsumedChar(element.elements[0], flags)
             }
             return empty
 
@@ -70,14 +71,14 @@ function getSingleConsumedChar(
         case "CharacterSet":
         case "CharacterClass":
             return {
-                char: context.toCharSet(element),
+                char: toCharSet(element, flags),
                 complete: true,
             }
 
         case "Group":
         case "CapturingGroup": {
             const results = element.alternatives.map((a) =>
-                getSingleConsumedChar(a, context),
+                getSingleConsumedChar(a, flags),
             )
 
             return {
@@ -160,7 +161,7 @@ interface NestedReplacement {
 function getQuantifiersReplacement(
     left: Quantifier,
     right: Quantifier,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): Replacement | null {
     // this only handles quantifiers that aren't simple repetitions
     // e.g. `a*\w*` will be handled but `a{6}\w` will not be.
@@ -174,14 +175,14 @@ function getQuantifiersReplacement(
     }
 
     // compare
-    const lSingle = getSingleConsumedChar(left.element, context)
-    const rSingle = getSingleConsumedChar(right.element, context)
+    const lSingle = getSingleConsumedChar(left.element, flags)
+    const rSingle = getSingleConsumedChar(right.element, flags)
     const lPossibleChar = lSingle.complete
         ? lSingle.char
-        : getPossiblyConsumedChar(left.element, context).char
+        : getPossiblyConsumedChar(left.element, flags).char
     const rPossibleChar = rSingle.complete
         ? rSingle.char
-        : getPossiblyConsumedChar(right.element, context).char
+        : getPossiblyConsumedChar(right.element, flags).char
     const greedy = left.greedy
 
     let lQuant: Readonly<Quant>, rQuant: Readonly<Quant>
@@ -283,17 +284,17 @@ function asRepeatedElement(element: Element): RepeatedElement | null {
  */
 function getQuantifierRepeatedElementReplacement(
     pair: [Quantifier, RepeatedElement] | [RepeatedElement, Quantifier],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): Replacement | null {
     const [left, right] = pair
 
     // the characters of both elements have to be complete and equal
-    const lSingle = getSingleConsumedChar(left.element, context)
+    const lSingle = getSingleConsumedChar(left.element, flags)
     if (!lSingle.complete) {
         return null
     }
 
-    const rSingle = getSingleConsumedChar(right.element, context)
+    const rSingle = getSingleConsumedChar(right.element, flags)
     if (!rSingle.complete) {
         return null
     }
@@ -324,7 +325,7 @@ function getQuantifierRepeatedElementReplacement(
 function getNestedReplacement(
     dominate: Quantifier,
     nested: Quantifier,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): Replacement | null {
     if (dominate.greedy !== nested.greedy) {
         return null
@@ -334,12 +335,12 @@ function getNestedReplacement(
         return null
     }
 
-    const single = getSingleConsumedChar(dominate.element, context)
+    const single = getSingleConsumedChar(dominate.element, flags)
     if (single.char.isEmpty) {
         return null
     }
 
-    const nestedPossible = getPossiblyConsumedChar(nested.element, context)
+    const nestedPossible = getPossiblyConsumedChar(nested.element, flags)
     if (single.char.isSupersetOf(nestedPossible.char)) {
         const { min } = nested
         if (min === 0) {
@@ -438,10 +439,10 @@ function ignoreReplacement(
 function getReplacement(
     left: Element,
     right: Element,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): Replacement | null {
     if (left.type === "Quantifier" && right.type === "Quantifier") {
-        const result = getQuantifiersReplacement(left, right, context)
+        const result = getQuantifiersReplacement(left, right, flags)
         if (result && !ignoreReplacement(left, right, result)) return result
     }
 
@@ -450,7 +451,7 @@ function getReplacement(
         if (rightRep) {
             const result = getQuantifierRepeatedElementReplacement(
                 [left, rightRep],
-                context,
+                flags,
             )
             if (result && !ignoreReplacement(left, right, result)) return result
         }
@@ -461,7 +462,7 @@ function getReplacement(
         if (leftRep) {
             const result = getQuantifierRepeatedElementReplacement(
                 [leftRep, right],
-                context,
+                flags,
             )
             if (result && !ignoreReplacement(left, right, result)) return result
         }
@@ -469,14 +470,14 @@ function getReplacement(
 
     if (left.type === "Quantifier" && left.max === Infinity) {
         for (const nested of nestedQuantifiers(right, "start")) {
-            const result = getNestedReplacement(left, nested, context)
+            const result = getNestedReplacement(left, nested, flags)
             if (result) return result
         }
     }
 
     if (right.type === "Quantifier" && right.max === Infinity) {
         for (const nested of nestedQuantifiers(left, "end")) {
-            const result = getNestedReplacement(right, nested, context)
+            const result = getNestedReplacement(right, nested, flags)
             if (result) return result
         }
     }
@@ -531,18 +532,19 @@ export default createRule("optimal-quantifier-concatenation", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
+            const {
+                node,
+                flags,
+                getRegexpLocation,
+                fixReplaceNode,
+            } = regexpContext
 
             return {
                 onAlternativeEnter(aNode) {
                     for (let i = 0; i < aNode.elements.length - 1; i++) {
                         const left = aNode.elements[i]
                         const right = aNode.elements[i + 1]
-                        const replacement = getReplacement(
-                            left,
-                            right,
-                            regexpContext,
-                        )
+                        const replacement = getReplacement(left, right, flags)
 
                         if (!replacement) {
                             continue

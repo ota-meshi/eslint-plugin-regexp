@@ -1,6 +1,6 @@
 import type { CharSet } from "refa"
 import { CharBase } from "refa"
-import type { MatchingDirection } from "regexp-ast-analysis"
+import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     isPotentiallyZeroLength,
     getFirstCharAfter,
@@ -9,9 +9,9 @@ import {
     getMatchingDirection,
     hasSomeDescendant,
     isEmptyBackreference,
+    toCharSet,
 } from "regexp-ast-analysis"
 import type { Alternative, Element, Node, Pattern } from "regexpp/ast"
-import type { RegExpContext } from "."
 import { getLongestPrefix } from "./regexp-ast/alternative-prefix"
 
 /**
@@ -76,7 +76,7 @@ export interface CanReorderOptions {
  */
 export function canReorder(
     alternatives: Iterable<Alternative>,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
     options: CanReorderOptions = {},
 ): boolean {
     const { ignoreCapturingGroups = false, matchingDirection } = options
@@ -92,8 +92,8 @@ export function canReorder(
     const dir = matchingDirection ?? getMatchingDirection(slice[0])
     const eqClasses =
         dir === "unknown"
-            ? getDirectionIndependedDeterminismEqClasses(slice, context)
-            : getDeterminismEqClasses(slice, dir, context)
+            ? getDirectionIndependedDeterminismEqClasses(slice, flags)
+            : getDeterminismEqClasses(slice, dir, flags)
 
     if (
         !ignoreCapturingGroups &&
@@ -121,7 +121,7 @@ export function canReorder(
 
         return (
             canReorderBasedOnLength(eq) ||
-            canReorderBasedOnConsumedChars(eq, context)
+            canReorderBasedOnConsumedChars(eq, flags)
         )
     })
 }
@@ -214,13 +214,13 @@ function canReorderCapturingGroups(
 export function getDeterminismEqClasses(
     alternatives: Iterable<Alternative>,
     dir: OptionalMatchingDirection,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): readonly (readonly Alternative[])[] {
     if (dir === "unknown") {
-        return getDirectionIndependedDeterminismEqClasses(alternatives, context)
+        return getDirectionIndependedDeterminismEqClasses(alternatives, flags)
     }
 
-    return getDirectionalDeterminismEqClasses(alternatives, dir, context)
+    return getDirectionalDeterminismEqClasses(alternatives, dir, flags)
 }
 
 /**
@@ -229,10 +229,10 @@ export function getDeterminismEqClasses(
  */
 function getDirectionIndependedDeterminismEqClasses(
     alternatives: Iterable<Alternative>,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): readonly (readonly Alternative[])[] {
-    const ltr = getDirectionalDeterminismEqClasses(alternatives, "ltr", context)
-    const rtl = getDirectionalDeterminismEqClasses(alternatives, "rtl", context)
+    const ltr = getDirectionalDeterminismEqClasses(alternatives, "ltr", flags)
+    const rtl = getDirectionalDeterminismEqClasses(alternatives, "rtl", flags)
 
     const disjoint = mergeOverlappingSets([...ltr, ...rtl], (s) => s)
 
@@ -263,14 +263,14 @@ function getDirectionIndependedDeterminismEqClasses(
 function getDirectionalDeterminismEqClasses(
     alternatives: Iterable<Alternative>,
     dir: MatchingDirection,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): readonly (readonly Alternative[])[] {
     // Step 1:
     // We map each alternative to an array of CharSets. Each array represents a
     // concatenation that we are sure of. E.g. the alternative `abc*de` will
     // get the array `a, b, [cd]`, and `abc` will get `a, b, c`.
     const getPrefixCharSets = cachedFn<Alternative, readonly CharSet[]>((a) => {
-        let prefix = getLongestPrefix(a, dir, context.flags)
+        let prefix = getLongestPrefix(a, dir, flags)
 
         // We optimize a little here.
         // All trailing all-characters sets can be removed without affecting
@@ -495,7 +495,7 @@ function canReorderBasedOnLength(slice: readonly Alternative[]): boolean {
  */
 function canReorderBasedOnConsumedChars(
     slice: readonly Alternative[],
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): boolean {
     // we assume that at least one character is consumed in each alternative
     if (slice.some(isPotentiallyZeroLength)) {
@@ -507,15 +507,15 @@ function canReorderBasedOnConsumedChars(
         return false
     }
 
-    const consumedChars = Chars.empty(context.flags).union(
-        ...slice.map((a) => getConsumedChars(a, context)),
+    const consumedChars = Chars.empty(flags).union(
+        ...slice.map((a) => getConsumedChars(a, flags)),
     )
 
     return (
-        getFirstCharAfter(parent, "rtl", context.flags).char.isDisjointWith(
+        getFirstCharAfter(parent, "rtl", flags).char.isDisjointWith(
             consumedChars,
         ) &&
-        getFirstCharAfter(parent, "ltr", context.flags).char.isDisjointWith(
+        getFirstCharAfter(parent, "ltr", flags).char.isDisjointWith(
             consumedChars,
         )
     )
@@ -571,7 +571,7 @@ function asSet<T>(iter: Iterable<T>): ReadonlySet<T> {
  */
 function getConsumedChars(
     element: Element | Pattern | Alternative,
-    context: RegExpContext,
+    flags: ReadonlyFlags,
 ): CharSet {
     const sets: CharSet[] = []
 
@@ -584,9 +584,9 @@ function getConsumedChars(
                 d.type === "CharacterClass" ||
                 d.type === "CharacterSet"
             ) {
-                sets.push(context.toCharSet(d))
+                sets.push(toCharSet(d, flags))
             } else if (d.type === "Backreference" && !isEmptyBackreference(d)) {
-                sets.push(getConsumedChars(d.resolved, context))
+                sets.push(getConsumedChars(d.resolved, flags))
             }
 
             // always continue to the next element
@@ -596,7 +596,7 @@ function getConsumedChars(
         (d) => d.type !== "Assertion" && d.type !== "CharacterClass",
     )
 
-    return Chars.empty(context.flags).union(...sets)
+    return Chars.empty(flags).union(...sets)
 }
 
 /** Returns whether the given node contains a capturing group. */

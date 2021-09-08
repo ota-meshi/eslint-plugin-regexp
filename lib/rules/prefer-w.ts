@@ -13,7 +13,7 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars } from "regexp-ast-analysis"
+import { Chars, toCharSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 /**
@@ -86,11 +86,10 @@ export default createRule("prefer-w", {
             getRegexpLocation,
             fixReplaceNode,
             patternSource,
-            toCharSet,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    const charSet = toCharSet(ccNode)
+                    const charSet = toCharSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined
                     if (charSet.equals(Chars.word(flags))) {

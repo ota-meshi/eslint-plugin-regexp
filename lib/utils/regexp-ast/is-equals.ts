@@ -1,4 +1,5 @@
-import type { ToCharSetElement } from "regexp-ast-analysis"
+import type { ToCharSetElement, ReadonlyFlags } from "regexp-ast-analysis"
+import { toCharSet } from "regexp-ast-analysis"
 import type {
     Alternative,
     Assertion,
@@ -17,7 +18,6 @@ import type {
     Element,
     CharacterClassElement,
 } from "regexpp/ast"
-import type { ToCharSet } from ".."
 import type { ShortCircuit } from "./common"
 
 /**
@@ -30,7 +30,7 @@ import type { ShortCircuit } from "./common"
 function isEqualChar(
     a: ToCharSetElement,
     b: ToCharSetElement,
-    toCharSet: ToCharSet,
+    flags: ReadonlyFlags,
 ): boolean {
     if (a.type === "Character") {
         if (b.type === "Character") {
@@ -56,22 +56,22 @@ function isEqualChar(
         return true
     }
 
-    return toCharSet(a).equals(toCharSet(b))
+    return toCharSet(a, flags).equals(toCharSet(b, flags))
 }
 
 const EQUALS_CHECKER = {
     Alternative(
         a: Alternative,
         b: Alternative,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
-        return isEqualElements(a.elements, b.elements, toCharSet, shortCircuit)
+        return isEqualElements(a.elements, b.elements, flags, shortCircuit)
     },
     Assertion(
         a: Assertion,
         b: Assertion,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         if (a.kind === "start" || a.kind === "end") {
@@ -86,7 +86,7 @@ const EQUALS_CHECKER = {
                 return isEqualAlternatives(
                     a.alternatives,
                     b.alternatives,
-                    toCharSet,
+                    flags,
                     shortCircuit,
                 )
             }
@@ -101,7 +101,7 @@ const EQUALS_CHECKER = {
     CapturingGroup(
         a: CapturingGroup,
         b: CapturingGroup,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         return (
@@ -109,26 +109,26 @@ const EQUALS_CHECKER = {
             isEqualAlternatives(
                 a.alternatives,
                 b.alternatives,
-                toCharSet,
+                flags,
                 shortCircuit,
             )
         )
     },
-    Character(a: Character, b: Character, toCharSet: ToCharSet) {
-        return isEqualChar(a, b, toCharSet)
+    Character(a: Character, b: Character, flags: ReadonlyFlags) {
+        return isEqualChar(a, b, flags)
     },
-    CharacterClass(a: CharacterClass, b: CharacterClass, toCharSet: ToCharSet) {
-        return isEqualChar(a, b, toCharSet)
+    CharacterClass(a: CharacterClass, b: CharacterClass, flags: ReadonlyFlags) {
+        return isEqualChar(a, b, flags)
     },
     CharacterClassRange(
         a: CharacterClassRange,
         b: CharacterClassRange,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
     ) {
-        return isEqualChar(a, b, toCharSet)
+        return isEqualChar(a, b, flags)
     },
-    CharacterSet(a: CharacterSet, b: CharacterSet, toCharSet: ToCharSet) {
-        return isEqualChar(a, b, toCharSet)
+    CharacterSet(a: CharacterSet, b: CharacterSet, flags: ReadonlyFlags) {
+        return isEqualChar(a, b, flags)
     },
     /* istanbul ignore next */
     Flags(a: Flags, b: Flags) {
@@ -145,51 +145,51 @@ const EQUALS_CHECKER = {
     Group(
         a: Group,
         b: Group,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         return isEqualAlternatives(
             a.alternatives,
             b.alternatives,
-            toCharSet,
+            flags,
             shortCircuit,
         )
     },
     Pattern(
         a: Pattern,
         b: Pattern,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         return isEqualAlternatives(
             a.alternatives,
             b.alternatives,
-            toCharSet,
+            flags,
             shortCircuit,
         )
     },
     Quantifier(
         a: Quantifier,
         b: Quantifier,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         return (
             a.min === b.min &&
             a.max === b.max &&
             a.greedy === b.greedy &&
-            isEqualNodes(a.element, b.element, toCharSet, shortCircuit)
+            isEqualNodes(a.element, b.element, flags, shortCircuit)
         )
     },
     RegExpLiteral(
         a: RegExpLiteral,
         b: RegExpLiteral,
-        toCharSet: ToCharSet,
+        flags: ReadonlyFlags,
         shortCircuit?: ShortCircuit,
     ) {
         return (
-            isEqualNodes(a.pattern, b.pattern, toCharSet, shortCircuit) &&
-            isEqualNodes(a.flags, b.flags, toCharSet, shortCircuit)
+            isEqualNodes(a.pattern, b.pattern, flags, shortCircuit) &&
+            isEqualNodes(a.flags, b.flags, flags, shortCircuit)
         )
     },
 }
@@ -210,11 +210,11 @@ function isToCharSetElement(node: Node): node is ToCharSetElement {
 export function isEqualNodes<N extends Node>(
     a: N,
     b: N,
-    toCharSet: ToCharSet,
+    flags: ReadonlyFlags,
     shortCircuit?: ShortCircuit,
 ): boolean {
     if (isToCharSetElement(a) && isToCharSetElement(b)) {
-        return isEqualChar(a, b, toCharSet)
+        return isEqualChar(a, b, flags)
     }
 
     if (a.type !== b.type) {
@@ -230,7 +230,7 @@ export function isEqualNodes<N extends Node>(
         return EQUALS_CHECKER[a.type](
             a as never,
             b as never,
-            toCharSet,
+            flags,
             shortCircuit,
         )
     }
@@ -241,7 +241,7 @@ export function isEqualNodes<N extends Node>(
 function isEqualElements(
     a: Element[],
     b: Element[],
-    toCharSet: ToCharSet,
+    flags: ReadonlyFlags,
     shortCircuit?: ShortCircuit,
 ) {
     if (a.length !== b.length) {
@@ -250,7 +250,7 @@ function isEqualElements(
     for (let index = 0; index < a.length; index++) {
         const ae = a[index]
         const be = b[index]
-        if (!isEqualNodes(ae, be, toCharSet, shortCircuit)) {
+        if (!isEqualNodes(ae, be, flags, shortCircuit)) {
             return false
         }
     }
@@ -261,7 +261,7 @@ function isEqualElements(
 function isEqualAlternatives<N extends Alternative | CharacterClassElement>(
     a: N[],
     b: N[],
-    toCharSet: ToCharSet,
+    flags: ReadonlyFlags,
     shortCircuit?: ShortCircuit,
 ) {
     if (a.length !== b.length) {
@@ -270,7 +270,7 @@ function isEqualAlternatives<N extends Alternative | CharacterClassElement>(
     const beList = [...b]
     for (const ae of a) {
         const bIndex = beList.findIndex((be) =>
-            isEqualNodes(ae, be, toCharSet, shortCircuit),
+            isEqualNodes(ae, be, flags, shortCircuit),
         )
         if (bIndex >= 0) {
             beList.splice(bIndex, 1)
