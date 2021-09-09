@@ -201,7 +201,13 @@ export default createRule("prefer-lookaround", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { regexpNode } = regexpContext
+            const { regexpNode, patternAst } = regexpContext
+            if (
+                patternAst.alternatives.length > 1 ||
+                patternAst.alternatives[0].elements.length < 2
+            ) {
+                return {}
+            }
             const replaceReferenceList: ReplaceReferences[] = []
             for (const ref of extractExpressionReferences(
                 regexpNode,
@@ -414,13 +420,7 @@ export default createRule("prefer-lookaround", {
                 },
                 onPatternLeave(pNode) {
                     // verify
-                    if (pNode.alternatives.length > 1) {
-                        return
-                    }
                     const alt = pNode.alternatives[0]
-                    if (alt.elements.length < 2) {
-                        return
-                    }
                     const otherElements = [...alt.elements]
                     let reportStart = null
                     if (

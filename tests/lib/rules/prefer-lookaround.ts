@@ -215,7 +215,7 @@ tester.run("prefer-lookaround", rule as any, {
             errors: [
                 {
                     message:
-                        "This capturing group can be replaced with lookahead assertion ('(?=Script)').",
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script)').",
                     column: 86,
                     endColumn: 94,
                 },
@@ -231,7 +231,7 @@ tester.run("prefer-lookaround", rule as any, {
             errors: [
                 {
                     message:
-                        "This capturing group can be replaced with lookbehind assertion ('(?<=Java)').",
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=Java)').",
                     column: 82,
                     endColumn: 88,
                 },
@@ -245,7 +245,7 @@ tester.run("prefer-lookaround", rule as any, {
             const str = 'JavaScript'.replace(/Java(?=Script)/g, '');
             `,
             errors: [
-                "This capturing group can be replaced with lookahead assertion ('(?=Script)').",
+                "This capturing group can be replaced with a lookahead assertion ('(?=Script)').",
             ],
         },
         {
@@ -352,7 +352,7 @@ tester.run("prefer-lookaround", rule as any, {
             `,
             output: null,
             errors: [
-                "This capturing group can be replaced with lookbehind assertion ('(?<=a)').",
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=a)').",
             ],
         },
         {
@@ -363,7 +363,7 @@ tester.run("prefer-lookaround", rule as any, {
             `,
             output: null,
             errors: [
-                "This capturing group can be replaced with lookahead assertion ('(?=c)').",
+                "This capturing group can be replaced with a lookahead assertion ('(?=c)').",
             ],
         },
     ],

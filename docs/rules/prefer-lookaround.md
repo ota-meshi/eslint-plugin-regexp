@@ -21,10 +21,10 @@ This rule reports string replacement using capturing groups that can be replaced
 /* eslint regexp/prefer-lookaround: "error" */
 
 /* ✓ GOOD */
-var str = 'JavaScript'.replaceAll(/Java(?=Script)/, 'Type')
+var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')
 
 /* ✗ BAD */
-var str = 'JavaScript'.replaceAll(/Java(Script)/, 'Type$1')
+var str = 'JavaScript'.replace(/Java(Script)/g, 'Type$1')
 ```
 
 </eslint-code-block>
