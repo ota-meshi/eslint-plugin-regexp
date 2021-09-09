@@ -187,7 +187,7 @@ export default createRule("prefer-lookaround", {
             preferLookarounds:
                 "These capturing groups can be replaced with lookaround assertions ({{expr1}} and {{expr2}}).",
             prefer:
-                "This capturing group can be replaced with {{kind}} ({{expr}}).",
+                "This capturing group can be replaced with a {{kind}} ({{expr}}).",
         },
         type: "suggestion",
     },
