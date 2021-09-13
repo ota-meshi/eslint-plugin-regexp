@@ -1,3 +1,4 @@
+import type { PatternRange } from "../utils/ast-utils/pattern-source"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
@@ -21,6 +22,26 @@ const CONTROL_CHARS = new Map<number, string>([
     [CP_CR, "\\r"],
 ])
 
+/**
+ * Returns whether the regex is represented by a RegExp literal in source code
+ * at the given range.
+ */
+function isRegExpLiteralAt(
+    { node, patternSource }: RegExpContext,
+    at: PatternRange,
+): boolean {
+    if (isRegexpLiteral(node)) {
+        return true
+    }
+
+    const replaceRange = patternSource.getReplaceRange(at)
+    if (replaceRange && replaceRange.type === "RegExp") {
+        return true
+    }
+
+    return false
+}
+
 export default createRule("control-character-escape", {
     meta: {
         docs: {
@@ -40,11 +61,11 @@ export default createRule("control-character-escape", {
         /**
          * Create visitor
          */
-        function createVisitor({
-            node,
-            getRegexpLocation,
-            fixReplaceNode,
-        }: RegExpContext): RegExpVisitor.Handlers {
+        function createVisitor(
+            regexpContext: RegExpContext,
+        ): RegExpVisitor.Handlers {
+            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
+
             return {
                 onCharacterEnter(cNode) {
                     if (cNode.parent.type === "CharacterClassRange") {
@@ -62,7 +83,7 @@ export default createRule("control-character-escape", {
                         return
                     }
                     if (
-                        !isRegexpLiteral(node) &&
+                        !isRegExpLiteralAt(regexpContext, cNode) &&
                         cNode.raw === String.fromCodePoint(cNode.value)
                     ) {
                         // we allow the direct usage of control characters in
