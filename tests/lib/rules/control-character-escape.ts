@@ -108,5 +108,12 @@ tester.run("control-character-escape", rule as any, {
                 "Unexpected control character escape '\\u0009' (U+0009). Use '\\t' instead.",
             ],
         },
+        {
+            code: String.raw`RegExp("\t\r\n\0" + /	/.source)`,
+            output: String.raw`RegExp("\t\r\n\0" + /\t/.source)`,
+            errors: [
+                "Unexpected control character escape '\t' (U+0009). Use '\\t' instead.",
+            ],
+        },
     ],
 })
