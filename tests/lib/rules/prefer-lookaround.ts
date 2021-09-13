@@ -366,5 +366,12 @@ tester.run("prefer-lookaround", rule as any, {
                 "This capturing group can be replaced with a lookahead assertion ('(?=c)').",
             ],
         },
+        {
+            code: `"".replace(/(a)Java/g, '$1foo')`,
+            output: `"".replace(/(?<=a)Java/g, 'foo')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=a)').",
+            ],
+        },
     ],
 })

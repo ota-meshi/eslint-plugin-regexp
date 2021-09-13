@@ -15,7 +15,7 @@ import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
 import type { Expression, Literal } from "estree"
 import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
-import { CharSetTreeRoot } from "../utils/char-set-tree"
+import { getPossiblyConsumedChar } from "../utils/regexp-ast"
 
 type ReplaceReference = { ref: string | number; range?: [number, number] }
 type ReplaceReferences = {
@@ -91,13 +91,8 @@ const enum SideEffect {
 /**
  * Gets the type of side effect when replacing the capture group for the given element.
  *
- * Currently, only fairly simple patterns are judged as having no side effects.
- * What is considered a simple pattern is:
- * - The start and end capturing groups and the middle pattern is a pattern that simply consumes characters.
- * - Does not have a pattern with the quantifier max > 10.
- *
- * In addition, the start and end patterns and the patterns in between are considered side effects
- * if either pattern contains either pattern.
+ * If  the starting and ending capture groups, and the patterns between each have disjoints with each other,
+ * there are no side effects.
  */
 function getSideEffectsWhenReplacingCapturingGroup(
     start: CapturingGroup | undefined,
@@ -105,42 +100,39 @@ function getSideEffectsWhenReplacingCapturingGroup(
     end: CapturingGroup | undefined,
     regexpContext: RegExpContext,
 ): Set<SideEffect> {
-    const elementsTree = CharSetTreeRoot.fromElements(others, regexpContext)
-    if (elementsTree == null) {
-        // pattern is complex
-        return new Set([SideEffect.startRef, SideEffect.endRef])
-    }
-    const results = new Set<SideEffect>()
-    let startTree: CharSetTreeRoot | null = null
-    if (start) {
-        startTree = CharSetTreeRoot.fromElements([start], regexpContext)
-        if (
-            !startTree ||
-            startTree.includes(elementsTree) ||
-            elementsTree.includes(startTree)
-        ) {
-            results.add(SideEffect.startRef)
+    const result = new Set<SideEffect>()
+    if (start && others.length) {
+        if (!hasDisjoint(start, ...others)) {
+            result.add(SideEffect.startRef)
         }
     }
-    let endTree: CharSetTreeRoot | null = null
-    if (end) {
-        endTree = CharSetTreeRoot.fromElements([end], regexpContext)
-        if (
-            !endTree ||
-            endTree.includes(elementsTree) ||
-            elementsTree.includes(endTree)
-        ) {
-            results.add(SideEffect.endRef)
+    if (end && others.length) {
+        if (!hasDisjoint(end, ...others)) {
+            result.add(SideEffect.endRef)
         }
     }
+    if (start && end) {
+        if (!hasDisjoint(start, end)) {
+            result.add(SideEffect.startRef)
+            result.add(SideEffect.endRef)
+        }
+    }
+    return result
 
-    if (startTree && endTree) {
-        if (endTree.includes(startTree) || startTree.includes(endTree)) {
-            return new Set([SideEffect.startRef, SideEffect.endRef])
+    /** Checks whether the given target element has disjoint in elements.  */
+    function hasDisjoint(target: Element, ...elements: Element[]) {
+        const chars = getPossiblyConsumedChar(target, regexpContext.flags)
+        for (const element of elements) {
+            const elementChars = getPossiblyConsumedChar(
+                element,
+                regexpContext.flags,
+            )
+            if (elementChars.char.isDisjointWith(chars.char)) {
+                return true
+            }
         }
+        return false
     }
-
-    return results
 }
 
 /**
