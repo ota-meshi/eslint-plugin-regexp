@@ -1,13 +1,8 @@
 import type { CharSet } from "refa"
-import type {
-    FirstConsumedChar,
-    MatchingDirection,
-    ReadonlyFlags,
-} from "regexp-ast-analysis"
+import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getFirstCharAfter,
     toCharSet,
-    getFirstConsumedChar,
     getFirstConsumedCharAfter,
     FirstConsumedChars,
     isZeroLength,
@@ -21,6 +16,7 @@ import type {
     Group,
     Quantifier,
 } from "regexpp/ast"
+import { getFirstConsumedCharPlusAfter } from "./common"
 
 const ltrCache = new WeakMap<Alternative, readonly CharSet[]>()
 const rtlCache = new WeakMap<Alternative, readonly CharSet[]>()
@@ -238,31 +234,4 @@ function getQuantifierPrefix(
     )
     chars.push(look.char)
     return { chars, complete: false }
-}
-
-/**
- * This operations is equal to:
- *
- * ```
- * concat(
- *     getFirstConsumedChar(element, direction, flags),
- *     getFirstConsumedCharAfter(element, direction, flags),
- * )
- * ```
- */
-function getFirstConsumedCharPlusAfter(
-    element: Element | Alternative,
-    direction: MatchingDirection,
-    flags: ReadonlyFlags,
-): FirstConsumedChar {
-    const consumed = getFirstConsumedChar(element, direction, flags)
-
-    if (!consumed.empty) {
-        return consumed
-    }
-
-    return FirstConsumedChars.concat(
-        [consumed, getFirstConsumedCharAfter(element, direction, flags)],
-        flags,
-    )
 }

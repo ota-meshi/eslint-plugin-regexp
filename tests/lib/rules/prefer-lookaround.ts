@@ -76,6 +76,11 @@ tester.run("prefer-lookaround", rule as any, {
             options: [{ strictTypes: false }],
         },
         `
+        "aa-a".replace(/a(\\b|$)/g, 'b$1')
+        "aaa".replace(/(^)a/, '$1b')
+        "aaa".replace(/([])a/, '$1b')
+        `,
+        `
         "aaaaaa".replace(/(a)a(a)/g, "$1b$2")
         // 'abaaba'
         "aaaaaa".replace(/(?<=a)a(?=a)/g, "b")
@@ -158,6 +163,30 @@ tester.run("prefer-lookaround", rule as any, {
         // 'aaaba'
         "aaaaaaaaa".replace(/(?<=a{0,3})aaaaa/g, "b")
         // 'baaaa'
+        `,
+        `
+        "aaaab".replace(/(a+)a+b/, "$1c")
+        // 'aaac'
+        "aaaab".replace(/(?<=a+)a+b/, "c")
+        // 'ac'
+        `,
+        `
+        "abaaaba".replace(/ab(a+)/g, "c$1")
+        // 'caaaba'
+        "abaaaba".replace(/ab(?=a+)/g, "c")
+        // 'caaca'
+        `,
+        `
+        "ababababa".replace(/(a)ba/g, "$1c")
+        // 'acbacba'
+        "ababababa".replace(/(?<=a)ba/g, "c")
+        // 'acccc'
+        `,
+        `
+        "aJavaJava".replace(/(a)Java/g, '$1foo')
+        // 'afooJava'
+        "aJavaJava".replace(/(?<=a)Java/g, 'foo')
+        // 'afoofoo'
         `,
     ],
     invalid: [
@@ -367,10 +396,16 @@ tester.run("prefer-lookaround", rule as any, {
             ],
         },
         {
-            code: `"".replace(/(a)Java/g, '$1foo')`,
-            output: `"".replace(/(?<=a)Java/g, 'foo')`,
+            code: `
+            "aabcaabbcc".replace(/(a+)b+c/g, "$1_")
+            // 'aa_aa_c'
+            `,
+            output: `
+            "aabcaabbcc".replace(/(?<=a+)b+c/g, "_")
+            // 'aa_aa_c'
+            `,
             errors: [
-                "This capturing group can be replaced with a lookbehind assertion ('(?<=a)').",
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=a+)').",
             ],
         },
     ],

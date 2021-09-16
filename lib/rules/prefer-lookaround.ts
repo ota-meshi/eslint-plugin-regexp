@@ -15,7 +15,15 @@ import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
 import type { Expression, Literal } from "estree"
 import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
-import { getPossiblyConsumedChar } from "../utils/regexp-ast"
+import {
+    getFirstConsumedCharPlusAfter,
+    getPossiblyConsumedChar,
+} from "../utils/regexp-ast"
+import {
+    getLengthRange,
+    FirstConsumedChars,
+    getFirstConsumedChar,
+} from "regexp-ast-analysis"
 
 type ReplaceReference = { ref: string | number; range?: [number, number] }
 type ReplaceReferences = {
@@ -91,48 +99,66 @@ const enum SideEffect {
 /**
  * Gets the type of side effect when replacing the capture group for the given element.
  *
- * If  the starting and ending capture groups, and the patterns between each have disjoints with each other,
- * there are no side effects.
+ * There are no side effects if the following conditions are met:
+ *
+ * - Some elements other than the start capturing group have disjoints to the start capturing group.
+ * - The last element and the start consume character have disjoint.
  */
 function getSideEffectsWhenReplacingCapturingGroup(
     start: CapturingGroup | undefined,
     others: Element[],
     end: CapturingGroup | undefined,
-    regexpContext: RegExpContext,
+    { flags }: RegExpContext,
 ): Set<SideEffect> {
     const result = new Set<SideEffect>()
-    if (start && others.length) {
-        if (!hasDisjoint(start, ...others)) {
+    if (start) {
+        if (!hasDisjoint(start, end ? [...others, end] : others)) {
             result.add(SideEffect.startRef)
         }
     }
-    if (end && others.length) {
-        if (!hasDisjoint(end, ...others)) {
-            result.add(SideEffect.endRef)
-        }
-    }
-    if (start && end) {
-        if (!hasDisjoint(start, end)) {
-            result.add(SideEffect.startRef)
-            result.add(SideEffect.endRef)
-        }
+
+    const last = end || others[others.length - 1]
+    const first = start || others[0]
+    const lastChars = getPossiblyConsumedChar(last, flags)
+    const firstChar = getFirstConsumedChar(first, "ltr", flags)
+    if (!firstChar.char.isDisjointWith(lastChars.char)) {
+        result.add(SideEffect.startRef)
+        result.add(SideEffect.endRef)
     }
     return result
 
     /** Checks whether the given target element has disjoint in elements.  */
-    function hasDisjoint(target: Element, ...elements: Element[]) {
-        const chars = getPossiblyConsumedChar(target, regexpContext.flags)
+    function hasDisjoint(target: Element, elements: Element[]) {
+        const chars = getPossiblyConsumedChar(target, flags)
         for (const element of elements) {
-            const elementChars = getPossiblyConsumedChar(
-                element,
-                regexpContext.flags,
-            )
-            if (elementChars.char.isDisjointWith(chars.char)) {
-                return true
+            if (isConstantLength(element)) {
+                const elementChars = getPossiblyConsumedChar(element, flags)
+                if (elementChars.char.isDisjointWith(chars.char)) {
+                    return true
+                }
+            } else {
+                const elementLook = FirstConsumedChars.toLook(
+                    getFirstConsumedCharPlusAfter(element, "ltr", flags),
+                )
+                return elementLook.char.isDisjointWith(chars.char)
             }
         }
         return false
     }
+
+    /** Checks whether the given element is constant length. */
+    function isConstantLength(target: Element): boolean {
+        const range = getLengthRange(target)
+        return Boolean(range && range.min === range.max)
+    }
+}
+
+/**
+ * Checks whether the given CapturingGroup is consuming characters.
+ */
+function isConsumeCharacters(node: CapturingGroup, { flags }: RegExpContext) {
+    const chars = getPossiblyConsumedChar(node, flags)
+    return !chars.char.isEmpty
 }
 
 /**
@@ -418,7 +444,11 @@ export default createRule("prefer-lookaround", {
                     if (
                         !startReferenceIsUseOther &&
                         startReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
-                        startReferenceCapturingGroups[0] === alt.elements[0]
+                        startReferenceCapturingGroups[0] === alt.elements[0] &&
+                        isConsumeCharacters(
+                            startReferenceCapturingGroups[0],
+                            regexpContext,
+                        )
                     ) {
                         otherElements.shift()
                         const capturingGroup = startReferenceCapturingGroups[0]
@@ -434,7 +464,11 @@ export default createRule("prefer-lookaround", {
                         !endReferenceIsUseOther &&
                         endReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
                         endReferenceCapturingGroups[0] ===
-                            alt.elements[alt.elements.length - 1]
+                            alt.elements[alt.elements.length - 1] &&
+                        isConsumeCharacters(
+                            endReferenceCapturingGroups[0],
+                            regexpContext,
+                        )
                     ) {
                         otherElements.pop()
                         const capturingGroup = endReferenceCapturingGroups[0]

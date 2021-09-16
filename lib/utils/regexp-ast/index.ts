@@ -11,7 +11,7 @@ import {
     isEmptyBackreference,
     toCharSet,
 } from "regexp-ast-analysis"
-export { ShortCircuit } from "./common"
+export { ShortCircuit, getFirstConsumedCharPlusAfter } from "./common"
 export * from "./is-covered"
 export * from "./is-equals"
 
