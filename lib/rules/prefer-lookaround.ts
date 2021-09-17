@@ -108,18 +108,27 @@ function getSideEffectsWhenReplacingCapturingGroup(
     start: CapturingGroup | undefined,
     others: Element[],
     end: CapturingGroup | undefined,
-    { flags }: RegExpContext,
+    regexpContext: RegExpContext,
 ): Set<SideEffect> {
+    const { flags } = regexpContext
     const result = new Set<SideEffect>()
+
+    const allElements = [
+        ...(start ? [start] : []),
+        ...others,
+        ...(end ? [end] : []),
+    ]
     if (start) {
-        if (!hasDisjoint(start, end ? [...others, end] : others)) {
+        if (!hasDisjoint(start, allElements.slice(1))) {
             result.add(SideEffect.startRef)
         }
     }
 
-    const last = end || others[others.length - 1]
-    const first = start || others[0]
+    const last = [...allElements]
+        .reverse()
+        .find((e) => isConsumeCharacters(e, regexpContext))!
     const lastChars = getPossiblyConsumedChar(last, flags)
+    const first = start || others[0]
     const firstChar = getFirstConsumedChar(first, "ltr", flags)
     if (!firstChar.char.isDisjointWith(lastChars.char)) {
         result.add(SideEffect.startRef)
@@ -131,6 +140,9 @@ function getSideEffectsWhenReplacingCapturingGroup(
     function hasDisjoint(target: Element, elements: Element[]) {
         const chars = getPossiblyConsumedChar(target, flags)
         for (const element of elements) {
+            if (!isConsumeCharacters(element, regexpContext)) {
+                continue
+            }
             if (isConstantLength(element)) {
                 const elementChars = getPossiblyConsumedChar(element, flags)
                 if (elementChars.char.isDisjointWith(chars.char)) {
@@ -154,9 +166,9 @@ function getSideEffectsWhenReplacingCapturingGroup(
 }
 
 /**
- * Checks whether the given CapturingGroup is consuming characters.
+ * Checks whether the given element is consuming characters.
  */
-function isConsumeCharacters(node: CapturingGroup, { flags }: RegExpContext) {
+function isConsumeCharacters(node: Element, { flags }: RegExpContext) {
     const chars = getPossiblyConsumedChar(node, flags)
     return !chars.char.isEmpty
 }

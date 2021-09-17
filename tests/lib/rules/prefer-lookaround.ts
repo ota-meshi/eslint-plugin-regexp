@@ -188,6 +188,18 @@ tester.run("prefer-lookaround", rule as any, {
         "aJavaJava".replace(/(?<=a)Java/g, 'foo')
         // 'afoofoo'
         `,
+        `
+        "aaaaaa".replace(/(a)a(?:)a/g, "$1bb")
+        // 'abbabb'
+        "aaaaaa".replace(/(?<=a)a(?:)a/g, "bb")
+        // 'abbbba'
+        `,
+        `
+        "aaaaaa".replace(/(a)aa(?:)/g, "$1bb")
+        // 'abbabb'
+        "aaaaaa".replace(/(?<=a)aa(?:)/g, "bb")
+        // 'abbbba'
+        `,
     ],
     invalid: [
         {
