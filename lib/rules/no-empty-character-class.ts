@@ -16,7 +16,7 @@ export default createRule("no-empty-character-class", {
         schema: [],
         messages: {
             empty:
-                "Since this character class is empty, it cannot match all characters.",
+                "This character class matches no characters because it is empty.",
             cannotMatchAny: "This character class cannot match any characters.",
         },
         type: "suggestion", // "problem",
