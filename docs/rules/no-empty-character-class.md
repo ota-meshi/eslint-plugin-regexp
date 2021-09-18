@@ -14,7 +14,7 @@ description: "disallow character classes that does not match all characters"
 
 This rule reports character classes that cannot match all characters.
 
-The character class that cannot match all characters is an empty character class and a negative character class that contains all characters.
+Character classes that cannot match any characters are either empty or negated character classes of elements that contain all characters.
 
 The reports for this rule include reports for the ESLint core [no-empty-character-class] rule. That is, if you use this rule, you can turn off the ESLint core [no-empty-character-class] rule.
 
