@@ -401,7 +401,11 @@ tester.run("prefer-lookaround", rule as any, {
             "abc".replace(regex, 'dynami$2');
             "abc".replace(regex, 'dyn$1mi$2');
             `,
-            output: null,
+            output: `
+            const regex = /(a)b(?=c)/
+            "abc".replace(regex, 'dynami');
+            "abc".replace(regex, 'dyn$1mi');
+            `,
             errors: [
                 "This capturing group can be replaced with a lookahead assertion ('(?=c)').",
             ],
@@ -424,6 +428,13 @@ tester.run("prefer-lookaround", rule as any, {
             output: `"aaaaaa".replace(/(^a+)a(?=a)/, "$1b")`,
             errors: [
                 "This capturing group can be replaced with a lookahead assertion ('(?=a)').",
+            ],
+        },
+        {
+            code: `"aaaaaa".replace(/(^a+)a((a))/, "$1b$3$2")`,
+            output: null,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=(a))').",
             ],
         },
     ],

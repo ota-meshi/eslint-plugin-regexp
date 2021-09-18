@@ -406,45 +406,51 @@ export default createRule("prefer-lookaround", {
             regexpContext: RegExpContext,
             replaceReferenceList: ReplaceReferencesList,
         ): RegExpVisitor.Handlers {
-            const startReferenceCapturingGroups: CapturingGroup[] = []
-            const endReferenceCapturingGroups: CapturingGroup[] = []
-            let startReferenceIsUseOther: boolean,
-                endReferenceIsUseOther: boolean
+            type RefState = {
+                capturingGroups: CapturingGroup[]
+                isUseOther?: boolean
+                capturingNum: number
+            }
+            const startRefState: RefState = {
+                capturingGroups: [],
+                capturingNum: -1,
+            }
+            const endRefState: RefState = {
+                capturingGroups: [],
+                capturingNum: -1,
+            }
+
             let refNum = 0
             return {
                 onCapturingGroupEnter(cgNode) {
                     refNum++
-                    if (
-                        replaceReferenceList.startRefName === refNum ||
-                        replaceReferenceList.startRefName === cgNode.name
+                    processForState(
+                        replaceReferenceList.startRefName,
+                        replaceReferenceList.otherThanStartRefNames,
+                        startRefState,
+                    )
+                    processForState(
+                        replaceReferenceList.endRefName,
+                        replaceReferenceList.otherThanEndRefNames,
+                        endRefState,
+                    )
+
+                    /** Process state */
+                    function processForState(
+                        refName: string | number | undefined,
+                        otherThanRefNames: Set<string | number>,
+                        state: RefState,
                     ) {
-                        startReferenceCapturingGroups.push(cgNode)
-                        // Flags the capturing group referenced in `start` if it is also referenced elsewhere.
-                        startReferenceIsUseOther ||= Boolean(
-                            replaceReferenceList.otherThanStartRefNames.has(
-                                refNum,
-                            ) ||
-                                (cgNode.name &&
-                                    replaceReferenceList.otherThanStartRefNames.has(
-                                        cgNode.name,
-                                    )),
-                        )
-                    }
-                    if (
-                        replaceReferenceList.endRefName === refNum ||
-                        replaceReferenceList.endRefName === cgNode.name
-                    ) {
-                        endReferenceCapturingGroups.push(cgNode)
-                        // Flags the capturing group referenced in `end` if it is also referenced elsewhere.
-                        endReferenceIsUseOther ||= Boolean(
-                            replaceReferenceList.otherThanEndRefNames.has(
-                                refNum,
-                            ) ||
-                                (cgNode.name &&
-                                    replaceReferenceList.otherThanEndRefNames.has(
-                                        cgNode.name,
-                                    )),
-                        )
+                        if (refName === refNum || refName === cgNode.name) {
+                            state.capturingGroups.push(cgNode)
+                            state.capturingNum = refNum
+                            // Flags the capturing group referenced in `refName` if it is also referenced elsewhere.
+                            state.isUseOther ||= Boolean(
+                                otherThanRefNames.has(refNum) ||
+                                    (cgNode.name &&
+                                        otherThanRefNames.has(cgNode.name)),
+                            )
+                        }
                     }
                 },
                 onPatternLeave(pNode) {
@@ -452,12 +458,12 @@ export default createRule("prefer-lookaround", {
                     const alt = pNode.alternatives[0]
                     let reportStart = null
                     if (
-                        !startReferenceIsUseOther &&
-                        startReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
-                        startReferenceCapturingGroups[0] === alt.elements[0] &&
-                        !isZeroLength(startReferenceCapturingGroups[0])
+                        !startRefState.isUseOther &&
+                        startRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
+                        startRefState.capturingGroups[0] === alt.elements[0] &&
+                        !isZeroLength(startRefState.capturingGroups[0])
                     ) {
-                        const capturingGroup = startReferenceCapturingGroups[0]
+                        const capturingGroup = startRefState.capturingGroups[0]
                         reportStart = {
                             capturingGroup,
                             expr: `(?<=${capturingGroup.alternatives
@@ -467,13 +473,13 @@ export default createRule("prefer-lookaround", {
                     }
                     let reportEnd = null
                     if (
-                        !endReferenceIsUseOther &&
-                        endReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
-                        endReferenceCapturingGroups[0] ===
+                        !endRefState.isUseOther &&
+                        endRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
+                        endRefState.capturingGroups[0] ===
                             alt.elements[alt.elements.length - 1] &&
-                        !isZeroLength(endReferenceCapturingGroups[0])
+                        !isZeroLength(endRefState.capturingGroups[0])
                     ) {
-                        const capturingGroup = endReferenceCapturingGroups[0]
+                        const capturingGroup = endRefState.capturingGroups[0]
                         reportEnd = {
                             capturingGroup,
                             expr: `(?=${capturingGroup.alternatives
@@ -564,11 +570,19 @@ export default createRule("prefer-lookaround", {
                             replaceReferenceList,
                             (target) => {
                                 if (
-                                    target.allRefs.some(
-                                        (ref) => ref !== target.endRef,
-                                    )
+                                    target.allRefs.some((ref) => {
+                                        if (
+                                            ref === target.endRef ||
+                                            typeof ref.ref !== "number"
+                                        ) {
+                                            return false
+                                        }
+                                        return (
+                                            endRefState.capturingNum <= ref.ref
+                                        )
+                                    })
                                 ) {
-                                    // If the capturing group is used for something other than the replacement refs, it cannot be fixed.
+                                    // If the capturing group with a large num is used, it cannot be fixed.
                                     return null
                                 }
                                 return [target.endRef?.range]
