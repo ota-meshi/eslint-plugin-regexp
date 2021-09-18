@@ -17,7 +17,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions | :star: |
 | [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements | :star: |
 | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. | :star: |
-| [regexp/no-empty-character-class](./no-empty-character-class.md) | disallow character classes that does not match all characters |  |
+| [regexp/no-empty-character-class](./no-empty-character-class.md) | disallow character classes that match no characters |  |
 | [regexp/no-empty-group](./no-empty-group.md) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](./no-empty-lookarounds-assertion.md) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |

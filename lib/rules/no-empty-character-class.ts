@@ -6,8 +6,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 export default createRule("no-empty-character-class", {
     meta: {
         docs: {
-            description:
-                "disallow character classes that match no characters",
+            description: "disallow character classes that match no characters",
             category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
@@ -37,7 +36,7 @@ export default createRule("no-empty-character-class", {
                             node,
                             loc: getRegexpLocation(ccNode),
                             messageId: ccNode.elements.length
-                                ? "cannotMatchAll"
+                                ? "cannotMatchAny"
                                 : "empty",
                         })
                     }

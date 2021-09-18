@@ -28,7 +28,7 @@ tester.run("no-empty-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Since this character class is empty, it cannot match all characters.",
+                        "This character class matches no characters because it is empty.",
                     line: 1,
                     column: 2,
                 },
@@ -39,7 +39,7 @@ tester.run("no-empty-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Since this character class is empty, it cannot match all characters.",
+                        "This character class matches no characters because it is empty.",
                     line: 1,
                     column: 5,
                 },
@@ -50,7 +50,7 @@ tester.run("no-empty-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Since this character class is empty, it cannot match all characters.",
+                        "This character class matches no characters because it is empty.",
                     line: 1,
                     column: 3,
                 },
@@ -61,7 +61,7 @@ tester.run("no-empty-character-class", rule as any, {
             errors: [
                 {
                     message:
-                        "Since this character class is empty, it cannot match all characters.",
+                        "This character class matches no characters because it is empty.",
                     line: 1,
                     column: 13,
                 },
@@ -69,11 +69,11 @@ tester.run("no-empty-character-class", rule as any, {
         },
         {
             code: String.raw`/[^\s\S]/`,
-            errors: ["This character class cannot match all characters."],
+            errors: ["This character class cannot match any characters."],
         },
         {
             code: String.raw`/[^\da-zA-Z_\W]/`,
-            errors: ["This character class cannot match all characters."],
+            errors: ["This character class cannot match any characters."],
         },
     ],
 })

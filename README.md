@@ -108,7 +108,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-dupe-disjunctions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-dupe-disjunctions.html) | disallow duplicate disjunctions | :star: |
 | [regexp/no-empty-alternative](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-alternative.html) | disallow alternatives without elements | :star: |
 | [regexp/no-empty-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-capturing-group.html) | disallow capturing group that captures empty. | :star: |
-| [regexp/no-empty-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-character-class.html) | disallow character classes that does not match all characters |  |
+| [regexp/no-empty-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-character-class.html) | disallow character classes that match no characters |  |
 | [regexp/no-empty-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-group.html) | disallow empty group | :star: |
 | [regexp/no-empty-lookarounds-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-lookarounds-assertion.html) | disallow empty lookahead assertion or empty lookbehind assertion | :star: |
 | [regexp/no-escape-backspace](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-escape-backspace.html) | disallow escape backspace (`[\b]`) | :star: |

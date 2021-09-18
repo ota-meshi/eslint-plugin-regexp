@@ -2,11 +2,11 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-character-class"
-description: "disallow character classes that does not match all characters"
+description: "disallow character classes that match no characters"
 ---
 # regexp/no-empty-character-class
 
-> disallow character classes that does not match all characters
+> disallow character classes that match no characters
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
