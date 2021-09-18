@@ -19,13 +19,16 @@ tester.run("no-empty-character-class", rule as any, {
         `/[^]/`,
         `/[()]/`,
         `/[ ]/`,
+        String.raw`/[\s\S]/`,
+        String.raw`/[\da-zA-Z_\W]/`,
     ],
     invalid: [
         {
             code: `/[]/`,
             errors: [
                 {
-                    message: "Unexpected empty character class.",
+                    message:
+                        "Since this character class is empty, it cannot match all characters.",
                     line: 1,
                     column: 2,
                 },
@@ -35,7 +38,8 @@ tester.run("no-empty-character-class", rule as any, {
             code: `/abc[]/`,
             errors: [
                 {
-                    message: "Unexpected empty character class.",
+                    message:
+                        "Since this character class is empty, it cannot match all characters.",
                     line: 1,
                     column: 5,
                 },
@@ -45,7 +49,8 @@ tester.run("no-empty-character-class", rule as any, {
             code: `/([])/`,
             errors: [
                 {
-                    message: "Unexpected empty character class.",
+                    message:
+                        "Since this character class is empty, it cannot match all characters.",
                     line: 1,
                     column: 3,
                 },
@@ -55,11 +60,20 @@ tester.run("no-empty-character-class", rule as any, {
             code: `new RegExp("[]");`,
             errors: [
                 {
-                    message: "Unexpected empty character class.",
+                    message:
+                        "Since this character class is empty, it cannot match all characters.",
                     line: 1,
                     column: 13,
                 },
             ],
+        },
+        {
+            code: String.raw`/[^\s\S]/`,
+            errors: ["This character class cannot match all characters."],
+        },
+        {
+            code: String.raw`/[^\da-zA-Z_\W]/`,
+            errors: ["This character class cannot match all characters."],
         },
     ],
 })

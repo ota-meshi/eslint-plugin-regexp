@@ -2,19 +2,21 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-character-class"
-description: "disallow empty character classes"
+description: "disallow character classes that does not match all characters"
 ---
 # regexp/no-empty-character-class
 
-> disallow empty character classes
+> disallow character classes that does not match all characters
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
-This rule disallows empty character classes.
+This rule reports character classes that cannot match all characters.
 
-This rule inspired by [no-empty-character-class] rule. The position of the report is improved over the core rule, and the argument of `new RegExp()` is also checked.
+The character class that cannot match all characters is an empty character class and a negative character class that contains all characters.
+
+The reports for this rule include reports for the ESLint core [no-empty-character-class] rule. That is, if you use this rule, you can turn off the ESLint core [no-empty-character-class] rule.
 
 <eslint-code-block>
 
@@ -25,9 +27,11 @@ This rule inspired by [no-empty-character-class] rule. The position of the repor
 var foo = /abc[d]/;
 var foo = /abc[a-z]/;
 var foo = /[^]/;
+var foo = /[\s\S]/;
 
 /* ✗ BAD */
 var foo = /abc[]/;
+var foo = /[^\s\S]/;
 ```
 
 </eslint-code-block>

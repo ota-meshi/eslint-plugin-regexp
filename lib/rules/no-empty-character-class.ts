@@ -1,3 +1,4 @@
+import { matchesNoCharacters } from "regexp-ast-analysis"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
@@ -5,7 +6,8 @@ import { createRule, defineRegexpVisitor } from "../utils"
 export default createRule("no-empty-character-class", {
     meta: {
         docs: {
-            description: "disallow empty character classes",
+            description:
+                "disallow character classes that does not match all characters",
             category: "Possible Errors",
             // TODO Switch to recommended in the major version.
             // recommended: true,
@@ -13,7 +15,9 @@ export default createRule("no-empty-character-class", {
         },
         schema: [],
         messages: {
-            unexpected: "Unexpected empty character class.",
+            empty:
+                "Since this character class is empty, it cannot match all characters.",
+            cannotMatchAll: "This character class cannot match all characters.",
         },
         type: "suggestion", // "problem",
     },
@@ -24,15 +28,17 @@ export default createRule("no-empty-character-class", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation } = regexpContext
+            const { node, getRegexpLocation, flags } = regexpContext
 
             return {
                 onCharacterClassEnter(ccNode) {
-                    if (!ccNode.elements.length && !ccNode.negate) {
+                    if (matchesNoCharacters(ccNode, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(ccNode),
-                            messageId: "unexpected",
+                            messageId: ccNode.elements.length
+                                ? "cannotMatchAll"
+                                : "empty",
                         })
                     }
                 },
