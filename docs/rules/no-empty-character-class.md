@@ -12,7 +12,7 @@ description: "disallow character classes that does not match all characters"
 
 ## :book: Rule Details
 
-This rule reports character classes that cannot match all characters.
+This rule reports character classes that cannot match any characters.
 
 Character classes that cannot match any characters are either empty or negated character classes of elements that contain all characters.
 
