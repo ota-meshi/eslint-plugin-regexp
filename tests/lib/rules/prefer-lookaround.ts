@@ -78,7 +78,6 @@ tester.run("prefer-lookaround", rule as any, {
         `
         "aa-a".replace(/a(\\b|$)/g, 'b$1')
         "aaa".replace(/(^)a/, '$1b')
-        "aaa".replace(/([])a/, '$1b')
         `,
         `
         "aaaaaa".replace(/(a)a(a)/g, "$1b$2")
@@ -87,7 +86,7 @@ tester.run("prefer-lookaround", rule as any, {
         // 'abbbba'
         `,
         `
-        "aaaaaa".replace(/(^a+)a(a)/, "$1b$2")
+        "aaaaaa".replace(/(^a+)a(?=a)/, "$1b")
         // 'aaaaba'
         "aaaaaa".replace(/(?<=^a+)a(?=a)/, "b")
         // 'abaaaa'
@@ -418,6 +417,13 @@ tester.run("prefer-lookaround", rule as any, {
             `,
             errors: [
                 "This capturing group can be replaced with a lookbehind assertion ('(?<=a+)').",
+            ],
+        },
+        {
+            code: `"aaaaaa".replace(/(^a+)a(a)/, "$1b$2")`,
+            output: `"aaaaaa".replace(/(^a+)a(?=a)/, "$1b")`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=a)').",
             ],
         },
     ],

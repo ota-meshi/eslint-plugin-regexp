@@ -21,9 +21,10 @@ import {
 } from "../utils/regexp-ast"
 import {
     getLengthRange,
+    isZeroLength,
     FirstConsumedChars,
-    getFirstConsumedChar,
 } from "regexp-ast-analysis"
+import type { CharSet } from "refa"
 
 type ReplaceReference = { ref: string | number; range?: [number, number] }
 type ReplaceReferences = {
@@ -105,54 +106,60 @@ const enum SideEffect {
  * - The last element and the start consume character have disjoint.
  */
 function getSideEffectsWhenReplacingCapturingGroup(
+    elements: readonly Element[],
     start: CapturingGroup | undefined,
-    others: Element[],
     end: CapturingGroup | undefined,
-    regexpContext: RegExpContext,
+    { flags }: RegExpContext,
 ): Set<SideEffect> {
-    const { flags } = regexpContext
     const result = new Set<SideEffect>()
 
-    const allElements = [
-        ...(start ? [start] : []),
-        ...others,
-        ...(end ? [end] : []),
-    ]
     if (start) {
-        if (!hasDisjoint(start, allElements.slice(1))) {
+        const { char } = getPossiblyConsumedChar(start, flags)
+        if (!hasDisjoint(char, elements.slice(1))) {
             result.add(SideEffect.startRef)
+        } else {
+            const last = elements[elements.length - 1]
+            const lastChar = FirstConsumedChars.toLook(
+                getFirstConsumedCharPlusAfter(last, "rtl", flags),
+            )
+            if (!lastChar.char.isDisjointWith(char)) {
+                result.add(SideEffect.startRef)
+            }
         }
     }
 
-    const last = [...allElements]
-        .reverse()
-        .find((e) => isConsumeCharacters(e, regexpContext))!
-    const lastChars = getPossiblyConsumedChar(last, flags)
-    const first = start || others[0]
-    const firstChar = getFirstConsumedChar(first, "ltr", flags)
-    if (!firstChar.char.isDisjointWith(lastChars.char)) {
-        result.add(SideEffect.startRef)
-        result.add(SideEffect.endRef)
+    if (end && flags.global) {
+        const first = elements[0]
+        if (first) {
+            const { char } = getPossiblyConsumedChar(end, flags)
+
+            const firstChar = FirstConsumedChars.toLook(
+                getFirstConsumedCharPlusAfter(first, "ltr", flags),
+            )
+            if (!firstChar.char.isDisjointWith(char)) {
+                result.add(SideEffect.endRef)
+            }
+        }
     }
+
     return result
 
     /** Checks whether the given target element has disjoint in elements.  */
-    function hasDisjoint(target: Element, elements: Element[]) {
-        const chars = getPossiblyConsumedChar(target, flags)
-        for (const element of elements) {
-            if (!isConsumeCharacters(element, regexpContext)) {
-                continue
-            }
+    function hasDisjoint(target: CharSet, targetElements: Element[]) {
+        for (const element of targetElements) {
             if (isConstantLength(element)) {
                 const elementChars = getPossiblyConsumedChar(element, flags)
-                if (elementChars.char.isDisjointWith(chars.char)) {
+                if (elementChars.char.isEmpty) {
+                    continue
+                }
+                if (elementChars.char.isDisjointWith(target)) {
                     return true
                 }
             } else {
                 const elementLook = FirstConsumedChars.toLook(
                     getFirstConsumedCharPlusAfter(element, "ltr", flags),
                 )
-                return elementLook.char.isDisjointWith(chars.char)
+                return elementLook.char.isDisjointWith(target)
             }
         }
         return false
@@ -163,14 +170,6 @@ function getSideEffectsWhenReplacingCapturingGroup(
         const range = getLengthRange(target)
         return Boolean(range && range.min === range.max)
     }
-}
-
-/**
- * Checks whether the given element is consuming characters.
- */
-function isConsumeCharacters(node: Element, { flags }: RegExpContext) {
-    const chars = getPossiblyConsumedChar(node, flags)
-    return !chars.char.isEmpty
 }
 
 /**
@@ -451,18 +450,13 @@ export default createRule("prefer-lookaround", {
                 onPatternLeave(pNode) {
                     // verify
                     const alt = pNode.alternatives[0]
-                    const otherElements = [...alt.elements]
                     let reportStart = null
                     if (
                         !startReferenceIsUseOther &&
                         startReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
                         startReferenceCapturingGroups[0] === alt.elements[0] &&
-                        isConsumeCharacters(
-                            startReferenceCapturingGroups[0],
-                            regexpContext,
-                        )
+                        !isZeroLength(startReferenceCapturingGroups[0])
                     ) {
-                        otherElements.shift()
                         const capturingGroup = startReferenceCapturingGroups[0]
                         reportStart = {
                             capturingGroup,
@@ -477,12 +471,8 @@ export default createRule("prefer-lookaround", {
                         endReferenceCapturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
                         endReferenceCapturingGroups[0] ===
                             alt.elements[alt.elements.length - 1] &&
-                        isConsumeCharacters(
-                            endReferenceCapturingGroups[0],
-                            regexpContext,
-                        )
+                        !isZeroLength(endReferenceCapturingGroups[0])
                     ) {
-                        otherElements.pop()
                         const capturingGroup = endReferenceCapturingGroups[0]
                         reportEnd = {
                             capturingGroup,
@@ -492,8 +482,8 @@ export default createRule("prefer-lookaround", {
                         }
                     }
                     const sideEffects = getSideEffectsWhenReplacingCapturingGroup(
+                        alt.elements,
                         reportStart?.capturingGroup,
-                        otherElements,
                         reportEnd?.capturingGroup,
                         regexpContext,
                     )
