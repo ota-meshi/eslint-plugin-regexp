@@ -14,7 +14,7 @@ description: "enforce using named capture groups"
 
 This rule reports capturing groups without a name.
 
-This rule inspired by [prefer-named-capture-group] rule. The position of the report is improved over the core rule, and the argument of `new RegExp()` is also checked.
+This rule is inspired by the [prefer-named-capture-group] rule. The positions of reports are improved over the core rule and arguments of `new RegExp()` are also checked.
 
 <eslint-code-block>
 
