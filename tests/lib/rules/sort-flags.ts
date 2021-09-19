@@ -23,6 +23,7 @@ tester.run("sort-flags", rule as any, {
         String.raw`
         const flags = "yusimg"
         new RegExp("\\w", flags)
+        new RegExp("\\w", flags)
         `,
     ],
     invalid: [
