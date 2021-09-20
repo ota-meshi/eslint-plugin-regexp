@@ -113,6 +113,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-escape-backspace](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-escape-backspace.html) | disallow escape backspace (`[\b]`) | :star: |
 | [regexp/no-invalid-regexp](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-invalid-regexp.html) | disallow invalid regular expression strings in `RegExp` constructors | :star: |
 | [regexp/no-lazy-ends](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-lazy-ends.html) | disallow lazy quantifiers at the end of an expression | :star: |
+| [regexp/no-misleading-unicode-character](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-misleading-unicode-character.html) | disallow multi-code-point characters in character classes and quantifiers | :wrench: |
 | [regexp/no-optional-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-optional-assertion.html) | disallow optional assertions | :star: |
 | [regexp/no-potentially-useless-backreference](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-potentially-useless-backreference.html) | disallow backreferences that reference a group that might not be matched | :star: |
 | [regexp/no-super-linear-backtracking](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-super-linear-backtracking.html) | disallow exponential and polynomial backtracking | :star::wrench: |
