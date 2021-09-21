@@ -159,8 +159,17 @@ tester.run("no-misleading-unicode-character", rule as any, {
             output: `/(?:👨‍👩‍👦)+/u`,
             errors: [{ messageId: "quantifierMulti" }],
         },
+        {
+            code: `/[竈門禰󠄀豆子]|[煉󠄁獄杏寿郎]/`,
+            output: `/禰󠄀|[竈門豆子]|煉󠄁|[獄杏寿郎]/`,
+            errors: [
+                "The character(s) '禰󠄀' are all represented using multiple char codes.",
+                "The character(s) '煉󠄁' are all represented using multiple char codes.",
+            ],
+        },
 
         // RegExp constructors.
+
         {
             code: String.raw`new RegExp("[👍]", "")`,
             output: String.raw`new RegExp("👍", "")`,

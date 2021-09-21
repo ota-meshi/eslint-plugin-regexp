@@ -139,7 +139,7 @@ function getGraphemeProblemsFix(
     let ccRaw = cc.raw
     for (let i = problems.length - 1; i >= 0; i--) {
         const { start, end } = problems[i]
-        ccRaw = ccRaw.slice(0, start) + ccRaw.slice(end)
+        ccRaw = ccRaw.slice(0, start - cc.start) + ccRaw.slice(end - cc.start)
     }
     if (ccRaw.startsWith("[^")) {
         ccRaw = `[\\${ccRaw.slice(1)}`
