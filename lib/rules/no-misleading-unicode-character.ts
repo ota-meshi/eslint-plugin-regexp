@@ -10,6 +10,7 @@ import type {
     Quantifier,
 } from "regexpp/ast"
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
+import type { Rule } from "eslint"
 
 const splitter = new GraphemeSplitter()
 
@@ -174,8 +175,17 @@ export default createRule("no-misleading-unicode-character", {
             // recommended: true,
             recommended: false,
         },
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    fixable: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         fixable: "code",
+        hasSuggestions: true,
         messages: {
             characterClass:
                 "The character(s) {{ graphemes }} are all represented using multiple {{ unit }}.{{ uFlag }}",
@@ -183,10 +193,32 @@ export default createRule("no-misleading-unicode-character", {
                 "The character {{ grapheme }} is represented using multiple Unicode code points. The quantifier only applies to the last code point {{ last }} and not to the whole character.",
             quantifierSurrogate:
                 "The character {{ grapheme }} is represented using a surrogate pair. The quantifier only applies to the tailing surrogate {{ last }} and not to the whole character.",
+
+            // suggestions
+
+            fixCharacterClass:
+                "Move the character(s) {{ graphemes }} outside the character class.",
+            fixQuantifier: "Wrap a group around {{ grapheme }}.",
         },
         type: "problem",
     },
     create(context) {
+        const fixable = context.options[0]?.fixable ?? false
+
+        /** */
+        function makeFix(
+            fix: Rule.ReportDescriptorOptionsBase["fix"],
+            messageId: string,
+            data?: Record<string, string>,
+        ): Partial<Rule.ReportDescriptorOptions> {
+            if (fixable) {
+                return { fix }
+            }
+            return {
+                suggest: [{ messageId, data, fix }],
+            }
+        }
+
         /**
          * Create visitor
          */
@@ -215,6 +247,9 @@ export default createRule("no-misleading-unicode-character", {
 
                     const fix = getGraphemeProblemsFix(problems, ccNode)
 
+                    const graphemes = problems
+                        .map((p) => mention(p.grapheme))
+                        .join(", ")
                     const uFlag = problems.every(
                         (p) => p.problem === "Surrogate",
                     )
@@ -224,13 +259,15 @@ export default createRule("no-misleading-unicode-character", {
                         loc: getRegexpLocation(range),
                         messageId: "characterClass",
                         data: {
-                            graphemes: problems
-                                .map((p) => mention(p.grapheme))
-                                .join(", "),
+                            graphemes,
                             unit: flags.unicode ? "code points" : "char codes",
                             uFlag: uFlag ? " Use the `u` flag." : "",
                         },
-                        fix: fixReplaceNode(ccNode, () => fix),
+                        ...makeFix(
+                            fixReplaceNode(ccNode, () => fix),
+                            "fixCharacterClass",
+                            { graphemes },
+                        ),
                     })
                 },
                 onQuantifierEnter(qNode) {
@@ -253,17 +290,21 @@ export default createRule("no-misleading-unicode-character", {
                             grapheme: mention(grapheme),
                             last: mentionChar(qNode.element),
                         },
-                        fix(fixer) {
-                            const range = patternSource.getReplaceRange({
-                                start: qNode.element.end - grapheme.length,
-                                end: qNode.element.end,
-                            })
-                            if (!range) {
-                                return null
-                            }
+                        ...makeFix(
+                            (fixer) => {
+                                const range = patternSource.getReplaceRange({
+                                    start: qNode.element.end - grapheme.length,
+                                    end: qNode.element.end,
+                                })
+                                if (!range) {
+                                    return null
+                                }
 
-                            return range.replace(fixer, `(?:${grapheme})`)
-                        },
+                                return range.replace(fixer, `(?:${grapheme})`)
+                            },
+                            "fixQuantifier",
+                            { grapheme: mention(grapheme) },
+                        ),
                     })
                 },
             }

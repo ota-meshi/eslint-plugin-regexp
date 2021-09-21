@@ -44,7 +44,19 @@ var foo = /[❇️🏳️‍🌈👨‍👩‍👦]❤️/;
 
 ## :wrench: Options
 
-Nothing.
+```json
+{
+  "regexp/no-unused-capturing-group": ["error", {
+    "fixable": true
+  }]
+}
+```
+
+- `fixable: true | false`
+
+  This option controls whether the rule is fixable. Defaults to `false`.
+
+  This rule is not fixable by default. Misleading Unicode characters can typically be fixed automatically by assuming that users want to treat one displayed character as one regex character. However, this assumption is not useful in all languages, so this rule provides suggestions instead of fixes by default.
 
 ## :books: Further reading
 
