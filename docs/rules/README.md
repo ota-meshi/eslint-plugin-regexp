@@ -76,6 +76,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-non-capturing-group](./no-useless-non-capturing-group.md) | disallow unnecessary Non-capturing group | :star::wrench: |
 | [regexp/prefer-character-class](./prefer-character-class.md) | enforce using character class | :star::wrench: |
 | [regexp/prefer-d](./prefer-d.md) | enforce using `\d` | :star::wrench: |
+| [regexp/prefer-lookaround](./prefer-lookaround.md) | prefer lookarounds over capturing group that do not replace | :wrench: |
 | [regexp/prefer-named-backreference](./prefer-named-backreference.md) | enforce using named backreferences | :wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
