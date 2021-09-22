@@ -845,6 +845,7 @@ describe("Don't conflict even if using the rules together.", () => {
             output: String.raw`/[\s\S]*/;`,
             rulesConfig: {
                 "regexp/no-useless-flag": ["error"],
+                "regexp/require-unicode-regexp": "off",
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
             },
             messages: [
@@ -872,6 +873,7 @@ describe("Don't conflict even if using the rules together.", () => {
             output: String.raw`/[\s\S]*/;`,
             rulesConfig: {
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
+                "regexp/require-unicode-regexp": "off",
                 "regexp/no-useless-flag": ["error"],
             },
             messages: [

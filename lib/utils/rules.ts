@@ -64,6 +64,7 @@ import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
+import requireUnicodeRegexp from "../rules/require-unicode-regexp"
 import sortAlternatives from "../rules/sort-alternatives"
 import sortCharacterClassElements from "../rules/sort-character-class-elements"
 import sortFlags from "../rules/sort-flags"
@@ -136,6 +137,7 @@ export const rules = [
     preferT,
     preferUnicodeCodepointEscapes,
     preferW,
+    requireUnicodeRegexp,
     sortAlternatives,
     sortCharacterClassElements,
     sortFlags,

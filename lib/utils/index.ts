@@ -13,6 +13,7 @@ import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
 import { getUsageOfPattern } from "./get-usage-of-pattern"
 import {
+    dereferenceOwnedVariable,
     getStringValueRange,
     isRegexpLiteral,
     isStringLiteral,
@@ -407,14 +408,19 @@ function buildRegexpVisitor(
                 let ownsFlags = false
                 if (flagsArg) {
                     if (flagsArg.type !== "SpreadElement") {
-                        flagsNode = flagsArg
-                        flagsString = getStringIfConstant(context, flagsArg)
-                        ownsFlags = isStringLiteral(flagsArg)
+                        flagsNode = dereferenceOwnedVariable(context, flagsArg)
+                        flagsString = getStringIfConstant(context, flagsNode)
+                        ownsFlags = isStringLiteral(flagsNode)
                     }
-                } else if (patternSource && patternSource.regexpValue) {
-                    flagsString = patternSource.regexpValue.flags
-                    ownsFlags = Boolean(patternSource.regexpValue.ownedNode)
-                    flagsNode = patternSource.regexpValue.ownedNode
+                } else {
+                    if (patternSource && patternSource.regexpValue) {
+                        flagsString = patternSource.regexpValue.flags
+                        ownsFlags = Boolean(patternSource.regexpValue.ownedNode)
+                        flagsNode = patternSource.regexpValue.ownedNode
+                    } else {
+                        flagsString = ""
+                        ownsFlags = true
+                    }
                 }
 
                 regexpDataList.push({
@@ -715,6 +721,11 @@ export function getFlagsLocation(
     if (range == null) {
         return flagsNode?.loc ?? regexpNode.loc!
     }
+
+    if (range[0] === range[1]) {
+        range[0]--
+    }
+
     return {
         start: sourceCode.getLocFromIndex(range[0]),
         end: sourceCode.getLocFromIndex(range[1]),
@@ -885,9 +896,24 @@ function fixReplaceFlags(
             )
         }
 
-        const range = getFlagsRange(flagsNode)
-        if (range == null) {
-            return null
+        // eslint-disable-next-line one-var -- x
+        let flagsFix
+        if (flagsNode) {
+            const range = getFlagsRange(flagsNode)
+            if (range == null) {
+                return null
+            }
+            flagsFix = fixer.replaceTextRange(range, newFlags)
+        } else {
+            // If the RegExp call doesn't have a flags argument, we'll add it
+            if (regexpNode.arguments.length !== 1) {
+                return null
+            }
+            const end = regexpNode.range![1]
+            flagsFix = fixer.replaceTextRange(
+                [end - 1, end],
+                `, "${newFlags}")`,
+            )
         }
 
         // fixes that change the pattern generally assume that flags don't
@@ -901,10 +927,7 @@ function fixReplaceFlags(
             return null
         }
 
-        return [
-            patternRange.replace(fixer, patternSource.value),
-            fixer.replaceTextRange(range, newFlags),
-        ]
+        return [patternRange.replace(fixer, patternSource.value), flagsFix]
     }
 }
 
