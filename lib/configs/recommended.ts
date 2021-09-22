@@ -10,6 +10,8 @@ export = {
         // The ESLint rule will report fewer cases than our rule
         "no-invalid-regexp": "off",
         "no-useless-backreference": "off",
+        // TODO Switch in the major version.
+        // "no-empty-character-class": "off",
 
         // eslint-plugin-regexp rules
         "regexp/confusing-quantifier": "warn",

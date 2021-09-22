@@ -11,6 +11,7 @@ import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-characte
 import noDupeDisjunctions from "../rules/no-dupe-disjunctions"
 import noEmptyAlternative from "../rules/no-empty-alternative"
 import noEmptyCapturingGroup from "../rules/no-empty-capturing-group"
+import noEmptyCharacterClass from "../rules/no-empty-character-class"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
@@ -81,6 +82,7 @@ export const rules = [
     noDupeDisjunctions,
     noEmptyAlternative,
     noEmptyCapturingGroup,
+    noEmptyCharacterClass,
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
