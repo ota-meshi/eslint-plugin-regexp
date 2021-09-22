@@ -105,6 +105,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | Rule ID | Description |    |
 |:--------|:------------|:---|
 | [regexp/no-contradiction-with-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-contradiction-with-assertion.html) | disallow elements that contradict assertions |  |
+| [regexp/no-control-character](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-control-character.html) | disallow control characters |  |
 | [regexp/no-dupe-disjunctions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-dupe-disjunctions.html) | disallow duplicate disjunctions | :star: |
 | [regexp/no-empty-alternative](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-alternative.html) | disallow alternatives without elements | :star: |
 | [regexp/no-empty-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-empty-capturing-group.html) | disallow capturing group that captures empty. | :star: |

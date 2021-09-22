@@ -7,6 +7,7 @@ import matchAny from "../rules/match-any"
 import negation from "../rules/negation"
 import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noContradictionWithAssertion from "../rules/no-contradiction-with-assertion"
+import noControlCharacter from "../rules/no-control-character"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
 import noDupeDisjunctions from "../rules/no-dupe-disjunctions"
 import noEmptyAlternative from "../rules/no-empty-alternative"
@@ -81,6 +82,7 @@ export const rules = [
     negation,
     noAssertionCapturingGroup,
     noContradictionWithAssertion,
+    noControlCharacter,
     noDupeCharactersCharacterClass,
     noDupeDisjunctions,
     noEmptyAlternative,
