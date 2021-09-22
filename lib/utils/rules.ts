@@ -52,6 +52,7 @@ import preferD from "../rules/prefer-d"
 import preferEscapeReplacementDollarChar from "../rules/prefer-escape-replacement-dollar-char"
 import preferLookaround from "../rules/prefer-lookaround"
 import preferNamedBackreference from "../rules/prefer-named-backreference"
+import preferNamedCaptureGroup from "../rules/prefer-named-capture-group"
 import preferPlusQuantifier from "../rules/prefer-plus-quantifier"
 import preferPredefinedAssertion from "../rules/prefer-predefined-assertion"
 import preferQuantifier from "../rules/prefer-quantifier"
@@ -123,6 +124,7 @@ export const rules = [
     preferEscapeReplacementDollarChar,
     preferLookaround,
     preferNamedBackreference,
+    preferNamedCaptureGroup,
     preferPlusQuantifier,
     preferPredefinedAssertion,
     preferQuantifier,
