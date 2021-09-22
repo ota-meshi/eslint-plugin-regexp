@@ -19,6 +19,7 @@ import noInvalidRegexp from "../rules/no-invalid-regexp"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
+import noMisleadingUnicodeCharacter from "../rules/no-misleading-unicode-character"
 import noNonStandardFlag from "../rules/no-non-standard-flag"
 import noObscureRange from "../rules/no-obscure-range"
 import noOctal from "../rules/no-octal"
@@ -92,6 +93,7 @@ export const rules = [
     noInvisibleCharacter,
     noLazyEnds,
     noLegacyFeatures,
+    noMisleadingUnicodeCharacter,
     noNonStandardFlag,
     noObscureRange,
     noOctal,

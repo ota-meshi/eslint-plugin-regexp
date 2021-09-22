@@ -23,6 +23,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-escape-backspace](./no-escape-backspace.md) | disallow escape backspace (`[\b]`) | :star: |
 | [regexp/no-invalid-regexp](./no-invalid-regexp.md) | disallow invalid regular expression strings in `RegExp` constructors | :star: |
 | [regexp/no-lazy-ends](./no-lazy-ends.md) | disallow lazy quantifiers at the end of an expression | :star: |
+| [regexp/no-misleading-unicode-character](./no-misleading-unicode-character.md) | disallow multi-code-point characters in character classes and quantifiers | :wrench: |
 | [regexp/no-optional-assertion](./no-optional-assertion.md) | disallow optional assertions | :star: |
 | [regexp/no-potentially-useless-backreference](./no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched | :star: |
 | [regexp/no-super-linear-backtracking](./no-super-linear-backtracking.md) | disallow exponential and polynomial backtracking | :star::wrench: |
