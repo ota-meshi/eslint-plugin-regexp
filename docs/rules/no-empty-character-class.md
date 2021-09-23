@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-character-class"
 description: "disallow character classes that match no characters"
+since: "v1.2.0"
 ---
 # regexp/no-empty-character-class
 
 > disallow character classes that match no characters
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -45,6 +44,10 @@ Nothing.
 - [no-empty-character-class]
 
 [no-empty-character-class]: https://eslint.org/docs/rules/no-empty-character-class
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.2.0
 
 ## :mag: Implementation
 

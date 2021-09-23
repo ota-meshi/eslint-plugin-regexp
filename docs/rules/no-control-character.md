@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-control-character"
 description: "disallow control characters"
+since: "v1.2.0"
 ---
 # regexp/no-control-character
 
 > disallow control characters
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -42,6 +41,10 @@ Nothing.
 - [no-control-regex]
 
 [no-control-regex]: https://eslint.org/docs/rules/no-control-regex
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.2.0
 
 ## :mag: Implementation
 

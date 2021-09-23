@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-named-capture-group"
 description: "enforce using named capture groups"
+since: "v1.2.0"
 ---
 # regexp/prefer-named-capture-group
 
 > enforce using named capture groups
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -40,6 +39,10 @@ Nothing.
 - [prefer-named-capture-group]
 
 [prefer-named-capture-group]: https://eslint.org/docs/rules/prefer-named-capture-group
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.2.0
 
 ## :mag: Implementation
 

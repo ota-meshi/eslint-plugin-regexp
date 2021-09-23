@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-lookaround"
 description: "prefer lookarounds over capturing group that do not replace"
+since: "v1.2.0"
 ---
 # regexp/prefer-lookaround
 
 > prefer lookarounds over capturing group that do not replace
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -41,6 +41,10 @@ var str = 'JavaScript'.replace(/Java(Script)/g, 'Type$1')
 
 - `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.  
   This option is always on when using TypeScript.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.2.0
 
 ## :mag: Implementation
 

@@ -3,12 +3,11 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-contradiction-with-assertion"
 description: "disallow elements that contradict assertions"
+since: "v1.2.0"
 ---
 # regexp/no-contradiction-with-assertion
 
 > disallow elements that contradict assertions
-
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :book: Rule Details
 
@@ -73,6 +72,10 @@ Nothing.
 - [regexp/no-useless-assertions]
 
 [regexp/no-useless-assertions]: ./no-useless-assertions.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.2.0
 
 ## :mag: Implementation
 
