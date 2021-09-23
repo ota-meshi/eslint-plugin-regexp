@@ -14,6 +14,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | Rule ID | Description |    |
 |:--------|:------------|:---|
 | [regexp/no-contradiction-with-assertion](./no-contradiction-with-assertion.md) | disallow elements that contradict assertions |  |
+| [regexp/no-control-character](./no-control-character.md) | disallow control characters |  |
 | [regexp/no-dupe-disjunctions](./no-dupe-disjunctions.md) | disallow duplicate disjunctions | :star: |
 | [regexp/no-empty-alternative](./no-empty-alternative.md) | disallow alternatives without elements | :star: |
 | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | disallow capturing group that captures empty. | :star: |
