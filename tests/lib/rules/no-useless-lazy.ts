@@ -82,5 +82,26 @@ tester.run("no-useless-lazy", rule as any, {
             output: `/(?:a|cd)+(?:b+|zzz)/`,
             errors: [{ messageId: "possessive" }],
         },
+
+        {
+            code: String.raw`/\b\w+?(?=\W)/`,
+            output: String.raw`/\b\w+(?=\W)/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
+            code: String.raw`/\b\w+?(?!\w)/`,
+            output: String.raw`/\b\w+(?!\w)/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
+            code: String.raw`/\b\w+?\b/`,
+            output: String.raw`/\b\w+\b/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
+            code: String.raw`/\b\w+?$/`,
+            output: String.raw`/\b\w+$/`,
+            errors: [{ messageId: "possessive" }],
+        },
     ],
 })

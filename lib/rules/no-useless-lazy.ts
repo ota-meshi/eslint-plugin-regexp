@@ -102,10 +102,7 @@ export default createRule("no-useless-lazy", {
                             matchingDir,
                             flags,
                         )
-                        if (
-                            !after.edge &&
-                            firstChar.char.isDisjointWith(after.char)
-                        ) {
+                        if (firstChar.char.isDisjointWith(after.char)) {
                             context.report({
                                 node,
                                 loc: getLazyLoc(regexpContext, qNode),
