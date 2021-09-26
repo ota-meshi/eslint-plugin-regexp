@@ -71,6 +71,7 @@ type RegExpContextBase = {
 
     fixReplaceFlags: (
         newFlags: string | (() => string | null),
+        includePattern?: boolean,
     ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
 
     /**
@@ -118,6 +119,7 @@ type UnparsableRegExpContextBase = {
 
     fixReplaceFlags: (
         newFlags: string | (() => string | null),
+        includePattern?: boolean,
     ) => (fixer: Rule.RuleFixer) => Rule.Fix[] | Rule.Fix | null
 }
 export type RegExpContextForInvalid = {
@@ -609,12 +611,13 @@ function buildRegExpContextBase({
         fixReplaceQuant: (qNode, replacement) => {
             return fixReplaceQuant(patternSource, qNode, replacement)
         },
-        fixReplaceFlags: (newFlags) => {
+        fixReplaceFlags: (newFlags, includePattern) => {
             return fixReplaceFlags(
                 patternSource,
                 regexpNode,
                 flagsNode,
                 newFlags,
+                includePattern ?? true,
             )
         },
         getUsageOfPattern: () =>
@@ -665,15 +668,13 @@ function buildUnparsableRegExpContextBase({
         getFlagLocation: (flag) =>
             getFlagLocation(sourceCode, regexpNode, flagsNode, flag),
 
-        fixReplaceFlags: (newFlags) => {
-            if (!patternSource) {
-                return () => null
-            }
+        fixReplaceFlags: (newFlags, includePattern) => {
             return fixReplaceFlags(
                 patternSource,
                 regexpNode,
                 flagsNode,
                 newFlags,
+                includePattern ?? true,
             )
         },
     }
@@ -863,14 +864,35 @@ function fixReplaceQuant(
 
 /**
  * Returns a new fixer that replaces the current flags with the given flags.
+ *
+ * @param includePattern Whether the whole pattern is to be included in the fix.
+ *
+ * Fixes that change the pattern generally assume that the flags don't change,
+ * so changing the flags should conflict with all pattern fixes.
  */
 function fixReplaceFlags(
-    patternSource: PatternSource,
+    patternSource: PatternSource | null,
     regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
     flagsNode: ESTree.Expression | null,
     replacement: string | (() => string | null),
+    includePattern: boolean,
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix[] | Rule.Fix | null => {
+        let patternFix = null
+        if (includePattern) {
+            if (!patternSource) {
+                return null
+            }
+            const patternRange = patternSource.getReplaceRange({
+                start: 0,
+                end: patternSource.value.length,
+            })
+            if (patternRange == null) {
+                return null
+            }
+            patternFix = patternRange.replace(fixer, patternSource.value)
+        }
+
         let newFlags
         if (typeof replacement === "string") {
             newFlags = replacement
@@ -916,18 +938,10 @@ function fixReplaceFlags(
             )
         }
 
-        // fixes that change the pattern generally assume that flags don't
-        // change, so we have to create conflicts.
-
-        const patternRange = patternSource.getReplaceRange({
-            start: 0,
-            end: patternSource.value.length,
-        })
-        if (patternRange == null) {
-            return null
+        if (!patternFix) {
+            return flagsFix
         }
-
-        return [patternRange.replace(fixer, patternSource.value), flagsFix]
+        return [patternFix, flagsFix]
     }
 }
 

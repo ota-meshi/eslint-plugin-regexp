@@ -42,7 +42,7 @@ export default createRule("sort-flags", {
                         loc: getFlagsLocation(),
                         messageId: "sortFlags",
                         data: { flags: flagsString, sortedFlags },
-                        fix: fixReplaceFlags(sortedFlags),
+                        fix: fixReplaceFlags(sortedFlags, false),
                     })
                 }
             }

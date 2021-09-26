@@ -71,5 +71,27 @@ tester.run("sort-flags", rule as any, {
                 },
             ],
         },
+        {
+            // sort flags even on unknown
+            code: String.raw`RegExp('a' + b, 'us');`,
+            output: String.raw`RegExp('a' + b, 'su');`,
+            errors: [
+                {
+                    message: "The flags 'us' should be in the order 'su'.",
+                    column: 18,
+                },
+            ],
+        },
+        {
+            // sort flags even on non-owned pattern
+            code: String.raw`var a = "foo"; RegExp(foo, 'us'); RegExp(foo, 'u');`,
+            output: String.raw`var a = "foo"; RegExp(foo, 'su'); RegExp(foo, 'u');`,
+            errors: [
+                {
+                    message: "The flags 'us' should be in the order 'su'.",
+                    column: 29,
+                },
+            ],
+        },
     ],
 })
