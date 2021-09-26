@@ -71,5 +71,16 @@ tester.run("sort-flags", rule as any, {
                 },
             ],
         },
+        {
+            // sort flags even on unknown
+            code: String.raw`RegExp('a' + b, 'us');`,
+            output: String.raw`RegExp('a' + b, 'su');`,
+            errors: [
+                {
+                    message: "The flags 'us' should be in the order 'su'.",
+                    column: 18,
+                },
+            ],
+        },
     ],
 })
