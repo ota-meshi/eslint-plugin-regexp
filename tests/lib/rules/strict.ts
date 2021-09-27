@@ -142,8 +142,7 @@ tester.run("strict", rule as any, {
                     suggestions: [
                         {
                             output: "/\\x0a/",
-                            desc:
-                                "Replace the octal escape with a hexadecimal escape.",
+                            desc: "Replace the octal escape with a hexadecimal escape.",
                         },
                     ],
                 },
@@ -160,8 +159,7 @@ tester.run("strict", rule as any, {
                     suggestions: [
                         {
                             output: "/\\x0a/",
-                            desc:
-                                "Replace the octal escape with a hexadecimal escape.",
+                            desc: "Replace the octal escape with a hexadecimal escape.",
                         },
                     ],
                 },

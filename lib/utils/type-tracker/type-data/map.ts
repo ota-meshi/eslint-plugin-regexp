@@ -5,6 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import { STRING } from "./string"
 import { TypeArray } from "./array"
 import {
     cache,
@@ -95,11 +96,9 @@ const getPrototypes: () => {
             })
         },
     )
-    return createObject<
-        {
-            [key in MapKeys]: TypeInfo | null
-        }
-    >({
+    return createObject<{
+        [key in MapKeys]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES2015
         clear: RETURN_VOID,
@@ -112,6 +111,9 @@ const getPrototypes: () => {
         entries: RETURN_ENTRIES,
         keys: RETURN_KEYS,
         values: RETURN_VALUES,
+
+        [Symbol.iterator]: null,
+        [Symbol.toStringTag]: STRING,
     })
 })
 
@@ -188,12 +190,11 @@ export const UNKNOWN_MAP = new TypeMap(
 )
 /** Build Map constructor type */
 export function buildMapConstructor(): TypeFunction {
-    const MAP_TYPES = createObject<
-        {
-            [key in keyof MapConstructor]: TypeInfo | null
-        }
-    >({
+    const MAP_TYPES = createObject<{
+        [key in keyof MapConstructor]: TypeInfo | null
+    }>({
         prototype: null,
+        [Symbol.species]: null,
     })
 
     return new TypeGlobalFunction(mapConstructor, MAP_TYPES)

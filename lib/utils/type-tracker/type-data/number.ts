@@ -50,11 +50,9 @@ export const NUMBER = new TypeNumber()
 
 /** Build Number constructor type */
 export function buildNumberConstructor(): TypeGlobalFunction {
-    const NUMBER_TYPES = createObject<
-        {
-            [key in keyof NumberConstructor]: TypeInfo | null
-        }
-    >({
+    const NUMBER_TYPES = createObject<{
+        [key in keyof NumberConstructor]: TypeInfo | null
+    }>({
         // ES5
         MAX_VALUE: NUMBER, // prop
         MIN_VALUE: NUMBER, // prop
@@ -79,11 +77,9 @@ export function buildNumberConstructor(): TypeGlobalFunction {
 const getPrototypes: () => {
     [key in keyof number]: TypeInfo | null
 } = cache(() =>
-    createObject<
-        {
-            [key in keyof number]: TypeInfo | null
-        }
-    >({
+    createObject<{
+        [key in keyof number]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES5
         toString: RETURN_STRING,

@@ -73,7 +73,7 @@ export default createRule("no-unused-capturing-group", {
                 const fix = fixableGroups.has(cgNode)
                     ? fixReplaceNode(
                           cgNode,
-                          cgNode.raw.replace(/^\((?:\?<[^<>]+>)?/, "(?:"),
+                          cgNode.raw.replace(/^\((?:\?<[^<>]+>)?/u, "(?:"),
                       )
                     : null
 
@@ -94,7 +94,8 @@ export default createRule("no-unused-capturing-group", {
          * Get all capturing group references
          */
         function getCapturingGroupReferences(regexpContext: RegExpContext) {
-            const capturingGroupReferences = regexpContext.getCapturingGroupReferences()
+            const capturingGroupReferences =
+                regexpContext.getCapturingGroupReferences()
             if (!capturingGroupReferences.length) {
                 // unused regexp
                 return null

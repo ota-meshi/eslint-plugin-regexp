@@ -52,9 +52,8 @@
                                 categoryState[category.title].close,
                         }"
                         @click="
-                            categoryState[
-                                category.title
-                            ].close = !categoryState[category.title].close
+                            categoryState[category.title].close =
+                                !categoryState[category.title].close
                         "
                     >
                         <svg

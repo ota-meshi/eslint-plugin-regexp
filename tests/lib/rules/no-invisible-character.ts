@@ -35,10 +35,8 @@ tester.run("no-invisible-character", rule as any, {
             errors: ["Unexpected invisible character. Use '\\t' instead."],
         },
         {
-            code:
-                "/[\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b]/",
-            output:
-                "/[\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b]/",
+            code: "/[\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b]/",
+            output: "/[\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b]/",
             errors: [
                 "Unexpected invisible character. Use '\\t' instead.",
                 "Unexpected invisible character. Use '\\xa0' instead.",
@@ -64,10 +62,8 @@ tester.run("no-invisible-character", rule as any, {
             ],
         },
         {
-            code:
-                "/[\\t\u00a0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\u0085\\u200b]/",
-            output:
-                "/[\\t\\xa0\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000\\ufeff\\x85\\u200b]/",
+            code: "/[\\t\u00a0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\u0085\\u200b]/",
+            output: "/[\\t\\xa0\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000\\ufeff\\x85\\u200b]/",
             errors: [
                 "Unexpected invisible character. Use '\\xa0' instead.",
                 "Unexpected invisible character. Use '\\u180e' instead.",
@@ -82,10 +78,8 @@ tester.run("no-invisible-character", rule as any, {
             ],
         },
         {
-            code:
-                "new RegExp('\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b')",
-            output:
-                "new RegExp('\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b')",
+            code: "new RegExp('\t\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\u0085\u200b')",
+            output: "new RegExp('\\t\xa0\\u1680\u180e\\u2000\u2001\\u2002\u2003\\u2004\u2005\\u2006\u2007\\u2008\u2009\\u200a\u202f\\u205f\u3000\\ufeff\x85\\u200b')",
             errors: [
                 "Unexpected invisible character. Use '\\t' instead.",
                 "Unexpected invisible character. Use '\\xa0' instead.",

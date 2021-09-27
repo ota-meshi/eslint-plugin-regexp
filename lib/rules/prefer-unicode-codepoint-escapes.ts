@@ -24,19 +24,15 @@ export default createRule("prefer-unicode-codepoint-escapes", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, flags, getRegexpLocation, fixReplaceNode } =
+                regexpContext
             if (!flags.unicode) {
                 return {}
             }
             return {
                 onCharacterEnter(cNode) {
                     if (cNode.value >= 0x10000) {
-                        if (/^(?:\\u[\dA-Fa-f]{4}){2}$/.test(cNode.raw)) {
+                        if (/^(?:\\u[\dA-Fa-f]{4}){2}$/u.test(cNode.raw)) {
                             context.report({
                                 node,
                                 loc: getRegexpLocation(cNode),
@@ -45,7 +41,7 @@ export default createRule("prefer-unicode-codepoint-escapes", {
                                     let text = String.fromCodePoint(cNode.value)
                                         .codePointAt(0)!
                                         .toString(16)
-                                    if (/[A-F]/.test(cNode.raw)) {
+                                    if (/[A-F]/u.test(cNode.raw)) {
                                         text = text.toUpperCase()
                                     }
                                     return `\\u{${text}}`

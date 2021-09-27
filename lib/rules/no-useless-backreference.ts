@@ -89,8 +89,7 @@ export default createRule("no-useless-backreference", {
         },
         schema: [],
         messages: {
-            nested:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} from within that group.",
+            nested: "Backreference {{ bref }} will be ignored. It references group {{ group }} from within that group.",
             forward:
                 "Backreference {{ bref }} will be ignored. It references group {{ group }} which appears later in the pattern.",
             backward:
@@ -99,8 +98,7 @@ export default createRule("no-useless-backreference", {
                 "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in another alternative.",
             intoNegativeLookaround:
                 "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in a negative lookaround.",
-            empty:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} which always captures zero characters.",
+            empty: "Backreference {{ bref }} will be ignored. It references group {{ group }} which always captures zero characters.",
         },
         type: "suggestion", // "problem",
     },

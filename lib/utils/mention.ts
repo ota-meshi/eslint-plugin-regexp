@@ -39,14 +39,14 @@ function escape(value: string): string {
     //  2. Escape all non-escape control character
     return (
         value
-            .replace(/\\([\s\S])/g, (m, char) => {
+            .replace(/\\(?<char>[\s\S])/gu, (m, char) => {
                 if (char.charCodeAt(0) < 0x20) {
                     return escapeControl(char)
                 }
                 return m
             })
             // eslint-disable-next-line no-control-regex -- x
-            .replace(/[\0-\x1f]/g, escapeControl)
+            .replace(/[\0-\x1f]/gu, escapeControl)
     )
 }
 

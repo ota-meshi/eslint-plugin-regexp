@@ -15,7 +15,7 @@ const CONTROL_CHARS = new Map<number, string>([
     [CP_CR, "\\r"],
 ])
 
-const ALLOWED_CONTROL_CHARS = /^\\[0fnrtv]$/
+const ALLOWED_CONTROL_CHARS = /^\\[0fnrtv]$/u
 
 export default createRule("no-control-character", {
     meta: {
@@ -42,12 +42,8 @@ export default createRule("no-control-character", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                patternSource,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, patternSource, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             /** */
             function isBadEscapeRaw(raw: string, cp: number): boolean {

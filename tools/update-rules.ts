@@ -7,7 +7,7 @@ import { rules } from "./lib/load-rules"
  * Convert text to camelCase
  */
 function camelCase(str: string) {
-    return str.replace(/[-_](\w)/gu, (_, c) => (c ? c.toUpperCase() : ""))
+    return str.replace(/[-_](?<char>\w)/gu, (_, char) => char.toUpperCase())
 }
 
 const content = `

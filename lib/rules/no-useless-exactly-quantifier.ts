@@ -31,9 +31,8 @@ export default createRule("no-useless-exactly-quantifier", {
                         qNode.min === qNode.max &&
                         (qNode.min === 0 || qNode.min === 1)
                     ) {
-                        const [startOffset, endOffset] = getQuantifierOffsets(
-                            qNode,
-                        )
+                        const [startOffset, endOffset] =
+                            getQuantifierOffsets(qNode)
                         const text = qNode.raw.slice(startOffset, endOffset)
                         context.report({
                             node,

@@ -5,6 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
+import { STRING } from "./string"
 import { isTypeClass } from "."
 import { TypeArray } from "./array"
 import { cache, createObject, getTypeName, isEquals } from "./common"
@@ -78,11 +79,9 @@ const getPrototypes: () => {
             })
         },
     )
-    return createObject<
-        {
-            [key in SetKeys]: TypeInfo | null
-        }
-    >({
+    return createObject<{
+        [key in SetKeys]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES2015
         clear: RETURN_VOID,
@@ -94,6 +93,8 @@ const getPrototypes: () => {
         entries: RETURN_ENTRIES,
         keys: RETURN_KEYS,
         values: RETURN_VALUES,
+        [Symbol.iterator]: null,
+        [Symbol.toStringTag]: STRING,
     })
 })
 
@@ -145,12 +146,11 @@ export class TypeSet implements ITypeClass {
 export const UNKNOWN_SET = new TypeSet(() => null)
 /** Build Set constructor type */
 export function buildSetConstructor(): TypeFunction {
-    const SET_TYPES = createObject<
-        {
-            [key in keyof SetConstructor]: TypeInfo | null
-        }
-    >({
+    const SET_TYPES = createObject<{
+        [key in keyof SetConstructor]: TypeInfo | null
+    }>({
         prototype: null,
+        [Symbol.species]: null,
     })
     return new TypeGlobalFunction(setConstructor, SET_TYPES)
 }

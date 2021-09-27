@@ -532,12 +532,8 @@ export default createRule("optimal-quantifier-concatenation", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, flags, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             return {
                 onAlternativeEnter(aNode) {

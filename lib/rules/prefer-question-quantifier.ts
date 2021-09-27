@@ -33,9 +33,8 @@ export default createRule("prefer-question-quantifier", {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === 0 && qNode.max === 1) {
-                        const [startOffset, endOffset] = getQuantifierOffsets(
-                            qNode,
-                        )
+                        const [startOffset, endOffset] =
+                            getQuantifierOffsets(qNode)
                         const text = qNode.raw.slice(startOffset, endOffset)
                         if (text !== "?") {
                             context.report({

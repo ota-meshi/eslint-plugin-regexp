@@ -215,8 +215,7 @@ export default createRule("prefer-lookaround", {
         messages: {
             preferLookarounds:
                 "These capturing groups can be replaced with lookaround assertions ({{expr1}} and {{expr2}}).",
-            prefer:
-                "This capturing group can be replaced with a {{kind}} ({{expr}}).",
+            prefer: "This capturing group can be replaced with a {{kind}} ({{expr}}).",
         },
         type: "suggestion",
     },
@@ -252,9 +251,10 @@ export default createRule("prefer-lookaround", {
                         // Calls other than replace.
                         return {}
                     }
-                    const replaceReference = getReplaceReferenceFromCallExpression(
-                        ref.callExpression,
-                    )
+                    const replaceReference =
+                        getReplaceReferenceFromCallExpression(
+                            ref.callExpression,
+                        )
                     if (!replaceReference) {
                         // Unknown call or replacement where lookarounds cannot be used.
                         return {}
@@ -372,14 +372,18 @@ export default createRule("prefer-lookaround", {
                 // The replacement string cannot be determined.
                 return null
             }
-            const refRegex = /\$([1-9]\d*|<([^>]+)>)/gu
+            const refRegex = /\$(?<ref>[1-9]\d*|<(?<named>[^>]+)>)/gu
 
             const allRefs: ReplaceReference[] = []
             let startRef: ReplaceReference | null = null
             let endRef: ReplaceReference | null = null
             let re
             while ((re = refRegex.exec(evaluated.value))) {
-                const ref = { ref: re[2] ? re[2] : Number(re[1]) }
+                const ref = {
+                    ref: re.groups!.named
+                        ? re.groups!.named
+                        : Number(re.groups!.ref),
+                }
                 if (re.index === 0) {
                     startRef = ref
                 }
@@ -487,12 +491,13 @@ export default createRule("prefer-lookaround", {
                                 .join("|")})`,
                         }
                     }
-                    const sideEffects = getSideEffectsWhenReplacingCapturingGroup(
-                        alt.elements,
-                        reportStart?.capturingGroup,
-                        reportEnd?.capturingGroup,
-                        regexpContext,
-                    )
+                    const sideEffects =
+                        getSideEffectsWhenReplacingCapturingGroup(
+                            alt.elements,
+                            reportStart?.capturingGroup,
+                            reportEnd?.capturingGroup,
+                            regexpContext,
+                        )
                     if (sideEffects.has(SideEffect.startRef)) {
                         reportStart = null
                     }
@@ -636,9 +641,8 @@ export default createRule("prefer-lookaround", {
                 expr: string
             }[] = []
             for (const { capturingGroup, expr } of replaceCapturingGroups) {
-                const replaceRange = regexpContext.patternSource.getReplaceRange(
-                    capturingGroup,
-                )
+                const replaceRange =
+                    regexpContext.patternSource.getReplaceRange(capturingGroup)
                 if (!replaceRange) {
                     return null
                 }

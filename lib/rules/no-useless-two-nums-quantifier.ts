@@ -28,9 +28,8 @@ export default createRule("no-useless-two-nums-quantifier", {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === qNode.max) {
-                        const [startOffset, endOffset] = getQuantifierOffsets(
-                            qNode,
-                        )
+                        const [startOffset, endOffset] =
+                            getQuantifierOffsets(qNode)
                         const text = qNode.raw.slice(startOffset, endOffset)
                         if (!/^\{\d+,\d+\}$/u.test(text)) {
                             return

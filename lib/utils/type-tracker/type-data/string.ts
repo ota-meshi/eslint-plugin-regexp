@@ -55,11 +55,9 @@ export const STRING = new TypeString()
 
 /** Build String constructor type */
 export function buildStringConstructor(): TypeGlobalFunction {
-    const STRING_TYPES = createObject<
-        {
-            [key in keyof StringConstructor]: TypeInfo | null
-        }
-    >({
+    const STRING_TYPES = createObject<{
+        [key in keyof StringConstructor]: TypeInfo | null
+    }>({
         // ES5
         fromCharCode: RETURN_STRING,
         // ES2015
@@ -74,11 +72,9 @@ export function buildStringConstructor(): TypeGlobalFunction {
 const getPrototypes: () => {
     [key in keyof string]: TypeInfo | null
 } = cache(() =>
-    createObject<
-        {
-            [key in keyof string]: TypeInfo | null
-        }
-    >({
+    createObject<{
+        [key in keyof string]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES5
         toString: RETURN_STRING,
@@ -132,8 +128,11 @@ const getPrototypes: () => {
         trimEnd: RETURN_STRING,
         // ES2020
         matchAll: null, // IterableIterator<RegExpMatchArray>
+        // ES2022
+        at: RETURN_STRING,
 
         length: NUMBER,
         0: STRING, // string
+        [Symbol.iterator]: null,
     }),
 )

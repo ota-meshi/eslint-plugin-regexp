@@ -89,8 +89,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             ],
         },
         {
-            code:
-                "/[\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
+            code: "/[\\s \\f\\n\\r\\t\\v\\u00a0\\u1680\\u180e\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]/",
             output: "/[\\s\\f\\r\\v\\u1680\\u180e\\u2028\\u202f\\u3000]/",
             errors: [
                 {
@@ -413,8 +412,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             ],
         },
         {
-            code:
-                "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana}]/u",
+            code: "/[\\p{ASCII}\\P{ASCII}\\p{Script=Hiragana}\\P{Script=Hiragana}\\p{ASCII}\\p{Script=Hiragana}]/u",
             output: "/[\\P{ASCII}\\P{Script=Hiragana}\\p{Script=Hiragana}]/u",
             errors: [
                 {

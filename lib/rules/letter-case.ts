@@ -171,15 +171,22 @@ export default createRule("letter-case", {
             if (options.unicodeEscape === "ignore") {
                 return
             }
-            const parts = /^(\\u\{?)(.*)(\}?)$/u.exec(cNode.raw)!
-            if (STRING_CASE_CHECKER[options.unicodeEscape](parts[2])) {
+            const parts = /^(?<prefix>\\u\{?)(?<code>.*)(?<suffix>\}?)$/u.exec(
+                cNode.raw,
+            )!
+            if (
+                STRING_CASE_CHECKER[options.unicodeEscape](parts.groups!.code)
+            ) {
                 return
             }
             report(
                 regexpContext,
                 cNode,
                 options.unicodeEscape,
-                (converter) => `${parts[1]}${converter(parts[2])}${parts[3]}`,
+                (converter) =>
+                    `${parts.groups!.prefix}${converter(parts.groups!.code)}${
+                        parts.groups!.suffix
+                    }`,
             )
         }
 
@@ -191,15 +198,19 @@ export default createRule("letter-case", {
             if (options.hexadecimalEscape === "ignore") {
                 return
             }
-            const parts = /^\\x(.*)$/u.exec(cNode.raw)!
-            if (STRING_CASE_CHECKER[options.hexadecimalEscape](parts[1])) {
+            const parts = /^\\x(?<code>.*)$/u.exec(cNode.raw)!
+            if (
+                STRING_CASE_CHECKER[options.hexadecimalEscape](
+                    parts.groups!.code,
+                )
+            ) {
                 return
             }
             report(
                 regexpContext,
                 cNode,
                 options.hexadecimalEscape,
-                (converter) => `\\x${converter(parts[1])}`,
+                (converter) => `\\x${converter(parts.groups!.code)}`,
             )
         }
 
@@ -211,15 +222,17 @@ export default createRule("letter-case", {
             if (options.controlEscape === "ignore") {
                 return
             }
-            const parts = /^\\c(.*)$/u.exec(cNode.raw)!
-            if (STRING_CASE_CHECKER[options.controlEscape](parts[1])) {
+            const parts = /^\\c(?<code>.*)$/u.exec(cNode.raw)!
+            if (
+                STRING_CASE_CHECKER[options.controlEscape](parts.groups!.code)
+            ) {
                 return
             }
             report(
                 regexpContext,
                 cNode,
                 options.controlEscape,
-                (converter) => `\\c${converter(parts[1])}`,
+                (converter) => `\\c${converter(parts.groups!.code)}`,
             )
         }
 

@@ -31,12 +31,8 @@ export default createRule("no-zero-quantifier", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                getRegexpLocation,
-                fixReplaceNode,
-                patternAst,
-            } = regexpContext
+            const { node, getRegexpLocation, fixReplaceNode, patternAst } =
+                regexpContext
 
             return {
                 onQuantifierEnter(qNode) {
@@ -53,7 +49,8 @@ export default createRule("no-zero-quantifier", {
                                 messageId: "withCapturingGroup",
                             })
                         } else {
-                            const suggest: Rule.SuggestionReportDescriptor[] = []
+                            const suggest: Rule.SuggestionReportDescriptor[] =
+                                []
                             if (patternAst.raw === qNode.raw) {
                                 suggest.push({
                                     messageId: "remove",

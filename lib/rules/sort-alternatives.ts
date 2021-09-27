@@ -190,7 +190,7 @@ function sortAlternatives(
  * @returns
  */
 function isIntegerString(str: string): boolean {
-    return /^(?:0|[1-9]\d*)$/.test(str)
+    return /^(?:0|[1-9]\d*)$/u.test(str)
 }
 
 /**
@@ -279,8 +279,7 @@ export default createRule("sort-alternatives", {
         fixable: "code",
         schema: [],
         messages: {
-            sort:
-                "The alternatives of this group can be sorted without affecting the regex.",
+            sort: "The alternatives of this group can be sorted without affecting the regex.",
         },
         type: "suggestion", // "problem",
     },
@@ -293,12 +292,8 @@ export default createRule("sort-alternatives", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                getRegexpLocation,
-                fixReplaceNode,
-                flags,
-            } = regexpContext
+            const { node, getRegexpLocation, fixReplaceNode, flags } =
+                regexpContext
 
             const allowedChars = getAllowedChars(flags)
 

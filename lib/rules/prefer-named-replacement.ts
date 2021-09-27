@@ -34,11 +34,8 @@ export default createRule("prefer-named-replacement", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                getAllCapturingGroups,
-                getCapturingGroupReferences,
-            } = regexpContext
+            const { node, getAllCapturingGroups, getCapturingGroupReferences } =
+                regexpContext
 
             const capturingGroups = getAllCapturingGroups()
             if (!capturingGroups.length) {

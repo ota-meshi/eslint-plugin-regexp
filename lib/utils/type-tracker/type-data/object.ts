@@ -17,16 +17,21 @@ import {
     TypeGlobalFunction,
 } from "./function"
 
+type ObjectKeys =
+    | "constructor"
+    | "toString"
+    | "toLocaleString"
+    | "valueOf"
+    | "hasOwnProperty"
+    | "isPrototypeOf"
+    | "propertyIsEnumerable"
+
 export const getObjectPrototypes: () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-    [key in keyof object]: TypeInfo | null
+    [key in ObjectKeys]: TypeInfo | null
 } = cache(() =>
-    createObject<
-        {
-            // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-            [key in keyof object]: TypeInfo | null
-        }
-    >({
+    createObject<{
+        [key in ObjectKeys]: TypeInfo | null
+    }>({
         // ES5
         constructor: UNKNOWN_FUNCTION,
         toString: RETURN_STRING,
@@ -163,11 +168,9 @@ export function buildObjectConstructor(): TypeGlobalFunction {
             })
         },
     )
-    const OBJECT_TYPES = createObject<
-        {
-            [key in keyof ObjectConstructor]: TypeInfo | null
-        }
-    >({
+    const OBJECT_TYPES = createObject<{
+        [key in keyof ObjectConstructor]: TypeInfo | null
+    }>({
         // ES5
         getPrototypeOf: null,
         getOwnPropertyDescriptor: null,

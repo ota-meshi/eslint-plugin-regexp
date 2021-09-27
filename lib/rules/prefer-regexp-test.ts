@@ -83,8 +83,8 @@ export default createRule("prefer-regexp-test", {
                             const closeParen = sourceCode.getLastToken(node)!
                             const stringRange = memberExpr.object.range!
                             const regexpRange: [number, number] = [
-                                openParen.range![1],
-                                closeParen.range![0],
+                                openParen.range[1],
+                                closeParen.range[0],
                             ]
                             const stringText = sourceCode.text.slice(
                                 ...stringRange,

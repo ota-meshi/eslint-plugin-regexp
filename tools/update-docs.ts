@@ -25,11 +25,13 @@ const ROOT = path.resolve(__dirname, "../docs/rules")
 
 //eslint-disable-next-line require-jsdoc -- tools
 function pickSince(content: string): string | null {
-    const fileIntro = /^---\n(.*\n)+---\n*/.exec(content)
+    const fileIntro = /^---\n(?<content>.*\n)+---\n*/u.exec(content)
     if (fileIntro) {
-        const since = /since: "?(v\d+\.\d+\.\d+)"?/.exec(fileIntro[0])
+        const since = /since: "?(?<version>v\d+\.\d+\.\d+)"?/u.exec(
+            fileIntro.groups!.content,
+        )
         if (since) {
-            return since[1]
+            return since.groups!.version
         }
     }
     // eslint-disable-next-line no-process-env -- ignore
@@ -113,7 +115,7 @@ class DocFile {
         if (headerPattern.test(this.content)) {
             this.content = this.content.replace(
                 headerPattern,
-                header.replace(/\$/g, "$$$$"),
+                header.replace(/\$/gu, "$$$$"),
             )
         } else {
             this.content = `${header}${this.content.trim()}\n`
@@ -124,7 +126,8 @@ class DocFile {
 
     public updateFooter() {
         const { ruleName } = this.rule.meta.docs
-        const footerPattern = /## (?:(?::mag:)? ?Implementation|:rocket: Version).+$/s
+        const footerPattern =
+            /## (?:(?::mag:)? ?Implementation|:rocket: Version).+$/su
         const footer = `${
             this.since
                 ? `## :rocket: Version
@@ -141,7 +144,7 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
         if (footerPattern.test(this.content)) {
             this.content = this.content.replace(
                 footerPattern,
-                footer.replace(/\$/g, "$$$$"),
+                footer.replace(/\$/gu, "$$$$"),
             )
         } else {
             this.content = `${this.content.trim()}\n\n${footer}`
@@ -154,9 +157,9 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
         const { meta } = this.rule
 
         this.content = this.content.replace(
-            /<eslint-code-block(.*?)>/gu,
-            (_t, str) => {
-                const ps = str
+            /<eslint-code-block(?<attrs>.*?)>/gu,
+            (_t, attrs) => {
+                const ps = attrs
                     .split(/\s+/u)
                     .map((s: string) => s.trim())
                     .filter((s: string) => s && s !== "fix")
@@ -173,8 +176,8 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
     public adjustCodeBlocks() {
         // Adjust the necessary blank lines before and after the code block so that GitHub can recognize `.md`.
         this.content = this.content.replace(
-            /(<eslint-code-block[\s\S]*?>)\n+```/gu,
-            "$1\n\n```",
+            /(?<startTag><eslint-code-block[\s\S]*?>)\n+```/gu,
+            "$<startTag>\n\n```",
         )
         this.content = this.content.replace(
             /```\n+<\/eslint-code-block>/gu,
@@ -203,7 +206,7 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
         if (fileIntroPattern.test(this.content)) {
             this.content = this.content.replace(
                 fileIntroPattern,
-                computed.replace(/\$/g, "$$$$"),
+                computed.replace(/\$/gu, "$$$$"),
             )
         } else {
             this.content = `${computed}${this.content.trim()}\n`

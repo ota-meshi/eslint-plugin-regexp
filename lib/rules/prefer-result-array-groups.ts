@@ -42,10 +42,8 @@ export default createRule("prefer-result-array-groups", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                getAllCapturingGroups,
-                getCapturingGroupReferences,
-            } = regexpContext
+            const { getAllCapturingGroups, getCapturingGroupReferences } =
+                regexpContext
 
             const capturingGroups = getAllCapturingGroups()
             if (!capturingGroups.length) {
@@ -71,10 +69,11 @@ export default createRule("prefer-result-array-groups", {
                             fix:
                                 memberNode && memberNode.computed
                                     ? (fixer) => {
-                                          const tokens = sourceCode.getTokensBetween(
-                                              memberNode.object,
-                                              memberNode.property,
-                                          )
+                                          const tokens =
+                                              sourceCode.getTokensBetween(
+                                                  memberNode.object,
+                                                  memberNode.property,
+                                              )
                                           let openingBracket = tokens.pop()
                                           while (
                                               openingBracket &&
@@ -101,7 +100,7 @@ export default createRule("prefer-result-array-groups", {
 
                                           return fixer.replaceTextRange(
                                               [
-                                                  openingBracket.range![0],
+                                                  openingBracket.range[0],
                                                   memberNode.range![1],
                                               ],
                                               `${
@@ -133,12 +132,8 @@ export default createRule("prefer-result-array-groups", {
         function getRegExpArrayTypeKind(
             node: Expression | Super,
         ): RegExpArrayTypeKind | null {
-            const {
-                tsNodeMap,
-                checker,
-                usedTS,
-                hasFullTypeInformation,
-            } = getTypeScriptTools(context)
+            const { tsNodeMap, checker, usedTS, hasFullTypeInformation } =
+                getTypeScriptTools(context)
             if (!usedTS) {
                 // Not using TypeScript.
                 return null

@@ -168,8 +168,7 @@ tester.run("no-unused-capturing-group", rule as any, {
             ],
         },
         {
-            code:
-                "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m) => `${y}/${m}`)",
+            code: "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m) => `${y}/${m}`)",
             errors: ["Capturing group number 3 is defined but never used."],
         },
         {
