@@ -56,7 +56,8 @@ var index = '2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0
 ```json
 {
   "regexp/no-unused-capturing-group": ["error", {
-    "fixable": true
+    "fixable": false,
+    "ignoreUnusedNameWhenReplaceWithFunction": true
   }]
 }
 ```
@@ -67,10 +68,87 @@ var index = '2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0
 
   This rule is not fixable by default. Unused capturing groups can indicate a mistake in the code that uses the regex, so changing the regex might not be the right fix. When enabling this option, be sure to carefully check its changes.
 
+- `ignoreUnusedNameWhenReplaceWithFunction: true | false`
+
+  This option controls whether to report unused names in named capturing groups when used in `replace` method with replacer function. Defaults to `true`.
+
+  If you use the `replace` method with replacer function, you must use the last argument (`groups`) to use the named capturing group.
+
+  e.g.
+
+  ```js
+  str.replace(
+    /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/g,
+    (match, year, month, day, offset, string, groups) => {
+      return `${groups.year}/${groups.month}/${groups.day}`
+    }
+  )
+  ```
+
+  In most cases, it's simpler to use the previous argument than to refer to `groups`.
+
+  ```js
+  str.replace(
+    /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/g,
+    (match, year, month, day) => {
+      return `${year}/${month}/${day}`
+    }
+  )
+  ```
+
+  If this option to `true`, it does not report that name is not used (`groups` are not used).
+
+  <eslint-code-block fix>
+
+  ```js
+  /* eslint regexp/no-unused-capturing-group: ["error", {"ignoreUnusedNameWhenReplaceWithFunction": true}] */
+  const str = "2000-12-31"
+  str.replace(
+    /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/g,
+    (match, year, month, day) => {
+      return `${year}/${month}/${day}`
+    }
+  )
+  ```
+
+  </eslint-code-block>
+
+  If this option to `false`, report it. You need to use the `groups`, or remove the name as follows:
+
+  <eslint-code-block fix>
+
+  ```js
+  /* eslint regexp/no-unused-capturing-group: ["error", {"ignoreUnusedNameWhenReplaceWithFunction": false}] */
+  const str = "2000-12-31"
+
+  // Used names
+  str.replace(
+    /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/g,
+    (match, year, month, day, offset, string, groups) => {
+      return `${groups.year}/${groups.month}/${groups.day}`
+    }
+  )
+
+  // Remove names
+  str.replace(
+    /(\d{4})-(\d{2})-(\d{2})/g,
+    (match, year, month, day) => {
+      return `${year}/${month}/${day}`
+    }
+  )
+  ```
+
+  </eslint-code-block>
+
+  However, note that if you remove the names, it will be reported in the [regexp/prefer-named-capture-group] rule and [prefer-named-capture-group] rule.
 
 ## :couple: Related rules
 
-- [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md)
+- [regexp/no-useless-dollar-replacements]
+
+[regexp/no-useless-dollar-replacements]: ./no-useless-dollar-replacements.md
+[regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
+[prefer-named-capture-group]: https://eslint.org/docs/rules/prefer-named-capture-group
 
 ## :rocket: Version
 

@@ -20,6 +20,16 @@ import { parseReplacementsForString } from "../utils/replacements-utils"
 import { getCapturingGroupNumber } from "regexp-ast-analysis"
 import { visitRegExpAST } from "regexpp"
 
+type MethodKind =
+    | "match"
+    | "matchAll"
+    | "search"
+    | "test"
+    | "replace"
+    | "replaceAll"
+    | "exec"
+    | "split"
+
 class CapturingData {
     private readonly unused = new Set<CapturingGroup>()
 
@@ -32,7 +42,7 @@ class CapturingData {
     public readonly regexpContext: RegExpContext
 
     private readonly state = {
-        used: false,
+        usedMethods: new Map<MethodKind, KnownMethodCall[]>(),
         track: true,
     }
 
@@ -94,8 +104,13 @@ class CapturingData {
         return !this.unused.size && !this.unusedNames.size
     }
 
-    public markAsUsed() {
-        this.state.used = true
+    public markAsUsed(kind: MethodKind, node: KnownMethodCall) {
+        const list = this.state.usedMethods.get(kind)
+        if (list) {
+            list.push(node)
+        } else {
+            this.state.usedMethods.set(kind, [node])
+        }
     }
 
     public markAsCannotTrack() {
@@ -103,7 +118,9 @@ class CapturingData {
     }
 
     public isNeedReport() {
-        return this.state.used && this.state.track && !this.isAllUsed()
+        return (
+            this.state.usedMethods.size && this.state.track && !this.isAllUsed()
+        )
     }
 
     public visitor(): RegExpVisitor.Handlers {
@@ -136,6 +153,37 @@ class CapturingData {
                 }
             },
         }
+    }
+
+    /**
+     * Returns `true` if used only in `replace` or `replaceAll` method with replacer function.
+     *
+     * e.g.
+     * "foo".replace(/regex/, function(foo) {
+     *   return foo + foo
+     * })
+     */
+    public isOnlyUsedReplaceWithFunction() {
+        for (const [kind, nodes] of this.state.usedMethods) {
+            if (kind !== "replace" && kind !== "replaceAll") {
+                return false
+            }
+
+            // Check if the argument is only replacer function.
+            for (const node of nodes) {
+                const argNode = node.arguments[1]
+                if (!argNode) {
+                    return false
+                }
+                if (
+                    argNode.type !== "FunctionExpression" &&
+                    argNode.type !== "ArrowFunctionExpression"
+                ) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 }
 
@@ -181,6 +229,9 @@ export default createRule("no-unused-capturing-group", {
                 type: "object",
                 properties: {
                     fixable: { type: "boolean" },
+                    ignoreUnusedNameWhenReplaceWithFunction: {
+                        type: "boolean",
+                    },
                 },
                 additionalProperties: false,
             },
@@ -200,6 +251,8 @@ export default createRule("no-unused-capturing-group", {
     },
     create(context) {
         const fixable: boolean = context.options[0]?.fixable ?? false
+        const ignoreUnusedNameWhenReplaceWithFunction: boolean =
+            context.options[0]?.ignoreUnusedNameWhenReplaceWithFunction ?? true
 
         const typeTracer = createTypeTracker(context)
         const capturingDataMap = new Map<Expression, CapturingData>()
@@ -248,6 +301,13 @@ export default createRule("no-unused-capturing-group", {
                 })
             }
 
+            if (
+                ignoreUnusedNameWhenReplaceWithFunction &&
+                capturingData.isOnlyUsedReplaceWithFunction()
+            ) {
+                return
+            }
+
             for (const cgNode of unusedNames) {
                 const fix = fixReplaceNode(
                     cgNode,
@@ -277,9 +337,9 @@ export default createRule("no-unused-capturing-group", {
             }
             if (capturingData.regexpContext.flags.global) {
                 // String.prototype.match() with g flag
-                capturingData.markAsUsed()
+                capturingData.markAsUsed("match", node)
             } else {
-                capturingData.markAsUsed()
+                capturingData.markAsUsed("match", node)
                 verifyForExecResult(node, capturingData)
             }
         }
@@ -295,7 +355,7 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             // String.prototype.search()
-            capturingData.markAsUsed()
+            capturingData.markAsUsed("search", node)
         }
 
         /** Verify for RegExp.prototype.test() */
@@ -305,11 +365,14 @@ export default createRule("no-unused-capturing-group", {
                 return
             }
             // RegExp.prototype.test()
-            capturingData.markAsUsed()
+            capturingData.markAsUsed("test", node)
         }
 
         /** Verify for String.prototype.replace() and String.prototype.replaceAll() */
-        function verifyForReplace(node: KnownMethodCall) {
+        function verifyForReplace(
+            node: KnownMethodCall,
+            kind: "replace" | "replaceAll",
+        ) {
             const capturingData = capturingDataMap.get(node.arguments[0])
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
@@ -323,7 +386,7 @@ export default createRule("no-unused-capturing-group", {
                 replacementNode.type === "FunctionExpression" ||
                 replacementNode.type === "ArrowFunctionExpression"
             ) {
-                capturingData.markAsUsed()
+                capturingData.markAsUsed(kind, node)
                 verifyForReplaceFunction(replacementNode, capturingData)
             } else {
                 const evaluated = getStaticValue(context, node.arguments[1])
@@ -331,7 +394,7 @@ export default createRule("no-unused-capturing-group", {
                     capturingData.markAsCannotTrack()
                     return
                 }
-                capturingData.markAsUsed()
+                capturingData.markAsUsed(kind, node)
                 verifyForReplacePattern(evaluated.value, capturingData)
             }
         }
@@ -386,7 +449,7 @@ export default createRule("no-unused-capturing-group", {
             if (capturingData == null || capturingData.isAllUsed()) {
                 return
             }
-            capturingData.markAsUsed()
+            capturingData.markAsUsed("exec", node)
             verifyForExecResult(node, capturingData)
         }
 
@@ -426,7 +489,7 @@ export default createRule("no-unused-capturing-group", {
                 capturingData.markAsCannotTrack()
                 return
             }
-            capturingData.markAsUsed()
+            capturingData.markAsUsed("matchAll", node)
             for (const iterationRef of extractPropertyReferences(
                 node,
                 context,
@@ -473,7 +536,7 @@ export default createRule("no-unused-capturing-group", {
                 capturingData.markAsCannotTrack()
                 return
             }
-            capturingData.markAsUsed()
+            capturingData.markAsUsed("split", node)
             capturingData.usedAllUnnamed()
         }
 
@@ -538,7 +601,7 @@ export default createRule("no-unused-capturing-group", {
                         node.callee.property.name === "replace" ||
                         node.callee.property.name === "replaceAll"
                     ) {
-                        verifyForReplace(node)
+                        verifyForReplace(node, node.callee.property.name)
                     } else if (node.callee.property.name === "exec") {
                         verifyForExec(node)
                     } else if (node.callee.property.name === "matchAll") {

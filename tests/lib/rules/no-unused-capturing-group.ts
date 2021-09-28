@@ -39,7 +39,6 @@ tester.run("no-unused-capturing-group", rule as any, {
         var index = '2000-12-31'.search(/(?:\d{4})-(?:\d{2})-(?:\d{2})/) // 0
         `,
         "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
-        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d, o, s, g) => `${g.y}/${g.m}/${g.d}`)",
         String.raw`
         // var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2')
         var replaced = '2000-12-31'.replace(/\d{4}-\d{2}-\d{2}/, '$1/$2')
@@ -114,6 +113,14 @@ tester.run("no-unused-capturing-group", rule as any, {
                 sourceType: "script",
             },
         },
+        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
+        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, function (_, y, m, d) {return `${y}/${m}/${d}`})",
+        "var replaced = '2000-12-31'.replaceAll(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/g, (_, y, m, d) => `${y}/${m}/${d}`)",
+        {
+            code:
+                "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d, o, s, g) => `${g.y}/${g.m}/${g.d}`)",
+            options: [{ ignoreUnusedNameWhenReplaceWithFunction: false }],
+        },
     ],
     invalid: [
         {
@@ -180,6 +187,27 @@ tester.run("no-unused-capturing-group", rule as any, {
         {
             code:
                 "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
+            options: [{ ignoreUnusedNameWhenReplaceWithFunction: false }],
+            errors: [
+                "Capturing group 'y' has a name, but its name is never used.",
+                "Capturing group 'm' has a name, but its name is never used.",
+                "Capturing group 'd' has a name, but its name is never used.",
+            ],
+        },
+        {
+            code:
+                "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, function (_, y, m, d) {return `${y}/${m}/${d}`})",
+            options: [{ ignoreUnusedNameWhenReplaceWithFunction: false }],
+            errors: [
+                "Capturing group 'y' has a name, but its name is never used.",
+                "Capturing group 'm' has a name, but its name is never used.",
+                "Capturing group 'd' has a name, but its name is never used.",
+            ],
+        },
+        {
+            code:
+                "var replaced = '2000-12-31'.replaceAll(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/g, (_, y, m, d) => `${y}/${m}/${d}`)",
+            options: [{ ignoreUnusedNameWhenReplaceWithFunction: false }],
             errors: [
                 "Capturing group 'y' has a name, but its name is never used.",
                 "Capturing group 'm' has a name, but its name is never used.",
