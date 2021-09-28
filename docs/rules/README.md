@@ -68,6 +68,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-regexp-test](./prefer-regexp-test.md) | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec` | :wrench: |
 | [regexp/require-unicode-regexp](./require-unicode-regexp.md) | enforce the use of the `u` flag | :wrench: |
 | [regexp/sort-alternatives](./sort-alternatives.md) | sort alternatives if order doesn't matter | :wrench: |
+| [regexp/use-ignore-case](./use-ignore-case.md) | use the `i` flag if it simplifies the pattern | :wrench: |
 
 ### Stylistic Issues
 
