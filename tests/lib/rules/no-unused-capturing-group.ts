@@ -39,13 +39,11 @@ tester.run("no-unused-capturing-group", rule as any, {
         var index = '2000-12-31'.search(/(?:\d{4})-(?:\d{2})-(?:\d{2})/) // 0
         `,
         "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
-        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d, o, s, g) => `${g.y}/${g.m}/${g.d}`)",
         String.raw`
         // var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2')
         var replaced = '2000-12-31'.replace(/\d{4}-\d{2}-\d{2}/, '$1/$2')
         var replaced = (20001231).replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2')
         var replaced = '2000-12-31'.replace(unknown, '$1/$2')
-        var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, 1234)
         var replaced = '2000-12-31'.repl(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2')
 
         // var isDate = /(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31')
@@ -114,6 +112,13 @@ tester.run("no-unused-capturing-group", rule as any, {
                 sourceType: "script",
             },
         },
+        // Unused names.
+        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
+        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, function (_, y, m, d) {return `${y}/${m}/${d}`})",
+        "var replaced = '2000-12-31'.replaceAll(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/g, (_, y, m, d) => `${y}/${m}/${d}`)",
+        "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d, o, s, g) => `${g.y}/${g.m}/${g.d}`)",
+        String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$1/$2/$3') // "2000/12/31"`,
+        String.raw`const [,y,m,d] = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)`,
     ],
     invalid: [
         {
@@ -137,16 +142,6 @@ tester.run("no-unused-capturing-group", rule as any, {
             output: String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<y>/$<m>') // "2000/12"`,
             options: [{ fixable: true }],
             errors: ["Capturing group 'd' is defined but never used."],
-        },
-        {
-            code: String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$1/$2/$3') // "2000/12/31"`,
-            output: String.raw`'2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/u, '$1/$2/$3') // "2000/12/31"`,
-            options: [{ fixable: true }],
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group 'm' has a name, but its name is never used.",
-                "Capturing group 'd' has a name, but its name is never used.",
-            ],
         },
         {
             code: String.raw`/(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true`,
@@ -176,15 +171,6 @@ tester.run("no-unused-capturing-group", rule as any, {
             code:
                 "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m) => `${y}/${m}`)",
             errors: ["Capturing group number 3 is defined but never used."],
-        },
-        {
-            code:
-                "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`)",
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group 'm' has a name, but its name is never used.",
-                "Capturing group 'd' has a name, but its name is never used.",
-            ],
         },
         {
             code: String.raw`
@@ -260,16 +246,6 @@ tester.run("no-unused-capturing-group", rule as any, {
         },
         {
             code: String.raw`
-            const [,y,m,d] = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
-            `,
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group 'm' has a name, but its name is never used.",
-                "Capturing group 'd' has a name, but its name is never used.",
-            ],
-        },
-        {
-            code: String.raw`
             const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)["groups"]
             `,
             errors: ["Capturing group 'd' is defined but never used."],
@@ -309,10 +285,7 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group 'd' is defined but never used.",
-            ],
+            errors: ["Capturing group 'd' is defined but never used."],
         },
         {
             code: String.raw`
@@ -323,12 +296,8 @@ tester.run("no-unused-capturing-group", rule as any, {
                 var m = matches.groups.m // "12"
                 // var d = matches[3] // "31"
             }
-
             `,
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group 'd' is defined but never used.",
-            ],
+            errors: ["Capturing group 'd' is defined but never used."],
         },
         {
             code: String.raw`
@@ -341,10 +310,7 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group number 3 is defined but never used.",
-            ],
+            errors: ["Capturing group number 3 is defined but never used."],
         },
         {
             code: String.raw`
@@ -355,10 +321,7 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
-                "Capturing group number 3 is defined but never used.",
-            ],
+            errors: ["Capturing group number 3 is defined but never used."],
         },
         {
             code: String.raw`
@@ -374,9 +337,7 @@ tester.run("no-unused-capturing-group", rule as any, {
             }
             `,
             errors: [
-                "Capturing group 'y' has a name, but its name is never used.",
                 "Capturing group number 3 is defined but never used.",
-                "Capturing group 'y' has a name, but its name is never used.",
                 "Capturing group 'd' is defined but never used.",
             ],
         },
@@ -393,24 +354,6 @@ tester.run("no-unused-capturing-group", rule as any, {
             errors: [
                 {
                     message:
-                        "Capturing group 'y' has a name, but its name is never used.",
-                    suggestions: [
-                        {
-                            messageId: "removeName",
-                            output: String.raw`
-            const result = [...'2000-12-31 2000-12-31'.matchAll(/(\d{4})-(?<m>\d{2})-(\d{2})/g)]
-            for (let index = 0; index < result.length; index++) {
-                const matches = result[index]
-                var y = matches[1] // "2000"
-                var m = matches.groups.m // "12"
-                // var d = matches[3] // "31"
-            }
-            `,
-                        },
-                    ],
-                },
-                {
-                    message:
                         "Capturing group number 3 is defined but never used.",
                     suggestions: [
                         {
@@ -423,27 +366,6 @@ tester.run("no-unused-capturing-group", rule as any, {
                 var m = matches.groups.m // "12"
                 // var d = matches[3] // "31"
             }
-            `,
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            code: String.raw`
-            const reg = /(?<comma>,)/;
-            'a,b,c'.split(reg)
-            `,
-            errors: [
-                {
-                    message:
-                        "Capturing group 'comma' has a name, but its name is never used.",
-                    suggestions: [
-                        {
-                            messageId: "removeName",
-                            output: String.raw`
-            const reg = /(,)/;
-            'a,b,c'.split(reg)
             `,
                         },
                     ],

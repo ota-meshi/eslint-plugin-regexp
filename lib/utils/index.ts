@@ -1,7 +1,13 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Element, Node, Pattern, Quantifier } from "regexpp/ast"
+import type {
+    CapturingGroup,
+    Element,
+    Node,
+    Pattern,
+    Quantifier,
+} from "regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "regexpp"
 import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
@@ -20,6 +26,9 @@ import {
 } from "./ast-utils/utils"
 import type { PatternRange } from "./ast-utils/pattern-source"
 import { PatternSource } from "./ast-utils/pattern-source"
+import type { CapturingGroupReference } from "./extract-capturing-group-references"
+import { extractCapturingGroupReferences } from "./extract-capturing-group-references"
+import { createTypeTracker } from "./type-tracker"
 export * from "./unicode"
 
 type RegExpContextBase = {
@@ -78,6 +87,16 @@ type RegExpContextBase = {
      * Returns the usage of pattern.
      */
     getUsageOfPattern: () => UsageOfPattern
+
+    /**
+     * Returns the capturing group references
+     */
+    getCapturingGroupReferences: () => CapturingGroupReference[]
+
+    /**
+     * Returns a list of all capturing groups in the order of their numbers.
+     */
+    getAllCapturingGroups: () => CapturingGroup[]
 
     pattern: string
     patternAst: Pattern
@@ -591,6 +610,8 @@ function buildRegExpContextBase({
     const sourceCode = context.getSourceCode()
 
     let cacheUsageOfPattern: UsageOfPattern | null = null
+    let cacheCapturingGroupReference: CapturingGroupReference[] | null = null
+    let cacheAllCapturingGroups: CapturingGroup[] | null = null
     return {
         getRegexpLocation: (range, offsets) => {
             if (offsets) {
@@ -622,11 +643,35 @@ function buildRegExpContextBase({
         },
         getUsageOfPattern: () =>
             (cacheUsageOfPattern ??= getUsageOfPattern(regexpNode, context)),
+        getCapturingGroupReferences: () => {
+            if (cacheCapturingGroupReference) {
+                return cacheCapturingGroupReference
+            }
+            const countOfCapturingGroup = getAllCapturingGroupsWithCache()
+                .length
+            return (cacheCapturingGroupReference = [
+                ...extractCapturingGroupReferences(
+                    regexpNode,
+                    flags,
+                    createTypeTracker(context),
+                    countOfCapturingGroup,
+                    context,
+                ),
+            ])
+        },
+        getAllCapturingGroups: getAllCapturingGroupsWithCache,
 
         pattern: parsedPattern.raw,
         patternAst: parsedPattern,
         patternSource,
         flags: toCache(flags),
+    }
+
+    /** Returns a list of all capturing groups in the order of their numbers. */
+    function getAllCapturingGroupsWithCache(): CapturingGroup[] {
+        return (cacheAllCapturingGroups ??= getAllCapturingGroups(
+            parsedPattern,
+        ))
     }
 }
 
@@ -1216,4 +1261,21 @@ export function isUseHexEscape(raw: string): boolean {
  */
 export function isEscapeSequence(raw: string): boolean {
     return Boolean(getEscapeSequenceKind(raw))
+}
+
+/** Returns a list of all capturing groups in the order of their numbers. */
+function getAllCapturingGroups(pattern: Pattern): CapturingGroup[] {
+    const groups: CapturingGroup[] = []
+
+    visitRegExpAST(pattern, {
+        onCapturingGroupEnter(group) {
+            groups.push(group)
+        },
+    })
+
+    // visitRegExpAST given no guarantees in which order nodes are visited.
+    // Sort the list to guarantee order.
+    groups.sort((a, b) => a.start - b.start)
+
+    return groups
 }

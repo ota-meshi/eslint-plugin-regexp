@@ -44,7 +44,7 @@ const ts: typeof import("typescript") = (() => {
     }
 })()
 
-type TypeTracker = {
+export type TypeTracker = {
     isString: (node: ES.Expression) => boolean
     maybeString: (node: ES.Expression) => boolean
     isRegExp: (node: ES.Expression) => boolean

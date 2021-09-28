@@ -1,9 +1,10 @@
 import type { Rule } from "eslint"
 import type {
+    ForOfStatement,
     ArrayExpression,
     ArrayPattern,
+    AssignmentProperty,
     Expression,
-    ForOfStatement,
     MemberExpression,
     ObjectExpression,
     ObjectPattern,
@@ -21,20 +22,24 @@ export type PropertyReference =
     | {
           // Property name is unknown.
           type: "unknown"
+          node: Pattern | AssignmentProperty | Expression | ForOfStatement
           extractPropertyReferences?: () => Iterable<PropertyReference>
       }
     | {
           type: "member"
           name: string
+          node: MemberExpression
           extractPropertyReferences: () => Iterable<PropertyReference>
       }
     | {
           type: "destructuring"
           name: string
+          node: AssignmentProperty | Pattern
           extractPropertyReferences: () => Iterable<PropertyReference>
       }
     | {
           type: "iteration"
+          node: ForOfStatement
           extractPropertyReferences: () => Iterable<PropertyReference>
       }
 /** Extract property references from the given expression */
@@ -65,9 +70,16 @@ export function* extractPropertyReferences(
                 )
                 return
             }
-            yield { type: "unknown" }
+            yield { type: "unknown", node: ref.node }
         }
     }
+}
+/** Extract property references from the given pattern */
+export function* extractPropertyReferencesForPattern(
+    node: Pattern,
+    context: Rule.RuleContext,
+): Iterable<PropertyReference> {
+    yield* iteratePropertyReferencesForPattern(node, context)
 }
 
 /** Checks whether the given expression is shallow copied. */
@@ -98,6 +110,7 @@ function* iteratePropertyReferencesForMemberExpression(
     if (property == null) {
         yield {
             type: "unknown",
+            node,
             *extractPropertyReferences() {
                 yield* extractPropertyReferences(node, context)
             },
@@ -107,6 +120,7 @@ function* iteratePropertyReferencesForMemberExpression(
     yield {
         type: "member",
         name: property,
+        node,
         *extractPropertyReferences() {
             yield* extractPropertyReferences(node, context)
         },
@@ -127,6 +141,7 @@ function* iteratePropertyReferencesForObjectPattern(
         if (property == null) {
             yield {
                 type: "unknown",
+                node,
                 *extractPropertyReferences() {
                     yield* iteratePropertyReferencesForPattern(
                         prop.value,
@@ -139,6 +154,7 @@ function* iteratePropertyReferencesForObjectPattern(
         yield {
             type: "destructuring",
             name: property,
+            node: prop,
             *extractPropertyReferences() {
                 yield* iteratePropertyReferencesForPattern(prop.value, context)
             },
@@ -170,6 +186,7 @@ function* iteratePropertyReferencesForArrayPattern(
         yield {
             type: "destructuring",
             name: String(index),
+            node: element,
             *extractPropertyReferences() {
                 yield* iteratePropertyReferencesForPattern(element, context)
             },
@@ -182,6 +199,7 @@ function* iteratePropertyReferencesForArrayPattern(
         }
         yield {
             type: "unknown",
+            node: element,
             *extractPropertyReferences() {
                 yield* iteratePropertyReferencesForPattern(element, context)
             },
@@ -196,6 +214,7 @@ function* iteratePropertyReferencesForForOf(
 ): Iterable<PropertyReference> {
     yield {
         type: "iteration",
+        node,
         *extractPropertyReferences() {
             let left = node.left
             if (left.type === "VariableDeclaration") {
@@ -227,7 +246,7 @@ function* iteratePropertyReferencesForPattern(
     } else if (target.type === "ArrayPattern") {
         yield* iteratePropertyReferencesForArrayPattern(target, context)
     } else {
-        yield { type: "unknown" }
+        yield { type: "unknown", node: target }
     }
 }
 
@@ -259,6 +278,7 @@ function* iteratePropertyReferencesForShallowCopy(
             )) {
                 yield {
                     type: "unknown",
+                    node: ref.node,
                     extractPropertyReferences: ref.extractPropertyReferences,
                 }
             }
