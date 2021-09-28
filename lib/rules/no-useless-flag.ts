@@ -22,7 +22,7 @@ import {
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
-import { toCharSet } from "regexp-ast-analysis"
+import { isCaseVariant } from "../utils/regexp-ast/case-variation"
 
 type CodePathStack = {
     codePathId: string
@@ -200,50 +200,9 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
                 return {}
             }
 
-            const flagsNoI = { ...flags, ignoreCase: false }
-
-            let unnecessary = true
             return {
-                onAssertionEnter(aNode) {
-                    if (unnecessary) {
-                        if (aNode.kind === "word" && flags.unicode) {
-                            // \b is defined similarly to \w.
-                            // same reason as for \w
-                            unnecessary = false
-                        }
-                    }
-                },
-                onCharacterEnter(cNode) {
-                    if (unnecessary) {
-                        // all characters only accept themselves except if they
-                        // are case sensitive
-                        if (toCharSet(cNode, flags).size > 1) {
-                            unnecessary = false
-                        }
-                    }
-                },
-                onCharacterSetEnter(cNode) {
-                    if (unnecessary) {
-                        if (cNode.kind === "word" && flags.unicode) {
-                            // \w is defined as [0-9A-Za-z_] and this character
-                            // class is case invariant in UTF16 (non-Unicode)
-                            // mode. However, Unicode mode changes however
-                            // ignore case works and this causes `/\w/u` and
-                            // `/\w/iu` to accept different characters,
-                            unnecessary = false
-                        }
-                        if (cNode.kind === "property") {
-                            const caseInsensitive = toCharSet(cNode, flags)
-                            const caseSensitive = toCharSet(cNode, flagsNoI)
-
-                            if (!caseInsensitive.equals(caseSensitive)) {
-                                unnecessary = false
-                            }
-                        }
-                    }
-                },
-                onPatternLeave() {
-                    if (unnecessary) {
+                onPatternLeave(pattern) {
+                    if (!isCaseVariant(pattern, flags, false)) {
                         context.report({
                             node: regexpNode,
                             loc: getFlagLocation("i"),
