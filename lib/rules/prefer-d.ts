@@ -8,6 +8,27 @@ import {
 } from "../utils"
 import { Chars, toCharSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
+import type {
+    CharacterClassElement,
+    CharacterClassRange,
+    EscapeCharacterSet,
+} from "regexpp/ast"
+
+/**
+ * Returns whether the given character class element is equivalent to `\d`.
+ */
+function isDigits(
+    element: CharacterClassElement,
+): element is EscapeCharacterSet | CharacterClassRange {
+    return (
+        (element.type === "CharacterSet" &&
+            element.kind === "digit" &&
+            !element.negate) ||
+        (element.type === "CharacterClassRange" &&
+            element.min.value === CP_DIGIT_ZERO &&
+            element.max.value === CP_DIGIT_NINE)
+    )
+}
 
 export default createRule("prefer-d", {
     meta: {
@@ -17,14 +38,28 @@ export default createRule("prefer-d", {
             recommended: true,
         },
         fixable: "code",
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    insideCharacterClass: {
+                        type: "string",
+                        enum: ["ignore", "range", "d"],
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             unexpected:
                 "Unexpected {{type}} {{expr}}. Use '{{instead}}' instead.",
         },
-        type: "suggestion", // "problem",
+        type: "suggestion",
     },
     create(context) {
+        const insideCharacterClass: "ignore" | "range" | "d" =
+            context.options[0]?.insideCharacterClass ?? "d"
+
         /**
          * Create visitor
          */
@@ -34,8 +69,6 @@ export default createRule("prefer-d", {
             getRegexpLocation,
             fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
-            let reportedCharacterClass = false
-
             return {
                 onCharacterClassEnter(ccNode) {
                     const charSet = toCharSet(ccNode, flags)
@@ -48,8 +81,6 @@ export default createRule("prefer-d", {
                     }
 
                     if (predefined) {
-                        reportedCharacterClass = true
-
                         context.report({
                             node,
                             loc: getRegexpLocation(ccNode),
@@ -61,33 +92,34 @@ export default createRule("prefer-d", {
                             },
                             fix: fixReplaceNode(ccNode, predefined),
                         })
-                    }
-                },
-                onCharacterClassLeave() {
-                    reportedCharacterClass = false
-                },
-                onCharacterClassRangeEnter(ccrNode) {
-                    if (reportedCharacterClass) {
                         return
                     }
 
-                    if (
-                        ccrNode.min.value === CP_DIGIT_ZERO &&
-                        ccrNode.max.value === CP_DIGIT_NINE
-                    ) {
-                        const instead = "\\d"
+                    if (insideCharacterClass === "ignore") {
+                        return
+                    }
 
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(ccrNode),
-                            messageId: "unexpected",
-                            data: {
-                                type: "character class range",
-                                expr: mention(ccrNode),
-                                instead,
-                            },
-                            fix: fixReplaceNode(ccrNode, instead),
-                        })
+                    const expected =
+                        insideCharacterClass === "d" ? "\\d" : "0-9"
+
+                    // check the elements in this character class
+                    for (const e of ccNode.elements) {
+                        if (isDigits(e) && e.raw !== expected) {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(e),
+                                messageId: "unexpected",
+                                data: {
+                                    type:
+                                        e.type === "CharacterSet"
+                                            ? "character set"
+                                            : "character class range",
+                                    expr: mention(e),
+                                    instead: expected,
+                                },
+                                fix: fixReplaceNode(e, expected),
+                            })
+                        }
                     }
                 },
             }

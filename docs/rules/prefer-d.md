@@ -34,7 +34,79 @@ var foo = /[^0-9]/;
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/prefer-d": [
+    "error",
+    {
+        "insideCharacterClass": "d"
+    }
+  ]
+}
+```
+
+### `insideCharacterClass`
+
+This option control how character class element equivalent to `\d` will be treated.
+
+*Note:* This option does not affect character classes equivalent to `\d`. E.g. `[\d]`, `[0-9]`, and `[0123456789]` are unaffected.
+
+- `insideCharacterClass: "d"` (_default_)
+
+  Character class element equivalent to `\d` will be reported and replaced with `\d`.
+
+  <eslint-code-block fix>
+
+  ```js
+  /* eslint regexp/prefer-d: ["error", { insideCharacterClass: "d" }] */
+
+  /* ✓ GOOD */
+  var foo = /[\da-z]/;
+
+  /* ✗ BAD */
+  var foo = /[0-9a-z]/;
+  var foo = /[0-9]/;
+  ```
+
+  </eslint-code-block>
+
+- `insideCharacterClass: "range"`
+
+  Character class element equivalent to `\d` will be reported and replaced with the range `0-9`.
+
+  <eslint-code-block fix>
+
+  ```js
+  /* eslint regexp/prefer-d: ["error", { insideCharacterClass: "range" }] */
+
+  /* ✓ GOOD */
+  var foo = /[0-9a-z]/;
+
+  /* ✗ BAD */
+  var foo = /[\da-z]/;
+  var foo = /[0-9]/;
+  ```
+
+  </eslint-code-block>
+
+- `insideCharacterClass: "ignore"`
+
+  Character class element will not be reported.
+
+  <eslint-code-block fix>
+
+  ```js
+  /* eslint regexp/prefer-d: ["error", { insideCharacterClass: "ignore" }] */
+
+  /* ✓ GOOD */
+  var foo = /[\da-z]/;
+  var foo = /[0-9a-z]/;
+
+  /* ✗ BAD */
+  var foo = /[0-9]/;
+  ```
+
+  </eslint-code-block>
 
 ## :rocket: Version
 
