@@ -14,7 +14,7 @@ since: "v0.6.0"
 
 ## :book: Rule Details
 
-This rule aims to optimize regular expressions by replacing unused capturing groups with non-capturing groups.
+This rule reports unused capturing groups.
 
 <eslint-code-block fix>
 
@@ -50,6 +50,26 @@ var index = '2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0
 ```
 
 </eslint-code-block>
+
+### Why no unused capturing groups?
+
+Many people use capturing groups instead of non-capturing groups for convenience. `()` is simpler and feels more natural than the cryptic-looking `(?:)`.
+
+However, using capturing groups in place of non-capturing groups also has negative consequences.
+
+#### Performance
+
+Capturing groups are slower than non-capturing groups.
+
+This is by design. Capturing groups (as the name suggests) captured their matched text. The regex engine has to do extra work every time a capturing group is matched compared to a non-capturing group.
+
+#### Code smell
+
+A capturing group is intended to store its matched text so it can later be used, e.g. in text replacements.
+
+That makes a capturing group quite similar to a variable in that its value (the captured text) is stored (by the regex engine) and can be accessed afterward (by the developer). However, if the captured text is not used, then the capturing group will essentially be an unused variable. This makes the regex harder to understand because other developers will have to constantly ask themselves: "Is this a capturing group because the captured text will be used later on in the code, or because `()` is faster to type?"
+
+Using capturing groups only if the captured text is used makes their usage unambiguous and easier for others to understand.
 
 ## :wrench: Options
 
