@@ -39,7 +39,6 @@ var index = '2000-12-31'.search(/(?:\d{4})-(?:\d{2})-(?:\d{2})/) // 0
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, 'Date') // "Date"
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2') // "2000/12"
 var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<y>/$<m>') // "2000/12"
-var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$1/$2/$3') // "2000/12/31"
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, y, m) => `${y}/${m}`) // "2000/12"
 
 var isDate = /(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true
@@ -76,7 +75,7 @@ Using capturing groups only if the captured text is used makes their usage unamb
 ```json
 {
   "regexp/no-unused-capturing-group": ["error", {
-    "fixable": true
+    "fixable": false
   }]
 }
 ```
@@ -87,10 +86,11 @@ Using capturing groups only if the captured text is used makes their usage unamb
 
   This rule is not fixable by default. Unused capturing groups can indicate a mistake in the code that uses the regex, so changing the regex might not be the right fix. When enabling this option, be sure to carefully check its changes.
 
-
 ## :couple: Related rules
 
-- [regexp/no-useless-dollar-replacements](./no-useless-dollar-replacements.md)
+- [regexp/no-useless-dollar-replacements]
+
+[regexp/no-useless-dollar-replacements]: ./no-useless-dollar-replacements.md
 
 ## :rocket: Version
 
