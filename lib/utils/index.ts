@@ -878,21 +878,6 @@ function fixReplaceFlags(
     includePattern: boolean,
 ) {
     return (fixer: Rule.RuleFixer): Rule.Fix[] | Rule.Fix | null => {
-        let patternFix = null
-        if (includePattern) {
-            if (!patternSource) {
-                return null
-            }
-            const patternRange = patternSource.getReplaceRange({
-                start: 0,
-                end: patternSource.value.length,
-            })
-            if (patternRange == null) {
-                return null
-            }
-            patternFix = patternRange.replace(fixer, patternSource.value)
-        }
-
         let newFlags
         if (typeof replacement === "string") {
             newFlags = replacement
@@ -908,10 +893,7 @@ function fixReplaceFlags(
             return null
         }
 
-        if (isRegexpLiteral(regexpNode)) {
-            // fixes that change the pattern generally assume that flags don't
-            // change, so we have to create conflicts.
-
+        if (includePattern && isRegexpLiteral(regexpNode)) {
             return fixer.replaceText(
                 regexpNode,
                 `/${regexpNode.regex.pattern}/${newFlags}`,
@@ -920,7 +902,12 @@ function fixReplaceFlags(
 
         // eslint-disable-next-line one-var -- x
         let flagsFix
-        if (flagsNode) {
+        if (isRegexpLiteral(regexpNode)) {
+            flagsFix = fixer.replaceTextRange(
+                getFlagsRange(regexpNode),
+                newFlags,
+            )
+        } else if (flagsNode) {
             const range = getFlagsRange(flagsNode)
             if (range == null) {
                 return null
@@ -938,9 +925,24 @@ function fixReplaceFlags(
             )
         }
 
-        if (!patternFix) {
+        if (!includePattern) {
             return flagsFix
         }
+
+        // pattern fix
+
+        if (!patternSource) {
+            return null
+        }
+        const patternRange = patternSource.getReplaceRange({
+            start: 0,
+            end: patternSource.value.length,
+        })
+        if (patternRange == null) {
+            return null
+        }
+        const patternFix = patternRange.replace(fixer, patternSource.value)
+
         return [patternFix, flagsFix]
     }
 }

@@ -72,6 +72,7 @@ import sortCharacterClassElements from "../rules/sort-character-class-elements"
 import sortFlags from "../rules/sort-flags"
 import strict from "../rules/strict"
 import unicodeEscape from "../rules/unicode-escape"
+import useIgnoreCase from "../rules/use-ignore-case"
 
 export const rules = [
     confusingQuantifier,
@@ -147,4 +148,5 @@ export const rules = [
     sortFlags,
     strict,
     unicodeEscape,
+    useIgnoreCase,
 ] as RuleModule[]
