@@ -87,6 +87,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/prefer-named-replacement](./prefer-named-replacement.md) | enforce using named replacement | :wrench: |
 | [regexp/prefer-plus-quantifier](./prefer-plus-quantifier.md) | enforce using `+` quantifier | :star::wrench: |
 | [regexp/prefer-question-quantifier](./prefer-question-quantifier.md) | enforce using `?` quantifier | :star::wrench: |
+| [regexp/prefer-result-array-groups](./prefer-result-array-groups.md) | enforce using result array `groups` | :wrench: |
 | [regexp/prefer-star-quantifier](./prefer-star-quantifier.md) | enforce using `*` quantifier | :star::wrench: |
 | [regexp/prefer-unicode-codepoint-escapes](./prefer-unicode-codepoint-escapes.md) | enforce use of unicode codepoint escapes | :star::wrench: |
 | [regexp/prefer-w](./prefer-w.md) | enforce using `\w` | :star::wrench: |

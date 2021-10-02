@@ -37,6 +37,9 @@ export function isCommentToken(
 export function isOpeningParenToken(
     token: eslint.AST.Token | ESTree.Comment,
 ): boolean
+export function isOpeningBracketToken(
+    token: eslint.AST.Token | ESTree.Comment,
+): boolean
 export function hasSideEffect(
     node: ESTree.Node,
     sourceCode: SourceCode,
