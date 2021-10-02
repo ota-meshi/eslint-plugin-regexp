@@ -27,7 +27,8 @@ tester.run("prefer-named-replacement", rule as any, {
             output: `"str".replace(/a(?<foo>b)c/, "_$<foo>_")`,
             errors: [
                 {
-                    message: "Unexpected index replacement.",
+                    message:
+                        "Unexpected indexed reference in replacement string.",
                     line: 1,
                     column: 32,
                 },
@@ -38,7 +39,8 @@ tester.run("prefer-named-replacement", rule as any, {
             output: `"str".replaceAll(/a(?<foo>b)c/, "_$<foo>_")`,
             errors: [
                 {
-                    message: "Unexpected index replacement.",
+                    message:
+                        "Unexpected indexed reference in replacement string.",
                     line: 1,
                     column: 35,
                 },
@@ -49,7 +51,8 @@ tester.run("prefer-named-replacement", rule as any, {
             output: `"str".replace(/(a)(?<foo>b)c/, "_$1$<foo>_")`,
             errors: [
                 {
-                    message: "Unexpected index replacement.",
+                    message:
+                        "Unexpected indexed reference in replacement string.",
                     line: 1,
                     column: 36,
                 },
@@ -59,13 +62,13 @@ tester.run("prefer-named-replacement", rule as any, {
             code: `unknown.replace(/a(?<foo>b)c/, "_$1_")`,
             output: `unknown.replace(/a(?<foo>b)c/, "_$<foo>_")`,
             options: [{ strictTypes: false }],
-            errors: ["Unexpected index replacement."],
+            errors: ["Unexpected indexed reference in replacement string."],
         },
         {
             code: `unknown.replaceAll(/a(?<foo>b)c/, "_$1_")`,
             output: `unknown.replaceAll(/a(?<foo>b)c/, "_$<foo>_")`,
             options: [{ strictTypes: false }],
-            errors: ["Unexpected index replacement."],
+            errors: ["Unexpected indexed reference in replacement string."],
         },
     ],
 })

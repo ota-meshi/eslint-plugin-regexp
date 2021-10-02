@@ -20,7 +20,7 @@ export default createRule("prefer-named-replacement", {
             },
         ],
         messages: {
-            unexpected: "Unexpected index replacement.",
+            unexpected: "Unexpected indexed reference in replacement string.",
         },
         type: "suggestion", // "problem",
     },
