@@ -38,9 +38,11 @@ Nothing.
 
 - [regexp/prefer-named-backreference]
 - [regexp/prefer-named-replacement]
+- [regexp/prefer-result-array-groups]
 
 [regexp/prefer-named-backreference]: ./prefer-named-backreference.md
 [regexp/prefer-named-replacement]: ./prefer-named-replacement.md
+[regexp/prefer-result-array-groups]: ./prefer-result-array-groups.md
 
 ## :books: Further reading
 
