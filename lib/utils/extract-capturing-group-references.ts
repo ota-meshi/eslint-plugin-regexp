@@ -131,9 +131,9 @@ export type CapturingGroupReference =
 
 type ExtractCapturingGroupReferencesContext = {
     flags: ReadonlyFlags
-    typeTracer: TypeTracker
     countOfCapturingGroup: number
     context: Rule.RuleContext
+    isString: (node: Expression) => boolean
 }
 
 /**
@@ -145,12 +145,17 @@ export function* extractCapturingGroupReferences(
     typeTracer: TypeTracker,
     countOfCapturingGroup: number,
     context: Rule.RuleContext,
+    options: {
+        strictTypes: boolean
+    },
 ): Iterable<CapturingGroupReference> {
-    const ctx = {
+    const ctx: ExtractCapturingGroupReferencesContext = {
         flags,
-        typeTracer,
         countOfCapturingGroup,
         context,
+        isString: options.strictTypes
+            ? (n) => typeTracer.isString(n)
+            : (n) => typeTracer.maybeString(n),
     }
     for (const ref of extractExpressionReferences(node, context)) {
         if (ref.type === "argument") {
@@ -187,7 +192,7 @@ function* iterateForArgument(
     if (callExpression.arguments[0] !== argument) {
         return
     }
-    if (!ctx.typeTracer.isString(callExpression.callee.object)) {
+    if (!ctx.isString(callExpression.callee.object)) {
         yield {
             type: "UnknownUsage",
             node: argument,
