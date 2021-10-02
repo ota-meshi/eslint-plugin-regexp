@@ -91,7 +91,9 @@ type RegExpContextBase = {
     /**
      * Returns the capturing group references
      */
-    getCapturingGroupReferences: () => CapturingGroupReference[]
+    getCapturingGroupReferences: (options?: {
+        strictTypes?: boolean // default true
+    }) => CapturingGroupReference[]
 
     /**
      * Returns a list of all capturing groups in the order of their numbers.
@@ -610,7 +612,10 @@ function buildRegExpContextBase({
     const sourceCode = context.getSourceCode()
 
     let cacheUsageOfPattern: UsageOfPattern | null = null
-    let cacheCapturingGroupReference: CapturingGroupReference[] | null = null
+    const cacheCapturingGroupReferenceMap = new Map<
+        boolean /* strictTypes */,
+        CapturingGroupReference[]
+    >()
     let cacheAllCapturingGroups: CapturingGroup[] | null = null
     return {
         getRegexpLocation: (range, offsets) => {
@@ -643,21 +648,33 @@ function buildRegExpContextBase({
         },
         getUsageOfPattern: () =>
             (cacheUsageOfPattern ??= getUsageOfPattern(regexpNode, context)),
-        getCapturingGroupReferences: () => {
+        getCapturingGroupReferences: (options?: {
+            strictTypes?: boolean // default true
+        }) => {
+            const strictTypes = Boolean(options?.strictTypes ?? true)
+            const cacheCapturingGroupReference = cacheCapturingGroupReferenceMap.get(
+                strictTypes,
+            )
             if (cacheCapturingGroupReference) {
                 return cacheCapturingGroupReference
             }
             const countOfCapturingGroup = getAllCapturingGroupsWithCache()
                 .length
-            return (cacheCapturingGroupReference = [
+            const capturingGroupReferences = [
                 ...extractCapturingGroupReferences(
                     regexpNode,
                     flags,
                     createTypeTracker(context),
                     countOfCapturingGroup,
                     context,
+                    { strictTypes },
                 ),
-            ])
+            ]
+            cacheCapturingGroupReferenceMap.set(
+                strictTypes,
+                capturingGroupReferences,
+            )
+            return capturingGroupReferences
         },
         getAllCapturingGroups: getAllCapturingGroupsWithCache,
 

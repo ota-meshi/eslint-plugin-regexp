@@ -34,6 +34,14 @@ var foo = /\b(foo)+\b/;
 
 Nothing.
 
+## :couple: Related rules
+
+- [regexp/prefer-named-backreference]
+- [regexp/prefer-named-replacement]
+
+[regexp/prefer-named-backreference]: ./prefer-named-backreference.md
+[regexp/prefer-named-replacement]: ./prefer-named-replacement.md
+
 ## :books: Further reading
 
 - [prefer-named-capture-group]

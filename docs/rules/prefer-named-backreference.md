@@ -34,6 +34,14 @@ var foo = /(?<foo>a)\1/
 
 Nothing.
 
+## :couple: Related rules
+
+- [regexp/prefer-named-capture-group]
+- [regexp/prefer-named-replacement]
+
+[regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
+[regexp/prefer-named-replacement]: ./prefer-named-replacement.md
+
 ## :rocket: Version
 
 This rule was introduced in eslint-plugin-regexp v0.9.0
