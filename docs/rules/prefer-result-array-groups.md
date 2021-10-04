@@ -13,22 +13,22 @@ description: "enforce using result array `groups`"
 
 ## :book: Rule Details
 
-This rule reports and fixes index access in regexp result array that do not use the name of their referenced capturing group.
+This rule reports and fixes regexp result arrays where named capturing groups are accessed by index instead of using [`groups`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Groups_and_Ranges#using_named_groups).
 
 <eslint-code-block fix>
 
 ```js
 /* eslint regexp/prefer-result-array-groups: "error" */
 
-const regex = /(?<foo>a)(b)c/
-let re
-while (re = regex.exec(str)) {
+const regex = /(?<foo>a)(b)c/g
+let match
+while (match = regex.exec(str)) {
     /* ✓ GOOD */
-    var p1 = re.groups.foo
-    var p2 = re[2]
+    var p1 = match.groups.foo
+    var p2 = match[2]
 
     /* ✗ BAD */
-    var p1 = re[1]
+    var p1 = match[1]
 }
 ```
 

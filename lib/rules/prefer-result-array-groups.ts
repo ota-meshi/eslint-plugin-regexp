@@ -21,7 +21,7 @@ export default createRule("prefer-result-array-groups", {
             },
         ],
         messages: {
-            unexpected: "Unexpected indexed access from regexp result array.",
+            unexpected: "Unexpected indexed access for the named capturing group '{{ name }}' from regexp result array.",
         },
         type: "suggestion",
     },
