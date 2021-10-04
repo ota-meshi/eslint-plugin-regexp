@@ -30,19 +30,24 @@ import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
 import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
 import { getParent } from "../ast-utils"
+import {
+    getTypeScript,
+    getTypeScriptTools,
+    isAny,
+    isArrayLikeObject,
+    isBigIntLike,
+    isBooleanLike,
+    isClassOrInterface,
+    isNumberLike,
+    isObject,
+    isReferenceObject,
+    isStringLine,
+    isTypeParameter,
+    isUnionOrIntersection,
+    isUnknown,
+} from "../ts-utils"
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
-const ts: typeof import("typescript") = (() => {
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- ignore
-        return require("typescript")
-    } catch (e) {
-        if (e.code === "MODULE_NOT_FOUND") {
-            return undefined
-        }
-        throw e
-    }
-})()
+const ts = getTypeScript()!
 
 export type TypeTracker = {
     isString: (node: ES.Expression) => boolean
@@ -63,12 +68,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         return cache
     }
 
-    const tsNodeMap: ReadonlyMap<unknown, TS.Node> =
-        context.parserServices.esTreeNodeToTSNodeMap
-    const checker: TS.TypeChecker =
-        context.parserServices.program &&
-        context.parserServices.program.getTypeChecker()
-    const availableTS = Boolean(ts && tsNodeMap && checker)
+    const { tsNodeMap, checker, usedTS } = getTypeScriptTools(context)
 
     const cacheTypeInfo = new WeakMap<ES.Expression, TypeInfo | null>()
 
@@ -95,7 +95,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (isString(node)) {
             return true
         }
-        if (availableTS) {
+        if (usedTS) {
             return false
         }
         return getType(node) == null
@@ -171,7 +171,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             return STRING
         }
 
-        if (availableTS) {
+        if (usedTS) {
             return getTypeByTs(node)
         }
 
@@ -505,7 +505,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             }
         }
 
-        return availableTS ? getTypeByTs(node) : null
+        return usedTS ? getTypeByTs(node) : null
     }
 
     /**
@@ -525,22 +525,19 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         /* eslint-enable complexity -- X( */
         tsType: TS.Type,
     ): TypeInfo | null {
-        if ((tsType.flags & ts.TypeFlags.StringLike) !== 0) {
+        if (isStringLine(tsType)) {
             return STRING
         }
-        if ((tsType.flags & ts.TypeFlags.NumberLike) !== 0) {
+        if (isNumberLike(tsType)) {
             return NUMBER
         }
-        if ((tsType.flags & ts.TypeFlags.BooleanLike) !== 0) {
+        if (isBooleanLike(tsType)) {
             return BOOLEAN
         }
-        if ((tsType.flags & ts.TypeFlags.BigIntLike) !== 0) {
+        if (isBigIntLike(tsType)) {
             return BIGINT
         }
-        if (
-            (tsType.flags & ts.TypeFlags.Any) !== 0 ||
-            (tsType.flags & ts.TypeFlags.Unknown) !== 0
-        ) {
+        if (isAny(tsType) || isUnknown(tsType)) {
             return null
         }
         if (isArrayLikeObject(tsType)) {
@@ -550,7 +547,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (isReferenceObject(tsType) && tsType.target !== tsType) {
             return getTypeFromTsType(tsType.target)
         }
-        if ((tsType.flags & ts.TypeFlags.TypeParameter) !== 0) {
+        if (isTypeParameter(tsType)) {
             const constraintType = getConstraintType(tsType)
             if (constraintType) {
                 return getTypeFromTsType(constraintType)
@@ -594,56 +591,6 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
         return undefined
     }
-}
-
-/**
- * Check if a given type is an array-like type or not.
- */
-function isArrayLikeObject(tsType: TS.Type) {
-    return (
-        isObject(tsType) &&
-        (tsType.objectFlags &
-            (ts.ObjectFlags.ArrayLiteral |
-                ts.ObjectFlags.EvolvingArray |
-                ts.ObjectFlags.Tuple)) !==
-            0
-    )
-}
-
-/**
- * Check if a given type is an interface type or not.
- */
-function isClassOrInterface(tsType: TS.Type): tsType is TS.InterfaceType {
-    return (
-        isObject(tsType) &&
-        (tsType.objectFlags & ts.ObjectFlags.ClassOrInterface) !== 0
-    )
-}
-
-/**
- * Check if a given type is an object type or not.
- */
-function isObject(tsType: TS.Type): tsType is TS.ObjectType {
-    return (tsType.flags & ts.TypeFlags.Object) !== 0
-}
-
-/**
- * Check if a given type is a reference type or not.
- */
-function isReferenceObject(tsType: TS.Type): tsType is TS.TypeReference {
-    return (
-        isObject(tsType) &&
-        (tsType.objectFlags & ts.ObjectFlags.Reference) !== 0
-    )
-}
-
-/**
- * Check if a given type is a union-or-intersection type or not.
- */
-function isUnionOrIntersection(
-    tsType: TS.Type,
-): tsType is TS.UnionOrIntersectionType {
-    return (tsType.flags & ts.TypeFlags.UnionOrIntersection) !== 0
 }
 
 /** Get type from jsdoc type text */

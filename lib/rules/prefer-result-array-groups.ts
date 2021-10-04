@@ -2,6 +2,12 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import { isOpeningBracketToken } from "eslint-utils"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import {
+    getTypeScriptTools,
+    isAny,
+    isClassOrInterface,
+} from "../utils/ts-utils"
+import type { Expression, Super } from "estree"
 
 export default createRule("prefer-result-array-groups", {
     meta: {
@@ -21,7 +27,8 @@ export default createRule("prefer-result-array-groups", {
             },
         ],
         messages: {
-            unexpected: "Unexpected indexed access for the named capturing group '{{ name }}' from regexp result array.",
+            unexpected:
+                "Unexpected indexed access for the named capturing group '{{ name }}' from regexp result array.",
         },
         type: "suggestion",
     },
@@ -58,6 +65,9 @@ export default createRule("prefer-result-array-groups", {
                         context.report({
                             node: ref.prop.node,
                             messageId: "unexpected",
+                            data: {
+                                name: cgNode.name,
+                            },
                             fix:
                                 memberNode && memberNode.computed
                                     ? (fixer) => {
@@ -78,6 +88,17 @@ export default createRule("prefer-result-array-groups", {
                                               // unknown ast
                                               return null
                                           }
+
+                                          const kind = getRegExpArrayTypeKind(
+                                              memberNode.object,
+                                          )
+                                          if (kind === "unknown") {
+                                              // Using TypeScript but I can't identify the type or it's not a RegExpXArray type.
+                                              return null
+                                          }
+                                          const needNonNull =
+                                              kind === "RegExpXArray"
+
                                           return fixer.replaceTextRange(
                                               [
                                                   openingBracket.range![0],
@@ -85,7 +106,9 @@ export default createRule("prefer-result-array-groups", {
                                               ],
                                               `${
                                                   memberNode.optional ? "" : "."
-                                              }groups.${cgNode.name}`,
+                                              }groups${
+                                                  needNonNull ? "!" : ""
+                                              }.${cgNode.name}`,
                                           )
                                       }
                                     : null,
@@ -100,5 +123,47 @@ export default createRule("prefer-result-array-groups", {
         return defineRegexpVisitor(context, {
             createVisitor,
         })
+
+        type RegExpArrayTypeKind =
+            | "RegExpXArray" // RegExpMatchArray or RegExpExecArray
+            | "any"
+            | "unknown" // It's cannot autofix
+
+        /** Gets the type kind of the given node. */
+        function getRegExpArrayTypeKind(
+            node: Expression | Super,
+        ): RegExpArrayTypeKind | null {
+            const {
+                tsNodeMap,
+                checker,
+                usedTS,
+                hasFullTypeInformation,
+            } = getTypeScriptTools(context)
+            if (!usedTS) {
+                // Not using TypeScript.
+                return null
+            }
+            if (!hasFullTypeInformation) {
+                // The user has not given the type information to ESLint. So we don't know if this can be autofix.
+                return "unknown"
+            }
+            const tsNode = tsNodeMap.get(node)
+            const tsType = (tsNode && checker.getTypeAtLocation(tsNode)) || null
+            if (!tsType) {
+                // The node type cannot be determined.
+                return "unknown"
+            }
+
+            if (isClassOrInterface(tsType)) {
+                const name = tsType.symbol.escapedName
+                return name === "RegExpMatchArray" || name === "RegExpExecArray"
+                    ? "RegExpXArray"
+                    : "unknown"
+            }
+            if (isAny(tsType)) {
+                return "any"
+            }
+            return "unknown"
+        }
     },
 })
