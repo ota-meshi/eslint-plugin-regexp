@@ -47,9 +47,11 @@ This rule reports and fixes `$n` parameter in replacement string that do not use
 
 - [regexp/prefer-named-backreference]
 - [regexp/prefer-named-capture-group]
+- [regexp/prefer-result-array-groups]
 
 [regexp/prefer-named-backreference]: ./prefer-named-backreference.md
 [regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
+[regexp/prefer-result-array-groups]: ./prefer-result-array-groups.md
 
 ## :mag: Implementation
 

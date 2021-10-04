@@ -38,9 +38,11 @@ Nothing.
 
 - [regexp/prefer-named-capture-group]
 - [regexp/prefer-named-replacement]
+- [regexp/prefer-result-array-groups]
 
 [regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
 [regexp/prefer-named-replacement]: ./prefer-named-replacement.md
+[regexp/prefer-result-array-groups]: ./prefer-result-array-groups.md
 
 ## :rocket: Version
 
