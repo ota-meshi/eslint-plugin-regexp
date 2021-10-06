@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-result-array-groups"
 description: "enforce using result array `groups`"
+since: "v1.4.0"
 ---
 # regexp/prefer-result-array-groups
 
 > enforce using result array `groups`
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -56,6 +56,10 @@ while (match = regex.exec(str)) {
 [regexp/prefer-named-backreference]: ./prefer-named-backreference.md
 [regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
 [regexp/prefer-named-replacement]: ./prefer-named-replacement.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.4.0
 
 ## :mag: Implementation
 

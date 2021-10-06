@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/use-ignore-case"
 description: "use the `i` flag if it simplifies the pattern"
+since: "v1.4.0"
 ---
 # regexp/use-ignore-case
 
 > use the `i` flag if it simplifies the pattern
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -34,6 +34,10 @@ var foo = /\b0[xX][a-fA-F0-9]+\b/;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.4.0
 
 ## :mag: Implementation
 

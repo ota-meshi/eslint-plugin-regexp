@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/prefer-named-replacement"
 description: "enforce using named replacement"
+since: "v1.4.0"
 ---
 # regexp/prefer-named-replacement
 
 > enforce using named replacement
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -52,6 +52,10 @@ This rule reports and fixes `$n` parameter in replacement string that do not use
 [regexp/prefer-named-backreference]: ./prefer-named-backreference.md
 [regexp/prefer-named-capture-group]: ./prefer-named-capture-group.md
 [regexp/prefer-result-array-groups]: ./prefer-result-array-groups.md
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.4.0
 
 ## :mag: Implementation
 
