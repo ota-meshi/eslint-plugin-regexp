@@ -164,7 +164,7 @@ function isCompatibleCharLike(
  * Whether the given quantifier accepts the same characters with and without
  * the u flag.
  *
- * This will return `null` if undecided.
+ * This will return `undefined` if the function cannot decide.
  */
 function isCompatibleQuantifier(
     q: Quantifier,
