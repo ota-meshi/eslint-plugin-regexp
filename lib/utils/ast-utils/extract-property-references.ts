@@ -83,9 +83,7 @@ export function* extractPropertyReferencesForPattern(
 }
 
 /** Checks whether the given expression is shallow copied. */
-function isShallowCopy(
-    node: Expression,
-): node is Expression & {
+function isShallowCopy(node: Expression): node is Expression & {
     parent: SpreadElement & { parent: ObjectExpression | ArrayExpression }
 } {
     const parent = getParent(node)

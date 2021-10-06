@@ -36,12 +36,10 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 ":expression:exit"(node: Expression) {
                     lastExpr = node
                     if (!target) {
-                        const token:
-                            | AST.Token
-                            | ES.Comment
-                            | null = sourceCode.getTokenBefore(node, {
-                            includeComments: true,
-                        })
+                        const token: AST.Token | ES.Comment | null =
+                            sourceCode.getTokenBefore(node, {
+                                includeComments: true,
+                            })
                         if (
                             token &&
                             isCommentToken(token) &&

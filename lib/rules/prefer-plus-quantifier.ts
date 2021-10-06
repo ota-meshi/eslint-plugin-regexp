@@ -28,9 +28,8 @@ export default createRule("prefer-plus-quantifier", {
             return {
                 onQuantifierEnter(qNode) {
                     if (qNode.min === 1 && qNode.max === Infinity) {
-                        const [startOffset, endOffset] = getQuantifierOffsets(
-                            qNode,
-                        )
+                        const [startOffset, endOffset] =
+                            getQuantifierOffsets(qNode)
                         const text = qNode.raw.slice(startOffset, endOffset)
                         if (text !== "+") {
                             context.report({

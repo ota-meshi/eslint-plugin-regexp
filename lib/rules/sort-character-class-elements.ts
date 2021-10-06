@@ -75,8 +75,10 @@ export default createRule("sort-character-class-elements", {
             "\\p"?: number
         } = { "*": Infinity }
 
-        ;((context.options[0]?.order ??
-            DEFAULT_ORDER) as CharacterClassElementKind[]).forEach((o, i) => {
+        ;(
+            (context.options[0]?.order ??
+                DEFAULT_ORDER) as CharacterClassElementKind[]
+        ).forEach((o, i) => {
             orderOption[o] = i + 1
         })
 
@@ -112,12 +114,12 @@ export default createRule("sort-character-class-elements", {
                                         prev: mention(moveTarget),
                                     },
                                     *fix(fixer) {
-                                        const nextRange = patternSource.getReplaceRange(
-                                            next,
-                                        )
-                                        const targetRange = patternSource.getReplaceRange(
-                                            moveTarget,
-                                        )
+                                        const nextRange =
+                                            patternSource.getReplaceRange(next)
+                                        const targetRange =
+                                            patternSource.getReplaceRange(
+                                                moveTarget,
+                                            )
 
                                         if (!targetRange || !nextRange) {
                                             return

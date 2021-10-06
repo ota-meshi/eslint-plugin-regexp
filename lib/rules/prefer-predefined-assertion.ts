@@ -59,12 +59,8 @@ export default createRule("prefer-predefined-assertion", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, flags, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             const word = Chars.word(flags)
             const nonWord = Chars.word(flags).negate()

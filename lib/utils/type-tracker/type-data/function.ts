@@ -98,11 +98,9 @@ export const UNKNOWN_FUNCTION = new TypeFunction(
 )
 /** Build Function constructor type */
 export function buildFunctionConstructor(): TypeGlobalFunction {
-    const FUNCTION_TYPES = createObject<
-        {
-            [key in keyof FunctionConstructor]: TypeInfo | null
-        }
-    >({
+    const FUNCTION_TYPES = createObject<{
+        [key in keyof FunctionConstructor]: TypeInfo | null
+    }>({
         prototype: null,
     })
     return new TypeGlobalFunction(
@@ -188,12 +186,10 @@ const getPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof Function]: TypeInfo | null
 } = cache(() =>
-    createObject<
-        {
-            // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
-            [key in keyof Function]: TypeInfo | null
-        }
-    >({
+    createObject<{
+        // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
+        [key in keyof Function]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         toString: RETURN_STRING,
         bind: RETURN_SELF,
@@ -204,5 +200,6 @@ const getPrototypes: () => {
         arguments: null,
         caller: UNKNOWN_FUNCTION,
         prototype: null,
+        [Symbol.hasInstance]: null,
     }),
 )

@@ -567,7 +567,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
         if (isClassOrInterface(tsType)) {
             const name = tsType.symbol.escapedName
-            const typeName = /^Readonly(.*)/.exec(name as string)?.[1] ?? name
+            const typeName =
+                /^Readonly(?<typeName>.*)/u.exec(name as string)?.groups!
+                    .typeName ?? name
             return typeName === "Array" ? UNKNOWN_ARRAY : (typeName as TypeInfo)
         }
         if (isObject(tsType)) {
@@ -584,6 +586,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         const declarations = symbol && symbol.declarations
         const declaration = declarations && declarations[0]
         if (
+            declaration &&
             ts.isTypeParameterDeclaration(declaration) &&
             declaration.constraint != null
         ) {

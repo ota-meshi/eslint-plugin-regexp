@@ -63,7 +63,7 @@ export default createRule("no-useless-character-class", {
                             return
                         }
                         if (
-                            /^\\\d+$/.test(element.raw) &&
+                            /^\\\d+$/u.test(element.raw) &&
                             !element.raw.startsWith("\\0")
                         ) {
                             // Avoid back reference

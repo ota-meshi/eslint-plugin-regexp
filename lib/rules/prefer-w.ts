@@ -164,9 +164,8 @@ export default createRule("prefer-w", {
                             fix(fixer: Rule.RuleFixer) {
                                 const fixes: Rule.Fix[] = []
                                 for (const element of unexpectedElements) {
-                                    const range = patternSource.getReplaceRange(
-                                        element,
-                                    )
+                                    const range =
+                                        patternSource.getReplaceRange(element)
                                     if (!range) {
                                         return null
                                     }

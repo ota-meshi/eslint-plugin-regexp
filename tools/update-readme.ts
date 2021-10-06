@@ -13,7 +13,7 @@ const newReadme = fs
     .replace(
         /<!--RULES_TABLE_START-->[\s\S]*<!--RULES_TABLE_END-->/u,
         `<!--RULES_TABLE_START-->${insertText.replace(
-            /\$/g,
+            /\$/gu,
             "$$$$",
         )}<!--RULES_TABLE_END-->`,
     )
@@ -36,14 +36,14 @@ fs.writeFileSync(
         .replace(/<!--DOCS_IGNORE_START-->[\s\S]*?<!--DOCS_IGNORE_END-->/gu, "")
         .replace(
             // eslint-disable-next-line regexp/no-super-linear-backtracking -- it's acceptable here
-            /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp(.*?)([^/]*\.html)?\)/gu,
-            (_ptn, c1: string, c2: string) => {
-                let result = `(.${c1}`
-                if (c2) {
+            /\(https:\/\/ota-meshi.github.io\/eslint-plugin-regexp(?<paths>.*?)(?<name>[^/]*\.html)?\)/gu,
+            (_ptn, paths, name) => {
+                let result = `(.${paths}`
+                if (name) {
                     result +=
-                        c2 === "index.html"
+                        name === "index.html"
                             ? "README.md"
-                            : c2.replace(/\.html$/, ".md")
+                            : name.replace(/\.html$/u, ".md")
                 } else {
                     result += "README.md"
                 }
@@ -70,6 +70,6 @@ const newUserGuideReadme = fs
 fs.writeFileSync(
     userGuideReadmeFilePath,
     newUserGuideReadme
-        .replace(/\(#white_check_mark-rules\)/g, "(../rules/README.md)")
+        .replace(/\(#white_check_mark-rules\)/gu, "(../rules/README.md)")
         .replace(/\n{3,}/gu, "\n\n"),
 )

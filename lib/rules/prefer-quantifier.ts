@@ -152,8 +152,8 @@ export default createRule("prefer-quantifier", {
 
                         const bufferRange: PatternRange = {
                             start: buffer.elements[0].start,
-                            end:
-                                buffer.elements[buffer.elements.length - 1].end,
+                            end: buffer.elements[buffer.elements.length - 1]
+                                .end,
                         }
 
                         context.report({
@@ -170,9 +170,8 @@ export default createRule("prefer-quantifier", {
                                 quantifier: buffer.getQuantifier(),
                             },
                             fix(fixer) {
-                                const range = patternSource.getReplaceRange(
-                                    bufferRange,
-                                )
+                                const range =
+                                    patternSource.getReplaceRange(bufferRange)
                                 if (!range) {
                                     return null
                                 }

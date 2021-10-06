@@ -53,11 +53,9 @@ export const REGEXP = new TypeRegExp()
 
 /** Build RegExp constructor type */
 export function buildRegExpConstructor(): TypeGlobalFunction {
-    const REGEXP_TYPES = createObject<
-        {
-            [key in keyof RegExpConstructor]: TypeInfo | null
-        }
-    >({
+    const REGEXP_TYPES = createObject<{
+        [key in keyof RegExpConstructor]: TypeInfo | null
+    }>({
         $1: STRING,
         $2: STRING,
         $3: STRING,
@@ -69,6 +67,7 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
         $9: STRING,
         lastMatch: NUMBER, // prop
         prototype: null,
+        [Symbol.species]: null,
     })
     return new TypeGlobalFunction(() => REGEXP, REGEXP_TYPES)
 }
@@ -76,11 +75,9 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
 const getPrototypes: () => {
     [key in keyof RegExp]: TypeInfo | null
 } = cache(() =>
-    createObject<
-        {
-            [key in keyof RegExp]: TypeInfo | null
-        }
-    >({
+    createObject<{
+        [key in keyof RegExp]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES5
         exec: RETURN_STRING_ARRAY,
@@ -97,5 +94,11 @@ const getPrototypes: () => {
         unicode: BOOLEAN, // prop
         // ES2018
         dotAll: BOOLEAN, // prop
+
+        [Symbol.match]: null,
+        [Symbol.replace]: null,
+        [Symbol.search]: null,
+        [Symbol.split]: null,
+        [Symbol.matchAll]: null,
     }),
 )

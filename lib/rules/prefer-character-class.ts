@@ -437,12 +437,8 @@ export default createRule("prefer-character-class", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, flags, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             /**
              * Replaces the alternatives of the given node with the given
@@ -480,8 +476,9 @@ export default createRule("prefer-character-class", {
                 }
 
                 const alts = categorizeRawAlts(n.alternatives, flags)
-                const characterAltsCount = alts.filter((a) => a.isCharacter)
-                    .length
+                const characterAltsCount = alts.filter(
+                    (a) => a.isCharacter,
+                ).length
 
                 if (characterAltsCount < 2) {
                     // we need at least 2 character alternatives

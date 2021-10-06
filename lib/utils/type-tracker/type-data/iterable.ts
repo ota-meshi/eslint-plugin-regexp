@@ -13,12 +13,11 @@ type IterableKeys = keyof Iterable<unknown>
 const getPrototypes: () => {
     [key in IterableKeys]: TypeInfo | null
 } = cache(() => {
-    return createObject<
-        {
-            [key in IterableKeys]: TypeInfo | null
-        }
-    >({
+    return createObject<{
+        [key in IterableKeys]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
+        [Symbol.iterator]: null,
     })
 })
 

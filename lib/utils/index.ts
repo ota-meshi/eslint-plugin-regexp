@@ -652,14 +652,13 @@ function buildRegExpContextBase({
             strictTypes?: boolean // default true
         }) => {
             const strictTypes = Boolean(options?.strictTypes ?? true)
-            const cacheCapturingGroupReference = cacheCapturingGroupReferenceMap.get(
-                strictTypes,
-            )
+            const cacheCapturingGroupReference =
+                cacheCapturingGroupReferenceMap.get(strictTypes)
             if (cacheCapturingGroupReference) {
                 return cacheCapturingGroupReference
             }
-            const countOfCapturingGroup = getAllCapturingGroupsWithCache()
-                .length
+            const countOfCapturingGroup =
+                getAllCapturingGroupsWithCache().length
             const capturingGroupReferences = [
                 ...extractCapturingGroupReferences(
                     regexpNode,
@@ -686,9 +685,8 @@ function buildRegExpContextBase({
 
     /** Returns a list of all capturing groups in the order of their numbers. */
     function getAllCapturingGroupsWithCache(): CapturingGroup[] {
-        return (cacheAllCapturingGroups ??= getAllCapturingGroups(
-            parsedPattern,
-        ))
+        return (cacheAllCapturingGroups ??=
+            getAllCapturingGroups(parsedPattern))
     }
 }
 
@@ -950,7 +948,7 @@ function fixReplaceFlags(
             }
         }
 
-        if (!/^[a-z]*$/i.test(newFlags)) {
+        if (!/^[a-z]*$/iu.test(newFlags)) {
             // make sure that escaping isn't necessary
             return null
         }
@@ -1094,17 +1092,17 @@ export function mightCreateNewElement(
 ): boolean {
     // control
     // \cA
-    if (before.endsWith("\\c") && /^[a-z]/i.test(after)) {
+    if (before.endsWith("\\c") && /^[a-z]/iu.test(after)) {
         return true
     }
 
     // hexadecimal
     // \xFF \uFFFF
     if (
-        /(?:^|[^\\])(?:\\{2})*\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})$/.test(
+        /(?:^|[^\\])(?:\\{2})*\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})$/u.test(
             before,
         ) &&
-        /^[\da-f]/i.test(after)
+        /^[\da-f]/iu.test(after)
     ) {
         return true
     }
@@ -1112,10 +1110,10 @@ export function mightCreateNewElement(
     // unicode
     // \u{FFFF}
     if (
-        (/(?:^|[^\\])(?:\\{2})*\\u$/.test(before) &&
-            /^\{[\da-f]*(?:\}[\s\S]*)?$/i.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\\u\{[\da-f]*$/.test(before) &&
-            /^(?:[\da-f]+\}?|\})/i.test(after))
+        (/(?:^|[^\\])(?:\\{2})*\\u$/u.test(before) &&
+            /^\{[\da-f]*(?:\}[\s\S]*)?$/iu.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\u\{[\da-f]*$/u.test(before) &&
+            /^(?:[\da-f]+\}?|\})/iu.test(after))
     ) {
         return true
     }
@@ -1123,9 +1121,9 @@ export function mightCreateNewElement(
     // octal
     // \077 \123
     if (
-        (/(?:^|[^\\])(?:\\{2})*\\0[0-7]?$/.test(before) &&
-            /^[0-7]/.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\\[1-7]$/.test(before) && /^[0-7]/.test(after))
+        (/(?:^|[^\\])(?:\\{2})*\\0[0-7]?$/u.test(before) &&
+            /^[0-7]/u.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\[1-7]$/u.test(before) && /^[0-7]/u.test(after))
     ) {
         return true
     }
@@ -1133,10 +1131,10 @@ export function mightCreateNewElement(
     // backreference
     // \12 \k<foo>
     if (
-        (/(?:^|[^\\])(?:\\{2})*\\[1-9]\d*$/.test(before) &&
-            /^\d/.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\\k$/.test(before) && after.startsWith("<")) ||
-        /(?:^|[^\\])(?:\\{2})*\\k<[^<>]*$/.test(before)
+        (/(?:^|[^\\])(?:\\{2})*\\[1-9]\d*$/u.test(before) &&
+            /^\d/u.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\k$/u.test(before) && after.startsWith("<")) ||
+        /(?:^|[^\\])(?:\\{2})*\\k<[^<>]*$/u.test(before)
     ) {
         return true
     }
@@ -1144,10 +1142,10 @@ export function mightCreateNewElement(
     // property
     // \p{L} \P{L}
     if (
-        (/(?:^|[^\\])(?:\\{2})*\\p$/i.test(before) &&
-            /^\{[\w=]*(?:\}[\s\S]*)?$/.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\\p\{[\w=]*$/i.test(before) &&
-            /^[\w=]+(?:\}[\s\S]*)?$|^\}/.test(after))
+        (/(?:^|[^\\])(?:\\{2})*\\p$/iu.test(before) &&
+            /^\{[\w=]*(?:\}[\s\S]*)?$/u.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\\p\{[\w=]*$/iu.test(before) &&
+            /^[\w=]+(?:\}[\s\S]*)?$|^\}/u.test(after))
     ) {
         return true
     }
@@ -1155,10 +1153,11 @@ export function mightCreateNewElement(
     // quantifier
     // {1} {2,} {2,3}
     if (
-        (/(?:^|[^\\])(?:\\{2})*\{\d*$/.test(before) && /^[\d,}]/.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\{\d+,$/.test(before) &&
-            /^(?:\d+(?:\}|$)|\})/.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\{\d+,\d*$/.test(before) &&
+        (/(?:^|[^\\])(?:\\{2})*\{\d*$/u.test(before) &&
+            /^[\d,}]/u.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\{\d+,$/u.test(before) &&
+            /^(?:\d+(?:\}|$)|\})/u.test(after)) ||
+        (/(?:^|[^\\])(?:\\{2})*\{\d+,\d*$/u.test(before) &&
             after.startsWith("}"))
     ) {
         return true
@@ -1196,35 +1195,35 @@ export function canUnwrapped(node: Element, text: string): boolean {
  * sequence.
  */
 export function isOctalEscape(raw: string): boolean {
-    return /^\\[0-7]{1,3}$/.test(raw)
+    return /^\\[0-7]{1,3}$/u.test(raw)
 }
 /**
  * Returns whether the given raw of a character literal is a control escape
  * sequence.
  */
 export function isControlEscape(raw: string): boolean {
-    return /^\\c[A-Za-z]$/.test(raw)
+    return /^\\c[A-Za-z]$/u.test(raw)
 }
 /**
  * Returns whether the given raw of a character literal is a hexadecimal escape
  * sequence.
  */
 export function isHexadecimalEscape(raw: string): boolean {
-    return /^\\x[\dA-Fa-f]{2}$/.test(raw)
+    return /^\\x[\dA-Fa-f]{2}$/u.test(raw)
 }
 /**
  * Returns whether the given raw of a character literal is a unicode escape
  * sequence.
  */
 export function isUnicodeEscape(raw: string): boolean {
-    return /^\\u[\dA-Fa-f]{4}$/.test(raw)
+    return /^\\u[\dA-Fa-f]{4}$/u.test(raw)
 }
 /**
  * Returns whether the given raw of a character literal is a unicode code point
  * escape sequence.
  */
 export function isUnicodeCodePointEscape(raw: string): boolean {
-    return /^\\u\{[\dA-Fa-f]{1,8}\}$/.test(raw)
+    return /^\\u\{[\dA-Fa-f]{1,8}\}$/u.test(raw)
 }
 
 export enum EscapeSequenceKind {

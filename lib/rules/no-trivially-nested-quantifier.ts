@@ -146,8 +146,7 @@ export default createRule("no-trivially-nested-quantifier", {
         fixable: "code",
         schema: [],
         messages: {
-            nested:
-                "These two quantifiers are trivially nested and can be replaced with '{{quant}}'.",
+            nested: "These two quantifiers are trivially nested and can be replaced with '{{quant}}'.",
             childOne: "This nested quantifier can be removed.",
             childSimpler:
                 "This nested quantifier can be simplified to '{{quant}}'.",

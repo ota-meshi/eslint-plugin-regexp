@@ -314,12 +314,8 @@ export default createRule("no-super-linear-move", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                getRegexpLocation,
-                getUsageOfPattern,
-            } = regexpContext
+            const { node, flags, getRegexpLocation, getUsageOfPattern } =
+                regexpContext
 
             if (ignoreSticky && flags.sticky) {
                 return {}

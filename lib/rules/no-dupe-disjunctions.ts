@@ -701,8 +701,7 @@ export default createRule("no-dupe-disjunctions", {
         messages: {
             duplicate:
                 "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
-            subset:
-                "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
+            subset: "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
             prefixSubset:
                 "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
             superset:
@@ -741,7 +740,7 @@ export default createRule("no-dupe-disjunctions", {
                 flags: new RegExpParser().parseFlags(
                     [
                         ...new Set(
-                            (flagsString || "").replace(/[^gimsuy]/g, ""),
+                            (flagsString || "").replace(/[^gimsuy]/gu, ""),
                         ),
                     ].join(""),
                 ),

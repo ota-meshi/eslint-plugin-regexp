@@ -80,18 +80,18 @@ export class PatternReplaceRange {
             this.type === "SingleQuotedString"
         ) {
             const base = text
-                .replace(/\\/g, "\\\\")
-                .replace(/\n/g, "\\n")
-                .replace(/\r/g, "\\r")
-                .replace(/\t/g, "\\t")
+                .replace(/\\/gu, "\\\\")
+                .replace(/\n/gu, "\\n")
+                .replace(/\r/gu, "\\r")
+                .replace(/\t/gu, "\\t")
 
             if (this.type === "DoubleQuotedString") {
-                return base.replace(/"/g, '\\"')
+                return base.replace(/"/gu, '\\"')
             }
-            return base.replace(/'/g, "\\'")
+            return base.replace(/'/gu, "\\'")
         }
 
-        return text.replace(/\n/g, "\\n").replace(/\r/g, "\\r")
+        return text.replace(/\n/gu, "\\n").replace(/\r/gu, "\\r")
     }
 
     public replace(fixer: Rule.RuleFixer, text: string): Rule.Fix {

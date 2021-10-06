@@ -16,8 +16,7 @@ export default createRule("no-useless-quantifier", {
         schema: [],
         messages: {
             constOne: "Unexpected useless quantifier.",
-            empty:
-                "Unexpected useless quantifier. The quantified element doesn't consume or assert characters.",
+            empty: "Unexpected useless quantifier. The quantified element doesn't consume or assert characters.",
             emptyQuestionMark:
                 "Unexpected useless quantifier. The quantified element can already accept the empty string, so this quantifier is redundant.",
             zeroLength:

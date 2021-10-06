@@ -6,9 +6,7 @@ type TypeScript = typeof import("typescript")
 /**
  * Get TypeScript tools
  */
-export function getTypeScriptTools(
-    context: Rule.RuleContext,
-): {
+export function getTypeScriptTools(context: Rule.RuleContext): {
     tsNodeMap: ReadonlyMap<unknown, TS.Node>
     checker: TS.TypeChecker
     usedTS: boolean

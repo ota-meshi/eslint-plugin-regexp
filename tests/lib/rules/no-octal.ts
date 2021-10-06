@@ -20,8 +20,7 @@ tester.run("no-octal", rule as any, {
                     endColumn: 5,
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\x07/`,
                         },
                     ],
@@ -37,8 +36,7 @@ tester.run("no-octal", rule as any, {
                     endColumn: 6,
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\x3f/`,
                         },
                     ],
@@ -52,8 +50,7 @@ tester.run("no-octal", rule as any, {
                     message: "Unexpected octal escape sequence '\\077'.",
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/[\x3f]/`,
                         },
                     ],
@@ -69,8 +66,7 @@ tester.run("no-octal", rule as any, {
                     endColumn: 6,
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\x3f7/`,
                         },
                     ],
@@ -84,8 +80,7 @@ tester.run("no-octal", rule as any, {
                     message: "Unexpected octal escape sequence '\\7'.",
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\x07/`,
                         },
                     ],
@@ -99,8 +94,7 @@ tester.run("no-octal", rule as any, {
                     message: "Unexpected octal escape sequence '\\1'.",
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\x01\2/`,
                         },
                     ],
@@ -109,8 +103,7 @@ tester.run("no-octal", rule as any, {
                     message: "Unexpected octal escape sequence '\\2'.",
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/\1\x02/`,
                         },
                     ],
@@ -124,8 +117,7 @@ tester.run("no-octal", rule as any, {
                     message: "Unexpected octal escape sequence '\\2'.",
                     suggestions: [
                         {
-                            desc:
-                                "Replace the octal escape sequence with a hexadecimal escape sequence.",
+                            desc: "Replace the octal escape sequence with a hexadecimal escape sequence.",
                             output: String.raw`/()\1\x02/`,
                         },
                     ],

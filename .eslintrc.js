@@ -1,14 +1,5 @@
 "use strict"
 
-const { rules } = require("eslint-plugin-regexp")
-
-const enableAllRules = Object.keys(rules)
-    .map((name) => `regexp/${name}`)
-    .reduce((p, c) => {
-        p[c] = "error"
-        return p
-    }, {})
-
 module.exports = {
     parserOptions: {
         sourceType: "script",
@@ -23,9 +14,9 @@ module.exports = {
         "plugin:@ota-meshi/+yaml",
         // "plugin:@ota-meshi/+md",
         "plugin:@ota-meshi/+prettier",
+        "plugin:regexp/recommended",
     ],
     rules: {
-        ...enableAllRules,
         "require-jsdoc": "error",
         "no-warning-comments": "warn",
         "no-lonely-if": "off",
@@ -34,6 +25,33 @@ module.exports = {
 
         "no-shadow": "off", // ts bug?
         "@typescript-eslint/no-shadow": "error",
+
+        // regexp next recommended
+        "regexp/no-contradiction-with-assertion": "error",
+        "regexp/no-empty-character-class": "error",
+        "regexp/no-misleading-unicode-character": "error",
+        "regexp/use-ignore-case": "error",
+
+        // regexp Possible Errors
+        "regexp/no-super-linear-move": "error",
+        // regexp Best Practices
+        "regexp/no-octal": "error",
+        "regexp/no-standalone-backslash": "error",
+        "regexp/prefer-escape-replacement-dollar-char": "error",
+        "regexp/prefer-quantifier": "error",
+        "regexp/prefer-regexp-exec": "error",
+        "regexp/prefer-regexp-test": "error",
+        "regexp/require-unicode-regexp": "error",
+        "regexp/sort-alternatives": "error",
+        // regexp Stylistic Issues
+        "regexp/hexadecimal-escape": "error",
+        "regexp/letter-case": "error",
+        "regexp/prefer-named-backreference": "error",
+        "regexp/prefer-named-capture-group": "error",
+        "regexp/prefer-named-replacement": "error",
+        "regexp/prefer-result-array-groups": "error",
+        "regexp/sort-character-class-elements": "error",
+        "regexp/unicode-escape": "error",
     },
     overrides: [
         {

@@ -103,17 +103,16 @@ export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
 
 /** Build Array constructor type */
 export function buildArrayConstructor(): TypeGlobalFunction {
-    const ARRAY_TYPES = createObject<
-        {
-            [key in keyof ArrayConstructor]: TypeInfo | null
-        }
-    >({
+    const ARRAY_TYPES = createObject<{
+        [key in keyof ArrayConstructor]: TypeInfo | null
+    }>({
         // ES5
         isArray: RETURN_BOOLEAN,
         // ES2015
         from: RETURN_UNKNOWN_ARRAY,
         of: RETURN_UNKNOWN_ARRAY,
         prototype: null,
+        [Symbol.species]: null,
     })
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }
@@ -215,11 +214,9 @@ const getPrototypes = cache(() => {
             })
         },
     )
-    return createObject<
-        {
-            [key in keyof unknown[]]: TypeInfo | null
-        }
-    >({
+    return createObject<{
+        [key in keyof unknown[]]: TypeInfo | null
+    }>({
         ...getObjectPrototypes(),
         // ES5
         toString: RETURN_STRING,
@@ -256,8 +253,12 @@ const getPrototypes = cache(() => {
         // ES2019
         flatMap: RETURN_UNKNOWN_ARRAY,
         flat: RETURN_UNKNOWN_ARRAY,
+        // ES2022
+        at: RETURN_ARRAY_ELEMENT, // element
 
         length: NUMBER,
         0: null, // element
+        [Symbol.iterator]: null,
+        [Symbol.unscopables]: null,
     })
 })

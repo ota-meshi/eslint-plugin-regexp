@@ -52,9 +52,10 @@ export function getRegExpNodeFromExpression(
 /**
  * Extract capturing group data
  */
-export function extractCaptures(
-    patternNode: RegExpLiteral | Pattern,
-): { names: Set<string>; count: number } {
+export function extractCaptures(patternNode: RegExpLiteral | Pattern): {
+    names: Set<string>
+    count: number
+} {
     let count = 0
     const names = new Set<string>()
     visitRegExpAST(patternNode, {

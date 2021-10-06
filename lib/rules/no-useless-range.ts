@@ -50,7 +50,7 @@ export default createRule("no-useless-range", {
                             )
 
                             if (
-                                /\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})?$/.test(
+                                /\\(?:x[\dA-Fa-f]?|u[\dA-Fa-f]{0,3})?$/u.test(
                                     rawBefore,
                                 )
                             ) {

@@ -53,7 +53,7 @@ function isSyntacticallyCompatible(pattern: Pattern): false | Pattern {
     try {
         visitRegExpAST(pattern, {
             onCharacterEnter(node) {
-                if (/^\\(?![bfnrtv])[A-Za-z]$/.test(node.raw)) {
+                if (/^\\(?![bfnrtv])[A-Za-z]$/u.test(node.raw)) {
                     // All cool Unicode feature are behind escapes like \p.
                     throw INCOMPATIBLE
                 }

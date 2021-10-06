@@ -408,11 +408,12 @@ export default createRule("no-dupe-characters-character-class", {
                             // intersection that contain the min/max of the
                             // character range.
                             // there is no point in reporting overlaps that can't be fixed.
-                            const interestingRanges = intersection.ranges.filter(
-                                (r) =>
-                                    inRange(r, range.min.value) ||
-                                    inRange(r, range.max.value),
-                            )
+                            const interestingRanges =
+                                intersection.ranges.filter(
+                                    (r) =>
+                                        inRange(r, range.min.value) ||
+                                        inRange(r, range.max.value),
+                                )
 
                             // we might break the ignore case property here
                             // (see GH #189).

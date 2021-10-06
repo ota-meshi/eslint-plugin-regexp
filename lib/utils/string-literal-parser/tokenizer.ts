@@ -98,9 +98,10 @@ export class Tokenizer {
     }
 
     // eslint-disable-next-line complexity -- ignore
-    private readEscape(
-        inTemplate: boolean,
-    ): { value: string; kind: EscapeToken["kind"] } {
+    private readEscape(inTemplate: boolean): {
+        value: string
+        kind: EscapeToken["kind"]
+    } {
         const cp = this.source.codePointAt(this.pos)
         if (cp == null) {
             throw new Error("Invalid or unexpected token")

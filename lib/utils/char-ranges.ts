@@ -88,8 +88,10 @@ export function getAllowedCharValueSchema(): JSONSchema4 {
                         { const: "alphanumeric" },
                         {
                             type: "string",
-                            pattern: /^([\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])-([\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])$/
-                                .source,
+                            pattern:
+                                // eslint-disable-next-line regexp/require-unicode-regexp -- The JSON Schema engine does not support the u flag.
+                                /^(?:[\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])-(?:[\ud800-\udbff][\udc00-\udfff]|[^\ud800-\udfff])$/
+                                    .source,
                         },
                     ],
                 },

@@ -189,12 +189,8 @@ function fixRemoveFlag(
 function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const {
-                flags,
-                regexpNode,
-                ownsFlags,
-                getFlagLocation,
-            } = regExpContext
+            const { flags, regexpNode, ownsFlags, getFlagLocation } =
+                regExpContext
 
             if (!flags.ignoreCase || !ownsFlags) {
                 return {}
@@ -222,12 +218,8 @@ function createUselessIgnoreCaseFlagVisitor(context: Rule.RuleContext) {
 function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const {
-                flags,
-                regexpNode,
-                ownsFlags,
-                getFlagLocation,
-            } = regExpContext
+            const { flags, regexpNode, ownsFlags, getFlagLocation } =
+                regExpContext
 
             if (!flags.multiline || !ownsFlags) {
                 return {}
@@ -260,12 +252,8 @@ function createUselessMultilineFlagVisitor(context: Rule.RuleContext) {
 function createUselessDotAllFlagVisitor(context: Rule.RuleContext) {
     return defineRegexpVisitor(context, {
         createVisitor(regExpContext: RegExpContext) {
-            const {
-                flags,
-                regexpNode,
-                ownsFlags,
-                getFlagLocation,
-            } = regExpContext
+            const { flags, regexpNode, ownsFlags, getFlagLocation } =
+                regExpContext
 
             if (!flags.dotAll || !ownsFlags) {
                 return {}
@@ -650,16 +638,16 @@ function createRegExpReferenceExtractVisitor(
 
             // Stacks the scope of the loop statement. e.g. `for ( target )`
             ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-            // Stacks the scope of statement inside the loop statement. e.g. `for (;;) { target }`
-            ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement"](
+                // Stacks the scope of statement inside the loop statement. e.g. `for (;;) { target }`
+                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement"](
                 node: Statement,
             ) {
                 stack?.loopStack.unshift(node)
             },
 
             ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-            ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement" +
-            ":exit"]() {
+                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement" +
+                ":exit"]() {
                 stack?.loopStack.shift()
             },
             "Literal, NewExpression, CallExpression:exit"(node: Node) {
@@ -738,7 +726,7 @@ function createOwnedRegExpFlagsVisitor(context: Rule.RuleContext) {
         // The u flag is relevant for parsing the literal, so
         // we can't just remove it and potentially create
         // invalid source code.
-        const newFlags = node.regex.flags.replace(/[^u]+/g, "")
+        const newFlags = node.regex.flags.replace(/[^u]+/gu, "")
         if (newFlags === node.regex.flags) {
             return
         }

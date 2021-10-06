@@ -24,7 +24,7 @@ function validateRegExpPattern(
         validator.validatePattern(pattern, undefined, undefined, uFlag)
         return null
     } catch (err) {
-        return err.message
+        return err instanceof Error ? err.message : null
     }
 }
 
@@ -81,13 +81,8 @@ export default createRule("strict", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                flags,
-                pattern,
-                getRegexpLocation,
-                fixReplaceNode,
-            } = regexpContext
+            const { node, flags, pattern, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             if (flags.unicode) {
                 // the Unicode flag enables strict parsing mode automatically
