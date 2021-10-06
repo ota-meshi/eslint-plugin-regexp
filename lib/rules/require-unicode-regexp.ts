@@ -1,10 +1,23 @@
 import type { CharRange } from "refa"
 import { visitRegExpAST, RegExpParser } from "regexpp"
-import type { Pattern } from "regexpp/ast"
+import type {
+    Character,
+    CharacterClass,
+    CharacterSet,
+    Node,
+    Pattern,
+    Quantifier,
+} from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { hasSomeDescendant, toCache, toCharSet } from "regexp-ast-analysis"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import {
+    hasSomeDescendant,
+    toCache,
+    toCharSet,
+    getFirstCharAfter,
+} from "regexp-ast-analysis"
 
 const UTF16_MAX = 0xffff
 
@@ -93,7 +106,10 @@ function isSyntacticallyCompatible(pattern: Pattern): false | Pattern {
     return uPattern
 }
 
+const HIGH_SURROGATES: CharRange = { min: 0xd800, max: 0xdbff }
+const LOW_SURROGATES: CharRange = { min: 0xdc00, max: 0xdfff }
 const SURROGATES: CharRange = { min: 0xd800, max: 0xdfff }
+const ASTRAL: CharRange = { min: 0x10000, max: 0x10ffff }
 
 /** Returns whether the two given ranges are equal. */
 function rangeEqual(a: readonly CharRange[], b: readonly CharRange[]): boolean {
@@ -107,6 +123,111 @@ function rangeEqual(a: readonly CharRange[], b: readonly CharRange[]): boolean {
             return false
         }
     }
+    return true
+}
+
+type CharLike = Character | CharacterClass | CharacterSet
+
+/** Whether the given element is character-like element. */
+function isChar(node: Node): node is CharLike {
+    return (
+        node.type === "Character" ||
+        node.type === "CharacterClass" ||
+        node.type === "CharacterSet"
+    )
+}
+
+/**
+ * Whether the given char-like accepts the same characters with and without
+ * the u flag.
+ */
+function isCompatibleCharLike(
+    char: CharLike,
+    flags: ReadonlyFlags,
+    uFlags: ReadonlyFlags,
+): boolean {
+    const cs = toCharSet(char, flags)
+    if (!cs.isDisjointWith(SURROGATES)) {
+        // If the character (class/set) contains high or low
+        // surrogates, then we won't be able to guarantee that the
+        // Unicode pattern will behave the same way.
+        return false
+    }
+
+    const uCs = toCharSet(char, uFlags)
+
+    // Compare the ranges.
+    return rangeEqual(cs.ranges, uCs.ranges)
+}
+
+/**
+ * Whether the given quantifier accepts the same characters with and without
+ * the u flag.
+ *
+ * This will return `null` if undecided.
+ */
+function isCompatibleQuantifier(
+    q: Quantifier,
+    flags: ReadonlyFlags,
+    uFlags: ReadonlyFlags,
+): boolean | undefined {
+    if (!isChar(q.element)) {
+        return undefined
+    }
+
+    if (isCompatibleCharLike(q.element, flags, uFlags)) {
+        // trivial
+        return true
+    }
+
+    // A quantifier `n*` or `n+` is the same with and without the
+    // u flag if all of the following conditions are true:
+    //
+    // 1. The UTF16 characters of the element contain all
+    //    surrogates characters (U+D800-U+DFFF).
+    // 2. The Unicode characters of the element contain all
+    //    surrogates characters (U+D800-U+DFFF) and astral
+    //    characters (U+10000-U+10FFFF).
+    // 3. All non-surrogate and non-astral characters of the UTF16
+    //    and Unicode characters of the element as the same.
+    // 4. The first character before the quantifier is not a
+    //    high surrogate (U+D800-U+DBFF).
+    // 5. The first character after the quantifier is not a
+    //    low surrogate (U+DC00-U+DFFF).
+
+    if (q.min > 1 || q.max !== Infinity) {
+        return undefined
+    }
+
+    const cs = toCharSet(q.element, flags)
+    if (!cs.isSupersetOf(SURROGATES)) {
+        // failed condition 1
+        return false
+    }
+
+    const uCs = toCharSet(q.element, uFlags)
+    if (!uCs.isSupersetOf(SURROGATES) || !uCs.isSupersetOf(ASTRAL)) {
+        // failed condition 2
+        return false
+    }
+
+    if (!rangeEqual(cs.ranges, uCs.without([ASTRAL]).ranges)) {
+        // failed condition 3
+        return false
+    }
+
+    const before = getFirstCharAfter(q, "rtl", flags).char
+    if (!before.isDisjointWith(HIGH_SURROGATES)) {
+        // failed condition 4
+        return false
+    }
+
+    const after = getFirstCharAfter(q, "ltr", flags).char
+    if (!after.isDisjointWith(LOW_SURROGATES)) {
+        // failed condition 5
+        return false
+    }
+
     return true
 }
 
@@ -133,6 +254,8 @@ function isSemanticallyCompatible(
     const flags = regexpContext.flags
     const uFlags = toCache({ ...flags, unicode: true })
 
+    const skip = new Set<Node>()
+
     return !hasSomeDescendant(
         pattern,
         (n) => {
@@ -154,28 +277,25 @@ function isSemanticallyCompatible(
                 return true
             }
 
-            if (
-                n.type === "Character" ||
-                n.type === "CharacterClass" ||
-                n.type === "CharacterSet"
-            ) {
-                const cs = toCharSet(n, flags)
-                if (!cs.isDisjointWith(SURROGATES)) {
-                    // If the character (class/set) contains high or low
-                    // surrogates, then we won't be able to guarantee that the
-                    // Unicode pattern will behave the same way.
-                    return true
-                }
+            if (isChar(n)) {
+                return !isCompatibleCharLike(n, flags, uFlags)
+            }
 
-                // Compare the ranges.
-                return !rangeEqual(cs.ranges, toCharSet(n, uFlags).ranges)
+            if (n.type === "Quantifier") {
+                const result = isCompatibleQuantifier(n, flags, uFlags)
+
+                if (result !== undefined) {
+                    skip.add(n)
+                    return !result
+                }
             }
 
             return false
         },
         (n) => {
-            // Don't go into character classes, we already checked them
-            return n.type !== "CharacterClass"
+            // Don't go into character classes, we already checked them.
+            // We also don't want to go into elements, we explicitly skipped.
+            return n.type !== "CharacterClass" && !skip.has(n)
         },
     )
 }

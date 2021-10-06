@@ -100,6 +100,21 @@ tester.run("require-unicode-regexp", rule as any, {
             errors: 1,
         },
         {
+            code: String.raw`/ab+c/`,
+            output: String.raw`/ab+c/u`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/a.*b/`,
+            output: String.raw`/a.*b/u`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/<[^<>]+>/`,
+            output: String.raw`/<[^<>]+>/u`,
+            errors: 1,
+        },
+        {
             // "k" maps to 3 characters in ignore-case Unicode mode
             code: String.raw`/k/i`,
             output: null,
@@ -129,6 +144,12 @@ tester.run("require-unicode-regexp", rule as any, {
         },
         {
             code: String.raw`/\p{Ll}/`,
+            output: null,
+            errors: 1,
+        },
+        {
+            // "<😃>" is accepted by one but not the other
+            code: String.raw`/<[^<>]>/`,
             output: null,
             errors: 1,
         },
