@@ -524,7 +524,10 @@ function* iterateForReplacerFunction(
     on: "replace" | "replaceAll",
     ctx: ExtractCapturingGroupReferencesContext,
 ): Iterable<CapturingGroupReference> {
-    if (replacementNode.params.length < 2) {
+    if (
+        replacementNode.params.length < 2 &&
+        !replacementNode.params.some((arg) => arg.type === "RestElement")
+    ) {
         yield {
             type: "WithoutRef",
             node: argument,
