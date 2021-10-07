@@ -119,6 +119,21 @@ tester.run("no-unused-capturing-group", rule as any, {
         "var replaced = '2000-12-31'.replace(/(?<y>\\d{4})-(?<m>\\d{2})-(?<d>\\d{2})/, (_, y, m, d, o, s, g) => `${g.y}/${g.m}/${g.d}`)",
         String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$1/$2/$3') // "2000/12/31"`,
         String.raw`const [,y,m,d] = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)`,
+        // https://github.com/ota-meshi/eslint-plugin-regexp/issues/353
+        `const string = 'foo:abc,bar:def'.replace(/foo:(?<foo>\\w+),bar:(?<bar>\\w+)/, (...args) => {
+            const { foo, bar } = args.at(-1);
+            return \`\${ bar },\${ foo }\`;
+        });`,
+        String.raw`
+        const regexp = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/
+        let match
+        while(match = regexp.exec(foo)) {
+            const m = [...match]
+        }
+        `,
+        String.raw`
+        const matches = [...('2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g))]
+        `,
     ],
     invalid: [
         {
@@ -449,6 +464,10 @@ tester.run("no-unused-capturing-group", rule as any, {
                     ],
                 },
             ],
+        },
+        {
+            code: `'str'.replace(/(?<foo>\\w+)/, () => {});`,
+            errors: ["Capturing group 'foo' is defined but never used."],
         },
     ],
 })
