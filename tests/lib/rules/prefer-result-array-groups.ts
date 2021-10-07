@@ -419,6 +419,9 @@ tester.run("prefer-result-array-groups", rule as any, {
             /(?<bar>bar)/u.exec(str)?.[1]; // <-
             const match2 = /(?<baz>baz)/u.exec(str)
             match2?.[1] // <-
+
+            const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+            match3[1] // <-
             `,
             output: `
             const match = /(?<foo>foo)/u.exec(str)!
@@ -427,6 +430,9 @@ tester.run("prefer-result-array-groups", rule as any, {
             /(?<bar>bar)/u.exec(str)?.groups!.bar; // <-
             const match2 = /(?<baz>baz)/u.exec(str)
             match2?.groups!.baz // <-
+
+            const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+            match3.groups!.qux // <-
             `,
             parser: require.resolve("@typescript-eslint/parser"),
             parserOptions: {
@@ -436,6 +442,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
             ],
         },
         {
