@@ -4,14 +4,18 @@ import type {
     ArrayPattern,
     ArrowFunctionExpression,
     CallExpression,
+    ConditionalExpression,
     Expression,
     ForOfStatement,
     FunctionDeclaration,
     FunctionExpression,
     Identifier,
+    IfStatement,
+    LogicalExpression,
     MemberExpression,
     ObjectPattern,
     Pattern,
+    UnaryExpression,
 } from "estree"
 import { findFunction, findVariable, getParent } from "./utils"
 
@@ -100,7 +104,13 @@ function* iterateReferencesForExpression(
 ): Iterable<ExpressionReference> {
     let node = expression
     let parent = getParent(node)
-    while (parent?.type === "ChainExpression") {
+    while (
+        parent?.type === "ChainExpression" ||
+        // @ts-expect-error -- TS AST
+        parent?.type === "TSNonNullExpression" ||
+        // @ts-expect-error -- TS AST
+        parent?.type === "TSAsExpression"
+    ) {
         node = parent
         parent = getParent(node)
     }
@@ -172,9 +182,44 @@ function* iterateReferencesForExpression(
         } else {
             yield { node, type: "unknown" }
         }
+    } else if (
+        parent.type === "IfStatement" ||
+        parent.type === "ConditionalExpression" ||
+        parent.type === "LogicalExpression" ||
+        parent.type === "UnaryExpression"
+    ) {
+        if (isUsedInTest(parent, node)) {
+            // The expression used in the test does not need to be tracked and returns nothing.
+        } else {
+            yield { node, type: "unknown" }
+        }
     } else {
         yield { node, type: "unknown" }
     }
+}
+
+/** Checks whether the expression is used in the test. */
+function isUsedInTest(
+    parent:
+        | IfStatement
+        | ConditionalExpression
+        | LogicalExpression
+        | UnaryExpression,
+    node: Expression,
+) {
+    if (parent.type === "IfStatement") {
+        return parent.test === node
+    }
+    if (parent.type === "ConditionalExpression") {
+        return parent.test === node
+    }
+    if (parent.type === "LogicalExpression") {
+        return parent.operator === "&&" && parent.left === node
+    }
+    if (parent.type === "UnaryExpression") {
+        return parent.operator === "!" && parent.argument === node
+    }
+    return false
 }
 
 /** Iterate references for the given pattern node. */

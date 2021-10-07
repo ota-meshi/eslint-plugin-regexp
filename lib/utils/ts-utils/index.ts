@@ -155,3 +155,10 @@ export function isBigIntLike(tsType: TS.Type): boolean {
     const ts = getTypeScript()!
     return (tsType.flags & ts.TypeFlags.BigIntLike) !== 0
 }
+/**
+ * Check if a given type is an null type or not.
+ */
+export function isNull(tsType: TS.Type): boolean {
+    const ts = getTypeScript()!
+    return (tsType.flags & ts.TypeFlags.Null) !== 0
+}

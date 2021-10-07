@@ -6,7 +6,10 @@ import {
     getTypeScriptTools,
     isAny,
     isClassOrInterface,
+    isUnionOrIntersection,
+    isNull,
 } from "../utils/ts-utils"
+import type * as TS from "typescript"
 import type { Expression, Super } from "estree"
 
 export default createRule("prefer-result-array-groups", {
@@ -149,16 +152,33 @@ export default createRule("prefer-result-array-groups", {
                 return "unknown"
             }
 
-            if (isClassOrInterface(tsType)) {
-                const name = tsType.symbol.escapedName
-                return name === "RegExpMatchArray" || name === "RegExpExecArray"
-                    ? "RegExpXArray"
-                    : "unknown"
-            }
             if (isAny(tsType)) {
                 return "any"
             }
+            if (isRegExpMatchArrayOrRegExpExecArray(tsType)) {
+                return "RegExpXArray"
+            }
+            if (isUnionOrIntersection(tsType)) {
+                if (
+                    tsType.types.every(
+                        (t) =>
+                            isRegExpMatchArrayOrRegExpExecArray(t) || isNull(t),
+                    )
+                ) {
+                    // e.g. (RegExpExecArray | null)
+                    return "RegExpXArray"
+                }
+            }
             return "unknown"
+        }
+
+        /** Checks whether given type is RegExpMatchArray or RegExpExecArray or not */
+        function isRegExpMatchArrayOrRegExpExecArray(tsType: TS.Type) {
+            if (isClassOrInterface(tsType)) {
+                const name = tsType.symbol.escapedName
+                return name === "RegExpMatchArray" || name === "RegExpExecArray"
+            }
+            return false
         }
     },
 })
