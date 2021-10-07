@@ -409,5 +409,89 @@ tester.run("prefer-result-array-groups", rule as any, {
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
         },
+        {
+            // https://github.com/ota-meshi/eslint-plugin-regexp/issues/355
+            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            code: `
+            const match = /(?<foo>foo)/u.exec(str)!
+            match[1]; // <-
+
+            /(?<bar>bar)/u.exec(str)?.[1]; // <-
+            const match2 = /(?<baz>baz)/u.exec(str)
+            match2?.[1] // <-
+
+            const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+            match3[1] // <-
+            `,
+            output: `
+            const match = /(?<foo>foo)/u.exec(str)!
+            match.groups!.foo; // <-
+
+            /(?<bar>bar)/u.exec(str)?.groups!.bar; // <-
+            const match2 = /(?<baz>baz)/u.exec(str)
+            match2?.groups!.baz // <-
+
+            const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+            match3.groups!.qux // <-
+            `,
+            parser: require.resolve("@typescript-eslint/parser"),
+            parserOptions: {
+                project: require.resolve("../../../tsconfig.json"),
+            },
+            errors: [
+                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
+            ],
+        },
+        {
+            code: `
+            const match = /(?<foo>foo)/u.exec(str)
+            if (match) {
+                match[1] // <-
+            }
+
+            const match2 = /(?<bar>bar)/u.exec(str)
+            match2
+                ? match2[1] // <-
+                : null;
+
+            const match3 = /(?<baz>baz)/u.exec(str)
+            match3 && match3[1] // <-
+
+            const match4 = /(?<qux>qux)/u.exec(str)
+            if (!match4) {
+            } else {
+                match4[1] // <-
+            }
+            `,
+            output: `
+            const match = /(?<foo>foo)/u.exec(str)
+            if (match) {
+                match.groups.foo // <-
+            }
+
+            const match2 = /(?<bar>bar)/u.exec(str)
+            match2
+                ? match2.groups.bar // <-
+                : null;
+
+            const match3 = /(?<baz>baz)/u.exec(str)
+            match3 && match3.groups.baz // <-
+
+            const match4 = /(?<qux>qux)/u.exec(str)
+            if (!match4) {
+            } else {
+                match4.groups.qux // <-
+            }
+            `,
+            errors: [
+                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
+                "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
+            ],
+        },
     ],
 })
