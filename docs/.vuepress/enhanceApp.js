@@ -12,19 +12,10 @@ export default () =>
                 window.global = {}
             }
             if (typeof window.process === "undefined") {
-                window.process = new Proxy(
-                    {
-                        env: {},
-                        cwd: () => undefined,
-                    },
-                    {
-                        get(target, name) {
-                            // For debug
-                            // console.log(name)
-                            return target[name]
-                        },
-                    },
-                )
+                window.process = {
+                    env: {},
+                    cwd: () => undefined,
+                }
             }
         }
     }
