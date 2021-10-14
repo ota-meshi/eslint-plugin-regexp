@@ -12,8 +12,10 @@ tester.run("prefer-range", rule as any, {
     valid: [
         `/[a]/`,
         `/[ab]/`,
-        `/[a-c]/`,
+        `/[abc]/`,
         `/[a-b]/`,
+        `/[a-c]/`,
+        `/[a-d]/`,
         `/[0-9]/`,
         `/[A-Z]/`,
         `/[a-zA-ZZ-a]/`,
@@ -59,25 +61,25 @@ tester.run("prefer-range", rule as any, {
     ],
     invalid: [
         {
-            code: `/[abc]/`,
-            output: `/[a-c]/`,
+            code: `/[abcd]/`,
+            output: `/[a-d]/`,
             errors: [
                 {
                     message:
-                        "Unexpected multiple adjacent characters. Use 'a-c' instead.",
+                        "Unexpected multiple adjacent characters. Use 'a-d' instead.",
                     line: 1,
                     column: 3,
                     endLine: 1,
-                    endColumn: 6,
+                    endColumn: 7,
                 },
             ],
         },
         {
-            code: `/[ABC abc]/`,
-            output: `/[A-C a-c]/`,
+            code: `/[ABCD abcd]/`,
+            output: `/[A-D a-d]/`,
             errors: [
-                "Unexpected multiple adjacent characters. Use 'A-C' instead.",
-                "Unexpected multiple adjacent characters. Use 'a-c' instead.",
+                "Unexpected multiple adjacent characters. Use 'A-D' instead.",
+                "Unexpected multiple adjacent characters. Use 'a-d' instead.",
             ],
         },
         {

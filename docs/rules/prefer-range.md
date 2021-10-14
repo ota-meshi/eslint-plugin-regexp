@@ -22,11 +22,11 @@ This rule is aimed to use ranges instead of multiple adjacent characters in char
 /* eslint regexp/prefer-range: "error" */
 
 /* ✓ GOOD */
-var foo = /[a-c]/
+var foo = /[0-9]/
 var foo = /[a-f]/
 
 /* ✗ BAD */
-var foo = /[abc]/
+var foo = /[123456]/
 var foo = /[a-cd-f]/
 ```
 
@@ -58,7 +58,7 @@ It allows all values that the [allowedCharacterRanges] setting allows.
 /* eslint regexp/prefer-range: ["error", { "target": "alphanumeric" }] */
 
 /* ✓ GOOD */
-var foo = /[a-c]/
+var foo = /[0-9]/
 var foo = /[a-f]/
 var foo = /[!-$]/
 var foo = /[!"#$]/
@@ -66,7 +66,7 @@ var foo = /[😀-😄]/u
 var foo = /[😀😁😂😃😄]/u
 
 /* ✗ BAD */
-var foo = /[abc]/
+var foo = /[123456]/
 var foo = /[a-cd-f]/
 ```
 
@@ -80,13 +80,13 @@ var foo = /[a-cd-f]/
 /* eslint regexp/prefer-range: ["error", { "target": "all" }] */
 
 /* ✓ GOOD */
-var foo = /[a-c]/
+var foo = /[0-9]/
 var foo = /[a-f]/
 var foo = /[!-$]/
 var foo = /[😀-😄]/u
 
 /* ✗ BAD */
-var foo = /[abc]/
+var foo = /[123456]/
 var foo = /[a-cd-f]/
 var foo = /[!"#$]/
 var foo = /[😀😁😂😃😄]/u
@@ -102,14 +102,14 @@ var foo = /[😀😁😂😃😄]/u
 /* eslint regexp/prefer-range: ["error", { "target": [ "alphanumeric", "😀-😏" ] }] */
 
 /* ✓ GOOD */
-var foo = /[a-c]/
+var foo = /[0-9]/
 var foo = /[a-f]/
 var foo = /[!-$]/
 var foo = /[!"#$]/
 var foo = /[😀-😄]/u
 
 /* ✗ BAD */
-var foo = /[abc]/
+var foo = /[123456]/
 var foo = /[a-cd-f]/
 var foo = /[😀😁😂😃😄]/u
 ```

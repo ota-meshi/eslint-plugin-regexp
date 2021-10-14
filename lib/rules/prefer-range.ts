@@ -148,10 +148,8 @@ export default createRule("prefer-range", {
                     }
 
                     for (const group of groups) {
-                        if (
-                            group.max.value - group.min.value > 1 &&
-                            group.nodes.length > 1
-                        ) {
+                        const charCount = group.max.value - group.min.value + 1
+                        if (charCount >= 4 && group.nodes.length > 1) {
                             const newText = `${group.min.raw}-${group.max.raw}`
                             const ranges = getReportRanges(group.nodes)
                             if (!ranges) {
