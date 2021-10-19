@@ -93,7 +93,7 @@
         "eslint-utils": "^3.0.0",
         "grapheme-splitter": "^1.0.4",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.9.0",
+        "refa": "^0.10.0",
         "regexp-ast-analysis": "^0.3.0",
         "regexpp": "^3.2.0",
         "scslre": "^0.1.6"
