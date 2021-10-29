@@ -72,7 +72,7 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-regexp": "~1.5.0",
-        "eslint-plugin-vue": "^7.18.0",
+        "eslint-plugin-vue": "^8.0.0",
         "eslint-plugin-yml": "^0.10.1",
         "mocha": "^9.1.2",
         "mocha-chai-jest-snapshot": "^1.1.3",
