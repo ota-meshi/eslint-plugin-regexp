@@ -13,7 +13,7 @@
     "vetur.validation.script": false,
     "vetur.validation.style": false,
     "css.validate": false,
-    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true,
         "source.fixAll.stylelint": true

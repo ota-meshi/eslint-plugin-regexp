@@ -65,6 +65,16 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
         $7: STRING,
         $8: STRING,
         $9: STRING,
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- ignore
+        $_: STRING,
+        "$&": STRING,
+        "$+": STRING,
+        "$`": STRING,
+        "$'": STRING,
+        input: STRING,
+        lastParen: STRING,
+        leftContext: STRING,
+        rightContext: STRING,
         lastMatch: NUMBER, // prop
         prototype: null,
         [Symbol.species]: null,
