@@ -207,7 +207,7 @@ export default createRule("no-misleading-unicode-character", {
 
         /** */
         function makeFix(
-            fix: Rule.ReportDescriptorOptionsBase["fix"],
+            fix: Rule.ReportFixer,
             messageId: string,
             data?: Record<string, string>,
         ): Partial<Rule.ReportDescriptorOptions> {
