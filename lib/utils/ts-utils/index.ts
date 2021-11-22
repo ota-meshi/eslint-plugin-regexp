@@ -8,22 +8,24 @@ type TypeScript = typeof import("typescript")
  */
 export function getTypeScriptTools(context: Rule.RuleContext): {
     tsNodeMap: ReadonlyMap<unknown, TS.Node>
-    checker: TS.TypeChecker
+    checker: TS.TypeChecker | null
     usedTS: boolean
     hasFullTypeInformation: boolean
 } {
     const ts = getTypeScript()
-    const tsNodeMap: ReadonlyMap<unknown, TS.Node> =
+    const tsNodeMap: ReadonlyMap<unknown, TS.Node> | undefined =
         context.parserServices.esTreeNodeToTSNodeMap
-    const checker: TS.TypeChecker =
-        context.parserServices.program &&
-        context.parserServices.program.getTypeChecker()
-    const usedTS = Boolean(ts && tsNodeMap && checker)
+    const usedTS = Boolean(ts && tsNodeMap)
     const hasFullTypeInformation =
         usedTS && context.parserServices.hasFullTypeInformation !== false
+    const checker: TS.TypeChecker | null =
+        (hasFullTypeInformation &&
+            context.parserServices.program &&
+            context.parserServices.program.getTypeChecker()) ||
+        null
 
     return {
-        tsNodeMap,
+        tsNodeMap: tsNodeMap || new Map(),
         checker,
         usedTS,
         hasFullTypeInformation,

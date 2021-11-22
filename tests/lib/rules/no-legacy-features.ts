@@ -32,7 +32,21 @@ const STATIC_PROPERTIES: string[] = [
 const PROTOTYPE_METHODS: string[] = ["compile"]
 
 tester.run("no-legacy-features", rule as any, {
-    valid: [`RegExp`, `new RegExp()`, `RegExp.unknown`],
+    valid: [
+        `RegExp`,
+        `new RegExp()`,
+        `RegExp.unknown`,
+        {
+            // https://github.com/ota-meshi/eslint-plugin-regexp/issues/378
+            filename: "loglevel.d.ts",
+            code: `
+            import log from 'loglevel';
+            export as namespace log;
+            export = log;
+            `,
+            parser: require.resolve("@typescript-eslint/parser"),
+        },
+    ],
     invalid: [
         ...STATIC_PROPERTIES.map((sp) => {
             return {
