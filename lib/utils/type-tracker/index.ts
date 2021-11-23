@@ -575,7 +575,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (isObject(tsType)) {
             return UNKNOWN_OBJECT
         }
-        return checker?.typeToString(tsType) as TypeInfo
+        return checker ? (checker.typeToString(tsType) as TypeInfo) : null
     }
 
     /**
