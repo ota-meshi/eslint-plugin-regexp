@@ -146,7 +146,8 @@ export default createRule("prefer-result-array-groups", {
                 return "unknown"
             }
             const tsNode = tsNodeMap.get(node)
-            const tsType = (tsNode && checker.getTypeAtLocation(tsNode)) || null
+            const tsType =
+                (tsNode && checker?.getTypeAtLocation(tsNode)) || null
             if (!tsType) {
                 // The node type cannot be determined.
                 return "unknown"

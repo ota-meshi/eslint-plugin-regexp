@@ -513,7 +513,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
      */
     function getTypeByTs(node: ES.Expression): TypeInfo | null {
         const tsNode = tsNodeMap.get(node)
-        const tsType = (tsNode && checker.getTypeAtLocation(tsNode)) || null
+        const tsType = (tsNode && checker?.getTypeAtLocation(tsNode)) || null
         return tsType && getTypeFromTsType(tsType)
     }
 
@@ -575,7 +575,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (isObject(tsType)) {
             return UNKNOWN_OBJECT
         }
-        return checker.typeToString(tsType) as TypeInfo
+        return checker ? (checker.typeToString(tsType) as TypeInfo) : null
     }
 
     /**
@@ -590,7 +590,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
             ts.isTypeParameterDeclaration(declaration) &&
             declaration.constraint != null
         ) {
-            return checker.getTypeFromTypeNode(declaration.constraint)
+            return checker?.getTypeFromTypeNode(declaration.constraint)
         }
         return undefined
     }
