@@ -419,6 +419,26 @@ tester.run("no-dupe-disjunctions", rule as any, {
             ],
         },
         {
+            code: String(/a|aa|ba/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                    column: 4,
+                },
+            ],
+        },
+        {
+            code: String(/a|[ab]a/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[ab]a' that go through this element are already covered by 'a'. This element can be removed.",
+                    column: 5,
+                },
+            ],
+        },
+        {
             // reportExponentialBacktracking: 'potential'
             code: String.raw`
             const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
