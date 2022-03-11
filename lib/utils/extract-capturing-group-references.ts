@@ -139,8 +139,13 @@ type ExtractCapturingGroupReferencesContext = {
 type ArrayMethodName = Exclude<keyof unknown[], "length" | symbol | number>
 const WELL_KNOWN_ARRAY_METHODS: {
     [key in ArrayMethodName]: {
-        iteration?: number[]
-        result?: "element" | "array" | "iterator"
+        // If specified, the method receives a function that iterates the element.
+        // Specify an array with the index of the argument that receives the element.
+        elementParameters?: number[]
+        result?:
+            | "element" // The method returns the element.
+            | "array" // The method returns an array with some of the elements.]
+            | "iterator" // The method returns an iterator with some of the elements.
     }
 } = {
     toString: {},
@@ -152,21 +157,21 @@ const WELL_KNOWN_ARRAY_METHODS: {
     reverse: { result: "array" },
     shift: { result: "element" },
     slice: { result: "array" },
-    sort: { iteration: [0, 1], result: "array" },
+    sort: { elementParameters: [0, 1], result: "array" },
     splice: { result: "array" },
     unshift: {},
     indexOf: {},
     lastIndexOf: {},
-    every: { iteration: [0] },
-    some: { iteration: [0] },
-    forEach: { iteration: [0] },
-    map: { iteration: [0] },
-    filter: { iteration: [0], result: "array" },
-    reduce: { iteration: [1] },
-    reduceRight: { iteration: [1] },
+    every: { elementParameters: [0] },
+    some: { elementParameters: [0] },
+    forEach: { elementParameters: [0] },
+    map: { elementParameters: [0] },
+    filter: { elementParameters: [0], result: "array" },
+    reduce: { elementParameters: [1] },
+    reduceRight: { elementParameters: [1] },
     // ES2015
-    find: { iteration: [0], result: "element" },
-    findIndex: { iteration: [0] },
+    find: { elementParameters: [0], result: "element" },
+    findIndex: { elementParameters: [0] },
     fill: {},
     copyWithin: { result: "array" },
     entries: {},
@@ -175,7 +180,7 @@ const WELL_KNOWN_ARRAY_METHODS: {
     // ES2016
     includes: {},
     // ES2019
-    flatMap: { iteration: [0] },
+    flatMap: { elementParameters: [0] },
     flat: {},
     // ES2022
     at: { result: "element" },
@@ -657,13 +662,13 @@ function* iterateForArrayMethodOfStringMatchAll(
 ): Iterable<CapturingGroupReference> {
     const arrayMethod = WELL_KNOWN_ARRAY_METHODS[methodsName]
     if (
-        arrayMethod.iteration &&
+        arrayMethod.elementParameters &&
         node.arguments[0] &&
         (node.arguments[0].type === "FunctionExpression" ||
             node.arguments[0].type === "ArrowFunctionExpression")
     ) {
         const fnNode = node.arguments[0]
-        for (const index of arrayMethod.iteration) {
+        for (const index of arrayMethod.elementParameters) {
             const param = fnNode.params[index]
             if (param) {
                 for (const ref of extractPropertyReferencesForPattern(
