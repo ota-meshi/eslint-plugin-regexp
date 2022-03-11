@@ -24,14 +24,17 @@ import {
 } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
+    hasSomeAncestor,
     hasSomeDescendant,
     getMatchingDirection,
     getEffectiveMaximumRepetition,
 } from "regexp-ast-analysis"
-import { RegExpParser } from "regexpp"
+import { RegExpParser, visitRegExpAST } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { canReorder } from "../utils/reorder-alternatives"
 import { mention } from "../utils/mention"
+import type { NestedAlternative } from "../utils/partial-parser"
+import { PartialParser } from "../utils/partial-parser"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -122,6 +125,27 @@ function containsAssertionsOrUnknowns(
     }
 }
 
+/**
+ * Returns whether the given nodes contains any features that cannot be
+ * expressed by pure regular expression. This mainly includes assertions and
+ * backreferences.
+ */
+function isNonRegular(node: Node): boolean {
+    try {
+        visitRegExpAST(node, {
+            onAssertionEnter() {
+                throw new Error()
+            },
+            onBackreferenceEnter() {
+                throw new Error()
+            },
+        })
+        return false
+    } catch (error) {
+        return true
+    }
+}
+
 const creationOption: Transformers.CreationOptions = {
     ignoreAmbiguity: true,
     ignoreOrder: true,
@@ -172,6 +196,79 @@ function toNFA(
                 maxCharacter: parser.ast.flags.unicode ? 0x10ffff : 0xffff,
             }),
             partial: true,
+        }
+    }
+}
+
+/** */
+function* iterateNestedAlternatives(
+    alternative: Alternative,
+): Iterable<NestedAlternative> {
+    for (const e of alternative.elements) {
+        if (e.type === "Group" || e.type === "CapturingGroup") {
+            for (const a of e.alternatives) {
+                if (e.alternatives.length > 1) {
+                    yield a
+                }
+
+                yield* iterateNestedAlternatives(a)
+            }
+        }
+
+        if (e.type === "CharacterClass" && !e.negate) {
+            const nested: NestedAlternative[] = []
+            for (const charElement of e.elements) {
+                if (charElement.type === "CharacterClassRange") {
+                    const min = charElement.min
+                    const max = charElement.max
+                    if (min.value === max.value) {
+                        nested.push(charElement)
+                    } else if (min.value + 1 === max.value) {
+                        nested.push(min, max)
+                    } else {
+                        nested.push(charElement, min, max)
+                    }
+                } else {
+                    nested.push(charElement)
+                }
+            }
+            if (nested.length >= 1) yield* nested
+        }
+    }
+}
+
+interface PartialAlternative {
+    nested: NestedAlternative
+    nfa: NFA
+}
+
+/**
+ * This will return all partial alternatives.
+ *
+ * A partial alternative is the NFA of the given alternative but with one
+ * nested alternative missing.
+ */
+function* iteratePartialAlternatives(
+    alternative: Alternative,
+    parser: JS.Parser,
+): Iterable<PartialAlternative> {
+    if (isNonRegular(alternative)) {
+        return
+    }
+
+    const maxCharacter = parser.ast.flags.unicode ? 0x10ffff : 0xffff
+    const partialParser = new PartialParser(parser, {
+        assertions: "throw",
+        backreferences: "throw",
+    })
+
+    for (const nested of iterateNestedAlternatives(alternative)) {
+        try {
+            const expression = partialParser.parse(alternative, nested)
+            const nfa = NFA.fromRegex(expression, { maxCharacter })
+            yield { nested, nfa }
+        } catch (error) {
+            // ignore error and skip this
         }
     }
 }
@@ -333,6 +430,10 @@ interface DuplicateResult extends ResultBase {
 interface SubsetResult extends ResultBase {
     type: "Subset"
 }
+interface NestedSubsetResult extends ResultBase {
+    type: "NestedSubset"
+    nested: NestedAlternative
+}
 interface PrefixSubsetResult extends ResultBase {
     type: "PrefixSubset"
 }
@@ -349,6 +450,7 @@ type Result =
     | PrefixSubsetResult
     | SupersetResult
     | OverlapResult
+    | NestedSubsetResult
 
 interface Options {
     parser: JS.Parser
@@ -545,7 +647,18 @@ function* findDuplicationNfa(
                 }
 
                 case SubsetRelation.none:
-                case SubsetRelation.unknown:
+                case SubsetRelation.unknown: {
+                    const nested = tryFindNestedSubsetResult(
+                        overlapping.map((o) => [o[0], o[2]]),
+                        othersNfa,
+                        alternative,
+                        parser,
+                    )
+                    if (nested) {
+                        yield nested
+                        break
+                    }
+
                     if (!ignoreOverlap) {
                         yield {
                             type: "Overlap",
@@ -555,6 +668,7 @@ function* findDuplicationNfa(
                         }
                     }
                     break
+                }
 
                 default:
                     throw new Error(relation)
@@ -567,6 +681,46 @@ function* findDuplicationNfa(
     if (hasNothingAfter) {
         yield* findPrefixDuplicationNfa(previous)
     }
+}
+
+/** */
+function tryFindNestedSubsetResult(
+    others: [ReadonlyNFA, Alternative][],
+    othersNfa: ReadonlyNFA,
+    alternative: Alternative,
+    parser: JS.Parser,
+): NestedSubsetResult | undefined {
+    const disjointElements = new Set<Node>()
+
+    for (const { nested, nfa: nestedNfa } of iteratePartialAlternatives(
+        alternative,
+        parser,
+    )) {
+        if (hasSomeAncestor(nested, (a) => disjointElements.has(a))) {
+            // there's no point in trying because the partial NFA of an
+            // ancestor of this nested alternative was disjoint with the
+            // target (others) NFA
+            continue
+        }
+
+        if (isDisjointWith(othersNfa, nestedNfa)) {
+            disjointElements.add(nested)
+            continue
+        }
+
+        if (isSubsetOf(othersNfa, nestedNfa)) {
+            return {
+                type: "NestedSubset",
+                alternative,
+                nested,
+                others: others
+                    .filter((o) => !isDisjointWith(o[0], nestedNfa))
+                    .map((o) => o[1]),
+            }
+        }
+    }
+
+    return undefined
 }
 
 /**
@@ -703,6 +857,8 @@ export default createRule("no-dupe-disjunctions", {
             duplicate:
                 "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
             subset: "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
+            nestedSubset:
+                "Unexpected useless element. All paths of '{{alternative}}' that go through this element are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
             prefixSubset:
                 "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
             superset:
@@ -855,6 +1011,7 @@ export default createRule("no-dupe-disjunctions", {
                             switch (type) {
                                 case "Duplicate":
                                 case "Subset":
+                                case "NestedSubset":
                                     return true
 
                                 case "Overlap":
@@ -880,6 +1037,7 @@ export default createRule("no-dupe-disjunctions", {
                             switch (type) {
                                 case "Duplicate":
                                 case "Subset":
+                                case "NestedSubset":
                                     return true
 
                                 case "Overlap":
@@ -944,6 +1102,20 @@ export default createRule("no-dupe-disjunctions", {
                             loc: getRegexpLocation(result.alternative),
                             messageId: "subset",
                             data: { exp, cap, others },
+                        })
+                        break
+
+                    case "NestedSubset":
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(result.nested),
+                            messageId: "nestedSubset",
+                            data: {
+                                exp,
+                                cap,
+                                others,
+                                alternative: result.alternative.raw,
+                            },
                         })
                         break
 
