@@ -437,6 +437,10 @@ interface NestedSubsetResult extends ResultBase {
 interface PrefixSubsetResult extends ResultBase {
     type: "PrefixSubset"
 }
+interface PrefixNestedSubsetResult extends ResultBase {
+    type: "PrefixNestedSubset"
+    nested: NestedAlternative
+}
 interface SupersetResult extends ResultBase {
     type: "Superset"
 }
@@ -447,10 +451,11 @@ interface OverlapResult extends ResultBase {
 type Result =
     | DuplicateResult
     | SubsetResult
+    | NestedSubsetResult
     | PrefixSubsetResult
+    | PrefixNestedSubsetResult
     | SupersetResult
     | OverlapResult
-    | NestedSubsetResult
 
 interface Options {
     parser: JS.Parser
@@ -543,6 +548,7 @@ function* findDuplicationAst(
  */
 function* findPrefixDuplicationNfa(
     alternatives: [NFA, boolean, Alternative][],
+    parser: JS.Parser,
 ): Iterable<Result> {
     if (alternatives.length === 0) {
         return
@@ -570,6 +576,17 @@ function* findPrefixDuplicationNfa(
 
                 if (isSubsetOf(othersNfa, nfa)) {
                     yield { type: "PrefixSubset", alternative, others }
+                } else {
+                    const nested = tryFindNestedSubsetResult(
+                        overlapping.map((o) => [o[0], o[2]]),
+                        othersNfa,
+                        alternative,
+                        parser,
+                    )
+
+                    if (nested) {
+                        yield { ...nested, type: "PrefixNestedSubset" }
+                    }
                 }
             }
         }
@@ -679,7 +696,7 @@ function* findDuplicationNfa(
     }
 
     if (hasNothingAfter) {
-        yield* findPrefixDuplicationNfa(previous)
+        yield* findPrefixDuplicationNfa(previous, parser)
     }
 }
 
@@ -861,6 +878,8 @@ export default createRule("no-dupe-disjunctions", {
                 "Unexpected useless element. All paths of '{{alternative}}' that go through this element are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
             prefixSubset:
                 "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
+            prefixNestedSubset:
+                "Unexpected useless element. All paths of '{{alternative}}' that go through this element are already covered by {{others}}. This element can be removed.{{cap}}",
             superset:
                 "Unexpected superset. This alternative is a superset of {{others}}. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
@@ -1019,6 +1038,7 @@ export default createRule("no-dupe-disjunctions", {
                                     return reportExp
 
                                 case "PrefixSubset":
+                                case "PrefixNestedSubset":
                                     return reportPrefix
 
                                 default:
@@ -1050,6 +1070,7 @@ export default createRule("no-dupe-disjunctions", {
                                     )
 
                                 case "PrefixSubset":
+                                case "PrefixNestedSubset":
                                     return reportPrefix
 
                                 default:
@@ -1125,6 +1146,20 @@ export default createRule("no-dupe-disjunctions", {
                             loc: getRegexpLocation(result.alternative),
                             messageId: "prefixSubset",
                             data: { exp, cap, others },
+                        })
+                        break
+
+                    case "PrefixNestedSubset":
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(result.nested),
+                            messageId: "prefixNestedSubset",
+                            data: {
+                                exp,
+                                cap,
+                                others,
+                                alternative: result.alternative.raw,
+                            },
                         })
                         break
 
