@@ -779,7 +779,9 @@ function* findDuplication(
 const RESULT_TYPE_ORDER: Result["type"][] = [
     "Duplicate",
     "Subset",
+    "NestedSubset",
     "PrefixSubset",
+    "PrefixNestedSubset",
     "Superset",
     "Overlap",
 ]
