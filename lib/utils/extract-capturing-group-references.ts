@@ -136,6 +136,56 @@ type ExtractCapturingGroupReferencesContext = {
     isString: (node: Expression) => boolean
 }
 
+type ArrayMethodName = Exclude<keyof unknown[], "length" | symbol | number>
+const WELL_KNOWN_ARRAY_METHODS: {
+    [key in ArrayMethodName]: {
+        // If specified, the method receives a function that iterates the element.
+        // Specify an array with the index of the argument that receives the element.
+        elementParameters?: number[]
+        result?:
+            | "element" // The method returns the element.
+            | "array" // The method returns an array with some of the elements.]
+            | "iterator" // The method returns an iterator with some of the elements.
+    }
+} = {
+    toString: {},
+    toLocaleString: {},
+    pop: { result: "element" },
+    push: {},
+    concat: { result: "array" },
+    join: {},
+    reverse: { result: "array" },
+    shift: { result: "element" },
+    slice: { result: "array" },
+    sort: { elementParameters: [0, 1], result: "array" },
+    splice: { result: "array" },
+    unshift: {},
+    indexOf: {},
+    lastIndexOf: {},
+    every: { elementParameters: [0] },
+    some: { elementParameters: [0] },
+    forEach: { elementParameters: [0] },
+    map: { elementParameters: [0] },
+    filter: { elementParameters: [0], result: "array" },
+    reduce: { elementParameters: [1] },
+    reduceRight: { elementParameters: [1] },
+    // ES2015
+    find: { elementParameters: [0], result: "element" },
+    findIndex: { elementParameters: [0] },
+    fill: {},
+    copyWithin: { result: "array" },
+    entries: {},
+    keys: {},
+    values: { result: "iterator" },
+    // ES2016
+    includes: {},
+    // ES2019
+    flatMap: { elementParameters: [0] },
+    flat: {},
+    // ES2022
+    at: { result: "element" },
+}
+
 /**
  * Extracts the usage of the capturing group.
  */
@@ -234,11 +284,9 @@ function* iterateForMember(
     object: Expression,
     ctx: ExtractCapturingGroupReferencesContext,
 ): Iterable<CapturingGroupReference> {
-    const parent = getParent(memberExpression)
+    const parent = getCallExpressionFromCalleeExpression(memberExpression)
     if (
         !parent ||
-        parent.type !== "CallExpression" ||
-        parent.callee !== memberExpression ||
         !isKnownMethodCall(parent, {
             test: 1,
             exec: 1,
@@ -335,7 +383,7 @@ function* iterateForStringReplace(
 
 /** Iterate the capturing group references for String.prototype.matchAll(). */
 function* iterateForStringMatchAll(
-    node: KnownMethodCall,
+    node: CallExpression,
     argument: Expression,
     ctx: ExtractCapturingGroupReferencesContext,
 ): Iterable<CapturingGroupReference> {
@@ -351,37 +399,41 @@ function* iterateForStringMatchAll(
             return
         }
         if (hasNameRef(iterationRef)) {
+            if (
+                iterationRef.type === "member" &&
+                isWellKnownArrayMethodName(iterationRef.name)
+            ) {
+                const call = getCallExpressionFromCalleeExpression(
+                    iterationRef.node,
+                )
+                if (call) {
+                    for (const cgRef of iterateForArrayMethodOfStringMatchAll(
+                        call,
+                        iterationRef.name,
+                        argument,
+                        ctx,
+                    )) {
+                        useRet = true
+                        yield cgRef
+                        if (cgRef.type === "UnknownRef") {
+                            return
+                        }
+                    }
+                }
+                continue
+            }
             if (Number.isNaN(Number(iterationRef.name))) {
                 // Not aimed to iteration.
                 continue
             }
         }
         for (const ref of iterationRef.extractPropertyReferences()) {
-            if (hasNameRef(ref)) {
-                if (ref.name === "groups") {
-                    for (const namedRef of ref.extractPropertyReferences()) {
-                        useRet = true
-                        yield getNamedArrayRef(namedRef)
-                    }
-                } else {
-                    if (
-                        ref.name === "input" ||
-                        ref.name === "index" ||
-                        ref.name === "indices"
-                    ) {
-                        continue
-                    }
-                    useRet = true
-                    yield getIndexArrayRef(ref)
-                }
-            } else {
+            for (const cgRef of iterateForRegExpMatchArrayReference(ref)) {
                 useRet = true
-                yield {
-                    type: "UnknownRef",
-                    kind: "array",
-                    prop: ref,
+                yield cgRef
+                if (cgRef.type === "UnknownRef") {
+                    return
                 }
-                return
             }
         }
     }
@@ -420,28 +472,11 @@ function* iterateForExecResult(
     ctx: ExtractCapturingGroupReferencesContext,
 ): Iterable<CapturingGroupReference> {
     for (const ref of extractPropertyReferences(node, ctx.context)) {
-        if (hasNameRef(ref)) {
-            if (ref.name === "groups") {
-                for (const namedRef of ref.extractPropertyReferences()) {
-                    yield getNamedArrayRef(namedRef)
-                }
-            } else {
-                if (
-                    ref.name === "input" ||
-                    ref.name === "index" ||
-                    ref.name === "indices"
-                ) {
-                    continue
-                }
-                yield getIndexArrayRef(ref)
+        for (const cgRef of iterateForRegExpMatchArrayReference(ref)) {
+            yield cgRef
+            if (cgRef.type === "UnknownRef") {
+                return
             }
-        } else {
-            yield {
-                type: "UnknownRef",
-                kind: "array",
-                prop: ref,
-            }
-            return
         }
     }
 }
@@ -590,6 +625,75 @@ function* iterateForReplacerFunction(
     }
 }
 
+/** Iterate the capturing group references for RegExpMatchArray reference. */
+function* iterateForRegExpMatchArrayReference(
+    ref: PropertyReference,
+): Iterable<CapturingGroupReference> {
+    if (hasNameRef(ref)) {
+        if (ref.name === "groups") {
+            for (const namedRef of ref.extractPropertyReferences()) {
+                yield getNamedArrayRef(namedRef)
+            }
+        } else {
+            if (
+                ref.name === "input" ||
+                ref.name === "index" ||
+                ref.name === "indices"
+            ) {
+                return
+            }
+            yield getIndexArrayRef(ref)
+        }
+    } else {
+        yield {
+            type: "UnknownRef",
+            kind: "array",
+            prop: ref,
+        }
+    }
+}
+
+/** Iterate the capturing group references for Array method of String.prototype.matchAll(). */
+function* iterateForArrayMethodOfStringMatchAll(
+    node: CallExpression,
+    methodsName: ArrayMethodName,
+    argument: Expression,
+    ctx: ExtractCapturingGroupReferencesContext,
+): Iterable<CapturingGroupReference> {
+    const arrayMethod = WELL_KNOWN_ARRAY_METHODS[methodsName]
+    if (
+        arrayMethod.elementParameters &&
+        node.arguments[0] &&
+        (node.arguments[0].type === "FunctionExpression" ||
+            node.arguments[0].type === "ArrowFunctionExpression")
+    ) {
+        const fnNode = node.arguments[0]
+        for (const index of arrayMethod.elementParameters) {
+            const param = fnNode.params[index]
+            if (param) {
+                for (const ref of extractPropertyReferencesForPattern(
+                    param,
+                    ctx.context,
+                )) {
+                    yield* iterateForRegExpMatchArrayReference(ref)
+                }
+            }
+        }
+    }
+    if (arrayMethod.result) {
+        if (arrayMethod.result === "element") {
+            for (const ref of extractPropertyReferences(node, ctx.context)) {
+                yield* iterateForRegExpMatchArrayReference(ref)
+            }
+        } else if (
+            arrayMethod.result === "array" ||
+            arrayMethod.result === "iterator"
+        ) {
+            yield* iterateForStringMatchAll(node, argument, ctx)
+        }
+    }
+}
+
 /** Checks whether the given reference is a named reference. */
 function hasNameRef(
     ref: PropertyReference,
@@ -637,4 +741,24 @@ function getNamedArrayRef(
         ref: null,
         prop: namedRef,
     }
+}
+
+/** Gets the CallExpression from the given callee node. */
+function getCallExpressionFromCalleeExpression(
+    expression: Expression,
+): CallExpression | null {
+    const parent = getParent(expression)
+    if (
+        !parent ||
+        parent.type !== "CallExpression" ||
+        parent.callee !== expression
+    ) {
+        return null
+    }
+    return parent
+}
+
+/** Checks whether the given name is a well known array method name. */
+function isWellKnownArrayMethodName(name: string): name is ArrayMethodName {
+    return Boolean(WELL_KNOWN_ARRAY_METHODS[name as ArrayMethodName])
 }
