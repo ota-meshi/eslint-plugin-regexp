@@ -22,6 +22,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(?:yml|ya?ml)$/`,
         `/(?:yml|ya?ml)/`,
         `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
+        `/c+|[a-f]/`,
         String.raw`/b+(?:\w+|[+-]?\d+)/`,
         String.raw`/A+_|A*_/`,
         String.raw`/(?:A+|A*)_/`,
@@ -389,6 +390,32 @@ tester.run("no-dupe-disjunctions", rule as any, {
             code: String(/\d|[a-z]|_|\w/i),
             errors: [
                 "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
+            ],
+        },
+        {
+            code: String(/a+|a|b|c/),
+            errors: [
+                "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+            ],
+        },
+        {
+            code: String(/a+|[abc]/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[abc]' that go through this element are a strict subset of 'a+'. This element can be removed.",
+                    column: 6,
+                },
+            ],
+        },
+        {
+            code: String(/a+|[a-c]/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[a-c]' that go through this element are a strict subset of 'a+'. This element can be removed.",
+                    column: 6,
+                },
             ],
         },
         {
