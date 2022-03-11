@@ -20,6 +20,7 @@ import {
     JS,
     visitAst,
     transform,
+    isDisjointWith,
 } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
@@ -455,7 +456,7 @@ function* findPrefixDuplicationNfa(
         if (!partial) {
             const overlapping = alternatives
                 .slice(0, i)
-                .filter(([otherNfa]) => !nfa.isDisjointWith(otherNfa))
+                .filter(([otherNfa]) => !isDisjointWith(nfa, otherNfa))
 
             if (overlapping.length >= 1) {
                 const othersNfa = unionAll(overlapping.map(([n]) => n))
@@ -489,7 +490,7 @@ function* findDuplicationNfa(
         const { nfa, partial } = toNFA(parser, alternative)
 
         const overlapping = previous.filter(
-            ([otherNfa]) => !nfa.isDisjointWith(otherNfa),
+            ([otherNfa]) => !isDisjointWith(nfa, otherNfa),
         )
 
         if (overlapping.length >= 1) {
