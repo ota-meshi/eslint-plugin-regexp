@@ -137,7 +137,7 @@ type ExtractCapturingGroupReferencesContext = {
 }
 
 type ArrayMethodName = Exclude<keyof unknown[], "length" | symbol | number>
-const WILL_KNOWN_ARRAY_METHODS: {
+const WELL_KNOWN_ARRAY_METHODS: {
     [key in ArrayMethodName]: {
         iteration?: number[]
         result?: "element" | "array" | "iterator"
@@ -396,7 +396,7 @@ function* iterateForStringMatchAll(
         if (hasNameRef(iterationRef)) {
             if (
                 iterationRef.type === "member" &&
-                isWillKnownArrayMethodName(iterationRef.name)
+                isWellKnownArrayMethodName(iterationRef.name)
             ) {
                 const call = getCallExpressionFromCalleeExpression(
                     iterationRef.node,
@@ -655,7 +655,7 @@ function* iterateForArrayMethodOfStringMatchAll(
     argument: Expression,
     ctx: ExtractCapturingGroupReferencesContext,
 ): Iterable<CapturingGroupReference> {
-    const arrayMethod = WILL_KNOWN_ARRAY_METHODS[methodsName]
+    const arrayMethod = WELL_KNOWN_ARRAY_METHODS[methodsName]
     if (
         arrayMethod.iteration &&
         node.arguments[0] &&
@@ -754,6 +754,6 @@ function getCallExpressionFromCalleeExpression(
 }
 
 /** Checks whether the given name is a well known array method name. */
-function isWillKnownArrayMethodName(name: string): name is ArrayMethodName {
-    return Boolean(WILL_KNOWN_ARRAY_METHODS[name as ArrayMethodName])
+function isWellKnownArrayMethodName(name: string): name is ArrayMethodName {
+    return Boolean(WELL_KNOWN_ARRAY_METHODS[name as ArrayMethodName])
 }
