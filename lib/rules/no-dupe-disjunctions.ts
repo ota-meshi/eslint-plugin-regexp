@@ -197,6 +197,11 @@ function toNFA(
  * This will yield actual alternative nodes as well as character class
  * elements. The elements of a non-negated character class (e.g. `[abc]`) can
  * be thought of as an alternative. That's why they are returned.
+ *
+ * Note: If a group contains only a single alternative, then this group won't
+ * be yielded by this function. This is because the partial NFA of that single
+ * alternative is that same as the partial NFA of the parent alternative of the
+ * group. A similar condition applies for the elements of character classes.
  */
 function* iterateNestedAlternatives(
     alternative: Alternative,
@@ -229,7 +234,7 @@ function* iterateNestedAlternatives(
                     nested.push(charElement)
                 }
             }
-            if (nested.length >= 1) yield* nested
+            if (nested.length > 1) yield* nested
         }
     }
 }
