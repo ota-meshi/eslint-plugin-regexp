@@ -26,7 +26,7 @@ class Context {
         this.alternative = alternative
 
         const ancestors = new Set<AST.Node>()
-        for (let n: AST.Node | null = alternative.parent; n; n = n.parent) {
+        for (let n: AST.Node | null = alternative; n; n = n.parent) {
             ancestors.add(n)
         }
         this.ancestors = ancestors

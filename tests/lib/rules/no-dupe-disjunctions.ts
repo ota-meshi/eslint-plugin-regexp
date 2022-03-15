@@ -14,7 +14,6 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/a|b/`,
         `/(a|b)/`,
         `/(?:a|b)/`,
-        `/((?:ab|ba)|(?:ba|ac))/`,
         `/(?:js|json)$/`,
         `/(?:js|jso?n?)$/`,
         `/(?:js|json)abc/`,
@@ -403,11 +402,21 @@ tester.run("no-dupe-disjunctions", rule as any, {
             ],
         },
         {
+            code: String(/((?:ab|ba)|(?:ba|ac))/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(?:ba|ac)' that go through this element are a strict subset of '(?:ab|ba)'. This element can be removed.",
+                    column: 16,
+                },
+            ],
+        },
+        {
             code: String(/a+|(?:a|b|c)/),
             errors: [
                 {
                     message:
-                        "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+                        "Unexpected useless element. All paths of '(?:a|b|c)' that go through this element are a strict subset of 'a+'. This element can be removed.",
                     column: 8,
                 },
             ],
@@ -447,7 +456,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '(a|b)a' that go through this element are already covered by 'a'. This element can be removed.",
+                        "Unexpected useless element. All paths of '(a|b)a' that go through this element are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.",
                     column: 5,
                 },
             ],
