@@ -1123,6 +1123,8 @@ export default createRule("no-dupe-disjunctions", {
                         ? result.nested
                         : result.alternative
 
+                const loc = getRegexpLocation(reportAlternative)
+
                 const cap = hasSomeDescendant(
                     reportAlternative,
                     (d) => d.type === "CapturingGroup",
@@ -1138,7 +1140,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "Duplicate":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.alternative),
+                            loc,
                             messageId: "duplicate",
                             data: { exp, cap, others },
                         })
@@ -1147,7 +1149,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "Subset":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.alternative),
+                            loc,
                             messageId: "subset",
                             data: { exp, cap, others },
                         })
@@ -1156,7 +1158,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "NestedSubset":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.nested),
+                            loc,
                             messageId: "nestedSubset",
                             data: {
                                 exp,
@@ -1171,7 +1173,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "PrefixSubset":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.alternative),
+                            loc,
                             messageId: "prefixSubset",
                             data: { exp, cap, others },
                         })
@@ -1180,7 +1182,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "PrefixNestedSubset":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.nested),
+                            loc,
                             messageId: "prefixNestedSubset",
                             data: {
                                 exp,
@@ -1195,7 +1197,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "Superset":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.alternative),
+                            loc,
                             messageId: "superset",
                             data: { exp, cap, others },
                         })
@@ -1204,7 +1206,7 @@ export default createRule("no-dupe-disjunctions", {
                     case "Overlap":
                         context.report({
                             node,
-                            loc: getRegexpLocation(result.alternative),
+                            loc,
                             messageId: "overlap",
                             data: {
                                 exp,
