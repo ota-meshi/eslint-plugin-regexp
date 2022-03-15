@@ -398,6 +398,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(?:ba|ac)' that go through 'ba' are a strict subset of '(?:ab|ba)'. This element can be removed.",
                     column: 16,
+                    suggestions: [{ output: String(/((?:ab|ba)|(?:ac))/) }],
                 },
             ],
         },
@@ -408,6 +409,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
                     column: 5,
+                    suggestions: [{ output: String(/a+|b|c/) }],
                 },
             ],
         },
@@ -418,6 +420,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(?:a|b|c)' that go through 'a' are a strict subset of 'a+'. This element can be removed.",
                     column: 8,
+                    suggestions: [{ output: String(/a+|(?:b|c)/) }],
                 },
             ],
         },
@@ -428,6 +431,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[abc]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
+                    suggestions: [{ output: String(/a+|[bc]/) }],
                 },
             ],
         },
@@ -438,6 +442,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[a-c]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
+                    suggestions: [{ output: String(/a+|[b-c]/) }],
                 },
             ],
         },
@@ -448,6 +453,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
                     column: 4,
+                    suggestions: [{ output: String(/a|ba/) }],
                 },
             ],
         },
@@ -458,6 +464,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(a|b)a' that go through 'a' are already covered by 'a'. This element can be removed.",
                     column: 5,
+                    suggestions: [{ output: String(/a|(b)a/) }],
                 },
             ],
         },
@@ -468,6 +475,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(?:(a)|b)a' that go through '(a)' are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.",
                     column: 7,
+                    suggestions: [],
                 },
             ],
         },
@@ -478,6 +486,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.",
                     column: 5,
+                    suggestions: [{ output: String(/a|[b]a/) }],
                 },
             ],
         },
