@@ -14,7 +14,6 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/a|b/`,
         `/(a|b)/`,
         `/(?:a|b)/`,
-        `/((?:ab|ba)|(?:ba|ac))/`,
         `/(?:js|json)$/`,
         `/(?:js|jso?n?)$/`,
         `/(?:js|json)abc/`,
@@ -22,6 +21,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(?:yml|ya?ml)$/`,
         `/(?:yml|ya?ml)/`,
         `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
+        `/c+|[a-f]/`,
         String.raw`/b+(?:\w+|[+-]?\d+)/`,
         String.raw`/A+_|A*_/`,
         String.raw`/(?:A+|A*)_/`,
@@ -389,6 +389,96 @@ tester.run("no-dupe-disjunctions", rule as any, {
             code: String(/\d|[a-z]|_|\w/i),
             errors: [
                 "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
+            ],
+        },
+        {
+            code: String(/((?:ab|ba)|(?:ba|ac))/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(?:ba|ac)' that go through 'ba' are a strict subset of '(?:ab|ba)'. This element can be removed.",
+                    column: 16,
+                },
+            ],
+        },
+        {
+            code: String(/a+|a|b|c/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+                    column: 5,
+                },
+            ],
+        },
+        {
+            code: String(/a+|(?:a|b|c)/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(?:a|b|c)' that go through 'a' are a strict subset of 'a+'. This element can be removed.",
+                    column: 8,
+                },
+            ],
+        },
+        {
+            code: String(/a+|[abc]/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[abc]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
+                    column: 6,
+                },
+            ],
+        },
+        {
+            code: String(/a+|[a-c]/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[a-c]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
+                    column: 6,
+                },
+            ],
+        },
+        {
+            code: String(/a|aa|ba/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                    column: 4,
+                },
+            ],
+        },
+        {
+            code: String(/a|(a|b)a/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(a|b)a' that go through 'a' are already covered by 'a'. This element can be removed.",
+                    column: 5,
+                },
+            ],
+        },
+        {
+            code: String(/a|(?:(a)|b)a/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(?:(a)|b)a' that go through '(a)' are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.",
+                    column: 7,
+                },
+            ],
+        },
+        {
+            code: String(/a|[ab]a/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.",
+                    column: 5,
+                },
             ],
         },
         {
