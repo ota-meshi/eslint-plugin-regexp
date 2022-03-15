@@ -396,7 +396,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '(?:ba|ac)' that go through this element are a strict subset of '(?:ab|ba)'. This element can be removed.",
+                        "Unexpected useless element. All paths of '(?:ba|ac)' that go through 'ba' are a strict subset of '(?:ab|ba)'. This element can be removed.",
                     column: 16,
                 },
             ],
@@ -416,7 +416,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '(?:a|b|c)' that go through this element are a strict subset of 'a+'. This element can be removed.",
+                        "Unexpected useless element. All paths of '(?:a|b|c)' that go through 'a' are a strict subset of 'a+'. This element can be removed.",
                     column: 8,
                 },
             ],
@@ -426,7 +426,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '[abc]' that go through this element are a strict subset of 'a+'. This element can be removed.",
+                        "Unexpected useless element. All paths of '[abc]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
                 },
             ],
@@ -436,7 +436,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '[a-c]' that go through this element are a strict subset of 'a+'. This element can be removed.",
+                        "Unexpected useless element. All paths of '[a-c]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
                 },
             ],
@@ -456,7 +456,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '(a|b)a' that go through this element are already covered by 'a'. This element can be removed.",
+                        "Unexpected useless element. All paths of '(a|b)a' that go through 'a' are already covered by 'a'. This element can be removed.",
                     column: 5,
                 },
             ],
@@ -466,7 +466,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '(?:(a)|b)a' that go through this element are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.",
+                        "Unexpected useless element. All paths of '(?:(a)|b)a' that go through '(a)' are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.",
                     column: 7,
                 },
             ],
@@ -476,7 +476,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected useless element. All paths of '[ab]a' that go through this element are already covered by 'a'. This element can be removed.",
+                        "Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.",
                     column: 5,
                 },
             ],

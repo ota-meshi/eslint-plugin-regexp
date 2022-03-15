@@ -32,7 +32,7 @@ import {
 import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { canReorder } from "../utils/reorder-alternatives"
-import { mention } from "../utils/mention"
+import { mention, mentionChar } from "../utils/mention"
 import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
 
@@ -829,6 +829,14 @@ function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }
 
+/** Mentions the given nested alternative. */
+function mentionNested(nested: NestedAlternative): string {
+    if (nested.type === "Alternative") {
+        return mention(nested)
+    }
+    return mentionChar(nested)
+}
+
 const enum ReportOption {
     all = "all",
     trivial = "trivial",
@@ -888,11 +896,11 @@ export default createRule("no-dupe-disjunctions", {
                 "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
             subset: "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
             nestedSubset:
-                "Unexpected useless element. All paths of {{alternative}} that go through this element are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
+                "Unexpected useless element. All paths of {{root}} that go through {{nested}} are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
             prefixSubset:
                 "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
             prefixNestedSubset:
-                "Unexpected useless element. All paths of {{alternative}} that go through this element are already covered by {{others}}. This element can be removed.{{cap}}",
+                "Unexpected useless element. All paths of {{root}} that go through {{nested}} are already covered by {{others}}. This element can be removed.{{cap}}",
             superset:
                 "Unexpected superset. This alternative is a superset of {{others}}. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
@@ -1154,7 +1162,8 @@ export default createRule("no-dupe-disjunctions", {
                                 exp,
                                 cap,
                                 others,
-                                alternative: mention(result.alternative),
+                                root: mention(result.alternative),
+                                nested: mentionNested(result.nested),
                             },
                         })
                         break
@@ -1177,7 +1186,8 @@ export default createRule("no-dupe-disjunctions", {
                                 exp,
                                 cap,
                                 others,
-                                alternative: mention(result.alternative),
+                                root: mention(result.alternative),
+                                nested: mentionNested(result.nested),
                             },
                         })
                         break
