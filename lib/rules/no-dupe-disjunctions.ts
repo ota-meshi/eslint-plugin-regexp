@@ -888,11 +888,11 @@ export default createRule("no-dupe-disjunctions", {
                 "Unexpected duplicate alternative. This alternative can be removed.{{cap}}{{exp}}",
             subset: "Unexpected useless alternative. This alternative is a strict subset of {{others}} and can be removed.{{cap}}{{exp}}",
             nestedSubset:
-                "Unexpected useless element. All paths of '{{alternative}}' that go through this element are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
+                "Unexpected useless element. All paths of {{alternative}} that go through this element are a strict subset of {{others}}. This element can be removed.{{cap}}{{exp}}",
             prefixSubset:
                 "Unexpected useless alternative. This alternative is already covered by {{others}} and can be removed.{{cap}}",
             prefixNestedSubset:
-                "Unexpected useless element. All paths of '{{alternative}}' that go through this element are already covered by {{others}}. This element can be removed.{{cap}}",
+                "Unexpected useless element. All paths of {{alternative}} that go through this element are already covered by {{others}}. This element can be removed.{{cap}}",
             superset:
                 "Unexpected superset. This alternative is a superset of {{others}}. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
@@ -1154,7 +1154,7 @@ export default createRule("no-dupe-disjunctions", {
                                 exp,
                                 cap,
                                 others,
-                                alternative: result.alternative.raw,
+                                alternative: mention(result.alternative),
                             },
                         })
                         break
@@ -1177,7 +1177,7 @@ export default createRule("no-dupe-disjunctions", {
                                 exp,
                                 cap,
                                 others,
-                                alternative: result.alternative.raw,
+                                alternative: mention(result.alternative),
                             },
                         })
                         break
