@@ -1109,8 +1109,14 @@ export default createRule("no-dupe-disjunctions", {
                     exp = ""
                 }
 
+                const reportAlternative =
+                    result.type === "NestedSubset" ||
+                    result.type === "PrefixNestedSubset"
+                        ? result.nested
+                        : result.alternative
+
                 const cap = hasSomeDescendant(
-                    result.alternative,
+                    reportAlternative,
                     (d) => d.type === "CapturingGroup",
                 )
                     ? " Careful! This alternative contains capturing groups which might be difficult to remove."
