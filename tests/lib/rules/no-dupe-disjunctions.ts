@@ -395,7 +395,21 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             code: String(/a+|a|b|c/),
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+                    column: 5,
+                },
+            ],
+        },
+        {
+            code: String(/a+|(?:a|b|c)/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
+                    column: 8,
+                },
             ],
         },
         {
@@ -425,6 +439,16 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
                     column: 4,
+                },
+            ],
+        },
+        {
+            code: String(/a|(a|b)a/),
+            errors: [
+                {
+                    message:
+                        "Unexpected useless element. All paths of '(a|b)a' that go through this element are already covered by 'a'. This element can be removed.",
+                    column: 5,
                 },
             ],
         },
