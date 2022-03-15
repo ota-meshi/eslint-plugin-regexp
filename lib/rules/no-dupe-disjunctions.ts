@@ -131,19 +131,10 @@ function containsAssertionsOrUnknowns(
  * backreferences.
  */
 function isNonRegular(node: Node): boolean {
-    try {
-        visitRegExpAST(node, {
-            onAssertionEnter() {
-                throw new Error()
-            },
-            onBackreferenceEnter() {
-                throw new Error()
-            },
-        })
-        return false
-    } catch (error) {
-        return true
-    }
+    return hasSomeDescendant(
+        node,
+        (d) => d.type === "Assertion" || d.type === "Backreference",
+    )
 }
 
 const creationOption: Transformers.CreationOptions = {
