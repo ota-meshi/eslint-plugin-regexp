@@ -29,7 +29,7 @@ import {
     getMatchingDirection,
     getEffectiveMaximumRepetition,
 } from "regexp-ast-analysis"
-import { RegExpParser, visitRegExpAST } from "regexpp"
+import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { canReorder } from "../utils/reorder-alternatives"
 import { mention } from "../utils/mention"
