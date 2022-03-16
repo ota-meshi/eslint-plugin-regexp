@@ -114,7 +114,7 @@ export default createRule("no-unused-capturing-group", {
                     ref.type === "ReplacerFunctionRef"
                 ) {
                     if (ref.kind === "index") {
-                        if (ref.ref) {
+                        if (ref.ref != null) {
                             indexRefs.push(ref.ref)
                         } else {
                             return null
