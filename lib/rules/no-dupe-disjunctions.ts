@@ -1164,6 +1164,12 @@ export default createRule("no-dupe-disjunctions", {
             function getSuggestions(
                 result: Result,
             ): Rule.SuggestionReportDescriptor[] {
+                if (result.type === "Overlap" || result.type === "Superset") {
+                    // the types of results cannot be trivially fixed by
+                    // removing an alternative.
+                    return []
+                }
+
                 const alternative =
                     result.type === "NestedSubset" ||
                     result.type === "PrefixNestedSubset"
@@ -1176,12 +1182,6 @@ export default createRule("no-dupe-disjunctions", {
                 )
                 if (containsCapturingGroup) {
                     // we can't just remove a capturing group
-                    return []
-                }
-
-                if (result.type === "Overlap" || result.type === "Superset") {
-                    // the types of results cannot be trivially fixed by
-                    // removing an alternative.
                     return []
                 }
 
