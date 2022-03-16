@@ -134,6 +134,20 @@ tester.run("no-unused-capturing-group", rule as any, {
         String.raw`
         const matches = [...('2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g))]
         `,
+        String.raw`
+        const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[1])
+        `,
+        String.raw`
+        ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1], m[2]))
+        `,
+        String.raw`
+        const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.b === m.groups.c);
+        console.log(filtered[0].groups.a);
+        `,
+        String.raw`
+        const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.b === m.groups.c);
+        console.log(element.groups.a);
+        `,
     ],
     invalid: [
         {
@@ -468,6 +482,53 @@ tester.run("no-unused-capturing-group", rule as any, {
         {
             code: `'str'.replace(/(?<foo>\\w+)/, () => {});`,
             errors: ["Capturing group 'foo' is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
+            `,
+            output: String.raw`
+            const bs = [...'abc_abc'.matchAll(/a(?:b)/g)].map(m => m[0])
+            `,
+            options: [{ fixable: true }],
+            errors: ["Capturing group number 1 is defined but never used."],
+        },
+        {
+            code: String.raw`
+            ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1]))
+            `,
+            output: String.raw`
+            ;[...'abc_abc'.matchAll(/a(b)(?:c)/g)].forEach(m => console.log(m[1]))
+            `,
+            options: [{ fixable: true }],
+            errors: ["Capturing group number 2 is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.b === m.groups.c);
+            console.log(filtered[0].groups.b);
+            `,
+            output: null,
+            options: [{ fixable: true }],
+            errors: ["Capturing group 'a' is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.a === m.groups.c);
+            console.log(filtered[0].groups.a);
+            `,
+            output: null,
+            options: [{ fixable: true }],
+            errors: ["Capturing group 'b' is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.a === m.groups.c);
+            console.log(element.groups.a);
+            `,
+            output: null,
+            options: [{ fixable: true }],
+            errors: ["Capturing group 'b' is defined but never used."],
         },
     ],
 })
