@@ -14,13 +14,12 @@ import {
     createRule,
     defineRegexpVisitor,
     toCharSetSource,
-    mightCreateNewElement,
+    fixRemoveCharacterClassElement,
 } from "../utils"
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toCharSet } from "regexp-ast-analysis"
-import type { Rule } from "eslint"
 import { mentionChar } from "../utils/mention"
 
 interface Grouping {
@@ -106,61 +105,6 @@ function inRange({ min, max }: CharRange, char: number): boolean {
     return min <= char && char <= max
 }
 
-/**
- * Removes the given character class element from its character class.
- */
-function fixRemove(
-    context: RegExpContext,
-    element: CharacterClassElement,
-): Rule.ReportDescriptor["fix"] {
-    const parent = element.parent
-    if (parent.type !== "CharacterClass") {
-        throw new Error("Only call this function for character class elements.")
-    }
-
-    return context.fixReplaceNode(element, () => {
-        const textBefore = parent.raw.slice(0, element.start - parent.start)
-        const textAfter = parent.raw.slice(element.end - parent.start)
-
-        if (mightCreateNewElement(textBefore, textAfter)) {
-            return null
-        }
-
-        const elementBefore: CharacterClassElement | undefined =
-            parent.elements[parent.elements.indexOf(element) - 1]
-        const elementAfter: CharacterClassElement | undefined =
-            parent.elements[parent.elements.indexOf(element) + 1]
-
-        if (
-            elementBefore &&
-            elementAfter &&
-            elementBefore.type === "Character" &&
-            elementBefore.raw === "-" &&
-            elementAfter.type === "Character"
-        ) {
-            // e.g. [\s0-\s9] -> [\s0-9] is incorrect
-            return null
-        }
-
-        // add a backslash if ...
-        if (
-            // ... the text character is a dash
-            // e.g. [a\w-b] -> [a\-b], [\w-b] -> [-b], [\s\w-b] -> [\s-b]
-            (textAfter.startsWith("-") &&
-                elementBefore &&
-                elementBefore.type === "Character") ||
-            // ... the next character is a caret and the caret will then be the
-            // first character in the character class
-            // e.g. [a^b] -> [\^b], [ba^] -> [b^]
-            (textAfter.startsWith("^") && !parent.negate && !elementBefore)
-        ) {
-            return "\\"
-        }
-
-        return ""
-    })
-}
-
 export default createRule("no-dupe-characters-character-class", {
     meta: {
         type: "suggestion",
@@ -202,7 +146,10 @@ export default createRule("no-dupe-characters-character-class", {
                     data: {
                         duplicate: mentionChar(duplicate),
                     },
-                    fix: fixRemove(regexpContext, duplicate),
+                    fix: fixRemoveCharacterClassElement(
+                        regexpContext,
+                        duplicate,
+                    ),
                 })
             } else {
                 context.report({
@@ -213,7 +160,10 @@ export default createRule("no-dupe-characters-character-class", {
                         duplicate: mentionChar(duplicate),
                         element: mentionChar(element),
                     },
-                    fix: fixRemove(regexpContext, duplicate),
+                    fix: fixRemoveCharacterClassElement(
+                        regexpContext,
+                        duplicate,
+                    ),
                 })
             }
         }
@@ -259,7 +209,10 @@ export default createRule("no-dupe-characters-character-class", {
                     subsetElement: mentionChar(subsetElement),
                     element: mentionChar(element),
                 },
-                fix: fixRemove(regexpContext, subsetElement),
+                fix: fixRemoveCharacterClassElement(
+                    regexpContext,
+                    subsetElement,
+                ),
             })
         }
 
@@ -283,7 +236,10 @@ export default createRule("no-dupe-characters-character-class", {
                         .map((e) => e.raw)
                         .join("")}' (${elements.map(mentionChar).join(", ")})`,
                 },
-                fix: fixRemove(regexpContext, subsetElement),
+                fix: fixRemoveCharacterClassElement(
+                    regexpContext,
+                    subsetElement,
+                ),
             })
         }
 

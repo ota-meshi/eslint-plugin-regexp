@@ -9,7 +9,12 @@ import type {
     Quantifier,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    fixRemoveCharacterClassElement,
+    fixRemoveAlternative,
+} from "../utils"
 import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
@@ -35,6 +40,8 @@ import { canReorder } from "../utils/reorder-alternatives"
 import { mention, mentionChar } from "../utils/mention"
 import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
+import type { Rule } from "eslint"
+import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -837,6 +844,34 @@ function mentionNested(nested: NestedAlternative): string {
     return mentionChar(nested)
 }
 
+/**
+ * Returns a fix that removes the given alternative.
+ */
+function fixRemoveNestedAlternative(
+    context: RegExpContext,
+    alternative: NestedAlternative,
+) {
+    switch (alternative.type) {
+        case "Alternative":
+            return fixRemoveAlternative(context, alternative)
+
+        case "Character":
+        case "CharacterClassRange":
+        case "CharacterSet": {
+            if (alternative.parent.type !== "CharacterClass") {
+                // This isn't supposed to happen. We can't just remove the only
+                // alternative of its parent
+                return () => null
+            }
+
+            return fixRemoveCharacterClassElement(context, alternative)
+        }
+
+        default:
+            throw assertNever(alternative)
+    }
+}
+
 const enum ReportOption {
     all = "all",
     trivial = "trivial",
@@ -873,6 +908,7 @@ export default createRule("no-dupe-disjunctions", {
             category: "Possible Errors",
             recommended: true,
         },
+        hasSuggestions: true,
         schema: [
             {
                 type: "object",
@@ -905,6 +941,9 @@ export default createRule("no-dupe-disjunctions", {
                 "Unexpected superset. This alternative is a superset of {{others}}. It might be possible to remove the other alternative(s).{{cap}}{{exp}}",
             overlap:
                 "Unexpected overlap. This alternative overlaps with {{others}}. The overlap is {{expr}}.{{cap}}{{exp}}",
+
+            remove: "Remove the {{alternative}} {{type}}.",
+            replaceRange: "Replace {{range}} with {{replacement}}.",
         },
         type: "suggestion", // "problem",
     },
@@ -916,6 +955,8 @@ export default createRule("no-dupe-disjunctions", {
             context.options[0]?.reportUnreachable ?? ReportUnreachable.certain
         const report: ReportOption =
             context.options[0]?.report ?? ReportOption.trivial
+
+        const allowedRanges = getAllowedCharRanges(undefined, context)
 
         /**
          * Create visitor
@@ -1104,6 +1145,103 @@ export default createRule("no-dupe-disjunctions", {
                 }
             }
 
+            /** Prints the given character. */
+            function printChar(char: number): string {
+                if (inRange(allowedRanges, char)) {
+                    return String.fromCodePoint(char)
+                }
+
+                if (char === 0) return "\\0"
+                if (char <= 0xff)
+                    return `\\x${char.toString(16).padStart(2, "0")}`
+                if (char <= 0xffff)
+                    return `\\u${char.toString(16).padStart(4, "0")}`
+
+                return `\\u{${char.toString(16)}}`
+            }
+
+            /** Returns suggestions for fixing the given report */
+            function getSuggestions(
+                result: Result,
+            ): Rule.SuggestionReportDescriptor[] {
+                if (result.type === "Overlap" || result.type === "Superset") {
+                    // the types of results cannot be trivially fixed by
+                    // removing an alternative.
+                    return []
+                }
+
+                const alternative =
+                    result.type === "NestedSubset" ||
+                    result.type === "PrefixNestedSubset"
+                        ? result.nested
+                        : result.alternative
+
+                const containsCapturingGroup = hasSomeDescendant(
+                    alternative,
+                    (d) => d.type === "CapturingGroup",
+                )
+                if (containsCapturingGroup) {
+                    // we can't just remove a capturing group
+                    return []
+                }
+
+                if (
+                    alternative.type === "Character" &&
+                    alternative.parent.type === "CharacterClassRange"
+                ) {
+                    const range = alternative.parent
+
+                    let replacement
+                    if (range.min.value + 1 === range.max.value) {
+                        replacement =
+                            range.min === alternative
+                                ? range.max.raw
+                                : range.min.raw
+                    } else {
+                        if (range.min === alternative) {
+                            // replace with {min+1}-{max}
+                            const min = printChar(range.min.value + 1)
+                            replacement = `${min}-${range.max.raw}`
+                        } else {
+                            // replace with {min}-{max-1}
+                            const max = printChar(range.max.value - 1)
+                            replacement = `${range.min.raw}-${max}`
+                        }
+                    }
+
+                    return [
+                        {
+                            messageId: "replaceRange",
+                            data: {
+                                range: mentionChar(range),
+                                replacement: mention(replacement),
+                            },
+                            fix: regexpContext.fixReplaceNode(
+                                range,
+                                replacement,
+                            ),
+                        },
+                    ]
+                }
+
+                return [
+                    {
+                        messageId: "remove",
+                        data: {
+                            alternative: mentionNested(alternative),
+                            type:
+                                alternative.type === "Alternative"
+                                    ? "alternative"
+                                    : "element",
+                        },
+                        fix: fixRemoveNestedAlternative(
+                            regexpContext,
+                            alternative,
+                        ),
+                    },
+                ]
+            }
+
             /** Report the given result. */
             function reportResult(result: Result, { stared }: FilterInfo) {
                 let exp
@@ -1136,6 +1274,8 @@ export default createRule("no-dupe-disjunctions", {
                     result.others.map((a) => a.raw).join("|"),
                 )
 
+                const suggest = getSuggestions(result)
+
                 switch (result.type) {
                     case "Duplicate":
                         context.report({
@@ -1143,6 +1283,7 @@ export default createRule("no-dupe-disjunctions", {
                             loc,
                             messageId: "duplicate",
                             data: { exp, cap, others },
+                            suggest,
                         })
                         break
 
@@ -1152,6 +1293,7 @@ export default createRule("no-dupe-disjunctions", {
                             loc,
                             messageId: "subset",
                             data: { exp, cap, others },
+                            suggest,
                         })
                         break
 
@@ -1167,6 +1309,7 @@ export default createRule("no-dupe-disjunctions", {
                                 root: mention(result.alternative),
                                 nested: mentionNested(result.nested),
                             },
+                            suggest,
                         })
                         break
 
@@ -1176,6 +1319,7 @@ export default createRule("no-dupe-disjunctions", {
                             loc,
                             messageId: "prefixSubset",
                             data: { exp, cap, others },
+                            suggest,
                         })
                         break
 
@@ -1191,6 +1335,7 @@ export default createRule("no-dupe-disjunctions", {
                                 root: mention(result.alternative),
                                 nested: mentionNested(result.nested),
                             },
+                            suggest,
                         })
                         break
 
@@ -1200,6 +1345,7 @@ export default createRule("no-dupe-disjunctions", {
                             loc,
                             messageId: "superset",
                             data: { exp, cap, others },
+                            suggest,
                         })
                         break
 
@@ -1216,6 +1362,7 @@ export default createRule("no-dupe-disjunctions", {
                                     faToSource(result.overlap, flags),
                                 ),
                             },
+                            suggest,
                         })
                         break
 

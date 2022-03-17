@@ -2,7 +2,9 @@ import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
+    Alternative,
     CapturingGroup,
+    CharacterClassElement,
     Element,
     Node,
     Pattern,
@@ -1164,6 +1166,94 @@ export function mightCreateNewElement(
     }
 
     return false
+}
+
+/**
+ * Removes the given character class element from its character class.
+ *
+ * If the given element is not a direct element of a character class, an error
+ * will be thrown.
+ */
+export function fixRemoveCharacterClassElement(
+    context: RegExpContext,
+    element: CharacterClassElement,
+): (fixer: Rule.RuleFixer) => Rule.Fix | null {
+    const cc = element.parent
+    if (cc.type !== "CharacterClass") {
+        throw new Error("Only call this function for character class elements.")
+    }
+
+    return context.fixReplaceNode(element, () => {
+        const textBefore = cc.raw.slice(0, element.start - cc.start)
+        const textAfter = cc.raw.slice(element.end - cc.start)
+
+        if (mightCreateNewElement(textBefore, textAfter)) {
+            return null
+        }
+
+        const elementBefore: CharacterClassElement | undefined =
+            cc.elements[cc.elements.indexOf(element) - 1]
+        const elementAfter: CharacterClassElement | undefined =
+            cc.elements[cc.elements.indexOf(element) + 1]
+
+        if (
+            elementBefore &&
+            elementAfter &&
+            elementBefore.type === "Character" &&
+            elementBefore.raw === "-" &&
+            elementAfter.type === "Character"
+        ) {
+            // e.g. [\s0-\s9] -> [\s0-9] is incorrect
+            return null
+        }
+
+        // add a backslash if ...
+        if (
+            // ... the text character is a dash
+            // e.g. [a\w-b] -> [a\-b], [\w-b] -> [-b], [\s\w-b] -> [\s-b]
+            (textAfter.startsWith("-") &&
+                elementBefore &&
+                elementBefore.type === "Character") ||
+            // ... the next character is a caret and the caret will then be the
+            // first character in the character class
+            // e.g. [a^b] -> [\^b], [ba^] -> [b^]
+            (textAfter.startsWith("^") && !cc.negate && !elementBefore)
+        ) {
+            return "\\"
+        }
+
+        return ""
+    })
+}
+
+/**
+ * Removes the given alternative from its parent.
+ */
+export function fixRemoveAlternative(
+    context: RegExpContext,
+    alternative: Alternative,
+): (fixer: Rule.RuleFixer) => Rule.Fix | null {
+    const { parent } = alternative
+    if (parent.alternatives.length === 1) {
+        // We can't really remove an alternative if the parent only has one.
+        // So instead, we will replace the alternative with an empty character
+        // set. This ensure that the alternative is *functionally* removed.
+        return context.fixReplaceNode(alternative, "[]")
+    }
+
+    return context.fixReplaceNode(parent, () => {
+        let { start, end } = alternative
+        if (parent.alternatives[0] === alternative) {
+            end++
+        } else {
+            start--
+        }
+
+        const before = parent.raw.slice(0, start - parent.start)
+        const after = parent.raw.slice(end - parent.start)
+
+        return before + after
+    })
 }
 
 /**
