@@ -15,7 +15,6 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(a|b)/`,
         `/(?:a|b)/`,
         `/(?:js|json)$/`,
-        `/(?:js|jso?n?)$/`,
         `/(?:js|json)abc/`,
         `/(?:js|json)?abc/`,
         `/(?:yml|ya?ml)$/`,
@@ -487,6 +486,17 @@ tester.run("no-dupe-disjunctions", rule as any, {
                         "Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.",
                     column: 5,
                     suggestions: [{ output: String(/a|[b]a/) }],
+                },
+            ],
+        },
+        {
+            code: `/(?:js|jso?n?)$/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'jso?n?' and can be removed.",
+                    column: 5,
+                    endColumn: 7,
                 },
             ],
         },

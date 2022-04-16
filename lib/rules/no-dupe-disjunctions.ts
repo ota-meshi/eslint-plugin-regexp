@@ -33,10 +33,10 @@ import {
     hasSomeDescendant,
     getMatchingDirection,
     getEffectiveMaximumRepetition,
+    canReorder,
 } from "regexp-ast-analysis"
 import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { canReorder } from "../utils/reorder-alternatives"
 import { mention, mentionChar } from "../utils/mention"
 import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
