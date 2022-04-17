@@ -15,16 +15,11 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(a|b)/`,
         `/(?:a|b)/`,
         `/(?:js|json)$/`,
-        `/(?:js|jso?n?)$/`,
         `/(?:js|json)abc/`,
         `/(?:js|json)?abc/`,
-        `/(?:yml|ya?ml)$/`,
-        `/(?:yml|ya?ml)/`,
         `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
         `/c+|[a-f]/`,
         String.raw`/b+(?:\w+|[+-]?\d+)/`,
-        String.raw`/A+_|A*_/`,
-        String.raw`/(?:A+|A*)_/`,
         String.raw`/\d*\.\d+_|\d+\.\d*_/`,
         String.raw`/\d*\.\d+|\d+\.\d*/`,
         String.raw`/(?:\d*\.\d+|\d+\.\d*)_/`,
@@ -314,7 +309,13 @@ tester.run("no-dupe-disjunctions", rule as any, {
             ],
         },
         {
-            code: `/(?:ya?ml|yml)/`,
+            code: `/(?:yml|ya?ml)$/`,
+            errors: [
+                "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+            ],
+        },
+        {
+            code: `/(?:yml|ya?ml)/`,
             errors: [
                 "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
             ],
@@ -488,6 +489,29 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 5,
                     suggestions: [{ output: String(/a|[b]a/) }],
                 },
+            ],
+        },
+        {
+            code: `/(?:js|jso?n?)$/`,
+            errors: [
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'jso?n?' and can be removed.",
+                    column: 5,
+                    endColumn: 7,
+                },
+            ],
+        },
+        {
+            code: String.raw`/A+_|A*_/`,
+            errors: [
+                "Unexpected useless alternative. This alternative is a strict subset of 'A*_' and can be removed.",
+            ],
+        },
+        {
+            code: String.raw`/(?:A+|A*)_/`,
+            errors: [
+                "Unexpected useless alternative. This alternative is a strict subset of 'A*' and can be removed.",
             ],
         },
         {

@@ -12,17 +12,20 @@ import {
     createRule,
     defineRegexpVisitor,
 } from "../utils"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type {
+    GetLongestPrefixOptions,
+    ReadonlyFlags,
+} from "regexp-ast-analysis"
 import {
     Chars,
     getFirstConsumedChar,
     hasSomeDescendant,
+    canReorder,
+    getLongestPrefix,
 } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 import { JS } from "refa"
-import { canReorder } from "../utils/reorder-alternatives"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
-import { getLongestPrefix } from "../utils/regexp-ast/alternative-prefix"
 
 interface AllowedChars {
     allowed: CharSet
@@ -147,6 +150,11 @@ function compareCharSetStrings(
     return a.length - b.length
 }
 
+const LONGEST_PREFIX_OPTIONS: GetLongestPrefixOptions = {
+    includeAfter: true,
+    looseGroups: true,
+}
+
 /**
  * Sorts the given alternatives.
  */
@@ -166,8 +174,8 @@ function sortAlternatives(
 
     alternatives.sort((a, b) => {
         const prefixDiff = compareCharSetStrings(
-            getLongestPrefix(a, "ltr", flags),
-            getLongestPrefix(b, "ltr", flags),
+            getLongestPrefix(a, "ltr", flags, LONGEST_PREFIX_OPTIONS),
+            getLongestPrefix(b, "ltr", flags, LONGEST_PREFIX_OPTIONS),
         )
         if (prefixDiff !== 0) {
             return prefixDiff
