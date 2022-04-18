@@ -168,7 +168,7 @@ function getSideEffectsWhenReplacingCapturingGroup(
     /** Checks whether the given element is constant length. */
     function isConstantLength(target: Element): boolean {
         const range = getLengthRange(target)
-        return Boolean(range && range.min === range.max)
+        return range.min === range.max
     }
 }
 

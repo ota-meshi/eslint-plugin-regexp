@@ -252,7 +252,7 @@ export default createRule("no-useless-assertions", {
                     const range = getLengthRange(assertion.alternatives)
                     // we only check the first character, so it's only correct if the assertion requires only one
                     // character
-                    if (range && range.max === 1) {
+                    if (range.max === 1) {
                         // require exactness
                         if (
                             firstOf.exact &&
