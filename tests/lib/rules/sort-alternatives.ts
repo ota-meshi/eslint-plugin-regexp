@@ -9,7 +9,13 @@ const tester = new RuleTester({
 })
 
 tester.run("sort-alternatives", rule as any, {
-    valid: [String.raw`/\b(?:a|\d+|c|b)\b/`, String.raw`/\b(?:\^|c|b)\b/`],
+    valid: [
+        String.raw`/\b(?:a|\d+|c|b)\b/`,
+        String.raw`/\b(?:\^|c|b)\b/`,
+        String.raw`/^(?:a|ab)a/u`,
+        String.raw`/^(?:a|ab)c/u`,
+        String.raw`/^(?:deg|g?rad|turn)\b/`,
+    ],
     invalid: [
         {
             code: String.raw`/c|b|a/`,

@@ -152,6 +152,7 @@ function compareCharSetStrings(
 
 const LONGEST_PREFIX_OPTIONS: GetLongestPrefixOptions = {
     includeAfter: true,
+    onlyInside: true,
     looseGroups: true,
 }
 
