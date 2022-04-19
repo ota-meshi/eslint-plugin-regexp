@@ -18,7 +18,6 @@ import type {
 } from "regexp-ast-analysis"
 import {
     Chars,
-    getFirstConsumedChar,
     hasSomeDescendant,
     canReorder,
     getLongestPrefix,
@@ -163,16 +162,6 @@ function sortAlternatives(
     alternatives: Alternative[],
     flags: ReadonlyFlags,
 ): void {
-    const firstChars = new Map<Alternative, number>()
-    for (const a of alternatives) {
-        const chars = getFirstConsumedChar(a, "ltr", flags)
-        const char =
-            chars.empty || chars.char.isEmpty
-                ? Infinity
-                : chars.char.ranges[0].min
-        firstChars.set(a, char)
-    }
-
     alternatives.sort((a, b) => {
         const prefixDiff = compareCharSetStrings(
             getLongestPrefix(a, "ltr", flags, LONGEST_PREFIX_OPTIONS),
