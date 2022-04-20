@@ -96,39 +96,46 @@ function compareByteOrder(a: string, b: string): number {
  * Compare two char sets by byte order.
  */
 function compareCharSets(a: CharSet, b: CharSet): number {
-    // empty char set > everything else
-    if (a.isEmpty) {
-        return 1
-    } else if (b.isEmpty) {
-        return -1
+    // The basic idea here is the following:
+    // We want to sort the two sets based on their characters. To do that, we
+    // will consider the sort lists of characters (see `CharSet#characters()`)
+    // of the two sets respectively. We will then lexicographically compare
+    // these lists of characters.
+    // Obviously, we don't actually look at the full list of characters.
+    // CharSets are represented as ranges, and we will take advantage of that.
+    // In lexicographical sorting, we just have to find the first character
+    // that differs in the two sequences, and that's quite simple to do in the
+    // range representation. Further, if one sequence ends before that
+    // character was found, we compare the length of the two sequences. That is
+    // trivial to do in the range form as well.
+
+    const aRanges = a.ranges
+    const bRanges = b.ranges
+    for (let i = 0; i < aRanges.length && i < bRanges.length; i++) {
+        const aR = aRanges[i]
+        const bR = bRanges[i]
+
+        if (aR.min !== bR.min) return aR.min - bR.min
+        if (aR.max !== bR.max) {
+            if (aR.max < bR.max) {
+                // [aR.min .. aR.max]           [...?]
+                // [bR.min .. aR.max .. bR.max]
+
+                // If there is another range for a, then a is larger than b
+                return i + 1 < aRanges.length ? +1 : -1
+
+                // eslint-disable-next-line no-else-return -- x
+            } else {
+                // [aR.min .. bR.max .. aR.max]
+                // [bR.min .. bR.max]           [...?]
+
+                // If there is another range for b, then a is smaller than b
+                return i + 1 < bRanges.length ? -1 : +1
+            }
+        }
     }
 
-    // the first character is different
-    if (a.ranges[0].min !== b.ranges[0].min) {
-        return a.ranges[0].min - b.ranges[0].min
-    }
-
-    // Now for the difficult part: We want to compare them by byte-order but
-    // what does that mean for a set of characters?
-    // We will define it as such: Let x be the smallest character in the
-    // symmetric difference of a and b. If x is in a then a < b. Otherwise
-    // b < a. If the symmetric difference is empty, then a == b.
-
-    const symDiff = a.union(b).without(a.intersect(b))
-    if (symDiff.isEmpty) {
-        // a == b
-        return 0
-    }
-
-    const min = symDiff.ranges[0].min
-
-    if (a.has(min)) {
-        // a < b
-        return -1
-    }
-
-    // b < a
-    return 1
+    return aRanges.length - bRanges.length
 }
 
 /**
