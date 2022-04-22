@@ -3,7 +3,6 @@ import type { Alternative, Pattern, Quantifier } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import type { ParsedLiteral } from "scslre"
 import { analyse } from "scslre"
 import type { Descendant } from "regexp-ast-analysis"
 import {
@@ -19,38 +18,11 @@ import {
     combineTransformers,
     Transformers,
 } from "refa"
+import { getJSRegexppAst } from "../utils/regexp-ast"
 
 interface Report {
     quant: Quantifier
     attack: string
-}
-
-/**
- * Create a parsed literal object as required by the scslre library.
- */
-function getParsedLiteral(
-    context: RegExpContext,
-    ignoreSticky: boolean,
-): ParsedLiteral {
-    const { flags, flagsString, patternAst } = context
-
-    return {
-        pattern: patternAst,
-        flags: {
-            type: "Flags",
-            raw: flagsString ?? "",
-            parent: null,
-            start: NaN,
-            end: NaN,
-            dotAll: flags.dotAll ?? false,
-            global: flags.global ?? false,
-            hasIndices: flags.hasIndices ?? false,
-            ignoreCase: flags.ignoreCase ?? false,
-            multiline: flags.multiline ?? false,
-            sticky: !ignoreSticky && (flags.sticky ?? false),
-            unicode: flags.unicode ?? false,
-        },
-    }
 }
 
 /**
@@ -187,7 +159,7 @@ export default createRule("no-super-linear-move", {
         ): Iterable<Report> {
             const { flags } = regexpContext
 
-            const result = analyse(getParsedLiteral(regexpContext, true), {
+            const result = analyse(getJSRegexppAst(regexpContext, true), {
                 reportTypes: { Move: true, Self: false, Trade: false },
                 assumeRejectingSuffix,
             })
@@ -227,7 +199,7 @@ export default createRule("no-super-linear-move", {
             const { patternAst, flags } = regexpContext
 
             const parser = JS.Parser.fromAst(
-                getParsedLiteral(regexpContext, true),
+                getJSRegexppAst(regexpContext, true),
             )
 
             for (const q of findReachableQuantifiers(patternAst)) {

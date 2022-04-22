@@ -2,10 +2,10 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import type { ParsedLiteral } from "scslre"
 import { analyse } from "scslre"
 import type { Position, SourceLocation } from "estree"
 import { mention } from "../utils/mention"
+import { getJSRegexppAst } from "../utils/regexp-ast"
 
 /**
  * Returns the combined source location of the two given locations.
@@ -24,31 +24,6 @@ function unionLocations(a: SourceLocation, b: SourceLocation): SourceLocation {
     return {
         start: { ...(less(a.start, b.start) ? a.start : b.start) },
         end: { ...(less(a.end, b.end) ? b.end : a.end) },
-    }
-}
-
-/**
- * Create a parsed literal object as required by the scslre library.
- */
-function getParsedLiteral(context: RegExpContext): ParsedLiteral {
-    const { flags, flagsString, patternAst } = context
-
-    return {
-        pattern: patternAst,
-        flags: {
-            type: "Flags",
-            raw: flagsString ?? "",
-            parent: null,
-            start: NaN,
-            end: NaN,
-            dotAll: flags.dotAll ?? false,
-            global: flags.global ?? false,
-            hasIndices: flags.hasIndices ?? false,
-            ignoreCase: flags.ignoreCase ?? false,
-            multiline: flags.multiline ?? false,
-            sticky: flags.sticky ?? false,
-            unicode: flags.unicode ?? false,
-        },
     }
 }
 
@@ -102,7 +77,7 @@ export default createRule("no-super-linear-backtracking", {
                 getUsageOfPattern,
             } = regexpContext
 
-            const result = analyse(getParsedLiteral(regexpContext), {
+            const result = analyse(getJSRegexppAst(regexpContext), {
                 reportTypes: { Move: false },
                 assumeRejectingSuffix:
                     reportUncertain &&
