@@ -388,6 +388,16 @@ function compareWords(a: ReadonlyWord, b: ReadonlyWord): number {
 
 /**
  * Sorts the given alternatives.
+ *
+ * The comparison function implemented by this function has 3 parts:
+ *
+ * 1) Comparison based on the lexicographically smallest strings (LSS) accepted
+ *    by the alternatives.
+ * 2) Comparison based on the longest prefix of the alternatives.
+ * 3) Comparison based on the raw source code of the alternatives.
+ *
+ * For more information on why we use LSS-based comparison and how it works,
+ * see https://github.com/ota-meshi/eslint-plugin-regexp/pull/423.
  */
 function sortAlternatives(
     alternatives: Alternative[],
