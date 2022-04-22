@@ -1,5 +1,13 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { Alternative, Element, Pattern } from "regexpp/ast"
+import type {
+    Alternative,
+    Character,
+    CharacterClass,
+    CharacterSet,
+    Element,
+    Node,
+    Pattern,
+} from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_MINUS,
@@ -21,10 +29,12 @@ import {
     hasSomeDescendant,
     canReorder,
     getLongestPrefix,
+    toCharSet,
 } from "regexp-ast-analysis"
-import type { CharSet } from "refa"
-import { JS } from "refa"
+import type { CharSet, Word, ReadonlyWord } from "refa"
+import { NFA, JS, transform } from "refa"
 import { getPossiblyConsumedChar } from "../utils/regexp-ast"
+import { RegExpParser } from "regexpp"
 
 interface AllowedChars {
     allowed: CharSet
@@ -82,6 +92,213 @@ function containsOnlyLiterals(
     )
 }
 
+const lssCache = new WeakMap<Alternative, ReadonlyWord>()
+
+/**
+ * A cached version of {@link approximateLexicographicallySmallest}.
+ */
+function cachedApproximateLexicographicallySmallest(
+    alternative: Alternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): ReadonlyWord {
+    let cached = lssCache.get(alternative)
+    if (cached === undefined) {
+        cached = approximateLexicographicallySmallest(
+            alternative,
+            parser,
+            flags,
+        )
+        lssCache.set(alternative, cached)
+    }
+    return cached
+}
+
+const LONGEST_PREFIX_OPTIONS: GetLongestPrefixOptions = {
+    includeAfter: true,
+    onlyInside: true,
+    looseGroups: true,
+}
+
+/**
+ * Return an approximation of the lexicographically smallest string (LSS)
+ * accepted by the given alternative.
+ *
+ * If the LSS is defined for the given alternative and shorter than 1000
+ * characters, then the LSS will be returned. Otherwise, a prefix-based
+ * approximation will be returned.
+ *
+ * Assertions will be ignored when computing the LSS.
+ *
+ * Backreferences will be disabled when computing the LSS, but the prefix-based
+ * approximation will account for them.
+ */
+function approximateLexicographicallySmallest(
+    alternative: Alternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word {
+    const lss = getLexicographicallySmallestFromAlternative(
+        alternative,
+        parser,
+        flags,
+    )
+    if (lss !== undefined) return lss
+
+    // prefix-based approximation
+    const prefix = getLongestPrefix(
+        alternative,
+        "ltr",
+        flags,
+        LONGEST_PREFIX_OPTIONS,
+    )
+    return getLexicographicallySmallestFromCharSets(prefix)
+}
+
+/**
+ * If defined, this will return the lexicographically smallest string accepted
+ * by the given alternative (ignoring assertions).
+ */
+function getLexicographicallySmallestFromAlternative(
+    alternative: Alternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word | undefined {
+    const { elements } = alternative
+    if (isOnlyCharacters(elements)) {
+        // fast path to avoid converting simple alternatives into NFAs
+        const smallest: Word = []
+        for (const e of elements) {
+            const cs = toCharSet(e, flags)
+            if (cs.isEmpty) return undefined
+            smallest.push(cs.ranges[0].min)
+        }
+        return smallest
+    }
+
+    try {
+        const result = parser.parseElement(alternative, {
+            assertions: "unknown",
+            backreferences: "disable",
+            maxBackreferenceWords: 4,
+            maxNodes: 1000,
+        })
+
+        // remove all unknowns (assertions)
+        const expression = transform(
+            {
+                onConcatenation(concat) {
+                    concat.elements = concat.elements.filter(
+                        (e) => e.type !== "Unknown",
+                    )
+                },
+            },
+            result.expression,
+        )
+
+        const nfa = NFA.fromRegex(
+            expression,
+            { maxCharacter: result.maxCharacter },
+            { maxNodes: 1000 },
+        )
+
+        return getLexicographicallySmallestFromNfa(
+            nfa.nodes.initial,
+            nfa.nodes.finals,
+        )
+    } catch (error) {
+        return undefined
+    }
+}
+
+/** Returns whether the given array of nodes contains only characters. */
+function isOnlyCharacters(
+    nodes: readonly Node[],
+): nodes is readonly (Character | CharacterClass | CharacterSet)[] {
+    return nodes.every(
+        (e) =>
+            e.type === "Character" ||
+            e.type === "CharacterClass" ||
+            e.type === "CharacterSet",
+    )
+}
+
+/**
+ * If defined, this will return the lexicographically smallest string accepted
+ * by the given NFA.
+ */
+function getLexicographicallySmallestFromNfa(
+    initial: NFA.ReadonlyNode,
+    finals: ReadonlySet<NFA.ReadonlyNode>,
+): Word | undefined {
+    // this is a variation on Thompson's algorithm
+    const smallest: Word = []
+    let currentStates = [initial]
+    const newStatesSet = new Set<NFA.ReadonlyNode>()
+
+    const MAX_LENGTH = 1000
+    for (let i = 0; i < MAX_LENGTH; i++) {
+        if (currentStates.some((n) => finals.has(n))) {
+            // one of the current states is a final state
+            return smallest
+        }
+
+        // find the smallest character
+        let min = Infinity
+        for (const state of currentStates) {
+            // eslint-disable-next-line no-loop-func -- false positive
+            state.out.forEach((charSet) => {
+                if (!charSet.isEmpty) {
+                    min = Math.min(min, charSet.ranges[0].min)
+                }
+            })
+        }
+
+        if (min === Infinity) {
+            // the NFA doesn't accept any words
+            return undefined
+        }
+        smallest.push(min)
+
+        const newStates: NFA.ReadonlyNode[] = []
+        newStatesSet.clear()
+
+        for (const state of currentStates) {
+            // eslint-disable-next-line no-loop-func -- false positive
+            state.out.forEach((charSet, to) => {
+                if (charSet.has(min) && !newStatesSet.has(to)) {
+                    newStates.push(to)
+                    newStatesSet.add(to)
+                }
+            })
+        }
+
+        currentStates = newStates
+    }
+
+    // the lexicographically smallest string either has more than
+    // MAX_LENGTH characters or doesn't exist.
+    return undefined
+}
+
+/**
+ * If defined, this will return the lexicographically smallest string accepted
+ * by the given sequence of character sets.
+ *
+ * If any of the given character sets is empty, the current smallest will be
+ * returned.
+ */
+function getLexicographicallySmallestFromCharSets(
+    word: Iterable<CharSet>,
+): Word {
+    const result: Word = []
+    for (const set of word) {
+        if (set.isEmpty) break
+        result.push(set.ranges[0].min)
+    }
+    return result
+}
+
 /**
  * Compare two string independent of the current locale by byte order.
  */
@@ -93,73 +310,16 @@ function compareByteOrder(a: string, b: string): number {
 }
 
 /**
- * Compare two char sets by byte order.
- */
-function compareCharSets(a: CharSet, b: CharSet): number {
-    // The basic idea here is the following:
-    // We want to sort the two sets based on their characters. To do that, we
-    // will consider the sort lists of characters (see `CharSet#characters()`)
-    // of the two sets respectively. We will then lexicographically compare
-    // these lists of characters.
-    // Obviously, we don't actually look at the full list of characters.
-    // CharSets are represented as ranges, and we will take advantage of that.
-    // In lexicographical sorting, we just have to find the first character
-    // that differs in the two sequences, and that's quite simple to do in the
-    // range representation. Further, if one sequence ends before that
-    // character was found, we compare the length of the two sequences. That is
-    // trivial to do in the range form as well.
-
-    const aRanges = a.ranges
-    const bRanges = b.ranges
-    for (let i = 0; i < aRanges.length && i < bRanges.length; i++) {
-        const aR = aRanges[i]
-        const bR = bRanges[i]
-
-        if (aR.min !== bR.min) return aR.min - bR.min
-        if (aR.max !== bR.max) {
-            if (aR.max < bR.max) {
-                // [aR.min .. aR.max]           [...?]
-                // [bR.min .. aR.max .. bR.max]
-
-                // If there is another range for a, then a is larger than b
-                return i + 1 < aRanges.length ? +1 : -1
-
-                // eslint-disable-next-line no-else-return -- x
-            } else {
-                // [aR.min .. bR.max .. aR.max]
-                // [bR.min .. bR.max]           [...?]
-
-                // If there is another range for b, then a is smaller than b
-                return i + 1 < bRanges.length ? -1 : +1
-            }
-        }
-    }
-
-    return aRanges.length - bRanges.length
-}
-
-/**
  * Compare two strings of char sets by byte order.
  */
-function compareCharSetStrings(
-    a: readonly CharSet[],
-    b: readonly CharSet[],
-): number {
+function compareWords(a: ReadonlyWord, b: ReadonlyWord): number {
     const l = Math.min(a.length, b.length)
     for (let i = 0; i < l; i++) {
-        const diff = compareCharSets(a[i], b[i])
-        if (diff !== 0) {
-            return diff
-        }
+        const aI = a[i]
+        const bI = b[i]
+        if (aI !== bI) return aI - bI
     }
-
     return a.length - b.length
-}
-
-const LONGEST_PREFIX_OPTIONS: GetLongestPrefixOptions = {
-    includeAfter: true,
-    onlyInside: true,
-    looseGroups: true,
 }
 
 /**
@@ -167,15 +327,16 @@ const LONGEST_PREFIX_OPTIONS: GetLongestPrefixOptions = {
  */
 function sortAlternatives(
     alternatives: Alternative[],
+    parser: JS.Parser,
     flags: ReadonlyFlags,
 ): void {
     alternatives.sort((a, b) => {
-        const prefixDiff = compareCharSetStrings(
-            getLongestPrefix(a, "ltr", flags, LONGEST_PREFIX_OPTIONS),
-            getLongestPrefix(b, "ltr", flags, LONGEST_PREFIX_OPTIONS),
+        const lssDiff = compareWords(
+            cachedApproximateLexicographicallySmallest(a, parser, flags),
+            cachedApproximateLexicographicallySmallest(b, parser, flags),
         )
-        if (prefixDiff !== 0) {
-            return prefixDiff
+        if (lssDiff !== 0) {
+            return lssDiff
         }
 
         if (flags.ignoreCase) {
@@ -297,12 +458,28 @@ export default createRule("sort-alternatives", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation, fixReplaceNode, flags } =
-                regexpContext
+            const {
+                node,
+                getRegexpLocation,
+                fixReplaceNode,
+                flags,
+                flagsString,
+                patternAst,
+            } = regexpContext
 
             const allowedChars = getAllowedChars(flags)
 
             const possibleCharsCache = new Map<Alternative, CharSet>()
+            const parser = JS.Parser.fromAst({
+                pattern: patternAst,
+                flags: new RegExpParser().parseFlags(
+                    [
+                        ...new Set(
+                            (flagsString || "").replace(/[^gimsuy]/gu, ""),
+                        ),
+                    ].join(""),
+                ),
+            })
 
             /** A cached version of getPossiblyConsumedChar */
             function getPossibleChars(a: Alternative): CharSet {
@@ -320,7 +497,7 @@ export default createRule("sort-alternatives", {
 
                 if (canReorder(alternatives, flags)) {
                     // alternatives can be reordered freely
-                    sortAlternatives(alternatives, flags)
+                    sortAlternatives(alternatives, parser, flags)
                     trySortNumberAlternatives(alternatives)
                 } else {
                     const consumedChars = Chars.empty(flags).union(
