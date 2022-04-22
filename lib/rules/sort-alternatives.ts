@@ -310,6 +310,70 @@ function compareByteOrder(a: string, b: string): number {
 }
 
 /**
+ * Compare two char sets by byte order.
+ */
+function compareCharSets(a: CharSet, b: CharSet): number {
+    // The basic idea here is the following:
+    // We want to sort the two sets based on their characters. To do that, we
+    // will consider the sort lists of characters (see `CharSet#characters()`)
+    // of the two sets respectively. We will then lexicographically compare
+    // these lists of characters.
+    // Obviously, we don't actually look at the full list of characters.
+    // CharSets are represented as ranges, and we will take advantage of that.
+    // In lexicographical sorting, we just have to find the first character
+    // that differs in the two sequences, and that's quite simple to do in the
+    // range representation. Further, if one sequence ends before that
+    // character was found, we compare the length of the two sequences. That is
+    // trivial to do in the range form as well.
+
+    const aRanges = a.ranges
+    const bRanges = b.ranges
+    for (let i = 0; i < aRanges.length && i < bRanges.length; i++) {
+        const aR = aRanges[i]
+        const bR = bRanges[i]
+
+        if (aR.min !== bR.min) return aR.min - bR.min
+        if (aR.max !== bR.max) {
+            if (aR.max < bR.max) {
+                // [aR.min .. aR.max]           [...?]
+                // [bR.min .. aR.max .. bR.max]
+
+                // If there is another range for a, then a is larger than b
+                return i + 1 < aRanges.length ? +1 : -1
+
+                // eslint-disable-next-line no-else-return -- x
+            } else {
+                // [aR.min .. bR.max .. aR.max]
+                // [bR.min .. bR.max]           [...?]
+
+                // If there is another range for b, then a is smaller than b
+                return i + 1 < bRanges.length ? -1 : +1
+            }
+        }
+    }
+
+    return aRanges.length - bRanges.length
+}
+
+/**
+ * Compare two strings of char sets by byte order.
+ */
+function compareCharSetStrings(
+    a: readonly CharSet[],
+    b: readonly CharSet[],
+): number {
+    const l = Math.min(a.length, b.length)
+    for (let i = 0; i < l; i++) {
+        const diff = compareCharSets(a[i], b[i])
+        if (diff !== 0) {
+            return diff
+        }
+    }
+
+    return a.length - b.length
+}
+
+/**
  * Compare two strings of char sets by byte order.
  */
 function compareWords(a: ReadonlyWord, b: ReadonlyWord): number {
@@ -337,6 +401,14 @@ function sortAlternatives(
         )
         if (lssDiff !== 0) {
             return lssDiff
+        }
+
+        const prefixDiff = compareCharSetStrings(
+            getLongestPrefix(a, "ltr", flags, LONGEST_PREFIX_OPTIONS),
+            getLongestPrefix(b, "ltr", flags, LONGEST_PREFIX_OPTIONS),
+        )
+        if (prefixDiff !== 0) {
+            return prefixDiff
         }
 
         if (flags.ignoreCase) {
