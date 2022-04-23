@@ -15,6 +15,11 @@ tester.run("sort-alternatives", rule as any, {
         String.raw`/^(?:a|ab)a/u`,
         String.raw`/^(?:a|ab)c/u`,
         String.raw`/^(?:deg|g?rad|turn)\b/`,
+        String.raw`/\b(?:sample|(?:un)?stable)\b/u`,
+        String.raw`/\b(?:sharpen|(?:spatial|temporal)soften)\b/u`,
+        String.raw`/\b(x?Rec|RequestOptionsPage)\b/`,
+        String.raw`/\b([ft]|false|true)\b/`,
+        String.raw`/\b(a+b|a+c)\b/`,
     ],
     invalid: [
         {
