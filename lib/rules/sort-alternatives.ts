@@ -33,8 +33,7 @@ import {
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
-import { getPossiblyConsumedChar } from "../utils/regexp-ast"
-import { RegExpParser } from "regexpp"
+import { getParser, getPossiblyConsumedChar } from "../utils/regexp-ast"
 
 interface AllowedChars {
     allowed: CharSet
@@ -540,28 +539,13 @@ export default createRule("sort-alternatives", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                node,
-                getRegexpLocation,
-                fixReplaceNode,
-                flags,
-                flagsString,
-                patternAst,
-            } = regexpContext
+            const { node, getRegexpLocation, fixReplaceNode, flags } =
+                regexpContext
 
             const allowedChars = getAllowedChars(flags)
 
             const possibleCharsCache = new Map<Alternative, CharSet>()
-            const parser = JS.Parser.fromAst({
-                pattern: patternAst,
-                flags: new RegExpParser().parseFlags(
-                    [
-                        ...new Set(
-                            (flagsString || "").replace(/[^gimsuy]/gu, ""),
-                        ),
-                    ].join(""),
-                ),
-            })
+            const parser = getParser(regexpContext)
 
             /** A cached version of getPossiblyConsumedChar */
             function getPossibleChars(a: Alternative): CharSet {
