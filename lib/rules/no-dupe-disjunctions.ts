@@ -15,7 +15,7 @@ import {
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
 } from "../utils"
-import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
+import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
     combineTransformers,
@@ -35,7 +35,6 @@ import {
     getEffectiveMaximumRepetition,
     canReorder,
 } from "regexp-ast-analysis"
-import { RegExpParser } from "regexpp"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { mention, mentionChar } from "../utils/mention"
 import type { NestedAlternative } from "../utils/partial-parser"
@@ -964,25 +963,10 @@ export default createRule("no-dupe-disjunctions", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const {
-                patternAst,
-                flagsString,
-                flags,
-                node,
-                getRegexpLocation,
-                getUsageOfPattern,
-            } = regexpContext
+            const { flags, node, getRegexpLocation, getUsageOfPattern } =
+                regexpContext
 
-            const parser = JS.Parser.fromAst({
-                pattern: patternAst,
-                flags: new RegExpParser().parseFlags(
-                    [
-                        ...new Set(
-                            (flagsString || "").replace(/[^gimsuy]/gu, ""),
-                        ),
-                    ].join(""),
-                ),
-            })
+            const parser = getParser(regexpContext)
 
             /** Returns the filter information for the given node */
             function getFilterInfo(parentNode: ParentNode): FilterInfo {

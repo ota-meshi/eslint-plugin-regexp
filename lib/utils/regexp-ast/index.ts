@@ -3,6 +3,7 @@ import type { Rule } from "eslint"
 import type { Expression } from "estree"
 import { parseRegExpLiteral, RegExpParser, visitRegExpAST } from "regexpp"
 import { getStaticValue } from "../ast-utils"
+import { JS } from "refa"
 import type { CharRange, CharSet } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
@@ -11,6 +12,7 @@ import {
     isEmptyBackreference,
     toCharSet,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from ".."
 export { ShortCircuit, getFirstConsumedCharPlusAfter } from "./common"
 export * from "./is-covered"
 export * from "./is-equals"
@@ -129,4 +131,47 @@ export function getPossiblyConsumedChar(
     const char = Chars.empty(flags).union(ranges)
 
     return { char, exact }
+}
+
+/**
+ * Create a `JS.RegexppAst` object as required by refa's `JS.Parser.fromAst`
+ * method and `ParsedLiteral` interface of the scslre library.
+ */
+export function getJSRegexppAst(
+    context: RegExpContext,
+    ignoreSticky = false,
+): JS.RegexppAst {
+    const { flags, flagsString, patternAst } = context
+
+    return {
+        pattern: patternAst,
+        flags: {
+            type: "Flags",
+            raw: flagsString ?? "",
+            parent: null,
+            start: NaN,
+            end: NaN,
+            dotAll: flags.dotAll ?? false,
+            global: flags.global ?? false,
+            hasIndices: flags.hasIndices ?? false,
+            ignoreCase: flags.ignoreCase ?? false,
+            multiline: flags.multiline ?? false,
+            sticky: !ignoreSticky && (flags.sticky ?? false),
+            unicode: flags.unicode ?? false,
+        },
+    }
+}
+
+const parserCache = new WeakMap<RegExpContext, JS.Parser>()
+
+/**
+ * Returns a `JS.Parser` for the given regex context.
+ */
+export function getParser(context: RegExpContext): JS.Parser {
+    let cached = parserCache.get(context)
+    if (cached === undefined) {
+        cached = JS.Parser.fromAst(getJSRegexppAst(context))
+        parserCache.set(context, cached)
+    }
+    return cached
 }
