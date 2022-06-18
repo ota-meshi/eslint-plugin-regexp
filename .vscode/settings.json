@@ -18,7 +18,6 @@
         "source.fixAll.eslint": true,
         "source.fixAll.stylelint": true
     },
-    "stylelint.customSyntax": "stylelint-plugin-stylus/custom-syntax",
     "stylelint.validate": [
         "css",
         "html",
