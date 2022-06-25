@@ -56,7 +56,7 @@
         "@types/chai": "^4.2.22",
         "@types/eslint": "^8.0.0",
         "@types/eslint-scope": "^3.7.1",
-        "@types/estree": "^0.0.51",
+        "@types/estree": "^0.0.52",
         "@types/mocha": "^9.0.0",
         "@types/node": "^16.10.1",
         "@typescript-eslint/eslint-plugin": "^5.0.0",
