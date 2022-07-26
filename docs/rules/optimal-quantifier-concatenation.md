@@ -43,7 +43,6 @@ var foo = /\w+(?:(a)|b)*/;
 
 ## :wrench: Options
 
-
 ```json5
 {
   "regexp/optimal-quantifier-concatenation": [
