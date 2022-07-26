@@ -500,7 +500,7 @@ function getLoc(
 }
 
 const enum CapturingGroupReporting {
-    ignore = "ignpre",
+    ignore = "ignore",
     report = "report",
 }
 
@@ -542,7 +542,7 @@ export default createRule("optimal-quantifier-concatenation", {
     },
     create(context) {
         const cgReporting: CapturingGroupReporting =
-            context.options[0]?.reportExponentialBacktracking ??
+            context.options[0]?.capturingGroups ??
             CapturingGroupReporting.report
 
         /**
