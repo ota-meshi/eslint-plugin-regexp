@@ -227,5 +227,11 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
                 "'(\\d)' and '\\d+' can be combined into one quantifier '\\d{2,}'. This cannot be fixed automatically because it might change or remove a capturing group.",
             ],
         },
+        {
+            code: String.raw`/(\d)\d+/`,
+            output: null,
+            options: [{ capturingGroups: "ignore" }],
+            errors: [],
+        },
     ],
 })
