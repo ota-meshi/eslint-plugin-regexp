@@ -19,6 +19,10 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
         String.raw`/\d+(?:\w+|-\d+)/`,
         String.raw`/aa?/`,
         String.raw`/\w?\w/`,
+        {
+            code: String.raw`/(\d)\d+/`,
+            options: [{ capturingGroups: "ignore" }],
+        },
     ],
     invalid: [
         {

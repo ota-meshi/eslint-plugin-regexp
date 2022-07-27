@@ -499,6 +499,11 @@ function getLoc(
     })
 }
 
+const enum CapturingGroupReporting {
+    ignore = "ignore",
+    report = "report",
+}
+
 export default createRule("optimal-quantifier-concatenation", {
     meta: {
         docs: {
@@ -508,7 +513,17 @@ export default createRule("optimal-quantifier-concatenation", {
             recommended: true,
         },
         fixable: "code",
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    capturingGroups: {
+                        enum: ["ignore", "report"],
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             combine:
                 "{{left}} and {{right}} can be combined into one quantifier {{fix}}.{{cap}}",
@@ -526,6 +541,10 @@ export default createRule("optimal-quantifier-concatenation", {
         type: "suggestion",
     },
     create(context) {
+        const cgReporting: CapturingGroupReporting =
+            context.options[0]?.capturingGroups ??
+            CapturingGroupReporting.report
+
         /**
          * Creates a visitor
          */
@@ -548,6 +567,12 @@ export default createRule("optimal-quantifier-concatenation", {
 
                         const involvesCapturingGroup =
                             hasCapturingGroup(left) || hasCapturingGroup(right)
+                        if (
+                            involvesCapturingGroup &&
+                            cgReporting === CapturingGroupReporting.ignore
+                        ) {
+                            continue
+                        }
 
                         const cap = involvesCapturingGroup
                             ? " This cannot be fixed automatically because it might change or remove a capturing group."

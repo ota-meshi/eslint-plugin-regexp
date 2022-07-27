@@ -43,7 +43,36 @@ var foo = /\w+(?:(a)|b)*/;
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/optimal-quantifier-concatenation": [
+    "error",
+    {
+        "capturingGroups": "report"
+    }
+  ]
+}
+```
+
+### `capturingGroups`
+
+The type of concatenation this rule reports might be intentional around capturing groups. This option allows you turn of false unfixable reports around capturing groups.
+
+- `capturingGroups: "report"` (_default_)
+
+  Concatenations around quantifiers will be reported.
+
+- `capturingGroups: "ignore"`
+
+  Concatenations around quantifiers will not be reported.
+
+  If this option is used, it is recommend to have the [regexp/no-super-linear-backtracking] rule enabled to protect against ReDoS.
+
+## :books: Further reading
+
+- [regexp/no-super-linear-backtracking]
+
+[regexp/no-super-linear-backtracking]: ./no-super-linear-backtracking.md
 
 ## :rocket: Version
 
