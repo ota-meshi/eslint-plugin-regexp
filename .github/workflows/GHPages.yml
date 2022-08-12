@@ -3,20 +3,43 @@ name: GHPages
 on:
     push:
         branches: [master]
+    workflow_dispatch: null
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+    group: pages
+    cancel-in-progress: true
 
 jobs:
-    deploy-docs:
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v3
             - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
             - name: Install Packages
               run: npm ci
             - name: Build docs
-              run: npm run docs:build
-            - name: Deploy
-              uses: peaceiris/actions-gh-pages@v3
+              run: |+
+                  export NODE_OPTIONS=--openssl-legacy-provider
+                  npm run docs:build
+            - name: Setup Pages
+              uses: actions/configure-pages@v1
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./docs/.vuepress/dist
-                  force_orphan: true
+                  path: ./docs/.vuepress/dist
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v1
