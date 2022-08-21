@@ -44,7 +44,22 @@ var foo = /(\w|\d)+:/
 
 ## :wrench: Options
 
-Nothing.
+```json5
+{
+  "regexp/prefer-character-class": [
+    "error",
+    {
+        "minAlternatives": 3
+    }
+  ]
+}
+```
+
+### `minAlternatives: integer`
+
+This number controls how many character alternatives have to be present for them to be merged. By default, there need to at least 3 alternatives.
+
+Note that this option does not affect character alternatives where the characters overlap. These alternatives will always be merged to prevent excessive backtracking.
 
 ## :rocket: Version
 
