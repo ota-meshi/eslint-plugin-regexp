@@ -19,6 +19,7 @@ tester.run("prefer-character-class", rule as any, {
         String.raw`/(?:[ab]|c\b)/`,
         String.raw`/(?:[ab]|cd)/`,
         String.raw`/(?:[ab]|(c))/`,
+        { code: String.raw`/a|b|c|\d/`, options: [{ minAlternatives: 5 }] },
     ],
     invalid: [
         {
@@ -284,6 +285,14 @@ tester.run("prefer-character-class", rule as any, {
                     endColumn: 15,
                 },
             ],
+        },
+
+        // minAlternatives option
+        {
+            code: String.raw`/(?:a|b)/`,
+            output: String.raw`/(?:[ab])/`,
+            options: [{ minAlternatives: 2 }],
+            errors: 1,
         },
     ],
 })

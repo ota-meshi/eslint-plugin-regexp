@@ -423,7 +423,18 @@ export default createRule("prefer-character-class", {
             recommended: true,
         },
         fixable: "code",
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    minAlternatives: {
+                        type: "integer",
+                        minimum: 2,
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             unexpected:
                 "Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.",
@@ -431,6 +442,9 @@ export default createRule("prefer-character-class", {
         type: "suggestion", // "problem",
     },
     create(context) {
+        const minCharacterAlternatives: number =
+            context.options[0]?.minAlternatives ?? 3
+
         /**
          * Create visitor
          */
@@ -515,7 +529,7 @@ export default createRule("prefer-character-class", {
                 const parsedAlts = parseRawAlts(alts, flags)
 
                 if (
-                    characterAltsCount >= 3 ||
+                    characterAltsCount >= minCharacterAlternatives ||
                     containsCharacterClass(alts) ||
                     totalIsAll(alts, regexpContext) ||
                     findNonDisjointAlt(parsedAlts)
