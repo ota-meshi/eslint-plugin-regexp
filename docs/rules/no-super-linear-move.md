@@ -202,9 +202,11 @@ Even if a fragment had exploitable quantifiers, it might not cause super-linear 
 ## :books: Further reading
 
 - [Regular expression Denial of Service - ReDoS][1]
+- [Polynomial regular expression used on uncontrolled data][2]
 - [scslre]
 
 [1]: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
+[2]: https://codeql.github.com/codeql-query-help/javascript/js-polynomial-redos/
 [scslre]: https://github.com/RunDevelopment/scslre
 
 ## :rocket: Version
