@@ -205,7 +205,7 @@ function getLexicographicallySmallestFromAlternative(
             nfa.nodes.initial,
             nfa.nodes.finals,
         )
-    } catch (error) {
+    } catch (_error) {
         return undefined
     }
 }
