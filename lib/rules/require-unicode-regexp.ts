@@ -48,7 +48,7 @@ function isSyntacticallyCompatible(pattern: Pattern): false | Pattern {
             undefined,
             true,
         )
-    } catch (error) {
+    } catch (_error) {
         return false
     }
 
