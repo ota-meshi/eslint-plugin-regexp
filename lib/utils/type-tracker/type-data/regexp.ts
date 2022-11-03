@@ -65,11 +65,15 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
         $7: STRING,
         $8: STRING,
         $9: STRING,
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- ignore
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- RegExp properties
         $_: STRING,
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- RegExp properties
         "$&": STRING,
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- RegExp properties
         "$+": STRING,
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- RegExp properties
         "$`": STRING,
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- RegExp properties
         "$'": STRING,
         input: STRING,
         lastParen: STRING,

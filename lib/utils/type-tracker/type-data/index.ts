@@ -139,6 +139,7 @@ export const BI_OPERATOR_TYPES: {
         getTypes: () => [TypeInfo | null, TypeInfo | null],
     ) => TypeInfo | null
 } = createObject({
+    /* eslint-disable @typescript-eslint/naming-convention -- operators */
     "==": resultBool,
     "!=": resultBool,
     "===": resultBool,
@@ -183,6 +184,7 @@ export const BI_OPERATOR_TYPES: {
             }
         })
     },
+    /* eslint-enable @typescript-eslint/naming-convention -- operators */
 })
 
 /** Get UnaryExpression calc type */
@@ -210,6 +212,7 @@ export const UN_OPERATOR_TYPES: {
         getType: () => TypeInfo | null,
     ) => TypeInfo | null
 } = createObject({
+    /* eslint-disable @typescript-eslint/naming-convention -- operators */
     "!": resultBool,
     delete: resultBool,
     "+": unaryNumOp,
@@ -217,4 +220,5 @@ export const UN_OPERATOR_TYPES: {
     "~": unaryNumOp,
     void: () => "undefined" as const,
     typeof: () => STRING,
+    /* eslint-enable @typescript-eslint/naming-convention -- operators */
 })
