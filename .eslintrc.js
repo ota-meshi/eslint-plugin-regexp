@@ -63,45 +63,7 @@ module.exports = {
             },
             rules: {
                 "no-implicit-globals": "off",
-                "@typescript-eslint/naming-convention": [
-                    "error",
-                    {
-                        selector: "default",
-                        format: ["camelCase"],
-                        leadingUnderscore: "allow",
-                        trailingUnderscore: "allow",
-                        filter: {
-                            regex: "^(?:(?:[A-Z:][\\w]*(?:\\s*[,>]\\s*)?)+(?::exit$)?|\\d+)$",
-                            match: false,
-                        },
-                    },
-                    {
-                        selector: "variable",
-                        format: ["camelCase", "UPPER_CASE"],
-                        leadingUnderscore: "allow",
-                        trailingUnderscore: "allow",
-                    },
-                    {
-                        selector: "typeLike",
-                        format: ["PascalCase"],
-                    },
-                    {
-                        selector: "property",
-                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
-                        filter: {
-                            regex: "^(?:(?:[A-Z:][\\w]*(?:\\s*[,>]\\s*)?)+(?::exit$)?|\\d+)$",
-                            match: false,
-                        },
-                    },
-                    {
-                        selector: "method",
-                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
-                        filter: {
-                            regex: "^(?:(?:[A-Z:][\\w]*(?:\\s*[,>]\\s*)?)+(?::exit$)?|\\d+)$",
-                            match: false,
-                        },
-                    },
-                ],
+                "@typescript-eslint/naming-convention": "off",
             },
         },
         {
@@ -111,13 +73,6 @@ module.exports = {
                     "error",
                     "[^a-z].*\\.$",
                 ],
-            },
-        },
-        {
-            // Auto generated
-            files: ["lib/configs/*.ts"],
-            rules: {
-                "@typescript-eslint/naming-convention": "off",
             },
         },
         {

@@ -844,11 +844,9 @@ describe("Don't conflict even if using the rules together.", () => {
             code: String.raw`/[\s\S]*/s;`,
             output: String.raw`/[\s\S]*/;`,
             rulesConfig: {
-                /* eslint-disable @typescript-eslint/naming-convention -- rule names */
                 "regexp/no-useless-flag": ["error"],
                 "regexp/require-unicode-regexp": "off",
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
-                /* eslint-enable @typescript-eslint/naming-convention -- rule names */
             },
             messages: [
                 {
@@ -874,11 +872,9 @@ describe("Don't conflict even if using the rules together.", () => {
             code: String.raw`/[\s\S]*/s;`,
             output: String.raw`/[\s\S]*/;`,
             rulesConfig: {
-                /* eslint-disable @typescript-eslint/naming-convention -- rule names */
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
                 "regexp/require-unicode-regexp": "off",
                 "regexp/no-useless-flag": ["error"],
-                /* eslint-enable @typescript-eslint/naming-convention -- rule names */
             },
             messages: [
                 {

@@ -1,5 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- ignore
-/* eslint-disable @typescript-eslint/naming-convention -- ignore */
 // https://github.com/jsdoctypeparser/jsdoctypeparser#ast-specifications
 // https://jsdoctypeparser.github.io/
 

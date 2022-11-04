@@ -46,7 +46,6 @@ describe("Don't crash even if with unknown flag.", () => {
         string,
         { ruleId: string; message: string }[] | undefined
     > = {
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- rule names
         "regexp/no-non-standard-flag": [
             { ruleId: "regexp/test", message: "Foo" },
             {
@@ -74,7 +73,6 @@ describe("Don't crash even if with unknown flag.", () => {
                 },
                 rules: {
                     [ruleId]: "error",
-                    // eslint-disable-next-line @typescript-eslint/naming-convention -- rule names
                     "regexp/test": "error",
                 },
             }

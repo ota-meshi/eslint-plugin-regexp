@@ -43,11 +43,8 @@ ${createDeprecationTable(categories.deprecated, buildRulePath)}
 //eslint-disable-next-line require-jsdoc -- ignore
 function categorizeRules() {
     const result: Record<RuleCategory | "deprecated", RuleModule[]> = {
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- ignore caption
         "Best Practices": [],
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- ignore caption
         "Possible Errors": [],
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- ignore caption
         "Stylistic Issues": [],
         deprecated: [],
     }

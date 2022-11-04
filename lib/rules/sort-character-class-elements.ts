@@ -67,7 +67,6 @@ export default createRule("sort-character-class-elements", {
         type: "layout",
     },
     create(context) {
-        /* eslint-disable @typescript-eslint/naming-convention -- RegExp character classes */
         const orderOption: {
             "*": number
             "\\w"?: number
@@ -75,7 +74,6 @@ export default createRule("sort-character-class-elements", {
             "\\s"?: number
             "\\p"?: number
         } = { "*": Infinity }
-        /* eslint-enable @typescript-eslint/naming-convention -- RegExp character classes */
 
         ;(
             (context.options[0]?.order ??

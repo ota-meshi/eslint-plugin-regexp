@@ -5,7 +5,6 @@ const CP_BACKTICK = "`".codePointAt(0)!
 const CP_CR = "\r".codePointAt(0)!
 const CP_LF = "\n".codePointAt(0)!
 const CP_OPENING_BRACE = "{".codePointAt(0)!
-/* eslint-disable @typescript-eslint/naming-convention -- ignore */
 const CP_a = "a".codePointAt(0)!
 const CP_A = "A".codePointAt(0)!
 const CP_n = "n".codePointAt(0)!
@@ -20,7 +19,6 @@ const CP_0 = "0".codePointAt(0)!
 const CP_7 = "7".codePointAt(0)!
 const CP_8 = "8".codePointAt(0)!
 const CP_9 = "9".codePointAt(0)!
-/* eslint-enable @typescript-eslint/naming-convention -- ignore */
 
 export class Tokenizer {
     private readonly source: string
