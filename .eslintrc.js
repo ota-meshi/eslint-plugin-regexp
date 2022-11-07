@@ -63,33 +63,7 @@ module.exports = {
             },
             rules: {
                 "no-implicit-globals": "off",
-                "@typescript-eslint/naming-convention": [
-                    "error",
-                    {
-                        selector: "default",
-                        format: ["camelCase"],
-                        leadingUnderscore: "allow",
-                        trailingUnderscore: "allow",
-                    },
-                    {
-                        selector: "variable",
-                        format: ["camelCase", "UPPER_CASE"],
-                        leadingUnderscore: "allow",
-                        trailingUnderscore: "allow",
-                    },
-                    {
-                        selector: "typeLike",
-                        format: ["PascalCase"],
-                    },
-                    {
-                        selector: "property",
-                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
-                    },
-                    {
-                        selector: "method",
-                        format: ["camelCase", "UPPER_CASE", "PascalCase"],
-                    },
-                ],
+                "@typescript-eslint/naming-convention": "off",
             },
         },
         {

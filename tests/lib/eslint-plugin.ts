@@ -15,7 +15,7 @@ describe("Integration with eslint-plugin-regexp", () => {
         if (ESLint) {
             const eslint = new ESLint({
                 cwd: TEST_CWD,
-                plugins: { "eslint-plugin-regexp": plugin },
+                plugins: { "eslint-plugin-regexp": plugin as never },
             })
             results = await eslint.lintFiles(["test.js"])
         } else {

@@ -56,10 +56,10 @@ export function buildBigIntConstructor(): TypeGlobalFunction {
     return new TypeGlobalFunction(() => BIGINT, BIGINT_TYPES)
 }
 const getPrototypes: () => {
-    [key in keyof BigInt]: TypeInfo | null
+    [key in keyof bigint]: TypeInfo | null
 } = cache(() =>
     createObject<{
-        [key in keyof BigInt]: TypeInfo | null
+        [key in keyof bigint]: TypeInfo | null
     }>({
         ...getObjectPrototypes(),
         toString: RETURN_STRING,
