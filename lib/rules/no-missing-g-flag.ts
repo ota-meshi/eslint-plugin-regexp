@@ -1,5 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { RegExpContext } from "../utils"
+import type { RegExpContext, UnparsableRegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { ExpressionReference } from "../utils/ast-utils"
 import {
@@ -60,16 +59,16 @@ export default createRule("no-missing-g-flag", {
         const { strictTypes } = parseOption(context.options[0])
         const typeTracer = createTypeTracker(context)
 
-        /**
-         * Create visitor
-         */
-        function createVisitor(
-            regexpContext: RegExpContext,
-        ): RegExpVisitor.Handlers {
-            const { regexpNode, flags, ownsFlags } = regexpContext
+        /** The logic of this rule */
+        function visit(regexpContext: RegExpContext | UnparsableRegExpContext) {
+            const { regexpNode, flags, flagsString } = regexpContext
 
-            if (flags.global || !ownsFlags) {
-                return {}
+            if (
+                flags.global ||
+                // We were unable to determine which flags were used.
+                flagsString == null
+            ) {
+                return
             }
 
             for (const ref of extractExpressionReferences(
@@ -78,7 +77,6 @@ export default createRule("no-missing-g-flag", {
             )) {
                 verifyExpressionReference(ref, regexpContext)
             }
-            return {}
         }
 
         /**
@@ -86,7 +84,11 @@ export default createRule("no-missing-g-flag", {
          */
         function verifyExpressionReference(
             ref: ExpressionReference,
-            { regexpNode, fixReplaceFlags, flagsString }: RegExpContext,
+            {
+                regexpNode,
+                fixReplaceFlags,
+                flagsString,
+            }: RegExpContext | UnparsableRegExpContext,
         ): void {
             if (ref.type !== "argument") {
                 // It is not used for function call arguments.
@@ -123,16 +125,27 @@ export default createRule("no-missing-g-flag", {
 
             /** Build fixer */
             function buildFixer() {
-                if (node.arguments[0] !== regexpNode) {
+                if (
+                    node.arguments[0] !== regexpNode ||
+                    ((regexpNode.type === "NewExpression" ||
+                        regexpNode.type === "CallExpression") &&
+                        regexpNode.arguments[1] &&
+                        regexpNode.arguments[1].type !== "Literal")
+                ) {
                     // It can only be safely auto-fixed if it is defined directly in the argument.
                     return null
                 }
-                return fixReplaceFlags(`${flagsString || ""}g`, false)
+                return fixReplaceFlags(`${flagsString!}g`, false)
             }
         }
 
         return defineRegexpVisitor(context, {
-            createVisitor,
+            createVisitor(regexpContext) {
+                visit(regexpContext)
+                return {}
+            },
+            visitInvalid: visit,
+            visitUnknown: visit,
         })
     },
 })

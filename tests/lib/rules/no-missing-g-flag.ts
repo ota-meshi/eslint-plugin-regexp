@@ -126,12 +126,84 @@ tester.run("no-missing-g-flag", rule as any, {
                 },
             ],
         },
+        // Unknown pattern
+        {
+            code: `
+            const s = 'foo'
+            const ret = s.matchAll(new RegExp(foo))
+            `,
+            output: `
+            const s = 'foo'
+            const ret = s.matchAll(new RegExp(foo, "g"))
+            `,
+            errors: [
+                {
+                    message:
+                        "The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.",
+                    line: 3,
+                    column: 36,
+                },
+            ],
+        },
+        // Invalid pattern
+        {
+            code: `
+            const s = 'foo'
+            const ret = s.matchAll(new RegExp('{', 'u'))
+            `,
+            output: `
+            const s = 'foo'
+            const ret = s.matchAll(new RegExp('{', 'ug'))
+            `,
+            errors: [
+                {
+                    message:
+                        "The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.",
+                    line: 3,
+                    column: 36,
+                },
+            ],
+        },
         // can't fix
         {
             code: `
             const p = /foo/
             const s = 'foo'
             const ret = s.replaceAll(p, 'bar')
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.",
+                    line: 4,
+                    column: 38,
+                },
+            ],
+        },
+        {
+            // Variable flag
+            code: `
+            const s = 'foo'
+            const flag = 'i'
+            const ret = s.replaceAll(new RegExp('foo', flag), 'bar')
+            `,
+            output: null,
+            errors: [
+                {
+                    message:
+                        "The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.",
+                    line: 4,
+                    column: 38,
+                },
+            ],
+        },
+        {
+            // Object property flag
+            code: `
+            const s = 'foo'
+            const f = { flag: 'i' }
+            const ret = s.replaceAll(new RegExp('foo', f.flag), 'bar')
             `,
             output: null,
             errors: [
