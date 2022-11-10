@@ -1,6 +1,6 @@
 {
     "name": "eslint-plugin-regexp",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
     "engines": {
         "node": "^12 || >=14"
