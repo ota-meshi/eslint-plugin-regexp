@@ -83,7 +83,7 @@
         "stylelint-config-standard": "^29.0.0",
         "stylelint-stylus": "^0.17.0",
         "ts-node": "^10.2.1",
-        "typescript": "~4.8.0",
+        "typescript": "~4.9.0",
         "vue-eslint-editor": "^1.1.0",
         "vue-eslint-parser": "^9.0.0",
         "vuepress": "^1.8.2"
