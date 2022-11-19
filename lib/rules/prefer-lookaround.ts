@@ -6,7 +6,6 @@ import type {
     Element,
     Group,
     LookaheadAssertion,
-    LookaroundAssertion,
     LookbehindAssertion,
     Pattern,
     WordBoundaryAssertion,
@@ -257,21 +256,6 @@ function isTrailingAssertion(element: Element): element is TrailingAssertion {
     return false
 }
 
-/** Checks whether the given element is simple (single alternative, and positive) lookaround assertion or not. */
-function isSimpleLookaroundAssertion(
-    element: Element,
-): element is LookaroundAssertion & {
-    negate: false
-    alternatives: [Alternative]
-} {
-    return (
-        element.type === "Assertion" &&
-        (element.kind === "lookahead" || element.kind === "lookbehind") &&
-        !element.negate &&
-        element.alternatives.length === 1
-    )
-}
-
 type ParsedStartPattern = {
     // An element of a pattern consisting only of assertions placed before the start capturing group.
     // e.g.
@@ -300,16 +284,23 @@ type ParsedEndPattern = {
     replacedAssertion: string
     range: PatternRange
 }
-
-/**
- * Parse the elements of the pattern.
- */
-function parsePatternElements(node: Pattern): {
+type ParsedElements = {
     // All elements
     elements: readonly Element[]
     start: ParsedStartPattern | null
     end: ParsedEndPattern | null
-} {
+}
+
+/**
+ * Parse the elements of the pattern.
+ */
+function parsePatternElements(node: Pattern): ParsedElements | null {
+    if (
+        node.alternatives.length > 1 ||
+        node.alternatives[0].elements.length < 2
+    ) {
+        return null
+    }
     const elements = node.alternatives[0].elements
     let start: ParsedStartPattern | null = null
     let leadingAssertion: LeadingAssertion | null = null
@@ -326,14 +317,9 @@ function parsePatternElements(node: Pattern): {
         start = {
             leadingAssertion,
             capturingGroup,
-            replacedAssertion: `(?<=${
-                !leadingAssertion
-                    ? ""
-                    : // If the leading assertion is simple lookbehind assertion, unwrap the parens.
-                    isSimpleLookaroundAssertion(leadingAssertion)
-                    ? leadingAssertion.alternatives[0].raw
-                    : leadingAssertion.raw
-            }${capturingGroup.alternatives.map((a) => a.raw).join("|")})`,
+            replacedAssertion: `(?<=${assertionToLookaroundAssertionPatternText(
+                leadingAssertion,
+            )}${capturingGroup.alternatives.map((a) => a.raw).join("|")})`,
             range: leadingAssertion
                 ? {
                       start: leadingAssertion.start,
@@ -360,14 +346,9 @@ function parsePatternElements(node: Pattern): {
             trailingAssertion,
             replacedAssertion: `(?=${capturingGroup.alternatives
                 .map((a) => a.raw)
-                .join("|")}${
-                !trailingAssertion
-                    ? ""
-                    : // If the trailing assertion is simple lookahead assertion, unwrap the parens.
-                    isSimpleLookaroundAssertion(trailingAssertion)
-                    ? trailingAssertion.alternatives[0].raw
-                    : trailingAssertion.raw
-            })`,
+                .join("|")}${assertionToLookaroundAssertionPatternText(
+                trailingAssertion,
+            )})`,
             range: trailingAssertion
                 ? {
                       start: capturingGroup.start,
@@ -376,11 +357,30 @@ function parsePatternElements(node: Pattern): {
                 : capturingGroup,
         }
     }
+    if (!start && !end) {
+        return null
+    }
 
     return {
         elements,
         start,
         end,
+    }
+
+    /** Convert leading/trailing assertion to lookaround assertion pattern text. */
+    function assertionToLookaroundAssertionPatternText(
+        assertion: LeadingAssertion | TrailingAssertion | null,
+    ): string {
+        return !assertion
+            ? ""
+            : // If the leading/trailing assertion is simple (single alternative, and positive) lookaround assertion, unwrap the parens.
+            assertion.type === "Assertion" &&
+              (assertion.kind === "lookahead" ||
+                  assertion.kind === "lookbehind") &&
+              !assertion.negate &&
+              assertion.alternatives.length === 1
+            ? assertion.alternatives[0].raw
+            : assertion.raw
     }
 }
 
@@ -442,10 +442,8 @@ export default createRule("prefer-lookaround", {
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { regexpNode, patternAst } = regexpContext
-            if (
-                patternAst.alternatives.length > 1 ||
-                patternAst.alternatives[0].elements.length < 2
-            ) {
+            const parsedElements = parsePatternElements(patternAst)
+            if (!parsedElements) {
                 return {}
             }
             const replaceReferenceList: ReplaceReferences[] = []
@@ -509,6 +507,7 @@ export default createRule("prefer-lookaround", {
             }
             return createVerifyVisitor(
                 regexpContext,
+                parsedElements,
                 new ReplaceReferencesList(replaceReferenceList),
             )
         }
@@ -620,6 +619,7 @@ export default createRule("prefer-lookaround", {
          */
         function createVerifyVisitor(
             regexpContext: RegExpContext,
+            parsedElements: ParsedElements,
             replaceReferenceList: ReplaceReferencesList,
         ): RegExpVisitor.Handlers {
             type RefState = {
@@ -669,9 +669,8 @@ export default createRule("prefer-lookaround", {
                         }
                     }
                 },
-                onPatternLeave(pNode) {
+                onPatternLeave() {
                     // verify
-                    const parsedElements = parsePatternElements(pNode)
                     let reportStart = null
                     if (
                         !startRefState.isUseOther &&
