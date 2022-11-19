@@ -258,7 +258,7 @@ function isTrailingAssertion(element: Element): element is TrailingAssertion {
 }
 
 /** Checks whether the given element is simple (single alternative, and positive) lookaround assertion or not. */
-function isSingleLookaroundAssertion(
+function isSimpleLookaroundAssertion(
     element: Element,
 ): element is LookaroundAssertion & {
     negate: false
@@ -330,7 +330,7 @@ function parsePatternElements(node: Pattern): {
                 !leadingAssertion
                     ? ""
                     : // If the leading assertion is simple lookbehind assertion, unwrap the parens.
-                    isSingleLookaroundAssertion(leadingAssertion)
+                    isSimpleLookaroundAssertion(leadingAssertion)
                     ? leadingAssertion.alternatives[0].raw
                     : leadingAssertion.raw
             }${capturingGroup.alternatives.map((a) => a.raw).join("|")})`,
@@ -364,7 +364,7 @@ function parsePatternElements(node: Pattern): {
                 !trailingAssertion
                     ? ""
                     : // If the trailing assertion is simple lookahead assertion, unwrap the parens.
-                    isSingleLookaroundAssertion(trailingAssertion)
+                    isSimpleLookaroundAssertion(trailingAssertion)
                     ? trailingAssertion.alternatives[0].raw
                     : trailingAssertion.raw
             })`,
