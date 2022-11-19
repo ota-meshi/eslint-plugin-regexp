@@ -200,8 +200,8 @@ tester.run("prefer-lookaround", rule as any, {
         // 'abbbba'
         `,
         // cannot replace assertions
-        `var str = 'JavaScript'.replace(/Java(Script)^/g, 'Type$1')`,
-        `var str = 'Java'.replace(/$(J)ava/g, '$1Query')`,
+        `var str = 'JavaScriptCode'.replace(/Java(Script)(?:Code)/g, 'Type$1')`,
+        `var str = 'JavaScriptCode'.replace(/(?:Java)(Script)Code/g, '$1Element')`,
     ],
     invalid: [
         {
@@ -696,6 +696,80 @@ tester.run("prefer-lookaround", rule as any, {
             output: null,
             errors: [
                 "This capturing group can be replaced with a lookbehind assertion ('(?<=Ja)').",
+            ],
+        },
+        // Multiple alternatives
+        {
+            code: `
+            var str1 = 'ESLint ESLint'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+            var str2 = 'ESTree ESTree'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+            console.log(str1, str2)
+            `,
+            output: `
+            var str1 = 'ESLint ESLint'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+            var str2 = 'ESTree ESTree'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+            console.log(str1, str2)
+            `,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').",
+                "This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').",
+            ],
+        },
+        {
+            code: `
+            var str1 = 'ESLint ESLint'.replace(/^(E|J)S/g, '$1Script');
+            var str2 = 'JSLint JSLint'.replace(/^(E|J)S/g, '$1Script');
+            console.log(str1, str2)
+            `,
+            output: `
+            var str1 = 'ESLint ESLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+            var str2 = 'JSLint JSLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+            console.log(str1, str2)
+            `,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').",
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').",
+            ],
+        },
+        // Zero-length elements that are complex, or not commonly used.
+        {
+            code: String.raw`var str = 'foobarbaz'.replace(/foo(bar)(?:^|$|a{0}\b|(?=x)|(?<=y))/, 'test$1')`,
+            output: String.raw`var str = 'foobarbaz'.replace(/foo(?=bar(?:^|$|a{0}\b|(?=x)|(?<=y)))/, 'test')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(?:^|$|a{0}\\b|(?=x)|(?<=y)))').",
+            ],
+        },
+        {
+            code: String.raw`var str = 'foobarbaz'.replace(/foo(bar)(?<=z\w+)/, 'test$1')`,
+            output: String.raw`var str = 'foobarbaz'.replace(/foo(?=bar(?<=z\w+))/, 'test')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(?<=z\\w+))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Script)^/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Script^)/g, 'Type')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=Script^)').",
+            ],
+        },
+        {
+            code: `var str = 'Java'.replace(/$(J)ava/g, '$1Query')`,
+            output: `var str = 'Java'.replace(/(?<=$J)ava/g, 'Query')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=$J)').",
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'JavaScript'.replace(/^\b(J)(ava)(Script)\b$/, '$1Query, and Java$3');
+            `,
+            output: String.raw`
+            const str = 'JavaScript'.replace(/(?<=^\bJ)(ava)(?=Script\b$)/, 'Query, and Java');
+            `,
+            errors: [
+                "These capturing groups can be replaced with lookaround assertions ('(?<=^\\bJ)' and '(?=Script\\b$)').",
+                "These capturing groups can be replaced with lookaround assertions ('(?<=^\\bJ)' and '(?=Script\\b$)').",
             ],
         },
     ],

@@ -1,14 +1,9 @@
 import type { RegExpVisitor } from "regexpp/visitor"
 import type {
-    Alternative,
     CapturingGroup,
-    EdgeAssertion,
     Element,
-    Group,
-    LookaheadAssertion,
-    LookbehindAssertion,
+    LookaroundAssertion,
     Pattern,
-    WordBoundaryAssertion,
 } from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
@@ -185,85 +180,28 @@ function getSideEffectsWhenReplacingCapturingGroup(
     }
 }
 
-/**
- * An element of a pattern consisting only of assertions that may be placed before the starting capturing group.
- * e.g.
- * /^(foo)bar/ -> ^
- * /\b(foo)bar/ -> \b
- * /(?:^|\b)(foo)bar/ -> (?:^|\b)
- * /(?<=f)(oo)bar/ -> (?<=f)
- * /(foo)bar/ -> null
- */
-type LeadingAssertion =
-    | (EdgeAssertion & { kind: "start" })
-    | WordBoundaryAssertion
-    | LookbehindAssertion
-    | (Group & {
-          alternatives: Alternative & { elements: [LeadingAssertion] }
-      })
-/**
- * An element of a pattern consisting only of assertions that may be placed after the ending capturing group.
- * e.g.
- * /foo(bar)$/ -> $
- * /foo(bar)\b/ -> \b
- * /foo(bar)(?:\b|$)/ -> (?:\b|$)
- * /foo(ba)(?=r)/ -> (?=r)
- * /foo(bar)/ -> null
- */
-type TrailingAssertion =
-    | (EdgeAssertion & { kind: "end" })
-    | WordBoundaryAssertion
-    | LookaheadAssertion
-    | (Group & {
-          alternatives: Alternative & { elements: [TrailingAssertion] }
-      })
-
-/** Checks whether the given element is leading assertion or not  */
-function isLeadingAssertion(element: Element): element is LeadingAssertion {
-    if (element.type === "Assertion") {
-        return (
-            element.kind === "word" ||
-            element.kind === "start" ||
-            element.kind === "lookbehind"
-        )
-    } else if (element.type === "Group") {
-        if (element.alternatives.length === 0) return false
-        for (const alt of element.alternatives) {
-            if (alt.elements.length !== 1) return false
-            if (!isLeadingAssertion(alt.elements[0])) return false
-        }
-        return true
-    }
-    return false
+/** Checks if the given element is a zero length element that can be placed as a leading/trailing element. */
+function isLeadingTrailingElement(element: Element): boolean {
+    if (element.type === "CapturingGroup") return false
+    return isZeroLength(element)
 }
 
-/** Checks whether the given element is trailing assertion or not  */
-function isTrailingAssertion(element: Element): element is TrailingAssertion {
-    if (element.type === "Assertion") {
-        return (
-            element.kind === "word" ||
-            element.kind === "end" ||
-            element.kind === "lookahead"
-        )
-    } else if (element.type === "Group") {
-        if (element.alternatives.length === 0) return false
-        for (const alt of element.alternatives) {
-            if (alt.elements.length !== 1) return false
-            if (!isTrailingAssertion(alt.elements[0])) return false
-        }
-        return true
-    }
-    return false
+/** Checks whether the given element is a capturing group of length 1 or greater. */
+function isCapturingGroupAndNotZeroLength(
+    element: Element,
+): element is CapturingGroup {
+    return element.type === "CapturingGroup" && !isZeroLength(element)
 }
 
 type ParsedStartPattern = {
-    // An element of a pattern consisting only of assertions placed before the start capturing group.
+    // A list of zero-length elements placed before the start capturing group.
     // e.g.
     // /^(foo)bar/ -> ^
     // /\b(foo)bar/ -> \b
     // /(?:^|\b)(foo)bar/ -> (?:^|\b)
+    // /(?<=f)(oo)bar/ -> (?<=f)
     // /(foo)bar/ -> null
-    leadingAssertion: LeadingAssertion | null
+    leadingElements: Element[]
     // Capturing group used to replace the starting string.
     capturingGroup: CapturingGroup
     // The pattern used when replacing lookbehind assertions.
@@ -273,13 +211,14 @@ type ParsedStartPattern = {
 type ParsedEndPattern = {
     // Capturing group used to replace the ending string.
     capturingGroup: CapturingGroup
-    // An element of a pattern consisting only of assertions placed after the end capturing group.
+    // A list of zero-length elements placed after the end capturing group.
     // e.g.
     // /foo(bar)$/ -> $
     // /foo(bar)\b/ -> \b
     // /foo(bar)(?:\b|$)/ -> (?:\b|$)
+    // /foo(ba)(?=r)/ -> (?=r)
     // /foo(bar)/ -> null
-    trailingAssertion: TrailingAssertion | null
+    trailingElements: Element[]
     // The pattern used when replacing lookahead assertions.
     replacedAssertion: string
     range: PatternRange
@@ -295,69 +234,70 @@ type ParsedElements = {
  * Parse the elements of the pattern.
  */
 function parsePatternElements(node: Pattern): ParsedElements | null {
-    if (
-        node.alternatives.length > 1 ||
-        node.alternatives[0].elements.length < 2
-    ) {
+    if (node.alternatives.length > 1) {
         return null
     }
     const elements = node.alternatives[0].elements
+    const leadingElements: Element[] = []
     let start: ParsedStartPattern | null = null
-    let leadingAssertion: LeadingAssertion | null = null
-    let startCandidate = elements[0]
-    if (isLeadingAssertion(startCandidate)) {
-        leadingAssertion = startCandidate
-        startCandidate = elements[1]
-    }
-    if (
-        startCandidate?.type === "CapturingGroup" &&
-        !isZeroLength(startCandidate)
-    ) {
-        const capturingGroup = startCandidate
-        start = {
-            leadingAssertion,
-            capturingGroup,
-            replacedAssertion: `(?<=${assertionToLookaroundAssertionPatternText(
-                leadingAssertion,
-            )}${capturingGroup.alternatives.map((a) => a.raw).join("|")})`,
-            range: leadingAssertion
-                ? {
-                      start: leadingAssertion.start,
-                      end: capturingGroup.end,
-                  }
-                : capturingGroup,
+
+    for (const element of elements) {
+        if (isLeadingTrailingElement(element)) {
+            leadingElements.push(element)
+            continue
         }
+        if (isCapturingGroupAndNotZeroLength(element)) {
+            const capturingGroup = element
+            start = {
+                leadingElements,
+                capturingGroup,
+                replacedAssertion: startElementsToLookbehindAssertionText(
+                    leadingElements,
+                    capturingGroup,
+                ),
+                range: {
+                    start: (leadingElements[0] || capturingGroup).start,
+                    end: capturingGroup.end,
+                },
+            }
+        }
+        break
     }
 
     let end: ParsedEndPattern | null = null
-    let trailingAssertion: TrailingAssertion | null = null
-    let endCandidate = elements[elements.length - 1]
-    if (isTrailingAssertion(endCandidate)) {
-        trailingAssertion = endCandidate
-        endCandidate = elements[elements.length - 2]
-    }
-    if (
-        endCandidate?.type === "CapturingGroup" &&
-        !isZeroLength(endCandidate)
-    ) {
-        const capturingGroup = endCandidate
-        end = {
-            capturingGroup,
-            trailingAssertion,
-            replacedAssertion: `(?=${capturingGroup.alternatives
-                .map((a) => a.raw)
-                .join("|")}${assertionToLookaroundAssertionPatternText(
-                trailingAssertion,
-            )})`,
-            range: trailingAssertion
-                ? {
-                      start: capturingGroup.start,
-                      end: trailingAssertion.end,
-                  }
-                : capturingGroup,
+    const trailingElements: Element[] = []
+    for (const element of [...elements].reverse()) {
+        if (isLeadingTrailingElement(element)) {
+            trailingElements.unshift(element)
+            continue
         }
+
+        if (isCapturingGroupAndNotZeroLength(element)) {
+            const capturingGroup = element
+            end = {
+                capturingGroup,
+                trailingElements,
+                replacedAssertion: endElementsToLookaheadAssertionText(
+                    capturingGroup,
+                    trailingElements,
+                ),
+                range: {
+                    start: capturingGroup.start,
+                    end: (
+                        trailingElements[trailingElements.length - 1] ||
+                        capturingGroup
+                    ).end,
+                },
+            }
+        }
+        break
     }
     if (!start && !end) {
+        // No capturing groups.
+        return null
+    }
+    if (start && end && start.capturingGroup === end.capturingGroup) {
+        // There is only one capturing group.
         return null
     }
 
@@ -366,22 +306,62 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
         start,
         end,
     }
+}
 
-    /** Convert leading/trailing assertion to lookaround assertion pattern text. */
-    function assertionToLookaroundAssertionPatternText(
-        assertion: LeadingAssertion | TrailingAssertion | null,
-    ): string {
-        return !assertion
-            ? ""
-            : // If the leading/trailing assertion is simple (single alternative, and positive) lookaround assertion, unwrap the parens.
-            assertion.type === "Assertion" &&
-              (assertion.kind === "lookahead" ||
-                  assertion.kind === "lookbehind") &&
-              !assertion.negate &&
-              assertion.alternatives.length === 1
-            ? assertion.alternatives[0].raw
-            : assertion.raw
+/** Convert end capturing group to lookahead assertion text. */
+function endElementsToLookaheadAssertionText(
+    capturingGroup: CapturingGroup,
+    trailingElements: Element[],
+): string {
+    const groupPattern = capturingGroup.alternatives.map((a) => a.raw).join("|")
+
+    const trailing = leadingTrailingElementsToLookaroundAssertionPatternText(
+        trailingElements,
+        "lookahead",
+    )
+    if (trailing && capturingGroup.alternatives.length !== 1) {
+        return `(?=(?:${groupPattern})${trailing})`
     }
+    return `(?=${groupPattern}${trailing})`
+}
+
+/** Convert start capturing group to lookbehind assertion text. */
+function startElementsToLookbehindAssertionText(
+    leadingElements: Element[],
+    capturingGroup: CapturingGroup,
+): string {
+    const leading = leadingTrailingElementsToLookaroundAssertionPatternText(
+        leadingElements,
+        "lookbehind",
+    )
+    const groupPattern = capturingGroup.alternatives.map((a) => a.raw).join("|")
+    if (leading && capturingGroup.alternatives.length !== 1) {
+        return `(?<=${leading}(?:${groupPattern}))`
+    }
+    return `(?<=${leading}${groupPattern})`
+}
+
+/** Convert leading/trailing elements to lookaround assertion pattern text. */
+function leadingTrailingElementsToLookaroundAssertionPatternText(
+    leadingTrailingElements: Element[],
+    lookaroundAssertionKind: LookaroundAssertion["kind"],
+): string {
+    if (
+        leadingTrailingElements.length === 1 &&
+        leadingTrailingElements[0].type === "Assertion"
+    ) {
+        const assertion = leadingTrailingElements[0]
+        if (
+            assertion.kind === lookaroundAssertionKind &&
+            !assertion.negate &&
+            assertion.alternatives.length === 1
+        ) {
+            // If the leading/trailing assertion is simple (single alternative, and positive) lookaround assertion, unwrap the parens.
+            return assertion.alternatives[0].raw
+        }
+    }
+
+    return leadingTrailingElements.map((e) => e.raw).join("")
 }
 
 /**
