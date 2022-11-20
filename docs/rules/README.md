@@ -55,6 +55,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-character-class](./no-useless-character-class.md) | disallow character class with one character | :star::wrench: |
 | [regexp/no-useless-flag](./no-useless-flag.md) | disallow unnecessary regex flags | :star::wrench: |
 | [regexp/no-useless-lazy](./no-useless-lazy.md) | disallow unnecessarily non-greedy quantifiers | :star::wrench: |
+| [regexp/no-useless-lookaround-assertions](./no-useless-lookaround-assertions.md) | disallow useless nested lookaround assertions | :wrench: |
 | [regexp/no-useless-quantifier](./no-useless-quantifier.md) | disallow quantifiers that can be removed | :star::wrench: |
 | [regexp/no-useless-range](./no-useless-range.md) | disallow unnecessary range of characters by using a hyphen | :star::wrench: |
 | [regexp/no-useless-two-nums-quantifier](./no-useless-two-nums-quantifier.md) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |

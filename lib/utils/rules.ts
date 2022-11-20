@@ -41,6 +41,7 @@ import noUselessEscape from "../rules/no-useless-escape"
 import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import noUselessFlag from "../rules/no-useless-flag"
 import noUselessLazy from "../rules/no-useless-lazy"
+import noUselessLookaroundAssertions from "../rules/no-useless-lookaround-assertions"
 import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
 import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessQuantifier from "../rules/no-useless-quantifier"
@@ -120,6 +121,7 @@ export const rules = [
     noUselessExactlyQuantifier,
     noUselessFlag,
     noUselessLazy,
+    noUselessLookaroundAssertions,
     noUselessNonCapturingGroup,
     noUselessNonGreedy,
     noUselessQuantifier,
