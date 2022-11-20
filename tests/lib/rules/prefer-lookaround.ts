@@ -772,5 +772,33 @@ tester.run("prefer-lookaround", rule as any, {
                 "These capturing groups can be replaced with lookaround assertions ('(?<=^\\bJ)' and '(?=Script\\b$)').",
             ],
         },
+        {
+            code: String.raw`var str = 'foobar'.replace(/foo(bar)(\b|$)/, 'bar$1')`,
+            output: String.raw`var str = 'foobar'.replace(/foo(?=bar(\b|$))/, 'bar')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(\\b|$))').",
+            ],
+        },
+        {
+            code: String.raw`var str = 'foobar'.replace(/foo(bar)(\b|$)/, '$2$1')`,
+            output: null,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(\\b|$))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Scrip)((?=t))/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Scrip((?=t)))/g, 'Type')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=Scrip((?=t)))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScriptCode'.replace(/((?<=Java))(Script)Code/g, '$2Linter')`,
+            output: `var str = 'JavaScriptCode'.replace(/(?<=((?<=Java))Script)Code/g, 'Linter')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=((?<=Java))Script)').",
+            ],
+        },
     ],
 })

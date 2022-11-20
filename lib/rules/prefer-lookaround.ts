@@ -180,12 +180,6 @@ function getSideEffectsWhenReplacingCapturingGroup(
     }
 }
 
-/** Checks if the given element is a zero length element that can be placed as a leading/trailing element. */
-function isLeadingTrailingElement(element: Element): boolean {
-    if (element.type === "CapturingGroup") return false
-    return isZeroLength(element)
-}
-
 /** Checks whether the given element is a capturing group of length 1 or greater. */
 function isCapturingGroupAndNotZeroLength(
     element: Element,
@@ -242,7 +236,7 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let start: ParsedStartPattern | null = null
 
     for (const element of elements) {
-        if (isLeadingTrailingElement(element)) {
+        if (isZeroLength(element)) {
             leadingElements.push(element)
             continue
         }
@@ -267,7 +261,7 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let end: ParsedEndPattern | null = null
     const trailingElements: Element[] = []
     for (const element of [...elements].reverse()) {
-        if (isLeadingTrailingElement(element)) {
+        if (isZeroLength(element)) {
             trailingElements.unshift(element)
             continue
         }
