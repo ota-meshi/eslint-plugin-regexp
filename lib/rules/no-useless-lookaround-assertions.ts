@@ -47,10 +47,10 @@ export default createRule("no-useless-lookaround-assertions", {
                 const nested = at(
                     alternative.elements,
                     assertion.kind === "lookahead"
-                        ? // The last lookahead positive assertion within
+                        ? // The last positive lookahead assertion within
                           // a lookahead assertion is the same without the assertion.
                           -1
-                        : // The first lookbehind positive assertion within
+                        : // The first positive lookbehind assertion within
                           // a lookbehind assertion is the same without the assertion.
                           0,
                 )
