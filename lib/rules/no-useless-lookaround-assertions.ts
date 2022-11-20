@@ -98,7 +98,7 @@ export default createRule("no-useless-lookaround-assertions", {
                     const alternatives = assertion.alternatives.map(
                         (alt) => alt.raw,
                     )
-                    if (alternatives.length <= 1) {
+                    if (alternatives.length === 1) {
                         // unwrap `(?=` and `)`
                         return alternatives[0]
                     }
