@@ -115,6 +115,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-escape-backspace](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-escape-backspace.html) | disallow escape backspace (`[\b]`) | :star: |
 | [regexp/no-invalid-regexp](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-invalid-regexp.html) | disallow invalid regular expression strings in `RegExp` constructors | :star: |
 | [regexp/no-lazy-ends](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-lazy-ends.html) | disallow lazy quantifiers at the end of an expression | :star: |
+| [regexp/no-misleading-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-misleading-capturing-group.html) | disallow capturing groups that do not behave as one would expect |  |
 | [regexp/no-misleading-unicode-character](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-misleading-unicode-character.html) | disallow multi-code-point characters in character classes and quantifiers | :wrench: |
 | [regexp/no-missing-g-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-missing-g-flag.html) | disallow missing `g` flag in patterns used in `String#matchAll` and `String#replaceAll` | :wrench: |
 | [regexp/no-optional-assertion](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-optional-assertion.html) | disallow optional assertions | :star: |

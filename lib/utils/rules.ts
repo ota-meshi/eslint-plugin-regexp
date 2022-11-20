@@ -20,6 +20,7 @@ import noInvalidRegexp from "../rules/no-invalid-regexp"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
 import noLegacyFeatures from "../rules/no-legacy-features"
+import noMisleadingCapturingGroup from "../rules/no-misleading-capturing-group"
 import noMisleadingUnicodeCharacter from "../rules/no-misleading-unicode-character"
 import noMissingGFlag from "../rules/no-missing-g-flag"
 import noNonStandardFlag from "../rules/no-non-standard-flag"
@@ -99,6 +100,7 @@ export const rules = [
     noInvisibleCharacter,
     noLazyEnds,
     noLegacyFeatures,
+    noMisleadingCapturingGroup,
     noMisleadingUnicodeCharacter,
     noMissingGFlag,
     noNonStandardFlag,
