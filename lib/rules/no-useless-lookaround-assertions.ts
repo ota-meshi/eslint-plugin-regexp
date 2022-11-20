@@ -1,8 +1,4 @@
-import type {
-    LookaheadAssertion,
-    LookaroundAssertion,
-    LookbehindAssertion,
-} from "regexpp/ast"
+import type { LookaroundAssertion } from "regexpp/ast"
 import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
@@ -32,53 +28,39 @@ export default createRule("no-useless-lookaround-assertions", {
         ): RegExpVisitor.Handlers {
             return {
                 onAssertionEnter(aNode) {
-                    if (aNode.kind === "lookahead") {
-                        verifyForLookahead(regexpContext, aNode)
-                    } else if (aNode.kind === "lookbehind") {
-                        verifyForLookbehind(regexpContext, aNode)
+                    if (
+                        aNode.kind === "lookahead" ||
+                        aNode.kind === "lookbehind"
+                    ) {
+                        verify(regexpContext, aNode)
                     }
                 },
             }
         }
 
-        /** Verify for lookahead assertion */
-        function verifyForLookahead(
+        /** Verify for lookaround assertion */
+        function verify(
             regexpContext: RegExpContext,
-            assertion: LookaheadAssertion,
+            assertion: LookaroundAssertion,
         ) {
             for (const alternative of assertion.alternatives) {
-                const last =
-                    alternative.elements[alternative.elements.length - 1]
+                const nested = at(
+                    alternative.elements,
+                    assertion.kind === "lookahead"
+                        ? // The last lookahead positive assertion within
+                          // a lookahead assertion is the same without the assertion.
+                          -1
+                        : // The first lookbehind positive assertion within
+                          // a lookbehind assertion is the same without the assertion.
+                          0,
+                )
                 if (
-                    last?.type !== "Assertion" ||
-                    last.kind !== "lookahead" ||
-                    last.negate
+                    nested?.type === "Assertion" &&
+                    nested.kind === assertion.kind &&
+                    !nested.negate
                 ) {
-                    continue
+                    reportLookaroundAssertion(regexpContext, nested)
                 }
-                // The last lookahead positive assertion within
-                // a lookahead assertion is the same without the assertion.
-                reportLookaroundAssertion(regexpContext, last)
-            }
-        }
-
-        /** Verify for lookbehind assertion */
-        function verifyForLookbehind(
-            regexpContext: RegExpContext,
-            assertion: LookbehindAssertion,
-        ) {
-            for (const alternative of assertion.alternatives) {
-                const first = alternative.elements[0]
-                if (
-                    first?.type !== "Assertion" ||
-                    first.kind !== "lookbehind" ||
-                    first.negate
-                ) {
-                    continue
-                }
-                // The first lookbehind positive assertion within
-                // a lookbehind assertion is the same without the assertion.
-                reportLookaroundAssertion(regexpContext, first)
             }
         }
 
@@ -113,3 +95,19 @@ export default createRule("no-useless-lookaround-assertions", {
         })
     },
 })
+
+// TODO After dropping support for Node < v16.6.0 we can use native `.at()`.
+/**
+ * `.at()` polyfill
+ * see https://github.com/tc39/proposal-relative-indexing-method#polyfill
+ */
+function at<T>(array: T[], n: number) {
+    // ToInteger() abstract op
+    let num = Math.trunc(n) || 0
+    // Allow negative indexing from the end
+    if (num < 0) num += array.length
+    // OOB access is guaranteed to return undefined
+    if (num < 0 || num >= array.length) return undefined
+    // Otherwise, this is just normal property access
+    return array[num]
+}
