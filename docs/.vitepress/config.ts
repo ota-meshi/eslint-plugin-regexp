@@ -60,6 +60,9 @@ export default defineConfig({
                 path: path.join(dirname, "./build-system/shim/path.mjs"),
             },
         },
+        define: {
+            "process.env.NODE_DEBUG": "false",
+        },
     },
 
     lastUpdated: true,
