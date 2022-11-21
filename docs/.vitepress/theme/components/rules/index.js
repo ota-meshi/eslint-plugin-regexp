@@ -1,7 +1,6 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- demo
-/* eslint-disable node/no-unsupported-features/es-syntax -- demo */
-import { Linter } from "eslint/lib/linter"
-import plugin from "../../../../"
+import { Linter } from "eslint"
+import { rules } from "../../../../../lib/utils/rules.ts"
+import { rules as recommendedRules } from "../../../../../lib/configs/recommended.ts"
 
 const coreRules = Object.fromEntries(new Linter().getRules())
 
@@ -33,8 +32,8 @@ const CATEGORY_CLASSES = {
 
 const allRules = []
 
-for (const k of Object.keys(plugin.rules)) {
-    const rule = plugin.rules[k]
+for (const k of Object.keys(rules)) {
+    const rule = rules[k]
     if (rule.meta.deprecated) {
         continue
     }
@@ -56,7 +55,7 @@ for (const k of Object.keys(coreRules)) {
         category: `eslint-core-rules@${rule.meta.type}`,
         ruleId: k,
         url: rule.meta.docs.url,
-        init: plugin.configs.recommended.rules[k] || "off",
+        init: recommendedRules[k] || "off",
     })
 }
 
@@ -98,7 +97,7 @@ export const DEFAULT_RULES_CONFIG = allRules.reduce((c, r) => {
     return c
 }, {})
 
-export const rules = allRules
+export { allRules as rules }
 
 export function getRule(ruleId) {
     if (!ruleId) {

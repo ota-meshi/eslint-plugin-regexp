@@ -2,6 +2,8 @@
 
 [eslint-plugin-regexp](https://www.npmjs.com/package/eslint-plugin-regexp) is ESLint plugin for finding RegExp mistakes and RegExp style guide violations.
 
+<div class="package-status">
+
 [![NPM license](https://img.shields.io/npm/l/eslint-plugin-regexp.svg)](https://www.npmjs.com/package/eslint-plugin-regexp)
 [![NPM version](https://img.shields.io/npm/v/eslint-plugin-regexp.svg)](https://www.npmjs.com/package/eslint-plugin-regexp)
 [![NPM downloads](https://img.shields.io/badge/dynamic/json.svg?label=downloads&colorB=green&suffix=/day&query=$.downloads&uri=https://api.npmjs.org//downloads/point/last-day/eslint-plugin-regexp&maxAge=3600)](http://www.npmtrends.com/eslint-plugin-regexp)
@@ -12,6 +14,8 @@
 [![Build Status](https://github.com/ota-meshi/eslint-plugin-regexp/workflows/CI/badge.svg?branch=master)](https://github.com/ota-meshi/eslint-plugin-regexp/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/ota-meshi/eslint-plugin-regexp/badge.svg?branch=master)](https://coveralls.io/github/ota-meshi/eslint-plugin-regexp?branch=master)
 
+</div>
+
 ## :name_badge: Features
 
 This ESLint plugin provides linting rules relate to better ways to help you avoid problems when using RegExp.
@@ -20,20 +24,20 @@ This ESLint plugin provides linting rules relate to better ways to help you avoi
 - Enforces a consistent style of regular expressions.
 - Find hints for writing optimized regular expressions.
 
-You can check on the [Online DEMO](./playground/README.md).
+You can check on the [Online DEMO](./playground/index.md).
 
 ## :book: Usage
 
-See [User Guide](./user-guide/README.md).
+See [User Guide](./user-guide/index.md).
 
 ## :white_check_mark: Rules
 
-See [Available Rules](./rules/README.md).
+See [Available Rules](./rules/index.md).
 
 ## :gear: Settings
 
-See [Settings](./settings/README.md).
+See [Settings](./settings/index.md).
 
 ## :lock: License
 
-See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
+See the [LICENSE](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/LICENSE) file for license rights and limitations (MIT).

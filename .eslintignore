@@ -1,11 +1,11 @@
 /.nyc_output
 /coverage
 /dist
-/docs/.vuepress/dist
-/docs/.vuepress/components/demo/demo-code.js
+/docs/.vitepress/dist
+/docs/.vitepress/build-system/shim/eslint.mjs
 /node_modules
 /assets
-!/docs/.vuepress
+!/docs/.vitepress
 !/.vscode
 !/.github
 /tests/fixtures/integrations/eslint-plugin/test.js

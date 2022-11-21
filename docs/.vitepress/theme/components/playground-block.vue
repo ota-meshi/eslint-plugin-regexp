@@ -4,8 +4,8 @@
         <div class="main-content">
             <rules-settings
                 ref="settings"
+                v-model:rules="rules"
                 class="rules-settings"
-                :rules.sync="rules"
             />
             <div class="editor-content">
                 <pg-editor
@@ -28,11 +28,11 @@
                                 i
                             "
                             class="message"
-                            :class="getRule(msg.ruleId).classes"
+                            :class="getRule(msg.ruleId)?.classes"
                         >
                             [{{ msg.line }}:{{ msg.column }}]:
                             {{ msg.message }} (<a
-                                :href="getRule(msg.ruleId).url"
+                                :href="getRule(msg.ruleId)?.url"
                                 target="_blank"
                             >
                                 {{ msg.ruleId }} </a
@@ -52,7 +52,25 @@ import SnsBar from "./components/SnsBar.vue"
 import { deserializeState, serializeState } from "./state"
 import { DEFAULT_RULES_CONFIG, getRule } from "./rules"
 
-const DEFAULT_CODE = require("!!raw-loader!./demo/demo-code.js").default
+const DEFAULT_CODE = String.raw`
+/eslint-plugin[-regexp]/u
+
+// Optimize and Simplify
+
+var re = /[0-9][^\s]/iu;
+var re = /[\w\p{ASCII}]/u;
+var re = /^\w[_A-Z\d]*\e{1,}/i;
+
+var re = /(?:\w|\d){1,}/;
+var re = /(?<!\w)a+(?=$)/mi;
+var re = /[\s\S]#[\0-\uFFFF]/yi;
+var re = /\d*\w(?:[a-z_]|\d+)*/im;
+
+// Detect problems
+
+var re = /\1(a)/;
+var re = RegExp('[a-z]+' + '|Foo', 'i');
+`.trim()
 
 export default {
     name: "PlaygroundBlock",
@@ -139,6 +157,10 @@ function equalsRules(a, b) {
 }
 </script>
 <style scoped>
+.app {
+    height: calc(100vh - 70px);
+}
+
 .main-content {
     display: flex;
     flex-wrap: wrap;

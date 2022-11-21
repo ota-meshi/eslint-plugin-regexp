@@ -10,15 +10,15 @@
         :dark="dark"
         :format="format"
         :fix="fix"
-        @input="$emit('input', $event)"
+        @update:code="$emit('update:code', $event)"
         @change="$emit('change', $event)"
     />
 </template>
 
 <script>
-import EslintEditor from "vue-eslint-editor"
-import { Linter } from "eslint/lib/linter"
-import plugin from "../../../.."
+import EslintEditor from "@ota-meshi/site-kit-eslint-editor-vue"
+import { Linter } from "eslint"
+import { rules } from "../../../../../lib/utils/rules"
 
 export default {
     name: "EslintPluginEditor",
@@ -44,6 +44,7 @@ export default {
             type: Boolean,
         },
     },
+    emits: ["update:code", "change"],
 
     data() {
         return {
@@ -98,8 +99,8 @@ export default {
         linter() {
             const linter = new Linter()
 
-            for (const k of Object.keys(plugin.rules)) {
-                const rule = plugin.rules[k]
+            for (const k of Object.keys(rules)) {
+                const rule = rules[k]
                 linter.defineRule(rule.meta.docs.ruleId, rule)
             }
 

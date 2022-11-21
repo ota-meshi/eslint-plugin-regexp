@@ -23,8 +23,9 @@
         "test:watch": "npm run test:base -- --watch",
         "update": "ts-node --transpile-only ./tools/update.ts && npm run eslint-fix",
         "new": "ts-node ./tools/new-rule.ts",
-        "docs:watch": "vuepress dev --debug docs",
-        "docs:build": "npm run build && vuepress build docs --no-cache",
+        "docs:watch": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:build-and-preview": "npm run docs:build && npx http-server docs/.vitepress/dist",
         "preversion": "npm test && git add .",
         "version": "env-cmd -e version npm run update && git add ."
     },
@@ -53,6 +54,7 @@
     },
     "devDependencies": {
         "@ota-meshi/eslint-plugin": "^0.13.0",
+        "@ota-meshi/site-kit-eslint-editor-vue": "^0.1.0",
         "@types/chai": "^4.2.22",
         "@types/eslint": "^8.0.0",
         "@types/eslint-scope": "^3.7.1",
@@ -80,13 +82,11 @@
         "prettier": "~2.7.0",
         "raw-loader": "^4.0.2",
         "stylelint": "^14.9.1",
-        "stylelint-config-standard": "^29.0.0",
-        "stylelint-stylus": "^0.17.0",
+        "stylelint-config-standard-vue": "^1.0.0",
         "ts-node": "^10.2.1",
         "typescript": "~4.9.0",
-        "vue-eslint-editor": "^1.1.0",
-        "vue-eslint-parser": "^9.0.0",
-        "vuepress": "^1.8.2"
+        "vitepress": "^1.0.0-alpha.29",
+        "vue-eslint-parser": "^9.0.0"
     },
     "dependencies": {
         "comment-parser": "^1.1.2",
