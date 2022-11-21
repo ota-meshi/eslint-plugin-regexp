@@ -3,7 +3,7 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
-export default createRule("no-useless-lookaround-assertions", {
+export default createRule("no-extra-lookaround-assertions", {
     meta: {
         docs: {
             description: "disallow unnecessary nested lookaround assertions",

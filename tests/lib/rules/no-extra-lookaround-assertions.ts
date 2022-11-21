@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/no-useless-lookaround-assertions"
+import rule from "../../../lib/rules/no-extra-lookaround-assertions"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("no-useless-lookaround-assertions", rule as any, {
+tester.run("no-extra-lookaround-assertions", rule as any, {
     valid: [
         `console.log('JavaScript'.replace(/Java(?=Script)/u, 'Type'))`,
         `console.log('JavaScript'.replace(/(?<=Java)Script/u, ''))`,

@@ -1,10 +1,10 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/no-useless-lookaround-assertions"
+title: "regexp/no-extra-lookaround-assertions"
 description: "disallow unnecessary nested lookaround assertions"
 ---
-# regexp/no-useless-lookaround-assertions
+# regexp/no-extra-lookaround-assertions
 
 > disallow unnecessary nested lookaround assertions
 
@@ -30,7 +30,7 @@ This rule aims to report and fix these unnecessary lookaround assertions.
 <eslint-code-block fix>
 
 ```js
-/* eslint regexp/no-useless-lookaround-assertions: "error" */
+/* eslint regexp/no-extra-lookaround-assertions: "error" */
 
 /* ✓ GOOD */
 var ts = 'JavaScript'.replace(/Java(?=Script)/u, 'Type');
@@ -57,5 +57,5 @@ Nothing.
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-useless-lookaround-assertions.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-useless-lookaround-assertions.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/no-extra-lookaround-assertions.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/no-extra-lookaround-assertions.ts)
