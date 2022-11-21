@@ -84,25 +84,34 @@ module.exports = {
         },
         {
             files: ["*.vue"],
-            extends: ["plugin:@ota-meshi/+vue2", "plugin:@ota-meshi/+prettier"],
+            extends: ["plugin:@ota-meshi/+vue3", "plugin:@ota-meshi/+prettier"],
             parserOptions: {
                 sourceType: "module",
             },
             globals: {
                 require: true,
             },
+            rules: {
+                "vue/multi-word-component-names": "off",
+                "@typescript-eslint/no-explicit-any": "off",
+            },
         },
         {
-            files: ["docs/.vuepress/**"],
+            files: ["docs/.vitepress/**"],
             parserOptions: {
                 sourceType: "module",
                 ecmaVersion: 2020,
             },
             globals: {
                 window: true,
+                require: true,
             },
             rules: {
                 "require-jsdoc": "off",
+                "node/file-extension-in-import": "off",
+                "node/no-extraneous-import": "off",
+                "node/no-unsupported-features/es-syntax": "off",
+                "@typescript-eslint/no-explicit-any": "off",
             },
         },
     ],

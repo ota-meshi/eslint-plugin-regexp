@@ -1,6 +1,4 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- demo
-/* eslint-disable node/no-unsupported-features/es-syntax -- demo */
-import pako from "../../../../node_modules/pako"
+import pako from "pako"
 
 /**
  * Get only enabled rules to make the serialized data smaller.

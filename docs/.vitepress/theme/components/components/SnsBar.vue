@@ -90,7 +90,7 @@ export default {
     align-items: flex-start;
 }
 
-.sns-bar >>> .sns > * {
+.sns-bar :deep(.sns > *) {
     vertical-align: top !important;
     margin-left: 4px;
     height: 23px !important;
