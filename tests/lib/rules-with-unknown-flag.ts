@@ -1,6 +1,5 @@
 import { Linter } from "eslint"
 import * as parser from "@typescript-eslint/parser"
-// @ts-expect-error -- ignore
 import { rules } from "../../lib/index"
 import assert from "assert"
 import type { RegExpContext } from "../../lib/utils"

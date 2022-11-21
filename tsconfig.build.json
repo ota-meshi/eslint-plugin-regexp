@@ -1,6 +1,6 @@
 {
     "extends": "./tsconfig.json",
-    "exclude": ["tests/**/*", "tools/**/*", "typings/**/*"],
+    "exclude": ["tests/**/*", "tools/**/*", "typings/**/*", "docs/**/*"],
     "compilerOptions": {
         "removeComments": true /* Do not emit comments to output. */
     }

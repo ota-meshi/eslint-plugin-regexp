@@ -5,15 +5,10 @@ export {
     getStaticValue,
     getScope,
     isKnownMethodCall,
-    KnownMethodCall,
     parseReplacements,
-    ReferenceElement,
 } from "./utils"
-export {
-    extractExpressionReferences,
-    ExpressionReference,
-} from "./extract-expression-references"
-export {
-    extractPropertyReferences,
-    PropertyReference,
-} from "./extract-property-references"
+export type { KnownMethodCall, ReferenceElement } from "./utils"
+export { extractExpressionReferences } from "./extract-expression-references"
+export type { ExpressionReference } from "./extract-expression-references"
+export { extractPropertyReferences } from "./extract-property-references"
+export type { PropertyReference } from "./extract-property-references"

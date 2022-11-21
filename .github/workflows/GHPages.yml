@@ -32,14 +32,13 @@ jobs:
               run: npm ci
             - name: Build docs
               run: |+
-                  export NODE_OPTIONS=--openssl-legacy-provider
                   npm run docs:build
             - name: Setup Pages
               uses: actions/configure-pages@v2
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v1
               with:
-                  path: ./docs/.vuepress/dist
+                  path: ./docs/.vitepress/dist/eslint-plugin-regexp
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v1

@@ -199,6 +199,9 @@ tester.run("prefer-lookaround", rule as any, {
         "aaaaaa".replace(/(?<=a)aa(?:)/g, "bb")
         // 'abbbba'
         `,
+        // cannot replace assertions
+        `var str = 'JavaScriptCode'.replace(/Java(Script)(?:Code)/g, 'Type$1')`,
+        `var str = 'JavaScriptCode'.replace(/(?:Java)(Script)Code/g, '$1Element')`,
     ],
     invalid: [
         {
@@ -435,6 +438,366 @@ tester.run("prefer-lookaround", rule as any, {
             output: null,
             errors: [
                 "This capturing group can be replaced with a lookahead assertion ('(?=(a))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Script)$/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Script$)/g, 'Type')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script$)').",
+                    column: 37,
+                    endColumn: 46,
+                },
+            ],
+        },
+        {
+            code: String.raw`var str = 'JavaScript'.replace(/Java(Script)\b/g, 'Type$1')`,
+            output: String.raw`var str = 'JavaScript'.replace(/Java(?=Script\b)/g, 'Type')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script\\b)').",
+                    column: 37,
+                    endColumn: 47,
+                },
+            ],
+        },
+        {
+            code: String.raw`var str = 'JavaScript'.replace(/Java(Script)(?:\b|$)/g, 'Type$1')`,
+            output: String.raw`var str = 'JavaScript'.replace(/Java(?=Script(?:\b|$))/g, 'Type')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script(?:\\b|$))').",
+                    column: 37,
+                    endColumn: 53,
+                },
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Scrip)(?=t)/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script)').",
+                    column: 37,
+                    endColumn: 49,
+                },
+            ],
+        },
+        {
+            code: `var str = 'JavaScriptLinter'.replace(/Java(Script)(?=Linter|Checker)/g, 'Type$1')`,
+            output: `var str = 'JavaScriptLinter'.replace(/Java(?=Script(?=Linter|Checker))/g, 'Type')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=Script(?=Linter|Checker))').",
+                    column: 43,
+                    endColumn: 69,
+                },
+            ],
+        },
+        {
+            code: `var str = 'Java'.replace(/^(J)ava/g, '$1Query')`,
+            output: `var str = 'Java'.replace(/(?<=^J)ava/g, 'Query')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=^J)').",
+                    column: 27,
+                    endColumn: 31,
+                },
+            ],
+        },
+        {
+            code: String.raw`var str = 'Java'.replace(/\b(J)ava/g, '$1Query')`,
+            output: String.raw`var str = 'Java'.replace(/(?<=\bJ)ava/g, 'Query')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=\\bJ)').",
+                    column: 27,
+                    endColumn: 32,
+                },
+            ],
+        },
+        {
+            code: String.raw`var str = 'Java'.replace(/(?:^|\b)(J)ava/g, '$1Query')`,
+            output: String.raw`var str = 'Java'.replace(/(?<=(?:^|\b)J)ava/g, 'Query')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=(?:^|\\b)J)').",
+                    column: 27,
+                    endColumn: 38,
+                },
+            ],
+        },
+        {
+            code: `var str = 'JavaScriptCode'.replace(/(?<=Java)(Script)Code/g, '$1Linter')`,
+            output: `var str = 'JavaScriptCode'.replace(/(?<=JavaScript)Code/g, 'Linter')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=JavaScript)').",
+                    column: 37,
+                    endColumn: 54,
+                },
+            ],
+        },
+        {
+            code: `var str = 'JavaScriptCode'.replace(/(?<=Java|Type)(Script)Code/g, '$1Linter')`,
+            output: `var str = 'JavaScriptCode'.replace(/(?<=(?<=Java|Type)Script)Code/g, 'Linter')`,
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookbehind assertion ('(?<=(?<=Java|Type)Script)').",
+                    column: 37,
+                    endColumn: 59,
+                },
+            ],
+        },
+        {
+            code: `
+            const str = 'JavaScript'.replace(/^(Java)(Script)$/, '$1 and Type$2');
+            `,
+            output: `
+            const str = 'JavaScript'.replace(/(?<=^Java)(?=Script$)/, ' and Type');
+            `,
+            errors: [
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=^Java)' and '(?=Script$)').",
+                    column: 47,
+                    endColumn: 54,
+                },
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=^Java)' and '(?=Script$)').",
+                    column: 54,
+                    endColumn: 63,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'JavaScript'.replace(/\b(Java)(Script)\b/, '$1 and Type$2');
+            `,
+            output: String.raw`
+            const str = 'JavaScript'.replace(/(?<=\bJava)(?=Script\b)/, ' and Type');
+            `,
+            errors: [
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=\\bJava)' and '(?=Script\\b)').",
+                    column: 47,
+                    endColumn: 55,
+                },
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=\\bJava)' and '(?=Script\\b)').",
+                    column: 55,
+                    endColumn: 65,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'JavaScript'.replace(/(?:^|\b)(Java)(Script)(?:\b|$)/, '$1 and Type$2');
+            `,
+            output: String.raw`
+            const str = 'JavaScript'.replace(/(?<=(?:^|\b)Java)(?=Script(?:\b|$))/, ' and Type');
+            `,
+            errors: [
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=(?:^|\\b)Java)' and '(?=Script(?:\\b|$))').",
+                    column: 47,
+                    endColumn: 61,
+                },
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=(?:^|\\b)Java)' and '(?=Script(?:\\b|$))').",
+                    column: 61,
+                    endColumn: 77,
+                },
+            ],
+        },
+        {
+            code: `
+            const str = 'JavaScript'.replace(/^(J)(ava)(Script)$/, '$1Query, and Java$3');
+            `,
+            output: `
+            const str = 'JavaScript'.replace(/(?<=^J)(ava)(?=Script$)/, 'Query, and Java');
+            `,
+            errors: [
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=^J)' and '(?=Script$)').",
+                    column: 47,
+                    endColumn: 51,
+                },
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=^J)' and '(?=Script$)').",
+                    column: 56,
+                    endColumn: 65,
+                },
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'JavaScript'.replace(/\b(J)(ava)(Script)\b/, '$1Query, and Java$3');
+            `,
+            output: String.raw`
+            const str = 'JavaScript'.replace(/(?<=\bJ)(ava)(?=Script\b)/, 'Query, and Java');
+            `,
+            errors: [
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=\\bJ)' and '(?=Script\\b)').",
+                    column: 47,
+                    endColumn: 52,
+                },
+                {
+                    message:
+                        "These capturing groups can be replaced with lookaround assertions ('(?<=\\bJ)' and '(?=Script\\b)').",
+                    column: 57,
+                    endColumn: 67,
+                },
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(p)(t)/g, 'Type$1$2$3$4$5$6')`,
+            output: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(p)(?=t)/g, 'Type$1$2$3$4$5')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=t)').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(p)(?=t)/g, 'Type$1$2$3$4$5')`,
+            output: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(?=pt)/g, 'Type$1$2$3$4')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=pt)').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(?=pt)/g, 'Type$1$2$3$4')`,
+            output: `var str = 'JavaScript'.replace(/Java(S)(c)(r)(?=ipt)/g, 'Type$1$2$3')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=ipt)').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/(?<=J)(a)(v)(a)Script/g, '$1$2$3Runtime')`,
+            output: null,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=Ja)').",
+            ],
+        },
+        // Multiple alternatives
+        {
+            code: `
+            var str1 = 'ESLint ESLint'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+            var str2 = 'ESTree ESTree'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+            console.log(str1, str2)
+            `,
+            output: `
+            var str1 = 'ESLint ESLint'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+            var str2 = 'ESTree ESTree'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+            console.log(str1, str2)
+            `,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').",
+                "This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').",
+            ],
+        },
+        {
+            code: `
+            var str1 = 'ESLint ESLint'.replace(/^(E|J)S/g, '$1Script');
+            var str2 = 'JSLint JSLint'.replace(/^(E|J)S/g, '$1Script');
+            console.log(str1, str2)
+            `,
+            output: `
+            var str1 = 'ESLint ESLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+            var str2 = 'JSLint JSLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+            console.log(str1, str2)
+            `,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').",
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').",
+            ],
+        },
+        // Zero-length elements that are complex, or not commonly used.
+        {
+            code: String.raw`var str = 'foobarbaz'.replace(/foo(bar)(?:^|$|a{0}\b|(?=x)|(?<=y))/, 'test$1')`,
+            output: String.raw`var str = 'foobarbaz'.replace(/foo(?=bar(?:^|$|a{0}\b|(?=x)|(?<=y)))/, 'test')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(?:^|$|a{0}\\b|(?=x)|(?<=y)))').",
+            ],
+        },
+        {
+            code: String.raw`var str = 'foobarbaz'.replace(/foo(bar)(?<=z\w+)/, 'test$1')`,
+            output: String.raw`var str = 'foobarbaz'.replace(/foo(?=bar(?<=z\w+))/, 'test')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(?<=z\\w+))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Script)^/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Script^)/g, 'Type')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=Script^)').",
+            ],
+        },
+        {
+            code: `var str = 'Java'.replace(/$(J)ava/g, '$1Query')`,
+            output: `var str = 'Java'.replace(/(?<=$J)ava/g, 'Query')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=$J)').",
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'JavaScript'.replace(/^\b(J)(ava)(Script)\b$/, '$1Query, and Java$3');
+            `,
+            output: String.raw`
+            const str = 'JavaScript'.replace(/(?<=^\bJ)(ava)(?=Script\b$)/, 'Query, and Java');
+            `,
+            errors: [
+                "These capturing groups can be replaced with lookaround assertions ('(?<=^\\bJ)' and '(?=Script\\b$)').",
+                "These capturing groups can be replaced with lookaround assertions ('(?<=^\\bJ)' and '(?=Script\\b$)').",
+            ],
+        },
+        {
+            code: String.raw`var str = 'foobar'.replace(/foo(bar)(\b|$)/, 'bar$1')`,
+            output: String.raw`var str = 'foobar'.replace(/foo(?=bar(\b|$))/, 'bar')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(\\b|$))').",
+            ],
+        },
+        {
+            code: String.raw`var str = 'foobar'.replace(/foo(bar)(\b|$)/, '$2$1')`,
+            output: null,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=bar(\\b|$))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScript'.replace(/Java(Scrip)((?=t))/g, 'Type$1')`,
+            output: `var str = 'JavaScript'.replace(/Java(?=Scrip((?=t)))/g, 'Type')`,
+            errors: [
+                "This capturing group can be replaced with a lookahead assertion ('(?=Scrip((?=t)))').",
+            ],
+        },
+        {
+            code: `var str = 'JavaScriptCode'.replace(/((?<=Java))(Script)Code/g, '$2Linter')`,
+            output: `var str = 'JavaScriptCode'.replace(/(?<=((?<=Java))Script)Code/g, 'Linter')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=((?<=Java))Script)').",
             ],
         },
     ],

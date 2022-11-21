@@ -15,29 +15,24 @@ const coreRules = [
     // "require-unicode-regexp", // modern
 ]
 
-const content = `
-export = {
-    plugins: ["regexp"],
-    rules: {
-        // ESLint core rules
-        ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n")},
-        // The ESLint rule will report fewer cases than our rule
-        "no-invalid-regexp": "off",
-        "no-useless-backreference": "off",
-        // TODO Switch in the major version.
-        // "no-empty-character-class": "off",
+const content = `export const plugins = ["regexp"]
+export const rules = {
+    // ESLint core rules
+    ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n    ")},
+    // The ESLint rule will report fewer cases than our rule
+    "no-invalid-regexp": "off",
+    "no-useless-backreference": "off",
+    // TODO Switch in the major version.
+    // "no-empty-character-class": "off",
 
-        // eslint-plugin-regexp rules
-        ${rules
-            .filter(
-                (rule) => rule.meta.docs.recommended && !rule.meta.deprecated,
-            )
-            .map((rule) => {
-                const conf = rule.meta.docs.default || "error"
-                return `"${rule.meta.docs.ruleId}": "${conf}"`
-            })
-            .join(",\n")}
-    },
+    // eslint-plugin-regexp rules
+    ${rules
+        .filter((rule) => rule.meta.docs.recommended && !rule.meta.deprecated)
+        .map((rule) => {
+            const conf = rule.meta.docs.default || "error"
+            return `"${rule.meta.docs.ruleId}": "${conf}"`
+        })
+        .join(",\n    ")},
 }
 `
 

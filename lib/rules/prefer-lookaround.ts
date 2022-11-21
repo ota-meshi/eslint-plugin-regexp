@@ -1,5 +1,10 @@
 import type { RegExpVisitor } from "regexpp/visitor"
-import type { CapturingGroup, Element } from "regexpp/ast"
+import type {
+    CapturingGroup,
+    Element,
+    LookaroundAssertion,
+    Pattern,
+} from "regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
@@ -11,7 +16,10 @@ import {
     extractExpressionReferences,
     isKnownMethodCall,
 } from "../utils/ast-utils"
-import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
+import type {
+    PatternRange,
+    PatternReplaceRange,
+} from "../utils/ast-utils/pattern-source"
 import type { Expression, Literal } from "estree"
 import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
@@ -172,6 +180,184 @@ function getSideEffectsWhenReplacingCapturingGroup(
     }
 }
 
+/** Checks whether the given element is a capturing group of length 1 or greater. */
+function isCapturingGroupAndNotZeroLength(
+    element: Element,
+): element is CapturingGroup {
+    return element.type === "CapturingGroup" && !isZeroLength(element)
+}
+
+type ParsedStartPattern = {
+    // A list of zero-length elements placed before the start capturing group.
+    // e.g.
+    // /^(foo)bar/ -> ^
+    // /\b(foo)bar/ -> \b
+    // /(?:^|\b)(foo)bar/ -> (?:^|\b)
+    // /(?<=f)(oo)bar/ -> (?<=f)
+    // /(foo)bar/ -> null
+    leadingElements: Element[]
+    // Capturing group used to replace the starting string.
+    capturingGroup: CapturingGroup
+    // The pattern used when replacing lookbehind assertions.
+    replacedAssertion: string
+    range: PatternRange
+}
+type ParsedEndPattern = {
+    // Capturing group used to replace the ending string.
+    capturingGroup: CapturingGroup
+    // A list of zero-length elements placed after the end capturing group.
+    // e.g.
+    // /foo(bar)$/ -> $
+    // /foo(bar)\b/ -> \b
+    // /foo(bar)(?:\b|$)/ -> (?:\b|$)
+    // /foo(ba)(?=r)/ -> (?=r)
+    // /foo(bar)/ -> null
+    trailingElements: Element[]
+    // The pattern used when replacing lookahead assertions.
+    replacedAssertion: string
+    range: PatternRange
+}
+type ParsedElements = {
+    // All elements
+    elements: readonly Element[]
+    start: ParsedStartPattern | null
+    end: ParsedEndPattern | null
+}
+
+/**
+ * Parse the elements of the pattern.
+ */
+function parsePatternElements(node: Pattern): ParsedElements | null {
+    if (node.alternatives.length > 1) {
+        return null
+    }
+    const elements = node.alternatives[0].elements
+    const leadingElements: Element[] = []
+    let start: ParsedStartPattern | null = null
+
+    for (const element of elements) {
+        if (isZeroLength(element)) {
+            leadingElements.push(element)
+            continue
+        }
+        if (isCapturingGroupAndNotZeroLength(element)) {
+            const capturingGroup = element
+            start = {
+                leadingElements,
+                capturingGroup,
+                replacedAssertion: startElementsToLookbehindAssertionText(
+                    leadingElements,
+                    capturingGroup,
+                ),
+                range: {
+                    start: (leadingElements[0] || capturingGroup).start,
+                    end: capturingGroup.end,
+                },
+            }
+        }
+        break
+    }
+
+    let end: ParsedEndPattern | null = null
+    const trailingElements: Element[] = []
+    for (const element of [...elements].reverse()) {
+        if (isZeroLength(element)) {
+            trailingElements.unshift(element)
+            continue
+        }
+
+        if (isCapturingGroupAndNotZeroLength(element)) {
+            const capturingGroup = element
+            end = {
+                capturingGroup,
+                trailingElements,
+                replacedAssertion: endElementsToLookaheadAssertionText(
+                    capturingGroup,
+                    trailingElements,
+                ),
+                range: {
+                    start: capturingGroup.start,
+                    end: (
+                        trailingElements[trailingElements.length - 1] ||
+                        capturingGroup
+                    ).end,
+                },
+            }
+        }
+        break
+    }
+    if (!start && !end) {
+        // No capturing groups.
+        return null
+    }
+    if (start && end && start.capturingGroup === end.capturingGroup) {
+        // There is only one capturing group.
+        return null
+    }
+
+    return {
+        elements,
+        start,
+        end,
+    }
+}
+
+/** Convert end capturing group to lookahead assertion text. */
+function endElementsToLookaheadAssertionText(
+    capturingGroup: CapturingGroup,
+    trailingElements: Element[],
+): string {
+    const groupPattern = capturingGroup.alternatives.map((a) => a.raw).join("|")
+
+    const trailing = leadingTrailingElementsToLookaroundAssertionPatternText(
+        trailingElements,
+        "lookahead",
+    )
+    if (trailing && capturingGroup.alternatives.length !== 1) {
+        return `(?=(?:${groupPattern})${trailing})`
+    }
+    return `(?=${groupPattern}${trailing})`
+}
+
+/** Convert start capturing group to lookbehind assertion text. */
+function startElementsToLookbehindAssertionText(
+    leadingElements: Element[],
+    capturingGroup: CapturingGroup,
+): string {
+    const leading = leadingTrailingElementsToLookaroundAssertionPatternText(
+        leadingElements,
+        "lookbehind",
+    )
+    const groupPattern = capturingGroup.alternatives.map((a) => a.raw).join("|")
+    if (leading && capturingGroup.alternatives.length !== 1) {
+        return `(?<=${leading}(?:${groupPattern}))`
+    }
+    return `(?<=${leading}${groupPattern})`
+}
+
+/** Convert leading/trailing elements to lookaround assertion pattern text. */
+function leadingTrailingElementsToLookaroundAssertionPatternText(
+    leadingTrailingElements: Element[],
+    lookaroundAssertionKind: LookaroundAssertion["kind"],
+): string {
+    if (
+        leadingTrailingElements.length === 1 &&
+        leadingTrailingElements[0].type === "Assertion"
+    ) {
+        const assertion = leadingTrailingElements[0]
+        if (
+            assertion.kind === lookaroundAssertionKind &&
+            !assertion.negate &&
+            assertion.alternatives.length === 1
+        ) {
+            // If the leading/trailing assertion is simple (single alternative, and positive) lookaround assertion, unwrap the parens.
+            return assertion.alternatives[0].raw
+        }
+    }
+
+    return leadingTrailingElements.map((e) => e.raw).join("")
+}
+
 /**
  * Parse option
  */
@@ -230,10 +416,8 @@ export default createRule("prefer-lookaround", {
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { regexpNode, patternAst } = regexpContext
-            if (
-                patternAst.alternatives.length > 1 ||
-                patternAst.alternatives[0].elements.length < 2
-            ) {
+            const parsedElements = parsePatternElements(patternAst)
+            if (!parsedElements) {
                 return {}
             }
             const replaceReferenceList: ReplaceReferences[] = []
@@ -297,6 +481,7 @@ export default createRule("prefer-lookaround", {
             }
             return createVerifyVisitor(
                 regexpContext,
+                parsedElements,
                 new ReplaceReferencesList(replaceReferenceList),
             )
         }
@@ -408,6 +593,7 @@ export default createRule("prefer-lookaround", {
          */
         function createVerifyVisitor(
             regexpContext: RegExpContext,
+            parsedElements: ParsedElements,
             replaceReferenceList: ReplaceReferencesList,
         ): RegExpVisitor.Handlers {
             type RefState = {
@@ -457,43 +643,29 @@ export default createRule("prefer-lookaround", {
                         }
                     }
                 },
-                onPatternLeave(pNode) {
+                onPatternLeave() {
                     // verify
-                    const alt = pNode.alternatives[0]
                     let reportStart = null
                     if (
                         !startRefState.isUseOther &&
                         startRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
-                        startRefState.capturingGroups[0] === alt.elements[0] &&
-                        !isZeroLength(startRefState.capturingGroups[0])
+                        startRefState.capturingGroups[0] ===
+                            parsedElements.start?.capturingGroup
                     ) {
-                        const capturingGroup = startRefState.capturingGroups[0]
-                        reportStart = {
-                            capturingGroup,
-                            expr: `(?<=${capturingGroup.alternatives
-                                .map((a) => a.raw)
-                                .join("|")})`,
-                        }
+                        reportStart = parsedElements.start
                     }
                     let reportEnd = null
                     if (
                         !endRefState.isUseOther &&
                         endRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
                         endRefState.capturingGroups[0] ===
-                            alt.elements[alt.elements.length - 1] &&
-                        !isZeroLength(endRefState.capturingGroups[0])
+                            parsedElements.end?.capturingGroup
                     ) {
-                        const capturingGroup = endRefState.capturingGroups[0]
-                        reportEnd = {
-                            capturingGroup,
-                            expr: `(?=${capturingGroup.alternatives
-                                .map((a) => a.raw)
-                                .join("|")})`,
-                        }
+                        reportEnd = parsedElements.end
                     }
                     const sideEffects =
                         getSideEffectsWhenReplacingCapturingGroup(
-                            alt.elements,
+                            parsedElements.elements,
                             reportStart?.capturingGroup,
                             reportEnd?.capturingGroup,
                             regexpContext,
@@ -530,12 +702,14 @@ export default createRule("prefer-lookaround", {
                         for (const report of [reportStart, reportEnd]) {
                             context.report({
                                 loc: regexpContext.getRegexpLocation(
-                                    report.capturingGroup,
+                                    report.range,
                                 ),
                                 messageId: "preferLookarounds",
                                 data: {
-                                    expr1: mention(reportStart.expr),
-                                    expr2: mention(reportEnd.expr),
+                                    expr1: mention(
+                                        reportStart.replacedAssertion,
+                                    ),
+                                    expr2: mention(reportEnd.replacedAssertion),
                                 },
                                 fix,
                             })
@@ -559,12 +733,12 @@ export default createRule("prefer-lookaround", {
                         )
                         context.report({
                             loc: regexpContext.getRegexpLocation(
-                                reportStart.capturingGroup,
+                                reportStart.range,
                             ),
                             messageId: "prefer",
                             data: {
                                 kind: "lookbehind assertion",
-                                expr: mention(reportStart.expr),
+                                expr: mention(reportStart.replacedAssertion),
                             },
                             fix,
                         })
@@ -595,12 +769,12 @@ export default createRule("prefer-lookaround", {
                         )
                         context.report({
                             loc: regexpContext.getRegexpLocation(
-                                reportEnd.capturingGroup,
+                                reportEnd.range,
                             ),
                             messageId: "prefer",
                             data: {
                                 kind: "lookahead assertion",
-                                expr: mention(reportEnd.expr),
+                                expr: mention(reportEnd.replacedAssertion),
                             },
                             fix,
                         })
@@ -614,10 +788,7 @@ export default createRule("prefer-lookaround", {
          */
         function buildFixer(
             regexpContext: RegExpContext,
-            replaceCapturingGroups: {
-                capturingGroup: CapturingGroup
-                expr: string
-            }[],
+            replaceCapturingGroups: (ParsedStartPattern | ParsedEndPattern)[],
             replaceReferenceList: ReplaceReferencesList,
             getRemoveRanges: (
                 replaceReference: ReplaceReferences,
@@ -638,17 +809,17 @@ export default createRule("prefer-lookaround", {
             }
             const replaces: {
                 replaceRange: PatternReplaceRange
-                expr: string
+                replacedAssertion: string
             }[] = []
-            for (const { capturingGroup, expr } of replaceCapturingGroups) {
+            for (const { range, replacedAssertion } of replaceCapturingGroups) {
                 const replaceRange =
-                    regexpContext.patternSource.getReplaceRange(capturingGroup)
+                    regexpContext.patternSource.getReplaceRange(range)
                 if (!replaceRange) {
                     return null
                 }
                 replaces.push({
                     replaceRange,
-                    expr,
+                    replacedAssertion,
                 })
             }
 
@@ -660,10 +831,11 @@ export default createRule("prefer-lookaround", {
                         fix: () => fixer.removeRange(removeRange),
                     })
                 }
-                for (const { replaceRange, expr } of replaces) {
+                for (const { replaceRange, replacedAssertion } of replaces) {
                     list.push({
                         offset: replaceRange.range[0],
-                        fix: () => replaceRange.replace(fixer, expr),
+                        fix: () =>
+                            replaceRange.replace(fixer, replacedAssertion),
                     })
                 }
                 return list
