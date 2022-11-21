@@ -416,5 +416,13 @@ tester.run("no-useless-assertions", rule as any, {
             code: String.raw`/a(?!.)$/s`,
             errors: ["The negative lookahead '(?!.)' will always accept."],
         },
+
+        {
+            code: String.raw`/^(\b|\B-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/`,
+            errors: [
+                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                "'\\B' will always accept because it is preceded by a non-word character and followed by a non-word character.",
+            ],
+        },
     ],
 })
