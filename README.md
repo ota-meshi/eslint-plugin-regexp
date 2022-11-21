@@ -138,6 +138,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/control-character-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/control-character-escape.html) | enforce consistent escaping of control characters | :star::wrench: |
 | [regexp/negation](https://ota-meshi.github.io/eslint-plugin-regexp/rules/negation.html) | enforce use of escapes on negation | :star::wrench: |
 | [regexp/no-dupe-characters-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-dupe-characters-character-class.html) | disallow duplicate characters in the RegExp character class | :star::wrench: |
+| [regexp/no-extra-lookaround-assertions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-extra-lookaround-assertions.html) | disallow unnecessary nested lookaround assertions | :wrench: |
 | [regexp/no-invisible-character](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-invisible-character.html) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-legacy-features](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-legacy-features.html) | disallow legacy RegExp features | :star: |
 | [regexp/no-non-standard-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-non-standard-flag.html) | disallow non-standard flags | :star: |

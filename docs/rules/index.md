@@ -43,6 +43,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/control-character-escape](./control-character-escape.md) | enforce consistent escaping of control characters | :star::wrench: |
 | [regexp/negation](./negation.md) | enforce use of escapes on negation | :star::wrench: |
 | [regexp/no-dupe-characters-character-class](./no-dupe-characters-character-class.md) | disallow duplicate characters in the RegExp character class | :star::wrench: |
+| [regexp/no-extra-lookaround-assertions](./no-extra-lookaround-assertions.md) | disallow unnecessary nested lookaround assertions | :wrench: |
 | [regexp/no-invisible-character](./no-invisible-character.md) | disallow invisible raw character | :star::wrench: |
 | [regexp/no-legacy-features](./no-legacy-features.md) | disallow legacy RegExp features | :star: |
 | [regexp/no-non-standard-flag](./no-non-standard-flag.md) | disallow non-standard flags | :star: |
