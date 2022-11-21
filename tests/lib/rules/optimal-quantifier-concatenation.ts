@@ -24,6 +24,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             options: [{ capturingGroups: "ignore" }],
         },
         String.raw`/^(?:\[\[\[?.+?\]?\]\]|<<.+?>>)$/`,
+        String.raw`/a\s*?(?=\r?\n|\r)/`,
     ],
     invalid: [
         {
@@ -208,6 +209,27 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/(&(?:\r\n?|\n)\s*)!.*/`,
             output: String.raw`/(&(?:\r|\n)\s*)!.*/`,
             errors: ["'\\n?' can be removed because of '\\s*'."],
+        },
+        {
+            code: String.raw`/a\s*(?=\r?\n|\r)/`,
+            output: String.raw`/a\s*(?=\n|\r)/`,
+            errors: [
+                "'\\r?' can be removed because it is already included by '\\s*'.",
+            ],
+        },
+        {
+            code: String.raw`/(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+(?:(?:\r\n?|\n)[ \t]*\.\.\. .*)?/`,
+            output: String.raw`/(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+/`,
+            errors: [
+                "'(?:(?:\\r\\n?|\\n)[ \\t]*\\.\\.\\. .*)?' can be removed because it is already included by '(?:(?:\\r\\n?|\\n)[ \\t]*(?:at[ \\t].+|\\.{3}.*|Caused by:.*))+'.",
+            ],
+        },
+        {
+            code: String.raw`/&key\s+\S+(?:\s+\S+)*(?:\s+&allow-other-keys)?/`,
+            output: String.raw`/&key\s+\S+(?:\s+\S+)*/`,
+            errors: [
+                "'(?:\\s+&allow-other-keys)?' can be removed because it is already included by '(?:\\s+\\S+)*'.",
+            ],
         },
 
         // multiple causes
