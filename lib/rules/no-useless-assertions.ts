@@ -2,11 +2,18 @@ import type { RegExpVisitor } from "regexpp/visitor"
 import type {
     Assertion,
     EdgeAssertion,
+    Element,
     LookaroundAssertion,
     WordBoundaryAssertion,
 } from "regexpp/ast"
+import { visitRegExpAST } from "regexpp"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import type {
+    MatchingDirection,
+    ReadonlyFlags,
+    FirstLookChar,
+} from "regexp-ast-analysis"
 import {
     Chars,
     getFirstCharAfter,
@@ -15,17 +22,101 @@ import {
     getMatchingDirectionFromAssertionKind,
     hasSomeDescendant,
     isPotentiallyEmpty,
+    isZeroLength,
     FirstConsumedChars,
 } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
+/**
+ * Combines 2 look chars such that the result is equivalent to 2 adjacent
+ * assertions `(?=a)(?=b)`.
+ */
+function firstLookCharsIntersection(
+    a: FirstLookChar,
+    b: FirstLookChar,
+): FirstLookChar {
+    const char = a.char.intersect(b.char)
+    return {
+        char: a.char.intersect(b.char),
+        exact: (a.exact && b.exact) || char.isEmpty,
+        edge: a.edge && b.edge,
+    }
+}
+
+type GetFirstCharAfter = (
+    afterThis: Assertion,
+    direction: MatchingDirection,
+    flags: ReadonlyFlags,
+) => FirstLookChar
+
+/**
+ * Creates a {@link GetFirstCharAfter} function that will reorder assertions to
+ * get the maximum information after the characters after the given assertions.
+ *
+ * Conceptually, this will reorder adjacent assertions such that given
+ * assertion is moved as far as possible in the opposite direction of natural
+ * matching direction. E.g. when given `$` in `a(?!a)(?<=\w)$`, the characters
+ * after `$` will be returned as if the pattern was `a$(?!a)(?<=\w)`.
+ *
+ * @param forbidden A list of assertions that may not be reordered.
+ */
+function createReorderingGetFirstCharAfter(
+    forbidden: ReadonlySet<Assertion>,
+): GetFirstCharAfter {
+    /** Whether the given element or one of its descendants is forbidden. */
+    function hasForbidden(element: Element): boolean {
+        if (element.type === "Assertion" && forbidden.has(element)) {
+            return true
+        }
+        for (const f of forbidden) {
+            if (hasSomeDescendant(element, f)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    return (afterThis, direction, flags) => {
+        let result = getFirstCharAfter(afterThis, direction, flags)
+
+        if (afterThis.parent.type === "Alternative") {
+            const { elements } = afterThis.parent
+
+            const inc = direction === "ltr" ? -1 : +1
+            const start = elements.indexOf(afterThis)
+            for (let i = start + inc; i >= 0 && i < elements.length; i += inc) {
+                const other = elements[i]
+                if (!isZeroLength(other)) {
+                    break
+                }
+                if (hasForbidden(other)) {
+                    // we hit an element that cannot be reordered
+                    break
+                }
+
+                const otherResult = FirstConsumedChars.toLook(
+                    getFirstConsumedChar(other, direction, flags),
+                )
+
+                result = firstLookCharsIntersection(result, otherResult)
+            }
+        }
+
+        return result
+    }
+}
+
 const messages = {
     alwaysRejectByChar:
         "{{assertion}} will always reject because it is {{followedOrPreceded}} by a character.",
+    alwaysAcceptByChar:
+        "{{assertion}} will always accept because it is never {{followedOrPreceded}} by a character.",
     alwaysRejectByNonLineTerminator:
         "{{assertion}} will always reject because it is {{followedOrPreceded}} by a non-line-terminator character.",
     alwaysAcceptByLineTerminator:
         "{{assertion}} will always accept because it is {{followedOrPreceded}} by a line-terminator character.",
+    alwaysAcceptByLineTerminatorOrEdge:
+        "{{assertion}} will always accept because it is {{followedOrPreceded}} by a line-terminator character or the {{startOrEnd}} of the input string.",
     alwaysAcceptOrRejectFollowedByWord:
         "{{assertion}} will always {{acceptOrReject}} because it is preceded by a non-word character and followed by a word character.",
     alwaysAcceptOrRejectFollowedByNonWord:
@@ -61,12 +152,16 @@ export default createRule("no-useless-assertions", {
             flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
+            const reported = new Set<Assertion>()
+
             /** Report */
             function report(
                 assertion: Assertion,
                 messageId: keyof typeof messages,
                 data: Record<string, string>,
             ) {
+                reported.add(assertion)
+
                 context.report({
                     node,
                     loc: getRegexpLocation(assertion),
@@ -81,7 +176,10 @@ export default createRule("no-useless-assertions", {
             /**
              * Verify for `^` or `$`
              */
-            function verifyStartOrEnd(assertion: EdgeAssertion): void {
+            function verifyStartOrEnd(
+                assertion: EdgeAssertion,
+                getFirstCharAfterFn: GetFirstCharAfter,
+            ): void {
                 // Note: /^/ is the same as /(?<!.)/s and /^/m is the same as /(?<!.)/
                 // Note: /$/ is the same as /(?!.)/s and /$/m is the same as /(?!.)/
 
@@ -89,12 +187,37 @@ export default createRule("no-useless-assertions", {
                 const direction = getMatchingDirectionFromAssertionKind(
                     assertion.kind,
                 )
-                const next = getFirstCharAfter(assertion, direction, flags)
+                const next = getFirstCharAfterFn(assertion, direction, flags)
 
                 const followedOrPreceded =
                     assertion.kind === "end" ? "followed" : "preceded"
 
-                if (!next.edge) {
+                const lineTerminator = Chars.lineTerminator(flags)
+
+                if (next.edge) {
+                    // the string might start/end after the assertion
+
+                    if (!flags.multiline) {
+                        // ^/$ will always accept at an edge with no char before/after it
+                        if (next.char.isEmpty) {
+                            report(assertion, "alwaysAcceptByChar", {
+                                followedOrPreceded,
+                            })
+                        }
+                    } else {
+                        // ^/$ will always accept at an edge or line terminator before/after it
+                        if (next.char.isSubsetOf(lineTerminator)) {
+                            report(
+                                assertion,
+                                "alwaysAcceptByLineTerminatorOrEdge",
+                                {
+                                    followedOrPreceded,
+                                    startOrEnd: assertion.kind,
+                                },
+                            )
+                        }
+                    }
+                } else {
                     // there is always some character of `node`
 
                     if (!flags.multiline) {
@@ -104,8 +227,6 @@ export default createRule("no-useless-assertions", {
                         })
                     } else {
                         // only if the character is a sub set of /./, will the assertion trivially reject
-
-                        const lineTerminator = Chars.lineTerminator(flags)
 
                         if (next.char.isDisjointWith(lineTerminator)) {
                             report(
@@ -127,19 +248,15 @@ export default createRule("no-useless-assertions", {
              */
             function verifyWordBoundary(
                 assertion: WordBoundaryAssertion,
+                getFirstCharAfterFn: GetFirstCharAfter,
             ): void {
                 const word = Chars.word(flags)
 
-                const next = getFirstCharAfter(assertion, "ltr", flags)
-                const prev = getFirstCharAfter(assertion, "rtl", flags)
+                const next = getFirstCharAfterFn(assertion, "ltr", flags)
+                const prev = getFirstCharAfterFn(assertion, "rtl", flags)
 
-                if (prev.edge || next.edge) {
-                    // we can only do this analysis if we know the previous and next character
-                    return
-                }
-
-                const nextIsWord = next.char.isSubsetOf(word)
-                const prevIsWord = prev.char.isSubsetOf(word)
+                const nextIsWord = next.char.isSubsetOf(word) && !next.edge
+                const prevIsWord = prev.char.isSubsetOf(word) && !prev.edge
                 const nextIsNonWord = next.char.isDisjointWith(word)
                 const prevIsNonWord = prev.char.isDisjointWith(word)
 
@@ -198,7 +315,10 @@ export default createRule("no-useless-assertions", {
             /**
              * Verify for LookaroundAssertion
              */
-            function verifyLookaround(assertion: LookaroundAssertion): void {
+            function verifyLookaround(
+                assertion: LookaroundAssertion,
+                getFirstCharAfterFn: GetFirstCharAfter,
+            ): void {
                 if (isPotentiallyEmpty(assertion.alternatives)) {
                     // we don't handle trivial accept/reject based on emptiness
                     return
@@ -207,10 +327,7 @@ export default createRule("no-useless-assertions", {
                 const direction = getMatchingDirectionFromAssertionKind(
                     assertion.kind,
                 )
-                const after = getFirstCharAfter(assertion, direction, flags)
-                if (after.edge) {
-                    return
-                }
+                const after = getFirstCharAfterFn(assertion, direction, flags)
 
                 const firstOf = FirstConsumedChars.toLook(
                     getFirstConsumedChar(
@@ -227,7 +344,10 @@ export default createRule("no-useless-assertions", {
                 // Careful now! If exact is false, we are only guaranteed to have a superset of the actual character.
                 // False negatives are fine but we can't have false positives.
 
-                if (after.char.isDisjointWith(firstOf.char)) {
+                if (
+                    after.char.isDisjointWith(firstOf.char) &&
+                    !(after.edge && firstOf.edge)
+                ) {
                     report(
                         assertion,
                         assertion.negate
@@ -238,6 +358,10 @@ export default createRule("no-useless-assertions", {
                             acceptOrReject: reject,
                         },
                     )
+                }
+
+                if (after.edge) {
+                    return
                 }
 
                 // accept is harder because that can't generally be decided by the first character
@@ -273,24 +397,60 @@ export default createRule("no-useless-assertions", {
                 }
             }
 
+            /**
+             * Verify for Assertion
+             */
+            function verifyAssertion(
+                assertion: Assertion,
+                getFirstCharAfterFn: GetFirstCharAfter,
+            ): void {
+                switch (assertion.kind) {
+                    case "start":
+                    case "end":
+                        verifyStartOrEnd(assertion, getFirstCharAfterFn)
+                        break
+
+                    case "word":
+                        verifyWordBoundary(assertion, getFirstCharAfterFn)
+                        break
+
+                    case "lookahead":
+                    case "lookbehind":
+                        verifyLookaround(assertion, getFirstCharAfterFn)
+                        break
+                    default:
+                }
+            }
+
             return {
-                onAssertionEnter(assertion) {
-                    switch (assertion.kind) {
-                        case "start":
-                        case "end":
-                            verifyStartOrEnd(assertion)
-                            break
+                onPatternEnter(pattern) {
+                    // Phase 1:
+                    // The context of assertions is determined by only looking
+                    // at elements after the current assertion. This means that
+                    // the order of assertions is kept as is.
+                    visitRegExpAST(pattern, {
+                        onAssertionEnter(assertion) {
+                            verifyAssertion(assertion, getFirstCharAfter)
+                        },
+                    })
 
-                        case "word":
-                            verifyWordBoundary(assertion)
-                            break
-
-                        case "lookahead":
-                        case "lookbehind":
-                            verifyLookaround(assertion)
-                            break
-                        default:
-                    }
+                    // Phase 2:
+                    // The context of assertions is determined by reordering
+                    // assertions such that as much information as possible can
+                    // be extracted from its surrounding assertions.
+                    const reorderingGetFirstCharAfter =
+                        createReorderingGetFirstCharAfter(reported)
+                    visitRegExpAST(pattern, {
+                        onAssertionEnter(assertion) {
+                            if (reported.has(assertion)) {
+                                return
+                            }
+                            verifyAssertion(
+                                assertion,
+                                reorderingGetFirstCharAfter,
+                            )
+                        },
+                    })
                 },
             }
         }

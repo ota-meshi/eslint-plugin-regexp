@@ -360,5 +360,61 @@ tester.run("no-useless-assertions", rule as any, {
             code: String.raw`/(?=a|$)b/u`,
             errors: ["The lookahead '(?=a|$)' will always reject."],
         },
+
+        {
+            code: String.raw`/^^a$$/`,
+            errors: [
+                "'^' will always accept because it is never preceded by a character.",
+                "'$' will always accept because it is never followed by a character.",
+            ],
+        },
+        {
+            code: String.raw`/^^a$$/m`,
+            errors: [
+                "'^' will always accept because it is preceded by a line-terminator character or the start of the input string.",
+                "'$' will always accept because it is followed by a line-terminator character or the end of the input string.",
+            ],
+        },
+        {
+            code: String.raw`/\b^a\b$/u`,
+            errors: [
+                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+            ],
+        },
+        {
+            code: String.raw`/^\ba$\b/`,
+            errors: [
+                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+            ],
+        },
+        {
+            code: String.raw`/\b\ba\b\b/u`,
+            errors: [
+                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+            ],
+        },
+        {
+            code: String.raw`/Java(?=Script)$/`,
+            errors: ["The lookahead '(?=Script)' will always reject."],
+        },
+        {
+            code: String.raw`/Java$(?=Script)/`,
+            errors: [
+                "'$' will always reject because it is followed by a character.",
+            ],
+        },
+        {
+            code: String.raw`/a$(?!.)/s`,
+            errors: [
+                "'$' will always accept because it is never followed by a character.",
+            ],
+        },
+        {
+            code: String.raw`/a(?!.)$/s`,
+            errors: ["The negative lookahead '(?!.)' will always accept."],
+        },
     ],
 })
