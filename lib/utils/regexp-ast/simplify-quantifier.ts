@@ -178,12 +178,7 @@ function canAbsorbElementFast(
         return false
     }
 
-    if (containsAssertions(quantifier) || containsAssertions(element)) {
-        // we cannot check this right now
-        return undefined
-    }
-
-    if (!hasSomeDescendant(quantifier, isStar)) {
+    if (!isNonFinite(quantifier)) {
         // to absorb `E*`, the `Q` needs to be non-finite language
         return false
     }
@@ -199,6 +194,11 @@ function canAbsorbElementFast(
     if (eChar.exact && !eChar.char.without(qChar.char).isEmpty) {
         // At least one char in `E` cannot be absorbed by `Q`
         return false
+    }
+
+    if (containsAssertions(quantifier) || containsAssertions(element)) {
+        // we cannot check this right now
+        return undefined
     }
 
     if (
@@ -220,9 +220,17 @@ function canAbsorbElementFast(
     return undefined
 }
 
-/** Returns whether the given node is an effective star quantifier. */
-function isStar(n: Node): n is Quantifier {
-    return n.type === "Quantifier" && n.max === Infinity
+/** Returns whether the given node accepts a non-finite language. */
+function isNonFinite(node: Node): boolean {
+    return hasSomeDescendant(
+        node,
+        (n) =>
+            n.type === "Quantifier" &&
+            n.max === Infinity &&
+            !isZeroLength(n.element),
+        // don't decent into assertions
+        (n) => n.type !== "Assertion",
+    )
 }
 
 /** Returns the NFA for the given element. */
