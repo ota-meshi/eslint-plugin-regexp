@@ -6,7 +6,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 export default createRule("no-useless-lookaround-assertions", {
     meta: {
         docs: {
-            description: "disallow useless nested lookaround assertions",
+            description: "disallow unnecessary nested lookaround assertions",
             category: "Best Practices",
             // TODO Switch to recommended in the major version.
             // recommended: true,
@@ -15,7 +15,10 @@ export default createRule("no-useless-lookaround-assertions", {
         fixable: "code",
         schema: [],
         messages: {
-            unexpected: "This {{kind}} assertion is useless.",
+            canBeInlined:
+                "This {{kind}} assertion is useless and can be inlined.",
+            canBeConvertedIntoGroup:
+                "This {{kind}} assertion is useless and can be converted into a group.",
         },
         type: "suggestion",
     },
@@ -69,24 +72,27 @@ export default createRule("no-useless-lookaround-assertions", {
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             assertion: LookaroundAssertion,
         ) {
+            let messageId, replaceText
+            if (assertion.alternatives.length === 1) {
+                messageId = "canBeInlined"
+                // unwrap `(?=` and `)`, `(?<=` and `)`
+                replaceText = assertion.alternatives[0].raw
+            } else {
+                messageId = "canBeConvertedIntoGroup"
+                // replace `?=` with `?:`, or `?<=` with `?:`
+                replaceText = `(?:${assertion.alternatives
+                    .map((alt) => alt.raw)
+                    .join("|")})`
+            }
+
             context.report({
                 node,
                 loc: getRegexpLocation(assertion),
-                messageId: "unexpected",
+                messageId,
                 data: {
                     kind: assertion.kind,
                 },
-                fix: fixReplaceNode(assertion, () => {
-                    const alternatives = assertion.alternatives.map(
-                        (alt) => alt.raw,
-                    )
-                    if (alternatives.length === 1) {
-                        // unwrap `(?=` and `)`
-                        return alternatives[0]
-                    }
-                    // replace `?=` with `?:`
-                    return `(?:${alternatives.join("|")})`
-                }),
+                fix: fixReplaceNode(assertion, replaceText),
             })
         }
 

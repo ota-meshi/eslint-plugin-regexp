@@ -19,7 +19,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScript'.replace(/Java(?=Script)/u, 'Type'))`,
             errors: [
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
                     column: 47,
                 },
             ],
@@ -29,7 +30,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScript'.replace(/(?<=Java)Script/u, ''))`,
             errors: [
                 {
-                    message: "This lookbehind assertion is useless.",
+                    message:
+                        "This lookbehind assertion is useless and can be inlined.",
                     column: 39,
                 },
             ],
@@ -40,7 +42,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScript Java JavaRuntime'.replace(/Java(?!Script)/gu, 'Python'))`,
             errors: [
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
                     column: 64,
                 },
             ],
@@ -50,7 +53,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScript TypeScript ActionScript'.replace(/(?<!Java)Script/gu, 'ScriptCompiler'))`,
             errors: [
                 {
-                    message: "This lookbehind assertion is useless.",
+                    message:
+                        "This lookbehind assertion is useless and can be inlined.",
                     column: 63,
                 },
             ],
@@ -61,7 +65,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?:Checker|Linter))/gu, 'Type'))`,
             errors: [
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be converted into a group.",
                     column: 72,
                 },
             ],
@@ -71,7 +76,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?:Check|Lint)er)/gu, 'Type'))`,
             errors: [
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
                     column: 72,
                 },
             ],
@@ -81,7 +87,8 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('ESLint JSLint TSLint'.replace(/(?<=(?:J|T)S)Lint/gu, '-Runtime'))`,
             errors: [
                 {
-                    message: "This lookbehind assertion is useless.",
+                    message:
+                        "This lookbehind assertion is useless and can be converted into a group.",
                     column: 49,
                 },
             ],
@@ -91,11 +98,13 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=ScriptChecker|ScriptLinter)/gu, 'Type'))`,
             errors: [
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
                     column: 72,
                 },
                 {
-                    message: "This lookahead assertion is useless.",
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
                     column: 90,
                 },
             ],
@@ -105,11 +114,13 @@ tester.run("no-useless-lookaround-assertions", rule as any, {
             output: `console.log('ESLint JSLint TSLint'.replace(/(?<=JS|TS)Lint/gu, '-Runtime'))`,
             errors: [
                 {
-                    message: "This lookbehind assertion is useless.",
+                    message:
+                        "This lookbehind assertion is useless and can be inlined.",
                     column: 49,
                 },
                 {
-                    message: "This lookbehind assertion is useless.",
+                    message:
+                        "This lookbehind assertion is useless and can be inlined.",
                     column: 57,
                 },
             ],

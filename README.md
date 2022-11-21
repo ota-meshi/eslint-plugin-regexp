@@ -146,7 +146,7 @@ The rules with the following star :star: are included in the `plugin:regexp/reco
 | [regexp/no-useless-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-character-class.html) | disallow character class with one character | :star::wrench: |
 | [regexp/no-useless-flag](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-flag.html) | disallow unnecessary regex flags | :star::wrench: |
 | [regexp/no-useless-lazy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lazy.html) | disallow unnecessarily non-greedy quantifiers | :star::wrench: |
-| [regexp/no-useless-lookaround-assertions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lookaround-assertions.html) | disallow useless nested lookaround assertions | :wrench: |
+| [regexp/no-useless-lookaround-assertions](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-lookaround-assertions.html) | disallow unnecessary nested lookaround assertions | :wrench: |
 | [regexp/no-useless-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html) | disallow quantifiers that can be removed | :star::wrench: |
 | [regexp/no-useless-range](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-range.html) | disallow unnecessary range of characters by using a hyphen | :star::wrench: |
 | [regexp/no-useless-two-nums-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-two-nums-quantifier.html) | disallow unnecessary `{n,m}` quantifier | :star::wrench: |
