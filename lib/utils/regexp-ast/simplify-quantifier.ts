@@ -173,6 +173,11 @@ function canAbsorbElementFast(
     element: QuantifiableElement,
     flags: ReadonlyFlags,
 ): MaybeBool {
+    if (!quantifier.greedy) {
+        // we generally say that lazy quantifiers don't absorb `E*`
+        return false
+    }
+
     if (containsAssertions(quantifier) || containsAssertions(element)) {
         // we cannot check this right now
         return undefined

@@ -23,6 +23,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/(\d)\d+/`,
             options: [{ capturingGroups: "ignore" }],
         },
+        String.raw`/^(?:\[\[\[?.+?\]?\]\]|<<.+?>>)$/`,
     ],
     invalid: [
         {
