@@ -6,7 +6,6 @@ import type {
     LookaroundAssertion,
     WordBoundaryAssertion,
 } from "regexpp/ast"
-import { visitRegExpAST } from "regexpp"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type {
@@ -422,35 +421,34 @@ export default createRule("no-useless-assertions", {
                 }
             }
 
+            const allAssertions: Assertion[] = []
+
             return {
-                onPatternEnter(pattern) {
+                onAssertionEnter(assertion) {
                     // Phase 1:
                     // The context of assertions is determined by only looking
                     // at elements after the current assertion. This means that
                     // the order of assertions is kept as is.
-                    visitRegExpAST(pattern, {
-                        onAssertionEnter(assertion) {
-                            verifyAssertion(assertion, getFirstCharAfter)
-                        },
-                    })
+                    verifyAssertion(assertion, getFirstCharAfter)
 
+                    // store all assertions for the second phase
+                    allAssertions.push(assertion)
+                },
+                onPatternLeave() {
                     // Phase 2:
                     // The context of assertions is determined by reordering
                     // assertions such that as much information as possible can
                     // be extracted from its surrounding assertions.
                     const reorderingGetFirstCharAfter =
                         createReorderingGetFirstCharAfter(reported)
-                    visitRegExpAST(pattern, {
-                        onAssertionEnter(assertion) {
-                            if (reported.has(assertion)) {
-                                return
-                            }
+                    for (const assertion of allAssertions) {
+                        if (!reported.has(assertion)) {
                             verifyAssertion(
                                 assertion,
                                 reorderingGetFirstCharAfter,
                             )
-                        },
-                    })
+                        }
+                    }
                 },
             }
         }
