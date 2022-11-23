@@ -3,12 +3,12 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-extra-lookaround-assertions"
 description: "disallow unnecessary nested lookaround assertions"
+since: "v1.11.0"
 ---
 # regexp/no-extra-lookaround-assertions
 
 > disallow unnecessary nested lookaround assertions
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 - :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
 
 ## :book: Rule Details
@@ -54,6 +54,10 @@ var re4 = /(?<=(?<=a|A)b)c/u;
 ## :wrench: Options
 
 Nothing.
+
+## :rocket: Version
+
+This rule was introduced in eslint-plugin-regexp v1.11.0
 
 ## :mag: Implementation
 
