@@ -7,10 +7,13 @@ since: "v0.1.0"
 ---
 # regexp/prefer-d
 
-> enforce using `\d`
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> enforce using `\d`
 
 ## :book: Rule Details
 
@@ -51,7 +54,7 @@ This option control how character class element equivalent to `\d` will be treat
 
 *Note:* This option does not affect character classes equivalent to `\d`. E.g. `[\d]`, `[0-9]`, and `[0123456789]` are unaffected.
 
-- `insideCharacterClass: "d"` (_default_)
+- `insideCharacterClass: "d"` (*default*)
 
   Character class element equivalent to `\d` will be reported and replaced with `\d`.
 

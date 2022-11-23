@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-obscure-range
 
-> disallow obscure character ranges
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow obscure character ranges
 
 ## :book: Rule Details
 

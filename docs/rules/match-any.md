@@ -7,14 +7,17 @@ since: "v0.1.0"
 ---
 # regexp/match-any
 
-> enforce match any character style
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> enforce match any character style
 
 ## :book: Rule Details
 
-This rule enforces the regular expression notation to match any character.  
+This rule enforces the regular expression notation to match any character.
 e.g. `[\s\S]`, `[^]`, `/./s` (dotAll) and more.
 
 <eslint-code-block fix>
@@ -45,7 +48,7 @@ var foo = /[\w\W]/;
 }
 ```
 
-- `"allows"` ... An array of notations that any characters that are allowed.  
+- `"allows"` ... An array of notations that any characters that are allowed.
   `"[\\s\\S]"`, `"[\\S\\s]"`, `"[^]"` and `"dotAll"` can be set.
 
 ### `{ "allows": ["[^]"] }`

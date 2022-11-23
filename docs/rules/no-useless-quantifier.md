@@ -7,10 +7,13 @@ since: "v0.10.0"
 ---
 # regexp/no-useless-quantifier
 
-> disallow quantifiers that can be removed
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
+> disallow quantifiers that can be removed
 
 ## :book: Rule Details
 

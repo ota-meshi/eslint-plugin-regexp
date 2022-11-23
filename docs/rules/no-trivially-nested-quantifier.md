@@ -7,10 +7,13 @@ since: "v0.9.0"
 ---
 # regexp/no-trivially-nested-quantifier
 
-> disallow nested quantifiers that can be rewritten as one quantifier
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> disallow nested quantifiers that can be rewritten as one quantifier
 
 ## :book: Rule Details
 

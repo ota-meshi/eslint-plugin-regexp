@@ -7,10 +7,13 @@ since: "v0.13.0"
 ---
 # regexp/no-super-linear-backtracking
 
-> disallow exponential and polynomial backtracking
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> disallow exponential and polynomial backtracking
 
 ## :book: Rule Details
 
@@ -43,7 +46,6 @@ var foo = /.+?(?=\s*=)/;
 The rule only implements a very simplistic detection method and can only detect very simple cases of super-linear backtracking right now.
 
 While the detection will improve in the future, this rule will never be able to perfectly detect all cases super-linear backtracking.
-
 
 ## :wrench: Options
 

@@ -7,9 +7,11 @@ since: "v0.6.0"
 ---
 # regexp/no-legacy-features
 
-> disallow legacy RegExp features
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow legacy RegExp features
 
 ## :book: Rule Details
 
@@ -60,7 +62,7 @@ regexObj.compile('new foo', 'g');
       "rightContext", "$'",
       "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9"
     ],
-    "prototypeMethods": ["compile"] 
+    "prototypeMethods": ["compile"]
   }]
 }
 ```

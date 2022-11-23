@@ -7,9 +7,11 @@ since: "v1.2.0"
 ---
 # regexp/prefer-lookaround
 
-> prefer lookarounds over capturing group that do not replace
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+<!-- end auto-generated rule header -->
+
+> prefer lookarounds over capturing group that do not replace
 
 ## :book: Rule Details
 
@@ -39,7 +41,7 @@ var str = 'JavaScript'.replace(/Java(Script)/g, 'Type$1')
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.
   This option is always on when using TypeScript.
 
 ## :rocket: Version

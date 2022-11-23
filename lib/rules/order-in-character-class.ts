@@ -8,9 +8,9 @@ export default createRule("order-in-character-class", {
         docs: {
             ...sortCharacterClassElements.meta.docs,
             recommended: false,
-            replacedBy: ["sort-character-class-elements"],
         },
         deprecated: true,
+        replacedBy: ["sort-character-class-elements"],
     },
     create(context) {
         return sortCharacterClassElements.create(context)

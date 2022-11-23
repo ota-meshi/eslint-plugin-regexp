@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-optional-assertion
 
-> disallow optional assertions
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow optional assertions
 
 ## :book: Rule Details
 
@@ -46,7 +48,7 @@ Nothing.
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].
 This rule is compatible with [clean-regex/no-optional-assertion] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex

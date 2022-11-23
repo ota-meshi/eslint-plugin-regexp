@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/confusing-quantifier
 
-> disallow confusing quantifiers
+⚠️ This rule _warns_ in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow confusing quantifiers
 
 ## :book: Rule Details
 
@@ -44,7 +46,7 @@ Nothing.
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].
 This rule is compatible with [clean-regex/confusing-quantifier] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex

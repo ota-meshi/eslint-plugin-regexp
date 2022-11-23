@@ -7,9 +7,11 @@ since: "v0.12.0"
 ---
 # regexp/no-empty-capturing-group
 
-> disallow capturing group that captures empty.
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow capturing group that captures empty.
 
 ## :book: Rule Details
 

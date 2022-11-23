@@ -7,9 +7,11 @@ since: "v1.0.0"
 ---
 # regexp/no-invalid-regexp
 
-> disallow invalid regular expression strings in `RegExp` constructors
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow invalid regular expression strings in `RegExp` constructors
 
 ## :book: Rule Details
 

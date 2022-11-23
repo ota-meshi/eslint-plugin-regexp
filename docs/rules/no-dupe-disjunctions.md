@@ -7,9 +7,13 @@ since: "v0.4.0"
 ---
 # regexp/no-dupe-disjunctions
 
-> disallow duplicate disjunctions
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
+> disallow duplicate disjunctions
 
 ## :book: Rule Details
 

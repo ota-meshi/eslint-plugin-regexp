@@ -7,10 +7,13 @@ since: "v0.9.0"
 ---
 # regexp/no-useless-flag
 
-> disallow unnecessary regex flags
+⚠️ This rule _warns_ in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> disallow unnecessary regex flags
 
 ## :book: Rule Details
 
@@ -166,7 +169,7 @@ No other flags will be checked.
 ```
 
 - `ignore` ... An array of flags to ignore from the check.
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `search()` and `split()`. Default is `true`. This option is only effective for verifying the `g` and `y` flags.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `search()` and `split()`. Default is `true`. This option is only effective for verifying the `g` and `y` flags.
   This option is always on when using TypeScript.
 
 ### `"ignore": ["s", "g"]`

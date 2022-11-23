@@ -7,14 +7,17 @@ since: "v0.4.0"
 ---
 # regexp/no-useless-escape
 
-> disallow unnecessary escape characters in RegExp
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> disallow unnecessary escape characters in RegExp
 
 ## :book: Rule Details
 
-This rule reports unnecessary escape characters in RegExp.  
+This rule reports unnecessary escape characters in RegExp.
 You may be able to find another mistake by finding unnecessary escapes.
 
 <eslint-code-block fix>

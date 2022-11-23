@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/optimal-lookaround-quantifier
 
-> disallow the alternatives of lookarounds that end with a non-constant quantifier
+⚠️ This rule _warns_ in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow the alternatives of lookarounds that end with a non-constant quantifier
 
 ## :book: Rule Details
 
@@ -63,7 +65,7 @@ Nothing.
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].
 This rule is compatible with [clean-regex/optimal-lookaround-quantifier] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex

@@ -7,9 +7,13 @@ since: "v0.10.0"
 ---
 # regexp/no-zero-quantifier
 
-> disallow quantifiers with a maximum of zero
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
+> disallow quantifiers with a maximum of zero
 
 ## :book: Rule Details
 

@@ -7,9 +7,11 @@ since: "v1.4.0"
 ---
 # regexp/prefer-result-array-groups
 
-> enforce using result array `groups`
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+<!-- end auto-generated rule header -->
+
+> enforce using result array `groups`
 
 ## :book: Rule Details
 
@@ -44,7 +46,7 @@ while (match = regex.exec(str)) {
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the string instance was used in `match()` and `matchAll()`. Default is `true`.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the string instance was used in `match()` and `matchAll()`. Default is `true`.
   This option is always on when using TypeScript.
 
 ## :couple: Related rules

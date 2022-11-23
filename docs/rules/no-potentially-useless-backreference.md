@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-potentially-useless-backreference
 
-> disallow backreferences that reference a group that might not be matched
+⚠️ This rule _warns_ in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow backreferences that reference a group that might not be matched
 
 ## :book: Rule Details
 
@@ -47,7 +49,7 @@ Nothing.
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].
 This rule is compatible with [clean-regex/no-potentially-empty-backreference] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex

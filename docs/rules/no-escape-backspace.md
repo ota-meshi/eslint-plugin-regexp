@@ -7,13 +7,15 @@ since: "v0.1.0"
 ---
 # regexp/no-escape-backspace
 
-> disallow escape backspace (`[\b]`)
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow escape backspace (`[\b]`)
 
 ## :book: Rule Details
 
-This rule reports `[\b]`.  
+This rule reports `[\b]`.
 The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishable at a glance. This rule does not allow backspace (`[\b]`). Use unicode escapes (`\u0008`) instead.
 
 <eslint-code-block>

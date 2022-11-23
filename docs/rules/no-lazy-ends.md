@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/no-lazy-ends
 
-> disallow lazy quantifiers at the end of an expression
+⚠️ This rule _warns_ in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow lazy quantifiers at the end of an expression
 
 ## :book: Rule Details
 
@@ -110,7 +112,7 @@ var foo = /a(?:c|ab+?)?/.test(str)
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].
 This rule is compatible with [clean-regex/no-lazy-ends] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex

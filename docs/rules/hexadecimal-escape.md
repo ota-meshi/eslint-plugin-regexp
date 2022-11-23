@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/hexadecimal-escape
 
-> enforce consistent usage of hexadecimal escape
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+<!-- end auto-generated rule header -->
+
+> enforce consistent usage of hexadecimal escape
 
 ## :book: Rule Details
 
@@ -37,7 +39,7 @@ var foo = /\u{a}/u;
 ```json5
 {
   "regexp/hexadecimal-escape": [
-    "error", 
+    "error",
     "always", // or "never"
   ]
 }

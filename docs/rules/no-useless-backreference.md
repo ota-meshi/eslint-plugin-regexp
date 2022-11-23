@@ -7,9 +7,11 @@ since: "v0.1.0"
 ---
 # regexp/no-useless-backreference
 
-> disallow useless backreferences in regular expressions
+💼 This rule is enabled in the ✅ `recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow useless backreferences in regular expressions
 
 ## :book: Rule Details
 
