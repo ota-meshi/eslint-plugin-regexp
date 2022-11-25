@@ -13,7 +13,8 @@ import {
     toCharSet,
 } from "regexp-ast-analysis"
 import type { RegExpContext } from ".."
-export { ShortCircuit, getFirstConsumedCharPlusAfter } from "./common"
+export { getFirstConsumedCharPlusAfter } from "./common"
+export type { ShortCircuit } from "./common"
 export * from "./is-covered"
 export * from "./is-equals"
 

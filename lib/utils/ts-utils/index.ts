@@ -45,6 +45,16 @@ export function getTypeScript(): TypeScript | undefined {
         if (e.code === "MODULE_NOT_FOUND") {
             return undefined
         }
+
+        if (
+            typeof require === "undefined" ||
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+            typeof (require as any).define === "function"
+        ) {
+            // For browser
+            return undefined
+        }
+
         throw e
     }
 }

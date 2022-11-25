@@ -10,8 +10,7 @@ function camelCase(str: string) {
     return str.replace(/[-_](?<char>\w)/gu, (_, char) => char.toUpperCase())
 }
 
-const content = `
-import type { RuleModule } from "../types"
+const content = `import type { RuleModule } from "../types"
 ${rules
     .map(
         (rule) =>
@@ -22,7 +21,7 @@ ${rules
     .join("\n")}
 
 export const rules = [
-    ${rules.map((rule) => camelCase(rule.meta.docs.ruleName)).join(",")}
+    ${rules.map((rule) => camelCase(rule.meta.docs.ruleName)).join(",\n    ")},
 ] as RuleModule[]
 `
 

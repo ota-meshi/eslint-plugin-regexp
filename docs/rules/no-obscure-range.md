@@ -56,7 +56,7 @@ This option can be used to override the [allowedCharacterRanges] setting.
 
 It allows all values that the [allowedCharacterRanges] setting allows.
 
-[allowedCharacterRanges]: ../settings/README.md#allowedCharacterRanges
+[allowedCharacterRanges]: ../settings/index.md#allowedCharacterRanges
 
 ### `"allowed": "alphanumeric"`
 

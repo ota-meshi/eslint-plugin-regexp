@@ -1,7 +1,7 @@
 import path from "path"
 import assert from "assert"
 import { ESLint } from "eslint"
-import plugin from "../../lib/index"
+import * as plugin from "../../lib/index"
 
 // -----------------------------------------------------------------------------
 // Tests

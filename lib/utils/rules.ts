@@ -16,6 +16,7 @@ import noEmptyCharacterClass from "../rules/no-empty-character-class"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
 import noEscapeBackspace from "../rules/no-escape-backspace"
+import noExtraLookaroundAssertions from "../rules/no-extra-lookaround-assertions"
 import noInvalidRegexp from "../rules/no-invalid-regexp"
 import noInvisibleCharacter from "../rules/no-invisible-character"
 import noLazyEnds from "../rules/no-lazy-ends"
@@ -96,6 +97,7 @@ export const rules = [
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
     noEscapeBackspace,
+    noExtraLookaroundAssertions,
     noInvalidRegexp,
     noInvisibleCharacter,
     noLazyEnds,

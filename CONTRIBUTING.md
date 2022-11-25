@@ -69,7 +69,7 @@ The following steps will walk you through the process of creating a new rule.
 
     The documentation should contain a description of the rule and the problem it detects/solves, examples, all features, all options, and any additional information relevant to the rule.
 
-    You can view the documentation live in your browser by running `npm run build && npm run docs:watch`. The live view will automatically update when you make changes to the documentation. However, you have to re-run the command to see changes to the rule implementation.
+    You can view the documentation live in your browser by running `npm run docs:watch`. The live view will automatically update when you make changes to the documentation. However, you have to re-load the browser to see changes to the rule implementation.
 
 
 ### Updating documentation
@@ -78,9 +78,9 @@ Almost all Markdown files of our website and the project `README.md` are partial
 
 The following files are completely generated and must not be modified directly:
 
-- `docs/README.md` - change this section of the project `README.md` instead.
-- `docs/rules/README.md`
-- `docs/user-guide/README.md` - change this section of the project `README.md` instead.
+- `docs/index.md` - change this section of the project `README.md` instead.
+- `docs/rules/index.md`
+- `docs/user-guide/index.md` - change this section of the project `README.md` instead.
 
 The following files are partially generated:
 
@@ -98,7 +98,7 @@ You can view changes to the website locally by running `npm run docs:watch`.
 
 Aside from `npm test`, there are also a few other ways to manually test new features, changes, and new rules.
 
-1.  `npm run build && npm run docs:watch`:
+1.  `npm run docs:watch`:
 
     The documentation page of each rule includes interactive examples. You can also use your local version of [the playground](https://ota-meshi.github.io/eslint-plugin-regexp/playground/) to for testing.
 
