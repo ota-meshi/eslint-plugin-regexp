@@ -151,7 +151,6 @@ This rule implements a simple detection method. It is unable to find certain cas
 
 This means that this rule might not be able to verify fixed regexes. This rule might be unable to detect that supposedly fixed regexes are actually still vulnerable.
 
-
 ## :wrench: Options
 
 ```json
@@ -181,7 +180,7 @@ This option determines whether this rule will ignore regexes with sticky (`y`) f
 
   All regexes will be analysed.
 
-### `ignorePartial: boolean`:
+### `ignorePartial: boolean`
 
 Some regexes are used as fragments to build more complex regexes. Example:
 
@@ -199,7 +198,6 @@ Even if a fragment had exploitable quantifiers, it might not cause super-linear 
 - `ignorePartial: false`
 
   The rule checks all regexes regardless of how they are used.
-
 
 ## :books: Further reading
 

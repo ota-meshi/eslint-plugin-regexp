@@ -42,12 +42,11 @@ Nothing.
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].
+This rule was taken from [eslint-plugin-clean-regex].\
 This rule is compatible with [clean-regex/no-empty-alternative] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
 [clean-regex/no-empty-alternative]: https://github.com/RunDevelopment/eslint-plugin-clean-regex/blob/master/docs/rules/no-empty-alternative.md
-
 
 ## :rocket: Version
 

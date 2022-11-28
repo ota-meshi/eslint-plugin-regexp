@@ -21,6 +21,8 @@ This rule disallows using invisible characters other than SPACE (`U+0020`) witho
 
 <eslint-code-block fix>
 
+<!-- markdownlint-disable no-hard-tabs -->
+
 ```js
 /* eslint regexp/no-invisible-character: "error" */
 
@@ -37,6 +39,8 @@ var foo = //;
 var foo = //;
 var foo = /　/;
 ```
+
+<!-- markdownlint-enable no-hard-tabs -->
 
 </eslint-code-block>
 

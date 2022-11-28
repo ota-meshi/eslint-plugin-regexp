@@ -50,7 +50,7 @@ var newText = text.replaceAll(/Dog/i, 'cat');
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `matchAll()` and `replaceAll()`. Default is `true`.
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `matchAll()` and `replaceAll()`. Default is `true`.\
   This option is always on when using TypeScript.
 
 ## :books: Further reading

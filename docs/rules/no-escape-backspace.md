@@ -15,7 +15,7 @@ since: "v0.1.0"
 
 ## :book: Rule Details
 
-This rule reports `[\b]`.
+This rule reports `[\b]`.\
 The word boundaries (`\b`) and the escape backspace (`[\b]`) are indistinguishable at a glance. This rule does not allow backspace (`[\b]`). Use unicode escapes (`\u0008`) instead.
 
 <eslint-code-block>

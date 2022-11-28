@@ -21,6 +21,8 @@ This rule reports control characters that were not escaped using a control escap
 
 <eslint-code-block fix>
 
+<!-- markdownlint-disable no-hard-tabs -->
+
 ```js
 /* eslint regexp/control-character-escape: "error" */
 
@@ -35,6 +37,8 @@ var foo = /\u0009/;
 var foo = /\u{a}/u;
 var foo = RegExp("\\u000a");
 ```
+
+<!-- markdownlint-enable no-hard-tabs -->
 
 </eslint-code-block>
 

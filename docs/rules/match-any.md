@@ -17,7 +17,7 @@ since: "v0.1.0"
 
 ## :book: Rule Details
 
-This rule enforces the regular expression notation to match any character.
+This rule enforces the regular expression notation to match any character.\
 e.g. `[\s\S]`, `[^]`, `/./s` (dotAll) and more.
 
 <eslint-code-block fix>
@@ -48,7 +48,7 @@ var foo = /[\w\W]/;
 }
 ```
 
-- `"allows"` ... An array of notations that any characters that are allowed.
+- `"allows"` ... An array of notations that any characters that are allowed.\
   `"[\\s\\S]"`, `"[\\S\\s]"`, `"[^]"` and `"dotAll"` can be set.
 
 ### `{ "allows": ["[^]"] }`

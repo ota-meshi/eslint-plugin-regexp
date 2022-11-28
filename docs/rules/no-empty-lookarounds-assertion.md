@@ -23,10 +23,10 @@ An empty lookaround is a lookaround for which at least one path in the lookaroun
 
 **Examples:**
 
--   `(?=)`: One of simplest empty lookarounds.
--   `(?=a*)`: It is possible for `a*` to not consume characters, therefore the lookahead is _empty_.
--   `(?=a|b*)`: Only one path has to not consume characters. Since it is possible for `b*` to not consume characters, the lookahead is _empty_.
--   `(?=a|$)`: This is **not** an empty lookaround. `$` does not _consume_ characters but it does _assert_ characters. Similarly, all other standard assertions (`\b`, `\B`, `^`) are also not empty.
+- `(?=)`: One of simplest empty lookarounds.
+- `(?=a*)`: It is possible for `a*` to not consume characters, therefore the lookahead is _empty_.
+- `(?=a|b*)`: Only one path has to not consume characters. Since it is possible for `b*` to not consume characters, the lookahead is _empty_.
+- `(?=a|$)`: This is **not** an empty lookaround. `$` does not _consume_ characters but it does _assert_ characters. Similarly, all other standard assertions (`\b`, `\B`, `^`) are also not empty.
 
 ### Why are empty lookarounds a problem?
 
