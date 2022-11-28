@@ -44,7 +44,7 @@ while (match = regex.exec(str)) {
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the string instance was used in `match()` and `matchAll()`. Default is `true`.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the string instance was used in `match()` and `matchAll()`. Default is `true`.\
   This option is always on when using TypeScript.
 
 ## :couple: Related rules

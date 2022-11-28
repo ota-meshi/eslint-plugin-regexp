@@ -51,7 +51,7 @@ This option control how character class element equivalent to `\d` will be treat
 
 *Note:* This option does not affect character classes equivalent to `\d`. E.g. `[\d]`, `[0-9]`, and `[0123456789]` are unaffected.
 
-- `insideCharacterClass: "d"` (_default_)
+- `insideCharacterClass: "d"` (*default*)
 
   Character class element equivalent to `\d` will be reported and replaced with `\d`.
 

@@ -44,7 +44,6 @@ The rule only implements a very simplistic detection method and can only detect 
 
 While the detection will improve in the future, this rule will never be able to perfectly detect all cases super-linear backtracking.
 
-
 ## :wrench: Options
 
 ```json

@@ -119,7 +119,7 @@ tester.run("prefer-regexp-test", rule as any, {
             code: `
             const re = /a/g;
             const str = 'abc';
-            
+
             console.log(!!str.match(re)); // ignore
             console.log(!!str.match(re)); // ignore
             console.log(!!re.exec(str));
@@ -130,7 +130,7 @@ tester.run("prefer-regexp-test", rule as any, {
             output: `
             const re = /a/g;
             const str = 'abc';
-            
+
             console.log(!!str.match(re)); // ignore
             console.log(!!str.match(re)); // ignore
             console.log(!!re.test(str));

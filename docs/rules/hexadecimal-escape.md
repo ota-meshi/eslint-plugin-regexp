@@ -37,7 +37,7 @@ var foo = /\u{a}/u;
 ```json5
 {
   "regexp/hexadecimal-escape": [
-    "error", 
+    "error",
     "always", // or "never"
   ]
 }
