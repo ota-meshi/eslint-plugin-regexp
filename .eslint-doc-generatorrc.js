@@ -5,6 +5,6 @@ module.exports = {
   ruleDocSectionInclude: ['Rule Details', 'Version', 'Implementation'],
   ruleDocSectionOptions: false,
   ruleDocTitleFormat: 'prefix-name',
-  splitBy: 'meta.docs.category',
+  ruleListSplit: 'meta.docs.category',
   urlRuleDoc: 'https://ota-meshi.github.io/eslint-plugin-regexp/rules/{name}.html',
 };

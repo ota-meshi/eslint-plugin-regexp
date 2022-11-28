@@ -7,7 +7,7 @@ since: "v0.1.0"
 ---
 # regexp/no-useless-exactly-quantifier
 
-❌ This rule is deprecated. It was replaced by [`no-useless-quantifier`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html),[`no-zero-quantifier`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-zero-quantifier.html).
+❌ This rule is deprecated. It was replaced by [`regexp/no-useless-quantifier`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-quantifier.html),[`regexp/no-zero-quantifier`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-zero-quantifier.html).
 
 <!-- end auto-generated rule header -->
 

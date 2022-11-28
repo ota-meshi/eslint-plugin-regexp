@@ -7,7 +7,7 @@ since: "v0.4.0"
 ---
 # regexp/order-in-character-class
 
-❌ This rule is deprecated. It was replaced by [`sort-character-class-elements`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html).
+❌ This rule is deprecated. It was replaced by [`regexp/sort-character-class-elements`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
