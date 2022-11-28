@@ -45,7 +45,6 @@ This rule reports elements that contradict an assertion. All elements reported b
 
 This rule is quite similar to [regexp/no-useless-assertions]. While [regexp/no-useless-assertions] tries to find assertions that contradict the pattern, this rule tries to find parts of the pattern that contradict assertions.
 
-
 <eslint-code-block>
 
 ```js

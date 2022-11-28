@@ -166,7 +166,7 @@ No other flags will be checked.
 ```
 
 - `ignore` ... An array of flags to ignore from the check.
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `search()` and `split()`. Default is `true`. This option is only effective for verifying the `g` and `y` flags.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `search()` and `split()`. Default is `true`. This option is only effective for verifying the `g` and `y` flags.\
   This option is always on when using TypeScript.
 
 ### `"ignore": ["s", "g"]`

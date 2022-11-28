@@ -12,9 +12,9 @@ tester.run("prefer-regexp-exec", rule as any, {
     valid: [
         `
         /thing/.exec('something');
-        
+
         'some things are just things'.match(/thing/g);
-        
+
         const text = 'something';
         const search = /thing/;
         search.exec(text);
@@ -24,9 +24,9 @@ tester.run("prefer-regexp-exec", rule as any, {
         {
             code: `
             'something'.match(/thing/);
-            
+
             'some things are just things'.match(/thing/);
-            
+
             const text = 'something';
             const search = /thing/;
             text.match(search);

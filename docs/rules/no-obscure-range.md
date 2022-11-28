@@ -41,7 +41,6 @@ var foo = /[😀-😄]/u;
 
 ## :wrench: Options
 
-
 ```json5
 {
   "regexp/no-obscure-range": ["error",

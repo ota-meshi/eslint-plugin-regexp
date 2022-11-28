@@ -110,7 +110,7 @@ var foo = /a(?:c|ab+?)?/.test(str)
 
 ## :heart: Compatibility
 
-This rule was taken from [eslint-plugin-clean-regex].  
+This rule was taken from [eslint-plugin-clean-regex].\
 This rule is compatible with [clean-regex/no-lazy-ends] rule.
 
 [eslint-plugin-clean-regex]: https://github.com/RunDevelopment/eslint-plugin-clean-regex
