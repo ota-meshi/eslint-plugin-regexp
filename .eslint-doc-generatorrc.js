@@ -5,6 +5,31 @@ module.exports = {
   ruleDocSectionInclude: ['Rule Details', 'Version', 'Implementation'],
   ruleDocSectionOptions: false,
   ruleDocTitleFormat: 'prefix-name',
-  ruleListSplit: 'meta.docs.category',
+  ruleListSplit(rules) {
+    return [
+      {
+        title: 'Possible Errors',
+        rules: rules.filter(
+          ([, rule]) => rule.meta.docs.category === 'Possible Errors' && !rule.meta.deprecated
+        ),
+      },
+      {
+        title: 'Best Practices',
+        rules: rules.filter(
+          ([, rule]) => rule.meta.docs.category === 'Best Practices'&& !rule.meta.deprecated
+        ),
+      },
+      {
+        title: 'Stylistic Issues',
+        rules: rules.filter(
+          ([, rule]) => rule.meta.docs.category === 'Stylistic Issues' && !rule.meta.deprecated
+        ),
+      },
+      {
+        title: 'Deprecated',
+        rules: rules.filter(([, rule]) => rule.meta.deprecated),
+      },
+    ];
+  },
   urlRuleDoc: 'https://ota-meshi.github.io/eslint-plugin-regexp/rules/{name}.html',
 };
