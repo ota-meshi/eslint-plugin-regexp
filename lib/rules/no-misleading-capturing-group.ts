@@ -165,14 +165,15 @@ export default createRule("no-misleading-capturing-group", {
         messages: {
             removeQuant:
                 "{{quant}} can be removed because it is already included by {{cause}}." +
-                " This makes the capturing group misleading because it actually captures less text than its pattern suggests.",
+                " This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
             replaceQuant:
                 "{{quant}} can be replaced with {{fix}} because of {{cause}}." +
-                " This makes the capturing group misleading because it actually captures less text than its pattern suggests.",
+                " This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
             suggestionRemove: "Remove {{quant}}.",
             suggestionReplace: "Replace {{quant}} with {{fix}}.",
+
             nonAtomic:
-                "The quantifier {{quant}} is not atomic for the characters {{chars}}, so it might capture fewer characters than expected. This makes the capturing group misleading because the quantifier will capture fewer characters than its pattern suggests in some edge cases.",
+                "The quantifier {{quant}} is not atomic for the characters {{chars}}, so it might capture fewer characters than expected. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests in some edge cases.",
             suggestionNonAtomic:
                 "Make the quantifier atomic by adding {{fix}}. Careful! This is going to change the behavior of the regex in some edge cases.",
         },
