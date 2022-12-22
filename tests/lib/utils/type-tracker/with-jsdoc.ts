@@ -34,7 +34,7 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
-        /** 
+        /**
          * @param {number} a
          * @param {string} b
          */
@@ -46,7 +46,7 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
-        /** 
+        /**
          * @param {string} b
          * @param {number} a
          */
@@ -58,7 +58,7 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
-        /** 
+        /**
          * @param {string}
          * @param {number}
          */
@@ -70,7 +70,7 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
-        /** 
+        /**
          * @param {object} arg
          * @param {string} arg.b
          * @param {number} arg.a

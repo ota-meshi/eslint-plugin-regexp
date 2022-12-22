@@ -14,7 +14,7 @@ since: "v0.4.0"
 
 ## :book: Rule Details
 
-This rule reports unnecessary escape characters in RegExp.  
+This rule reports unnecessary escape characters in RegExp.\
 You may be able to find another mistake by finding unnecessary escapes.
 
 <eslint-code-block fix>

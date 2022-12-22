@@ -39,7 +39,7 @@ var str = 'JavaScript'.replace(/Java(Script)/g, 'Type$1')
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.  
+- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.\
   This option is always on when using TypeScript.
 
 ## :rocket: Version
