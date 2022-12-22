@@ -41,6 +41,12 @@ tester.run("no-misleading-capturing-group", rule as any, {
             ],
         },
         {
+            code: String.raw`/^([\t ]*).+/gmu`,
+            errors: [
+                "The quantifier '[\\t ]*' can exchange characters ([\\t ]) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
+            ],
+        },
+        {
             code: String.raw`/('{2,5}).+?\1/`,
             errors: [
                 "The quantifier ''{2,5}' can exchange characters (') with '.+?'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
