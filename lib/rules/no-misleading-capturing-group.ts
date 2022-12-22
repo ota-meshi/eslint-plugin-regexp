@@ -271,7 +271,15 @@ export default createRule("no-misleading-capturing-group", {
             recommended: false,
         },
         hasSuggestions: true,
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    reportBacktrackingEnds: { type: "boolean" },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             removeQuant:
                 "{{quant}} can be removed because it is already included by {{cause}}." +
@@ -293,6 +301,9 @@ export default createRule("no-misleading-capturing-group", {
         type: "problem",
     },
     create(context) {
+        const reportBacktrackingEnds =
+            context.options[0]?.reportBacktrackingEnds ?? true
+
         /**
          * Create visitor
          */
@@ -446,7 +457,9 @@ export default createRule("no-misleading-capturing-group", {
             return {
                 onCapturingGroupLeave(capturingGroup) {
                     reportStartQuantifiers(capturingGroup)
-                    reportTradingEndQuantifiers(capturingGroup)
+                    if (reportBacktrackingEnds) {
+                        reportTradingEndQuantifiers(capturingGroup)
+                    }
                 },
             }
         }

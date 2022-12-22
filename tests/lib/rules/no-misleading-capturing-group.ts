@@ -18,6 +18,10 @@ tester.run("no-misleading-capturing-group", rule as any, {
         String.raw`/(^~~?)(?!~)[\s\S]+(?=\1$)/m`,
         String.raw`/(^~~?(?!~))[\s\S]+(?=\1$)/m`,
         String.raw`/(^~(?:~|(?!~)))[\s\S]+(?=\1$)/m`,
+        {
+            code: String.raw`/^(a*).+/u`,
+            options: [{ reportBacktrackingEnds: false }],
+        },
     ],
     invalid: [
         {
@@ -33,7 +37,7 @@ tester.run("no-misleading-capturing-group", rule as any, {
             ],
         },
 
-        // trading
+        // backtracking ends
         {
             code: String.raw`/^(a*).+/u`,
             errors: [

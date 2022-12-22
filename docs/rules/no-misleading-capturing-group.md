@@ -42,13 +42,22 @@ var foo = /^(a*).+/
 
 ```json
 {
-  "regexp/no-misleading-capturing-group": ["error", {
-
-  }]
+  "regexp/no-misleading-capturing-group": [
+    "error",
+    {
+      "reportBacktrackingEnds": true,
+    }
+  ]
 }
 ```
 
--
+- `reportBacktrackingEnds`
+
+  This rule will report quantifiers at the end of capturing groups that might backtrack for certain strings.
+
+  E.g. when `/^(a*).+$/m` is used to match the string `"aa"`, then `a*` will capture both `a`s at first, but is then force to give up the last `a` to `.+` to make the whole regex accept. So `(a*)` only capture the first `a`. This is misleading because one would expect that `(a*)` should capture all `a`s at the start of the string, but this is not the case.
+
+  Because this behavior might be intentional, some users might want to turn off this type of reporting.
 
 ## :mag: Implementation
 
