@@ -10,19 +10,20 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, toCharSetSource } from "../utils"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
 import {
-    getFirstConsumedCharAfter,
+    isPotentiallyZeroLength,
     invertMatchingDirection,
     getMatchingDirection,
     isEmpty,
     hasSomeDescendant,
     Chars,
     toCharSet,
+    followPaths,
 } from "regexp-ast-analysis"
 import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { joinEnglishList, mention } from "../utils/mention"
 import { getParser } from "../utils/regexp-ast"
-import type { CharSet } from "refa"
+import { CharSet } from "refa"
 
 /**
  * Throws if called.
@@ -101,18 +102,50 @@ function hasCapturingGroup(node: Node): boolean {
     return hasSomeDescendant(node, (d) => d.type === "CapturingGroup")
 }
 
+type CharCache = WeakMap<Element | Alternative, CharSet>
+const caches = new WeakMap<ReadonlyFlags, CharCache>()
+
+/**
+ * Returns a char cache for some given flags.
+ */
+function getCache(flags: ReadonlyFlags): CharCache {
+    let cache = caches.get(flags)
+    if (cache === undefined) {
+        cache = new WeakMap()
+        caches.set(flags, cache)
+    }
+    return cache
+}
+
 /**
  * Returns the largest character set such that `L(chars) ⊆ L(element)`.
  */
 function getSingleRepeatedChar(
     element: Element | Alternative,
     flags: ReadonlyFlags,
+    cache: CharCache = getCache(flags),
+): CharSet {
+    let value = cache.get(element)
+    if (value === undefined) {
+        value = uncachedGetSingleRepeatedChar(element, flags, cache)
+        cache.set(element, value)
+    }
+    return value
+}
+
+/**
+ * Returns the largest character set such that `L(chars) ⊆ L(element)`.
+ */
+function uncachedGetSingleRepeatedChar(
+    element: Element | Alternative,
+    flags: ReadonlyFlags,
+    cache: CharCache,
 ): CharSet {
     switch (element.type) {
         case "Alternative": {
             let total: CharSet | undefined = undefined
             for (const e of element.elements) {
-                const c = getSingleRepeatedChar(e, flags)
+                const c = getSingleRepeatedChar(e, flags, cache)
                 if (total === undefined) {
                     total = c
                 } else {
@@ -138,16 +171,93 @@ function getSingleRepeatedChar(
         case "CapturingGroup":
         case "Group":
             return element.alternatives
-                .map((a) => getSingleRepeatedChar(a, flags))
+                .map((a) => getSingleRepeatedChar(a, flags, cache))
                 .reduce((a, b) => a.union(b))
 
         case "Quantifier":
             if (element.max === 0) return Chars.empty(flags)
-            return getSingleRepeatedChar(element.element, flags)
+            return getSingleRepeatedChar(element.element, flags, cache)
 
         default:
             return assertNever(element)
     }
+}
+
+interface TradingQuantifier {
+    quant: Quantifier
+    quantRepeatedChar: CharSet
+    intersection: CharSet
+}
+
+/**
+ * Yields all non-constant (min != max) quantifiers that trade characters with
+ * the given start quantifiers.
+ */
+function getTradingQuantifiersAfter(
+    start: Quantifier,
+    startChar: CharSet,
+    direction: MatchingDirection,
+    flags: ReadonlyFlags,
+): Iterable<TradingQuantifier> {
+    const results: TradingQuantifier[] = []
+
+    followPaths<CharSet>(
+        start,
+        "next",
+        startChar,
+        {
+            join(states) {
+                return CharSet.empty(startChar.maximum).union(...states)
+            },
+            continueAfter(_, state) {
+                return !state.isEmpty
+            },
+            continueInto(element, state) {
+                return element.type !== "Assertion" && !state.isEmpty
+            },
+            leave(element, state) {
+                switch (element.type) {
+                    case "Assertion":
+                    case "Backreference":
+                    case "Character":
+                    case "CharacterClass":
+                    case "CharacterSet":
+                        return state.intersect(
+                            getSingleRepeatedChar(element, flags),
+                        )
+
+                    case "CapturingGroup":
+                    case "Group":
+                    case "Quantifier":
+                        return state
+
+                    default:
+                        return assertNever(element)
+                }
+            },
+            enter(element, state) {
+                if (
+                    element.type === "Quantifier" &&
+                    element.min !== element.max
+                ) {
+                    const qChar = getSingleRepeatedChar(element, flags)
+                    const intersection = qChar.intersect(state)
+                    if (!intersection.isEmpty) {
+                        results.push({
+                            quant: element,
+                            quantRepeatedChar: qChar,
+                            intersection,
+                        })
+                    }
+                }
+
+                return state
+            },
+        },
+        direction,
+    )
+
+    return results
 }
 
 export default createRule("no-misleading-capturing-group", {
@@ -176,6 +286,9 @@ export default createRule("no-misleading-capturing-group", {
                 "The quantifier {{quant}} is not atomic for the characters {{chars}}, so it might capture fewer characters than expected. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests in some edge cases.",
             suggestionNonAtomic:
                 "Make the quantifier atomic by adding {{fix}}. Careful! This is going to change the behavior of the regex in some edge cases.",
+
+            trading:
+                "The quantifier {{quant}} can exchange characters ({{chars}}) with {{other}}. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
         },
         type: "problem",
     },
@@ -186,8 +299,7 @@ export default createRule("no-misleading-capturing-group", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, flags, getRegexpLocation, fixReplaceNode } =
-                regexpContext
+            const { node, flags, getRegexpLocation } = regexpContext
 
             const parser = getParser(regexpContext)
 
@@ -272,10 +384,10 @@ export default createRule("no-misleading-capturing-group", {
             }
 
             /**
-             * Quantifiers at the end of the a capturing groups might be
-             * non-atomic which can be misleading.
+             * Quantifiers at the end of the a capturing groups that can
+             * exchange characters with another quantifier outside the capturing group.
              */
-            function reportNonAtomicEndQuantifiers(
+            function reportTradingEndQuantifiers(
                 capturingGroup: CapturingGroup,
             ): void {
                 const direction = getMatchingDirection(capturingGroup)
@@ -299,62 +411,42 @@ export default createRule("no-misleading-capturing-group", {
                         continue
                     }
 
-                    const next = getFirstConsumedCharAfter(
+                    for (const trader of getTradingQuantifiersAfter(
                         quantifier,
+                        qChar,
                         direction,
                         flags,
-                    )
-                    if (next.empty) {
-                        // we need a next char
-                        continue
-                    }
-                    if (!next.exact) {
-                        // a superset is not sufficient
-                        continue
-                    }
-
-                    const nonAtomic = qChar.intersect(next.char)
-                    if (nonAtomic.isEmpty) {
-                        // the quantifier is atomic
-                        continue
-                    }
-
-                    const nonAtomicSource = toCharSetSource(nonAtomic, flags)
-                    const fix =
-                        direction === "ltr"
-                            ? `(?!${nonAtomicSource})`
-                            : `(?<!${nonAtomicSource})`
-
-                    context.report({
-                        node,
-                        loc: getRegexpLocation(quantifier),
-                        messageId: "nonAtomic",
-                        data: {
-                            quant: mention(quantifier),
-                            chars: mention(nonAtomicSource),
-                        },
-                        suggest: [
-                            {
-                                messageId: "suggestionNonAtomic",
+                    )) {
+                        // we now found a quantifier that we can exchange characters with.
+                        if (hasSomeDescendant(capturingGroup, trader.quant)) {
+                            // the other quantifier must be outside the capturing group
+                            continue
+                        }
+                        if (
+                            trader.quant.min >= 1 &&
+                            !isPotentiallyZeroLength(trader.quant.element)
+                        )
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(quantifier),
+                                messageId: "trading",
                                 data: {
-                                    fix,
+                                    quant: mention(quantifier),
+                                    other: mention(trader.quant),
+                                    chars: toCharSetSource(
+                                        trader.intersection,
+                                        flags,
+                                    ),
                                 },
-                                fix: fixReplaceNode(
-                                    quantifier,
-                                    direction === "ltr"
-                                        ? quantifier.raw + fix
-                                        : fix + quantifier.raw,
-                                ),
-                            },
-                        ],
-                    })
+                            })
+                    }
                 }
             }
 
             return {
                 onCapturingGroupLeave(capturingGroup) {
                     reportStartQuantifiers(capturingGroup)
-                    reportNonAtomicEndQuantifiers(capturingGroup)
+                    reportTradingEndQuantifiers(capturingGroup)
                 },
             }
         }
