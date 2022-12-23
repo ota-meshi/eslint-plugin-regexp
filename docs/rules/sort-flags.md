@@ -7,7 +7,7 @@ since: "v0.9.0"
 ---
 # regexp/sort-flags
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

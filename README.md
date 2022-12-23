@@ -101,7 +101,7 @@ The `plugin:regexp/all` config enables all rules. It's meant for testing, not fo
 
 💼 Configurations enabled in.\
 ⚠️ Configurations set to warn in.\
-✅ Set in the `recommended` configuration.\
+✅ Set in the `plugin:regexp/recommended` configuration.\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).\
 💡 Manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).\
 ❌ Deprecated.

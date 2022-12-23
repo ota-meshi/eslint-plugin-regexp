@@ -7,7 +7,7 @@ since: "v0.9.0"
 ---
 # regexp/no-non-standard-flag
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
 <!-- end auto-generated rule header -->
 

@@ -1,5 +1,6 @@
 /** @type {import('eslint-doc-generator').GenerateOptions} */
 module.exports = {
+  configFormat: 'plugin-colon-prefix-name',
   ignoreConfig: ['all'],
   pathRuleList: ['README.md', 'docs/rules/index.md'],
   ruleDocSectionInclude: ['Rule Details', 'Version', 'Implementation'],
@@ -16,7 +17,7 @@ module.exports = {
       {
         title: 'Best Practices',
         rules: rules.filter(
-          ([, rule]) => rule.meta.docs.category === 'Best Practices'&& !rule.meta.deprecated
+          ([, rule]) => rule.meta.docs.category === 'Best Practices' && !rule.meta.deprecated
         ),
       },
       {

@@ -7,7 +7,7 @@ since: "v1.0.0"
 ---
 # regexp/no-invalid-regexp
 
-💼 This rule is enabled in the ✅ `recommended` config.
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
 <!-- end auto-generated rule header -->
 

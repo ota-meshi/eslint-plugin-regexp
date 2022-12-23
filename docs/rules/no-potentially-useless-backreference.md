@@ -7,7 +7,7 @@ since: "v0.9.0"
 ---
 # regexp/no-potentially-useless-backreference
 
-⚠️ This rule _warns_ in the ✅ `recommended` config.
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
 <!-- end auto-generated rule header -->
 
