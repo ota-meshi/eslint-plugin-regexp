@@ -1,5 +1,5 @@
 /** @type {import('eslint-doc-generator').GenerateOptions} */
-module.exports = {
+const config = {
   configFormat: 'plugin-colon-prefix-name',
   ignoreConfig: ['all'],
   pathRuleList: ['README.md', 'docs/rules/index.md'],
@@ -39,3 +39,5 @@ module.exports = {
     }
   },
 };
+
+module.exports = config;
