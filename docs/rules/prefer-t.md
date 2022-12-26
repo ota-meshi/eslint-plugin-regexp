@@ -7,7 +7,7 @@ since: "v0.1.0"
 ---
 # regexp/prefer-t
 
-❌ This rule is deprecated. It was replaced by [`regexp/control-character-escape`](https://ota-meshi.github.io/eslint-plugin-regexp/rules/control-character-escape.html).
+❌ This rule is deprecated. It was replaced by [`regexp/control-character-escape`](../../docs/rules/control-character-escape.md).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

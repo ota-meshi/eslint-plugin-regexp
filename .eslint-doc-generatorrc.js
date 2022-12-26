@@ -32,5 +32,10 @@ module.exports = {
       },
     ];
   },
-  urlRuleDoc: 'https://ota-meshi.github.io/eslint-plugin-regexp/rules/{name}.html',
+  urlRuleDoc(name, page) {
+    if (page === 'README.md') {
+      // Use URLs only in the README to link to the vitepress SPA.
+      return `https://ota-meshi.github.io/eslint-plugin-regexp/rules/${name}.html`;
+    }
+  },
 };
