@@ -7,7 +7,7 @@ since: "v0.1.0"
 ---
 # regexp/no-assertion-capturing-group
 
-❌ This rule is deprecated. It was replaced by [`regexp/no-empty-capturing-group`](../../docs/rules/no-empty-capturing-group.md).
+❌ This rule is deprecated. It was replaced by [`regexp/no-empty-capturing-group`](no-empty-capturing-group.md).
 
 <!-- end auto-generated rule header -->
 

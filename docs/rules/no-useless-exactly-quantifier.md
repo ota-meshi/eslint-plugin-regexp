@@ -7,7 +7,7 @@ since: "v0.1.0"
 ---
 # regexp/no-useless-exactly-quantifier
 
-❌ This rule is deprecated. It was replaced by [`regexp/no-useless-quantifier`](../../docs/rules/no-useless-quantifier.md),[`regexp/no-zero-quantifier`](../../docs/rules/no-zero-quantifier.md).
+❌ This rule is deprecated. It was replaced by [`regexp/no-useless-quantifier`](no-useless-quantifier.md),[`regexp/no-zero-quantifier`](no-zero-quantifier.md).
 
 <!-- end auto-generated rule header -->
 

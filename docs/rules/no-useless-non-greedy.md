@@ -7,7 +7,7 @@ since: "v0.3.0"
 ---
 # regexp/no-useless-non-greedy
 
-❌ This rule is deprecated. It was replaced by [`regexp/no-useless-lazy`](../../docs/rules/no-useless-lazy.md).
+❌ This rule is deprecated. It was replaced by [`regexp/no-useless-lazy`](no-useless-lazy.md).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
