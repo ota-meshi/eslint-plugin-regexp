@@ -6,6 +6,17 @@ const config = {
   ruleDocSectionInclude: ['Rule Details', 'Version', 'Implementation'],
   ruleDocSectionOptions: false,
   ruleDocTitleFormat: 'prefix-name',
+  ruleListColumns: [
+    // All standard columns except `deprecated` since we split the list such that there's a dedicated "Deprecated" section.
+    'name',
+    'description',
+    'configsError',
+    'configsWarn',
+    'configsOff',
+    'fixable',
+    'hasSuggestions',
+    'requiresTypeChecking',
+  ],
   ruleListSplit(rules) {
     return [
       {
@@ -34,7 +45,7 @@ const config = {
   },
   urlRuleDoc(name, page) {
     if (page === 'README.md') {
-      // Use URLs only in the README to link to the vitepress SPA.
+      // Use URLs only in the README to link to the vitepress SPA. Otherwise, fallback to relative URLs.
       return `https://ota-meshi.github.io/eslint-plugin-regexp/rules/${name}.html`;
     }
   },
