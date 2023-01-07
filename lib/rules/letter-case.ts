@@ -171,7 +171,7 @@ export default createRule("letter-case", {
             if (options.unicodeEscape === "ignore") {
                 return
             }
-            const parts = /^(?<prefix>\\u\{?)(?<code>.*)(?<suffix>\}?)$/u.exec(
+            const parts = /^(?<prefix>\\u\{?)(?<code>.*?)(?<suffix>\}?)$/u.exec(
                 cNode.raw,
             )!
             if (
