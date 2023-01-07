@@ -6,6 +6,10 @@ description: "disallow capturing groups that do not behave as one would expect"
 ---
 # regexp/no-misleading-capturing-group
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
 > disallow capturing groups that do not behave as one would expect
 
 - :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
@@ -58,6 +62,10 @@ var foo = /^(a*).+/
   E.g. when `/^(a*).+$/m` is used to match the string `"aa"`, then `a*` will capture both `a`s at first, but is then force to give up the last `a` to `.+` to make the whole regex accept. So `(a*)` only capture the first `a`. This is misleading because one would expect that `(a*)` should capture all `a`s at the start of the string, but this is not the case.
 
   Because this behavior might be intentional, some users might want to turn off this type of reporting.
+
+## :rocket: Version
+
+:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
 
 ## :mag: Implementation
 
