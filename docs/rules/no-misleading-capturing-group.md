@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-misleading-capturing-group"
 description: "disallow capturing groups that do not behave as one would expect"
+since: "v1.12.0"
 ---
 # regexp/no-misleading-capturing-group
 
@@ -65,7 +66,7 @@ var foo = /^(a*).+/
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v1.12.0
 
 ## :mag: Implementation
 
