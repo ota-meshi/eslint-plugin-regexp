@@ -27,6 +27,7 @@ sidebarDepth: 0
 | [no-escape-backspace](no-escape-backspace.md)                                   | disallow escape backspace (`[\b]`)                                                      | ✅  |    |    |    |
 | [no-invalid-regexp](no-invalid-regexp.md)                                       | disallow invalid regular expression strings in `RegExp` constructors                    | ✅  |    |    |    |
 | [no-lazy-ends](no-lazy-ends.md)                                                 | disallow lazy quantifiers at the end of an expression                                   |    | ✅  |    |    |
+| [no-misleading-capturing-group](no-misleading-capturing-group.md)               | disallow capturing groups that do not behave as one would expect                        |    |    |    | 💡 |
 | [no-misleading-unicode-character](no-misleading-unicode-character.md)           | disallow multi-code-point characters in character classes and quantifiers               |    |    | 🔧 | 💡 |
 | [no-missing-g-flag](no-missing-g-flag.md)                                       | disallow missing `g` flag in patterns used in `String#matchAll` and `String#replaceAll` |    |    | 🔧 |    |
 | [no-optional-assertion](no-optional-assertion.md)                               | disallow optional assertions                                                            | ✅  |    |    |    |

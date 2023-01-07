@@ -16,11 +16,13 @@ import type {
 import type { AST } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { Ancestor, ReadonlyFlags } from "regexp-ast-analysis"
 import { Chars, hasSomeDescendant, toCharSet } from "regexp-ast-analysis"
-import { getPossiblyConsumedChar } from "../utils/regexp-ast"
+import { getParser, getPossiblyConsumedChar } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
-import { mention } from "../utils/mention"
+import { joinEnglishList, mention } from "../utils/mention"
+import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
+import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 
 /**
  * Returns whether the given node is or contains a capturing group.
@@ -499,6 +501,32 @@ function getLoc(
     })
 }
 
+/**
+ * Returns a string representation of all capturing groups that the given
+ * element is inside of.
+ *
+ * This function is guaranteed to return the same value for 2 elements that are
+ * inside the same set of capturing groups.
+ *
+ * Note: The string itself is likely nonsensical.
+ */
+function getCapturingGroupStack(element: Element): string {
+    let result = ""
+    for (
+        let p: Ancestor<Element> = element.parent;
+        p.type !== "Pattern";
+        p = p.parent
+    ) {
+        if (p.type === "CapturingGroup") {
+            // We just need a unique number for each group.
+            // Regexpp doesn't give us the group number, so we'll use its position instead.
+            const id = p.start
+            result += String.fromCodePoint(32 + id)
+        }
+    }
+    return result
+}
+
 const enum CapturingGroupReporting {
     ignore = "ignore",
     report = "report",
@@ -537,6 +565,10 @@ export default createRule("optimal-quantifier-concatenation", {
                 "{{nested}} can be removed because of {{dominate}}.{{cap}}",
             nestedReplace:
                 "{{nested}} can be replaced with {{fix}} because of {{dominate}}.{{cap}}",
+            removeQuant:
+                "{{quant}} can be removed because it is already included by {{cause}}.{{cap}}",
+            replaceQuant:
+                "{{quant}} can be replaced with {{fix}} because of {{cause}}.{{cap}}",
         },
         type: "suggestion",
     },
@@ -554,13 +586,107 @@ export default createRule("optimal-quantifier-concatenation", {
             const { node, flags, getRegexpLocation, fixReplaceNode } =
                 regexpContext
 
+            const parser = getParser(regexpContext)
+            const simplifiedAlready: Quantifier[] = []
+
+            /** Returns whether the given element is included an element that was processed already. */
+            function isSimplifiedAlready(element: Element): boolean {
+                return simplifiedAlready.some((q) => {
+                    return hasSomeDescendant(q, element)
+                })
+            }
+
             return {
-                onAlternativeEnter(aNode) {
+                onQuantifierEnter(quantifier) {
+                    const result = canSimplifyQuantifier(
+                        quantifier,
+                        flags,
+                        parser,
+                    )
+                    if (!result.canSimplify) return
+
+                    const quantStack = getCapturingGroupStack(quantifier)
+                    // This means that we crossed into or out of a capturing group somewhere
+                    const crossesCapturingGroup = result.dependencies.some(
+                        (e) => getCapturingGroupStack(e) !== quantStack,
+                    )
+
+                    const removesCapturingGroup =
+                        quantifier.min === 0 && hasCapturingGroup(quantifier)
+
+                    const involvesCapturingGroup =
+                        removesCapturingGroup || crossesCapturingGroup
+                    if (
+                        involvesCapturingGroup &&
+                        cgReporting === CapturingGroupReporting.ignore
+                    ) {
+                        return
+                    }
+
+                    // this ensures that neither the neither the quantifier itself
+                    // nor its dependencies are reported again by this rule
+                    simplifiedAlready.push(quantifier, ...result.dependencies)
+
+                    const cause = joinEnglishList(
+                        result.dependencies.map((d) => mention(d)),
+                    )
+
+                    const [replacement, fix] = fixSimplifyQuantifier(
+                        quantifier,
+                        result,
+                        regexpContext,
+                    )
+
+                    if (quantifier.min === 0) {
+                        const cap = involvesCapturingGroup
+                            ? removesCapturingGroup
+                                ? " This cannot be fixed automatically because it removes a capturing group."
+                                : " This cannot be fixed automatically because it involves a capturing group."
+                            : ""
+
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(quantifier),
+                            messageId: "removeQuant",
+                            data: {
+                                quant: mention(quantifier),
+                                cause,
+                                cap,
+                            },
+                            fix: involvesCapturingGroup ? undefined : fix,
+                        })
+                    } else {
+                        const cap = involvesCapturingGroup
+                            ? " This cannot be fixed automatically because it involves a capturing group."
+                            : ""
+
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(quantifier),
+                            messageId: "replaceQuant",
+                            data: {
+                                quant: mention(quantifier),
+                                fix: mention(replacement),
+                                cause,
+                                cap,
+                            },
+                            fix: involvesCapturingGroup ? undefined : fix,
+                        })
+                    }
+                },
+                onAlternativeLeave(aNode) {
                     for (let i = 0; i < aNode.elements.length - 1; i++) {
                         const left = aNode.elements[i]
                         const right = aNode.elements[i + 1]
-                        const replacement = getReplacement(left, right, flags)
+                        if (
+                            isSimplifiedAlready(left) ||
+                            isSimplifiedAlready(right)
+                        ) {
+                            // we already handled at least one element
+                            continue
+                        }
 
+                        const replacement = getReplacement(left, right, flags)
                         if (!replacement) {
                             continue
                         }

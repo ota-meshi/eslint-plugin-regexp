@@ -36,13 +36,23 @@ var str = 'JavaScript'.replace(/Java(Script)/g, 'Type$1')
 ```json
 {
   "regexp/prefer-lookaround": ["error", {
+      "lookbehind": true,
       "strictTypes": true
   }]
 }
 ```
 
-- `strictTypes` ... If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.\
-  This option is always on when using TypeScript.
+### `lookbehind`
+
+This option controls whether this rule will suggest using lookbehinds. Default is `true`.
+
+Safari is the last major browser that still does not support regex lookbehind assertions (as of December 2022). So if your code base targets Safari, you cannot use lookbehinds.
+
+### `strictTypes`
+
+If `true`, strictly check the type of object to determine if the regex instance was used in `replace()` and `replaceAll()`. Default is `true`.
+
+This option is always on when using TypeScript.
 
 ## :rocket: Version
 
