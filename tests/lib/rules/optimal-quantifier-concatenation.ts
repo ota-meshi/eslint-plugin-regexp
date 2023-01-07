@@ -23,6 +23,8 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/(\d)\d+/`,
             options: [{ capturingGroups: "ignore" }],
         },
+        String.raw`/^(?:\[\[\[?.+?\]?\]\]|<<.+?>>)$/`,
+        String.raw`/a\s*?(?=\r?\n|\r)/`,
     ],
     invalid: [
         {
@@ -42,7 +44,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
         {
             code: String.raw`/\w+\d+/`,
             output: String.raw`/\w+\d/`,
-            errors: ["'\\w+' and '\\d+' can be replaced with '\\w+\\d'."],
+            errors: ["'\\d+' can be replaced with '\\d' because of '\\w+'."],
         },
         {
             code: String.raw`/\w+\d?/`,
@@ -84,7 +86,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/\w+(?:a|b)+/`,
             output: String.raw`/\w+(?:a|b)/`,
             errors: [
-                "'\\w+' and '(?:a|b)+' can be replaced with '\\w+(?:a|b)'.",
+                "'(?:a|b)+' can be replaced with '(?:a|b)' because of '\\w+'.",
             ],
         },
         {
@@ -185,7 +187,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             code: String.raw`/[ab]*(?:a|bb)+/`,
             output: String.raw`/[ab]*(?:a|bb)/`,
             errors: [
-                "'[ab]*' and '(?:a|bb)+' can be replaced with '[ab]*(?:a|bb)'.",
+                "'(?:a|bb)+' can be replaced with '(?:a|bb)' because of '[ab]*'.",
             ],
         },
         {
@@ -208,13 +210,64 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             output: String.raw`/(&(?:\r|\n)\s*)!.*/`,
             errors: ["'\\n?' can be removed because of '\\s*'."],
         },
+        {
+            code: String.raw`/a\s*(?=\r?\n|\r)/`,
+            output: String.raw`/a\s*(?=\n|\r)/`,
+            errors: [
+                "'\\r?' can be removed because it is already included by '\\s*'.",
+            ],
+        },
+        {
+            code: String.raw`/(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+(?:(?:\r\n?|\n)[ \t]*\.\.\. .*)?/`,
+            output: String.raw`/(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+/`,
+            errors: [
+                "'(?:(?:\\r\\n?|\\n)[ \\t]*\\.\\.\\. .*)?' can be removed because it is already included by '(?:(?:\\r\\n?|\\n)[ \\t]*(?:at[ \\t].+|\\.{3}.*|Caused by:.*))+'.",
+            ],
+        },
+        {
+            code: String.raw`/&key\s+\S+(?:\s+\S+)*(?:\s+&allow-other-keys)?/`,
+            output: String.raw`/&key\s+\S+(?:\s+\S+)*/`,
+            errors: [
+                "'(?:\\s+&allow-other-keys)?' can be removed because it is already included by '(?:\\s+\\S+)*'.",
+            ],
+        },
+
+        // multiple causes
+        {
+            code: String.raw`/(?:xa+|y[ab]*)a*/`,
+            output: String.raw`/(?:xa+|y[ab]*)/`,
+            errors: [
+                "'a*' can be removed because it is already included by 'a+' and '[ab]*'.",
+            ],
+        },
+        {
+            code: String.raw`/(?:xa+|y[ab]*)(?:a*b)?/`,
+            output: String.raw`/(?:xa+|y[ab]*)(?:b)?/`,
+            errors: [
+                "'a*' can be removed because it is already included by 'a+' and '[ab]*'.",
+            ],
+        },
+        {
+            code: String.raw`/a+(?:a*z+[ay]*)*b/`,
+            output: String.raw`/a+(?:z+[ay]*)*b/`,
+            errors: [
+                "'a*' can be removed because it is already included by 'a+' and '[ay]*'.",
+            ],
+        },
+        {
+            code: String.raw`/(?:xa+|y[ab]*)(?:a*z[ac]*|xy[za]+)+b/`,
+            output: String.raw`/(?:xa+|y[ab]*)(?:z[ac]*|xy[za]+)+b/`,
+            errors: [
+                "'a*' can be removed because it is already included by 'a+', '[ab]*', '[ac]*', and '[za]+'.",
+            ],
+        },
 
         // careful with capturing groups
         {
             code: String.raw`/\w+(?:(a)|b)*/`,
             output: null,
             errors: [
-                "'(?:(a)|b)*' can be removed because it is already included by '\\w+'. This cannot be fixed automatically because it might change or remove a capturing group.",
+                "'(?:(a)|b)*' can be removed because it is already included by '\\w+'. This cannot be fixed automatically because it removes a capturing group.",
             ],
         },
         {
@@ -229,6 +282,13 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             output: null,
             errors: [
                 "'(\\d)' and '\\d+' can be combined into one quantifier '\\d{2,}'. This cannot be fixed automatically because it might change or remove a capturing group.",
+            ],
+        },
+        {
+            code: String.raw`/\d+(\d*)/`,
+            output: null,
+            errors: [
+                "'\\d*' can be removed because it is already included by '\\d+'. This cannot be fixed automatically because it involves a capturing group.",
             ],
         },
     ],

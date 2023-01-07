@@ -62,3 +62,19 @@ function escapeControl(control: string): string {
     if (control === "\r") return "\\r"
     return `\\x${control.charCodeAt(0).toString(16).padStart(2, "0")}`
 }
+
+/**
+ * Joins the given list of strings as an English list.
+ */
+export function joinEnglishList(list: readonly string[]): string {
+    if (list.length === 0) return "none"
+    if (list.length === 1) return list[0]
+    if (list.length === 2) return `${list[0]} and ${list[1]}`
+
+    let result = list[0]
+    for (let i = 1; i < list.length - 1; i++) {
+        result += `, ${list[i]}`
+    }
+    result += `, and ${list[list.length - 1]}`
+    return result
+}
