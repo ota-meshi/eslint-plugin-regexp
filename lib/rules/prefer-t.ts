@@ -9,7 +9,6 @@ export default createRule("prefer-t", {
             description: "enforce using `\\t`",
             category: "Stylistic Issues",
             recommended: false,
-            replacedBy: ["control-character-escape"],
         },
         fixable: "code",
         schema: [],
@@ -18,6 +17,7 @@ export default createRule("prefer-t", {
         },
         type: "suggestion", // "problem",
         deprecated: true,
+        replacedBy: ["control-character-escape"],
     },
     create(context) {
         /**

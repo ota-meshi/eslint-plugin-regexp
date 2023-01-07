@@ -7,6 +7,8 @@ since: "v0.10.0"
 ---
 # regexp/no-standalone-backslash
 
+<!-- end auto-generated rule header -->
+
 > disallow standalone backslashes (`\`)
 
 ## :book: Rule Details

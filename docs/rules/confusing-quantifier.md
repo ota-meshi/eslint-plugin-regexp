@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/confusing-quantifier
 
-> disallow confusing quantifiers
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow confusing quantifiers
 
 ## :book: Rule Details
 

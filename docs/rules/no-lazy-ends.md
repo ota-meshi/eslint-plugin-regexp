@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/no-lazy-ends
 
-> disallow lazy quantifiers at the end of an expression
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow lazy quantifiers at the end of an expression
 
 ## :book: Rule Details
 

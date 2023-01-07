@@ -7,10 +7,13 @@ since: "v0.6.0"
 ---
 # regexp/no-unused-capturing-group
 
-> disallow unused capturing group
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
+> disallow unused capturing group
 
 ## :book: Rule Details
 

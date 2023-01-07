@@ -7,6 +7,10 @@ since: "v1.2.0"
 ---
 # regexp/no-contradiction-with-assertion
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
+<!-- end auto-generated rule header -->
+
 > disallow elements that contradict assertions
 
 ## :book: Rule Details

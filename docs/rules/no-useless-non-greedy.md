@@ -7,10 +7,13 @@ since: "v0.3.0"
 ---
 # regexp/no-useless-non-greedy
 
-> disallow unnecessarily non-greedy quantifiers
+❌ This rule is deprecated. It was replaced by [`regexp/no-useless-lazy`](no-useless-lazy.md).
 
-- :warning: This rule was **deprecated** and replaced by [regexp/no-useless-lazy](no-useless-lazy.md) rule.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> disallow unnecessarily non-greedy quantifiers
 
 ## :book: Rule Details
 

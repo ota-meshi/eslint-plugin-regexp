@@ -7,6 +7,8 @@ since: "v1.2.0"
 ---
 # regexp/prefer-named-capture-group
 
+<!-- end auto-generated rule header -->
+
 > enforce using named capture groups
 
 ## :book: Rule Details

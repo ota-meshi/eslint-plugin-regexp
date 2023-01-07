@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-potentially-useless-backreference
 
-> disallow backreferences that reference a group that might not be matched
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow backreferences that reference a group that might not be matched
 
 ## :book: Rule Details
 

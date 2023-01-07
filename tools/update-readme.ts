@@ -1,34 +1,19 @@
 import path from "path"
 import fs from "fs"
-import renderRulesTableContent from "./render-rules"
-
-const insertText = `\n${renderRulesTableContent(
-    (name) =>
-        `https://ota-meshi.github.io/eslint-plugin-regexp/rules/${name}.html`,
-)}\n`
 
 const readmeFilePath = path.resolve(__dirname, "../README.md")
-const newReadme = fs
-    .readFileSync(readmeFilePath, "utf8")
-    .replace(
-        /<!--RULES_TABLE_START-->[\s\S]*<!--RULES_TABLE_END-->/u,
-        `<!--RULES_TABLE_START-->${insertText.replace(
-            /\$/gu,
-            "$$$$",
-        )}<!--RULES_TABLE_END-->`,
-    )
-fs.writeFileSync(readmeFilePath, newReadme)
+const readme = fs.readFileSync(readmeFilePath, "utf8")
 
 const docsReadmeFilePath = path.resolve(__dirname, "../docs/index.md")
 
 fs.writeFileSync(
     docsReadmeFilePath,
-    newReadme
+    readme
         .replace("# eslint-plugin-regexp\n", "# Introduction\n")
         .replace("<!--PACKAGE_STATUS_START-->", '<div class="package-status">')
         .replace("<!--PACKAGE_STATUS_END-->", "</div>")
         .replace(
-            /<!--RULES_SECTION_START-->[\s\S]*<!--RULES_SECTION_END-->/u,
+            /<!-- begin auto-generated rules list -->[\s\S]*<!-- end auto-generated rules list -->/u,
             "See [Available Rules](./rules/index.md).",
         )
         .replace(
@@ -69,7 +54,7 @@ const newUserGuideReadme = fs
     .replace(
         /<!--USAGE_SECTION_START-->[\s\S]*<!--USAGE_SECTION_END-->/u,
         /<!--USAGE_SECTION_START-->[\s\S]*<!--USAGE_SECTION_END-->/u.exec(
-            newReadme,
+            readme,
         )![0],
     )
 

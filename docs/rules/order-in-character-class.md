@@ -7,10 +7,13 @@ since: "v0.4.0"
 ---
 # regexp/order-in-character-class
 
-> enforces elements order in character class
+❌ This rule is deprecated. It was replaced by [`regexp/sort-character-class-elements`](sort-character-class-elements.md).
 
-- :warning: This rule was **deprecated** and replaced by [regexp/sort-character-class-elements](sort-character-class-elements.md) rule.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> enforces elements order in character class
 
 ## :book: Rule Details
 

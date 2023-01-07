@@ -8,7 +8,6 @@ export default createRule("no-useless-exactly-quantifier", {
             description: "disallow unnecessary exactly quantifier",
             category: "Best Practices",
             recommended: false,
-            replacedBy: ["no-useless-quantifier", "no-zero-quantifier"],
         },
         schema: [],
         messages: {
@@ -16,6 +15,7 @@ export default createRule("no-useless-exactly-quantifier", {
         },
         type: "suggestion", // "problem",
         deprecated: true,
+        replacedBy: ["no-useless-quantifier", "no-zero-quantifier"],
     },
     create(context) {
         /**

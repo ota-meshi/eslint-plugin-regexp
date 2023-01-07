@@ -7,6 +7,8 @@ since: "v0.3.0"
 ---
 # regexp/prefer-regexp-exec
 
+<!-- end auto-generated rule header -->
+
 > enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided
 
 `RegExp#exec` is faster than `String#match` and both work the same when not using the `/g` flag.

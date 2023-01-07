@@ -7,9 +7,11 @@ since: "v0.1.0"
 ---
 # regexp/no-useless-exactly-quantifier
 
-> disallow unnecessary exactly quantifier
+❌ This rule is deprecated. It was replaced by [`regexp/no-useless-quantifier`](no-useless-quantifier.md),[`regexp/no-zero-quantifier`](no-zero-quantifier.md).
 
-- :warning: This rule was **deprecated** and replaced by [regexp/no-useless-quantifier](no-useless-quantifier.md) rule and [regexp/no-zero-quantifier](no-zero-quantifier.md) rule.
+<!-- end auto-generated rule header -->
+
+> disallow unnecessary exactly quantifier
 
 ## :book: Rule Details
 

@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/optimal-lookaround-quantifier
 
-> disallow the alternatives of lookarounds that end with a non-constant quantifier
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow the alternatives of lookarounds that end with a non-constant quantifier
 
 ## :book: Rule Details
 

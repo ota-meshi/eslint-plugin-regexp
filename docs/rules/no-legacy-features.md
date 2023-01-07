@@ -7,9 +7,11 @@ since: "v0.6.0"
 ---
 # regexp/no-legacy-features
 
-> disallow legacy RegExp features
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow legacy RegExp features
 
 ## :book: Rule Details
 

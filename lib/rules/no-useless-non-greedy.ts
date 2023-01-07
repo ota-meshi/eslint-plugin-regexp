@@ -8,9 +8,9 @@ export default createRule("no-useless-non-greedy", {
         docs: {
             ...nonUselessLazy.meta.docs,
             recommended: false,
-            replacedBy: ["no-useless-lazy"],
         },
         deprecated: true,
+        replacedBy: ["no-useless-lazy"],
     },
     create(context) {
         return nonUselessLazy.create(context)

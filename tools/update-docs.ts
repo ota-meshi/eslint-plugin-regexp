@@ -4,16 +4,6 @@ import { rules } from "../lib/utils/rules"
 import type { RuleModule } from "../lib/types"
 
 //eslint-disable-next-line require-jsdoc -- tools
-function formatItems(items: string[]) {
-    if (items.length <= 2) {
-        return items.join(" and ")
-    }
-    return `all of ${items.slice(0, -1).join(", ")} and ${
-        items[items.length - 1]
-    }`
-}
-
-//eslint-disable-next-line require-jsdoc -- tools
 function yamlValue(val: unknown) {
     if (typeof val === "string") {
         return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
@@ -62,81 +52,19 @@ class DocFile {
         return new DocFile(rule)
     }
 
-    public updateHeader() {
-        const {
-            meta: {
-                fixable,
-                deprecated,
-                docs: { ruleId, description, recommended, replacedBy },
-            },
-        } = this.rule
-        const title = `# ${ruleId}\n\n> ${description}`
-        const notes = []
-
-        if (deprecated) {
-            if (replacedBy) {
-                const replacedRules = replacedBy.map(
-                    (name) => `[regexp/${name}](${name}.md) rule`,
-                )
-                notes.push(
-                    `- :warning: This rule was **deprecated** and replaced by ${formatItems(
-                        replacedRules,
-                    )}.`,
-                )
-            } else {
-                notes.push("- :warning: This rule was **deprecated**.")
-            }
-        } else {
-            if (recommended) {
-                notes.push(
-                    '- :gear: This rule is included in `"plugin:regexp/recommended"`.',
-                )
-            }
-        }
-        if (fixable) {
-            notes.push(
-                "- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.",
-            )
-        }
-        if (!this.since) {
-            notes.unshift(
-                `- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>`,
-            )
-        }
-
-        // Add an empty line after notes.
-        if (notes.length >= 1) {
-            notes.push("", "")
-        }
-
-        const headerPattern = /(?:^|\n)#.+\n+[^\n]*\n+(?:- .+\n+)*\n*/u
-
-        const header = `\n${title}\n\n${notes.join("\n")}`
-        if (headerPattern.test(this.content)) {
-            this.content = this.content.replace(
-                headerPattern,
-                header.replace(/\$/gu, "$$$$"),
-            )
-        } else {
-            this.content = `${header}${this.content.trim()}\n`
-        }
-
-        return this
-    }
-
     public updateFooter() {
         const { ruleName } = this.rule.meta.docs
         const footerPattern =
             /## (?:(?::mag:)? ?Implementation|:rocket: Version).+$/su
-        const footer = `${
-            this.since
-                ? `## :rocket: Version
+        const footer = `## :rocket: Version
 
-This rule was introduced in eslint-plugin-regexp ${this.since}
+${
+    this.since
+        ? `This rule was introduced in eslint-plugin-regexp ${this.since}`
+        : `:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>`
+}
 
-`
-                : ""
-        }## :mag: Implementation
+## :mag: Implementation
 
 - [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/${ruleName}.ts)
 - [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/${ruleName}.ts)
@@ -224,7 +152,6 @@ This rule was introduced in eslint-plugin-regexp ${this.since}
 
 for (const rule of rules) {
     DocFile.read(rule)
-        .updateHeader()
         .updateFooter()
         .updateCodeBlocks()
         .updateFileIntro()

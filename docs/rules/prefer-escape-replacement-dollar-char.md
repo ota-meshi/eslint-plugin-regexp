@@ -7,6 +7,8 @@ since: "v0.6.0"
 ---
 # regexp/prefer-escape-replacement-dollar-char
 
+<!-- end auto-generated rule header -->
+
 > enforces escape of replacement `$` character (`$$`).
 
 ## :book: Rule Details

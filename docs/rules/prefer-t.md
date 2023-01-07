@@ -7,10 +7,13 @@ since: "v0.1.0"
 ---
 # regexp/prefer-t
 
-> enforce using `\t`
+❌ This rule is deprecated. It was replaced by [`regexp/control-character-escape`](control-character-escape.md).
 
-- :warning: This rule was **deprecated** and replaced by [regexp/control-character-escape](control-character-escape.md) rule.
-- :wrench: The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+
+> enforce using `\t`
 
 ## :book: Rule Details
 

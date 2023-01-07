@@ -7,9 +7,11 @@ since: "v0.1.0"
 ---
 # regexp/no-escape-backspace
 
-> disallow escape backspace (`[\b]`)
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow escape backspace (`[\b]`)
 
 ## :book: Rule Details
 

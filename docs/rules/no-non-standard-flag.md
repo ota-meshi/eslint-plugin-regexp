@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-non-standard-flag
 
-> disallow non-standard flags
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow non-standard flags
 
 ## :book: Rule Details
 

@@ -7,6 +7,8 @@ since: "v0.13.0"
 ---
 # regexp/no-super-linear-move
 
+<!-- end auto-generated rule header -->
+
 > disallow quantifiers that cause quadratic moves
 
 ## :book: Rule Details

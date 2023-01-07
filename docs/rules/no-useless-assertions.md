@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-useless-assertions
 
-> disallow assertions that are known to always accept (or reject)
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow assertions that are known to always accept (or reject)
 
 ## :book: Rule Details
 

@@ -7,9 +7,11 @@ since: "v0.1.0"
 ---
 # regexp/no-empty-group
 
-> disallow empty group
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow empty group
 
 ## :book: Rule Details
 

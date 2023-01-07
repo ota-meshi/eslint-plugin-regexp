@@ -7,9 +7,11 @@ since: "v0.8.0"
 ---
 # regexp/no-empty-alternative
 
-> disallow alternatives without elements
+⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow alternatives without elements
 
 ## :book: Rule Details
 

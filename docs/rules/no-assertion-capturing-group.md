@@ -7,9 +7,11 @@ since: "v0.1.0"
 ---
 # regexp/no-assertion-capturing-group
 
-> disallow capturing group that captures empty.
+❌ This rule is deprecated. It was replaced by [`regexp/no-empty-capturing-group`](no-empty-capturing-group.md).
 
-- :warning: This rule was **deprecated** and replaced by [regexp/no-empty-capturing-group](no-empty-capturing-group.md) rule.
+<!-- end auto-generated rule header -->
+
+> disallow capturing group that captures empty.
 
 ## :book: Rule Details
 

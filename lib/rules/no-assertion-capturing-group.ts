@@ -8,9 +8,9 @@ export default createRule("no-assertion-capturing-group", {
         docs: {
             ...noEmptyCapturingGroup.meta.docs,
             recommended: false,
-            replacedBy: ["no-empty-capturing-group"],
         },
         deprecated: true,
+        replacedBy: ["no-empty-capturing-group"],
     },
     create(context) {
         return noEmptyCapturingGroup.create(context)

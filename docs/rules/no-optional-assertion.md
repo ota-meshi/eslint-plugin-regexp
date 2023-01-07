@@ -7,9 +7,11 @@ since: "v0.9.0"
 ---
 # regexp/no-optional-assertion
 
-> disallow optional assertions
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
-- :gear: This rule is included in `"plugin:regexp/recommended"`.
+<!-- end auto-generated rule header -->
+
+> disallow optional assertions
 
 ## :book: Rule Details
 
