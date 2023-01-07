@@ -202,6 +202,14 @@ tester.run("prefer-lookaround", rule as any, {
         // cannot replace assertions
         `var str = 'JavaScriptCode'.replace(/Java(Script)(?:Code)/g, 'Type$1')`,
         `var str = 'JavaScriptCode'.replace(/(?:Java)(Script)Code/g, '$1Element')`,
+
+        // no lookbehinds
+        {
+            code: `
+            const str = 'A JavaScript formatter written in JavaScript.'.replace(/(Java)Script/g, '$1');
+            `,
+            options: [{ lookbehind: false }],
+        },
     ],
     invalid: [
         {
@@ -798,6 +806,25 @@ tester.run("prefer-lookaround", rule as any, {
             output: `var str = 'JavaScriptCode'.replace(/(?<=((?<=Java))Script)Code/g, 'Linter')`,
             errors: [
                 "This capturing group can be replaced with a lookbehind assertion ('(?<=((?<=Java))Script)').",
+            ],
+        },
+
+        // no lookbehinds
+        {
+            code: `
+            const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?<after>!)/, '$<before>🦄$<after>');
+            `,
+            output: `
+            const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?=!)/, '$<before>🦄');
+            `,
+            options: [{ lookbehind: false }],
+            errors: [
+                {
+                    message:
+                        "This capturing group can be replaced with a lookahead assertion ('(?=!)').",
+                    column: 91,
+                    endColumn: 102,
+                },
             ],
         },
     ],

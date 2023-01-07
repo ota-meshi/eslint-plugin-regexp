@@ -364,19 +364,14 @@ function leadingTrailingElementsToLookaroundAssertionPatternText(
 function parseOption(
     userOption:
         | {
+              lookbehind?: boolean
               strictTypes?: boolean
           }
         | undefined,
 ) {
-    let strictTypes = true
-    if (userOption) {
-        if (userOption.strictTypes != null) {
-            strictTypes = userOption.strictTypes
-        }
-    }
-
     return {
-        strictTypes,
+        lookbehind: userOption?.lookbehind ?? true,
+        strictTypes: userOption?.strictTypes ?? true,
     }
 }
 
@@ -393,6 +388,7 @@ export default createRule("prefer-lookaround", {
             {
                 type: "object",
                 properties: {
+                    lookbehind: { type: "boolean" },
                     strictTypes: { type: "boolean" },
                 },
                 additionalProperties: false,
@@ -406,7 +402,7 @@ export default createRule("prefer-lookaround", {
         type: "suggestion",
     },
     create(context) {
-        const { strictTypes } = parseOption(context.options[0])
+        const { lookbehind, strictTypes } = parseOption(context.options[0])
         const typeTracer = createTypeTracker(context)
 
         /**
@@ -645,7 +641,7 @@ export default createRule("prefer-lookaround", {
                 },
                 onPatternLeave() {
                     // verify
-                    let reportStart = null
+                    let reportStart: ParsedStartPattern | null = null
                     if (
                         !startRefState.isUseOther &&
                         startRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
@@ -654,7 +650,7 @@ export default createRule("prefer-lookaround", {
                     ) {
                         reportStart = parsedElements.start
                     }
-                    let reportEnd = null
+                    let reportEnd: ParsedEndPattern | null = null
                     if (
                         !endRefState.isUseOther &&
                         endRefState.capturingGroups.length === 1 && // It will not be referenced from more than one, but check it just in case.
@@ -675,6 +671,9 @@ export default createRule("prefer-lookaround", {
                     }
                     if (sideEffects.has(SideEffect.endRef)) {
                         reportEnd = null
+                    }
+                    if (!lookbehind) {
+                        reportStart = null
                     }
 
                     if (reportStart && reportEnd) {
