@@ -13,8 +13,6 @@ since: "v1.12.0"
 
 > disallow capturing groups that do not behave as one would expect
 
-- :exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
-
 ## :book: Rule Details
 
 This rule reports capturing groups that capture less text than their pattern might suggest.
