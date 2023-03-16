@@ -6,7 +6,11 @@ import {
     getUsageOfPattern,
     UsageOfPattern,
 } from "../../../lib/utils/get-usage-of-pattern"
-import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
+import {
+    CALL,
+    CONSTRUCT,
+    ReferenceTracker,
+} from "@eslint-community/eslint-utils"
 
 type TestCase = {
     code: string

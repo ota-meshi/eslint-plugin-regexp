@@ -2,7 +2,11 @@ import type { Rule } from "eslint"
 import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
-import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
+import {
+    CALL,
+    CONSTRUCT,
+    ReferenceTracker,
+} from "@eslint-community/eslint-utils"
 import type { ExpressionReference } from "../../../../lib/utils/ast-utils"
 import { extractExpressionReferences } from "../../../../lib/utils/ast-utils"
 import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"

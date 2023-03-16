@@ -1,6 +1,6 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair -- x
 /* eslint-disable complexity -- x */
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -12,7 +12,7 @@ import type {
     Node,
     QuantifiableElement,
     Quantifier,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { AST } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"

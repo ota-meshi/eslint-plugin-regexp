@@ -1,5 +1,9 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { Alternative, LookaroundAssertion, Quantifier } from "regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type {
+    Alternative,
+    LookaroundAssertion,
+    Quantifier,
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { hasSomeDescendant } from "regexp-ast-analysis"

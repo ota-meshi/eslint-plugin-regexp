@@ -1,9 +1,9 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
     UnicodePropertyCharacterSet,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_DIGIT_ZERO,

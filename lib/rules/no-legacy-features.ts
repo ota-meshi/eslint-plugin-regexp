@@ -1,6 +1,6 @@
 import type { MemberExpression } from "estree"
-import type { TYPES } from "eslint-utils"
-import { READ, ReferenceTracker } from "eslint-utils"
+import type { TYPES } from "@eslint-community/eslint-utils"
+import { READ, ReferenceTracker } from "@eslint-community/eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 

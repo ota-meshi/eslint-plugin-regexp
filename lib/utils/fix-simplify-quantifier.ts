@@ -1,7 +1,7 @@
 import type { Rule } from "eslint"
 import type { ClosestAncestor } from "regexp-ast-analysis"
 import { getClosestAncestor } from "regexp-ast-analysis"
-import type { Node, Quantifier } from "regexpp/ast"
+import type { Node, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "."
 import { quantToString } from "."
 import type { CanSimplify } from "./regexp-ast/simplify-quantifier"

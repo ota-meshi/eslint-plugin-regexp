@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -12,7 +12,7 @@ import type {
     CharacterClassElement,
     CharacterClassRange,
     EscapeCharacterSet,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 
 /**
  * Returns whether the given character class element is equivalent to `\d`.

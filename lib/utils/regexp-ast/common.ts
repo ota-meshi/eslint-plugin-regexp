@@ -8,7 +8,7 @@ import {
     getFirstConsumedChar,
     getFirstConsumedCharAfter,
 } from "regexp-ast-analysis"
-import type { Alternative, Element, Node } from "regexpp/ast"
+import type { Alternative, Element, Node } from "@eslint-community/regexpp/ast"
 export type ShortCircuit = (aNode: Node, bNode: Node) => boolean | null
 
 /**

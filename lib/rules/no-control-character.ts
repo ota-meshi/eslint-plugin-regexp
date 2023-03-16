@@ -1,9 +1,9 @@
 import { mentionChar, mention } from "../utils/mention"
 import { CP_TAB, CP_LF, CP_VT, CP_FF, CP_CR } from "../utils/unicode"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import type { Character } from "regexpp/ast"
+import type { Character } from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 
 const CONTROL_CHARS = new Map<number, string>([

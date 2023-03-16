@@ -1,5 +1,5 @@
-import type { Group } from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { Group } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"

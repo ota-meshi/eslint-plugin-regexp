@@ -1,5 +1,5 @@
 import { mention } from "../utils/mention"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, CP_TAB } from "../utils"
 

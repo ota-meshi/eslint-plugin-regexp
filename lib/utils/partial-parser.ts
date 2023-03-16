@@ -6,7 +6,7 @@ import type {
     CharRange,
 } from "refa"
 import { JS } from "refa"
-import type { AST } from "regexpp"
+import type { AST } from "@eslint-community/regexpp"
 
 export type NestedAlternative = AST.Alternative | AST.CharacterClassElement
 

@@ -1,7 +1,10 @@
 import type { CharSet } from "refa"
 import { Chars, toCharSet } from "regexp-ast-analysis"
-import type { CharacterClass, CharacterClassElement } from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type {
+    CharacterClass,
+    CharacterClassElement,
+} from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import {

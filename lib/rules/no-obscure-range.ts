@@ -3,7 +3,7 @@ import {
     inRange,
     getAllowedCharValueSchema,
 } from "../utils/char-ranges"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
     createRule,

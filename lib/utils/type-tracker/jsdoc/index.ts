@@ -1,6 +1,6 @@
 import type { Rule, SourceCode, AST } from "eslint"
 import type * as ES from "estree"
-import { isCommentToken } from "eslint-utils"
+import { isCommentToken } from "@eslint-community/eslint-utils"
 import * as commentParser from "comment-parser"
 import type { Spec } from "comment-parser/lib/primitives"
 // @ts-expect-error -- no type

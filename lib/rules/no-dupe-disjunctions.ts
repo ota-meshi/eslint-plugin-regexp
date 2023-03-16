@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -7,7 +7,7 @@ import type {
     Node,
     Pattern,
     Quantifier,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     createRule,

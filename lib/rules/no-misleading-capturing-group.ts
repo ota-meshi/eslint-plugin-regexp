@@ -1,11 +1,11 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
     Element,
     Node,
     Quantifier,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, toCharSetSource } from "../utils"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"

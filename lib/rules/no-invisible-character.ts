@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { AST } from "eslint"
 import type { RegExpContextForLiteral, RegExpContextForSource } from "../utils"
 import {

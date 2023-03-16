@@ -2,8 +2,8 @@ import { toCharSet } from "regexp-ast-analysis"
 import type {
     EscapeCharacterSet,
     UnicodePropertyCharacterSet,
-} from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+} from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 

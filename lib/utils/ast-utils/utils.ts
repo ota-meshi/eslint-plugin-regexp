@@ -1,5 +1,5 @@
 import type { Rule, SourceCode, AST, Scope } from "eslint"
-import * as eslintUtils from "eslint-utils"
+import * as eslintUtils from "@eslint-community/eslint-utils"
 import type {
     ArrowFunctionExpression,
     CallExpression,

@@ -1,5 +1,8 @@
 import type * as ES from "estree"
-import { hasSideEffect, isOpeningParenToken } from "eslint-utils"
+import {
+    hasSideEffect,
+    isOpeningParenToken,
+} from "@eslint-community/eslint-utils"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import {
