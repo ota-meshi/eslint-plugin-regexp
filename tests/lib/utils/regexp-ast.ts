@@ -1,5 +1,5 @@
 import assert from "assert"
-import { parseRegExpLiteral } from "regexpp"
+import { parseRegExpLiteral } from "@eslint-community/regexpp"
 import { isCoveredNode, isEqualNodes } from "../../../lib/utils/regexp-ast"
 type TestCase = {
     a: RegExp | string

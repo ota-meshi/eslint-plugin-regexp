@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Character,
@@ -7,7 +7,7 @@ import type {
     Element,
     Node,
     Pattern,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
     CP_MINUS,

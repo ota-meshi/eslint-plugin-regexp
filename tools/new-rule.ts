@@ -24,8 +24,8 @@ const logger = console
         ruleFile,
         `
 import type { Expression } from "estree"
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { CharacterClass } from "regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { CharacterClass } from "@eslint-community/regexpp/ast"
 import { createRule, defineRegexpVisitor, RegExpContext } from "../utils"
 
 export default createRule("${ruleId}", {

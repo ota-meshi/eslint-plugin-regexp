@@ -13,7 +13,7 @@ import type {
     CharacterSet,
     Element,
     Pattern,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 
 const ignoreCaseFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()
 const caseSensitiveFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()

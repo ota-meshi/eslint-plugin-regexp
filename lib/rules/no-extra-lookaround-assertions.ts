@@ -1,5 +1,5 @@
-import type { LookaroundAssertion } from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { LookaroundAssertion } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 

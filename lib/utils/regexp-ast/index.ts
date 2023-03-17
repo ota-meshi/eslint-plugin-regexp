@@ -1,7 +1,16 @@
-import type { RegExpLiteral, Pattern, Element, Alternative } from "regexpp/ast"
+import type {
+    RegExpLiteral,
+    Pattern,
+    Element,
+    Alternative,
+} from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 import type { Expression } from "estree"
-import { parseRegExpLiteral, RegExpParser, visitRegExpAST } from "regexpp"
+import {
+    parseRegExpLiteral,
+    RegExpParser,
+    visitRegExpAST,
+} from "@eslint-community/regexpp"
 import { getStaticValue } from "../ast-utils"
 import { JS } from "refa"
 import type { CharRange, CharSet } from "refa"

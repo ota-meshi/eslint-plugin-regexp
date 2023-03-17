@@ -4,7 +4,7 @@ import { rules } from "../../lib/index"
 import assert from "assert"
 import type { RegExpContext } from "../../lib/utils"
 import { createRule, defineRegexpVisitor } from "../../lib/utils"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 
 const TEST_RULE = createRule("test", {
     meta: {

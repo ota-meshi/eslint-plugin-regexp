@@ -1,5 +1,5 @@
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
     CP_VT,

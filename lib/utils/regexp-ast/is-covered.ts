@@ -6,7 +6,7 @@ import type {
     Node,
     Pattern,
     LookaroundAssertion,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import { isEqualNodes } from "./is-equals"
 import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
 import { toCharSet } from "regexp-ast-analysis"

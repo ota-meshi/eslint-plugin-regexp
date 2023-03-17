@@ -17,7 +17,7 @@ import type {
     Flags,
     Element,
     CharacterClassElement,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { ShortCircuit } from "./common"
 
 /**

@@ -1,5 +1,10 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { Assertion, Element, Alternative, Quantifier } from "regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type {
+    Assertion,
+    Element,
+    Alternative,
+    Quantifier,
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { quantToString, createRule, defineRegexpVisitor } from "../utils"
 import type {

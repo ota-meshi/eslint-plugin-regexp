@@ -1,6 +1,6 @@
 import { mention } from "../utils/mention"
-import type { Group, Quantifier } from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { Group, Quantifier } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor, getQuantifierOffsets } from "../utils"
 

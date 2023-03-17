@@ -1,7 +1,10 @@
 import { mention } from "../utils/mention"
-import { RegExpValidator } from "regexpp"
-import type { CharacterClassElement, Element } from "regexpp/ast"
-import type { RegExpVisitor } from "regexpp/visitor"
+import { RegExpValidator } from "@eslint-community/regexpp"
+import type {
+    CharacterClassElement,
+    Element,
+} from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
     isOctalEscape,

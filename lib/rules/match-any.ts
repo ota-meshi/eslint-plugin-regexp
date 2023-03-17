@@ -1,6 +1,9 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
-import type { CharacterClass, Node as RegExpNode } from "regexpp/ast"
+import type {
+    CharacterClass,
+    Node as RegExpNode,
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"

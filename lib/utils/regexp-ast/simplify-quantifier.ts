@@ -14,7 +14,7 @@ import type {
     Node,
     QuantifiableElement,
     Quantifier,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import { getPossiblyConsumedChar } from "."
 
 /**

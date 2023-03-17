@@ -1,4 +1,4 @@
-import type { CharacterClassElement, Node } from "regexpp/ast"
+import type { CharacterClassElement, Node } from "@eslint-community/regexpp/ast"
 
 /** Formats the given Unicode code point as `U+0000`. */
 function formatCodePoint(value: number): string {

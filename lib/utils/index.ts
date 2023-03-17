@@ -1,6 +1,6 @@
 import type * as ESTree from "estree"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -9,9 +9,13 @@ import type {
     Node,
     Pattern,
     Quantifier,
-} from "regexpp/ast"
-import { RegExpParser, visitRegExpAST } from "regexpp"
-import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
+} from "@eslint-community/regexpp/ast"
+import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
+import {
+    CALL,
+    CONSTRUCT,
+    ReferenceTracker,
+} from "@eslint-community/eslint-utils"
 import type { Rule, AST, SourceCode } from "eslint"
 import { getStringIfConstant } from "./ast-utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"

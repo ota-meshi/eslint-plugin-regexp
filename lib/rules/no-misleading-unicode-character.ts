@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { isEscapeSequence, createRule, defineRegexpVisitor } from "../utils"
 import GraphemeSplitter from "grapheme-splitter"
@@ -8,7 +8,7 @@ import type {
     CharacterClass,
     CharacterClassElement,
     Quantifier,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
 import type { Rule } from "eslint"
 

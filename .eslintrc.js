@@ -23,8 +23,26 @@ module.exports = {
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-duplicate-imports": "error",
 
-        "no-shadow": "off", // ts bug?
+        "no-shadow": "off",
         "@typescript-eslint/no-shadow": "error",
+        // Repo rule
+        "no-restricted-imports": [
+            "error",
+            {
+                patterns: [
+                    {
+                        group: ["/regexpp", "/regexpp/*"],
+                        message:
+                            "Please use `@eslint-community/regexpp` instead.",
+                    },
+                    {
+                        group: ["/eslint-utils", "/eslint-utils/*"],
+                        message:
+                            "Please use `@eslint-community/eslint-utils` instead.",
+                    },
+                ],
+            },
+        ],
 
         // regexp next recommended
         "regexp/no-contradiction-with-assertion": "error",

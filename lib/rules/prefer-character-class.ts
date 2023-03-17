@@ -1,4 +1,4 @@
-import type { RegExpVisitor } from "regexpp/visitor"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -11,7 +11,7 @@ import type {
     LookaroundAssertion,
     Node,
     Pattern,
-} from "regexpp/ast"
+} from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { CharSet } from "refa"

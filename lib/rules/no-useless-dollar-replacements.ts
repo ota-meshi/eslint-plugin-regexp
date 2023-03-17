@@ -1,7 +1,7 @@
 import type { CallExpression, Literal } from "estree"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
-import type { RegExpLiteral, Pattern } from "regexpp/ast"
+import type { RegExpLiteral, Pattern } from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 import type { ReferenceElement } from "../utils/ast-utils"
 import { isKnownMethodCall, parseReplacements } from "../utils/ast-utils"

@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
-import type { RegExpVisitor } from "regexpp/visitor"
-import type { Quantifier } from "regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import { isEmpty, isPotentiallyEmpty, isZeroLength } from "regexp-ast-analysis"

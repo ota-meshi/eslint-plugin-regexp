@@ -1,5 +1,5 @@
-import type { RegExpVisitor } from "regexpp/visitor"
-import { isOpeningBracketToken } from "eslint-utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { isOpeningBracketToken } from "@eslint-community/eslint-utils"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import {

@@ -6,7 +6,7 @@ import path from "path"
 import { createTypeTracker } from "../../../../lib/utils/type-tracker"
 import * as tsParser from "@typescript-eslint/parser"
 import assert from "assert"
-import { isCommentToken } from "eslint-utils"
+import { isCommentToken } from "@eslint-community/eslint-utils"
 
 export type TestCase = {
     code: string

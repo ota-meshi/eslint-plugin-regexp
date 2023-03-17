@@ -1,7 +1,11 @@
 import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
-import { CALL, CONSTRUCT, ReferenceTracker } from "eslint-utils"
+import {
+    CALL,
+    CONSTRUCT,
+    ReferenceTracker,
+} from "@eslint-community/eslint-utils"
 import type { PropertyReference } from "../../../../lib/utils/ast-utils"
 import { extractPropertyReferences } from "../../../../lib/utils/ast-utils"
 import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
