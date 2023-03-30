@@ -211,7 +211,7 @@ function isCompatibleQuantifier(
         return false
     }
 
-    if (!rangeEqual(cs.ranges, uCs.without([ASTRAL]).ranges)) {
+    if (!rangeEqual(cs.ranges, uCs.without(ASTRAL).ranges)) {
         // failed condition 3
         return false
     }

@@ -198,13 +198,11 @@ function getLexicographicallySmallestFromAlternative(
         const nfa = NFA.fromRegex(
             expression,
             { maxCharacter: result.maxCharacter },
-            { maxNodes: 1000 },
+            {},
+            new NFA.LimitedNodeFactory(1000),
         )
 
-        return getLexicographicallySmallestFromNfa(
-            nfa.nodes.initial,
-            nfa.nodes.finals,
-        )
+        return getLexicographicallySmallestFromNfa(nfa.initial, nfa.finals)
     } catch (_error) {
         return undefined
     }
