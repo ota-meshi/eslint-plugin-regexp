@@ -240,7 +240,12 @@ function toNfa(element: Element, parser: JS.Parser): NFA {
         assertions: "throw",
         backreferences: "throw",
     })
-    return NFA.fromRegex(expression, { maxCharacter }, { maxNodes: 1000 })
+    return NFA.fromRegex(
+        expression,
+        { maxCharacter },
+        {},
+        new NFA.LimitedNodeFactory(1000),
+    )
 }
 
 /**
@@ -261,7 +266,7 @@ function canAbsorbElementFormal(
     try {
         // perform a full NFA/DFA language check
         const qNfa = toNfa(quantifier, parser)
-        const qDfa = DFA.fromFA(qNfa, { maxNodes: 1000 })
+        const qDfa = DFA.fromFA(qNfa, new DFA.LimitedNodeFactory(1000))
         const eNfa = toNfa(element, parser)
         // We want to check whether `QE* = Q`. To perform this check, it's
         // sufficient to check `QE? = Q`. Proof sketch:
@@ -269,7 +274,7 @@ function canAbsorbElementFormal(
         // 2. If `QE? != Q`, then `Q ⊂ QE? ⊆ QE*`, so `QE* != Q`.
         eNfa.quantify(0, 1)
         qNfa.append(eNfa)
-        const qeDfa = DFA.fromFA(qNfa, { maxNodes: 1000 })
+        const qeDfa = DFA.fromFA(qNfa, new DFA.LimitedNodeFactory(1000))
 
         qDfa.minimize()
         qeDfa.minimize()

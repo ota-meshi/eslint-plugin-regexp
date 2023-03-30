@@ -303,7 +303,7 @@ function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
     return total
 }
 
-const DFA_OPTIONS: DFA.CreationOptions = { maxNodes: 100_000 }
+const MAX_DFA_NODES = 100_000
 
 /**
  * Returns whether one NFA is a subset of another.
@@ -313,8 +313,12 @@ function isSubsetOf(
     subset: ReadonlyNFA,
 ): boolean | null {
     try {
-        const a = DFA.fromIntersection(superset, subset, DFA_OPTIONS)
-        const b = DFA.fromFA(subset, DFA_OPTIONS)
+        const a = DFA.fromIntersection(
+            superset,
+            subset,
+            new DFA.LimitedNodeFactory(MAX_DFA_NODES),
+        )
+        const b = DFA.fromFA(subset, new DFA.LimitedNodeFactory(MAX_DFA_NODES))
         a.minimize()
         b.minimize()
         return a.structurallyEqual(b)
@@ -339,13 +343,17 @@ function getSubsetRelation(
     right: ReadonlyNFA,
 ): SubsetRelation {
     try {
-        const inter = DFA.fromIntersection(left, right, DFA_OPTIONS)
+        const inter = DFA.fromIntersection(
+            left,
+            right,
+            new DFA.LimitedNodeFactory(MAX_DFA_NODES),
+        )
         inter.minimize()
 
-        const l = DFA.fromFA(left, DFA_OPTIONS)
+        const l = DFA.fromFA(left, new DFA.LimitedNodeFactory(MAX_DFA_NODES))
         l.minimize()
 
-        const r = DFA.fromFA(right, DFA_OPTIONS)
+        const r = DFA.fromFA(right, new DFA.LimitedNodeFactory(MAX_DFA_NODES))
         r.minimize()
 
         const subset = l.structurallyEqual(inter)
