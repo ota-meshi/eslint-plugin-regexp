@@ -1,7 +1,6 @@
 import type { Rule } from "eslint"
-import type { ClosestAncestor } from "regexp-ast-analysis"
 import { getClosestAncestor } from "regexp-ast-analysis"
-import type { Node, Quantifier } from "@eslint-community/regexpp/ast"
+import type { Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "."
 import { quantToString } from "."
 import type { CanSimplify } from "./regexp-ast/simplify-quantifier"
@@ -14,10 +13,7 @@ export function fixSimplifyQuantifier(
     result: CanSimplify,
     { fixReplaceNode }: RegExpContext,
 ): [replacement: string, fix: (fixer: Rule.RuleFixer) => Rule.Fix | null] {
-    const ancestor = getClosestAncestorOfAll([
-        quantifier,
-        ...result.dependencies,
-    ])
+    const ancestor = getClosestAncestor(quantifier, ...result.dependencies)
 
     let replacement: string
     if (quantifier.min === 0) {
@@ -44,19 +40,4 @@ export function fixSimplifyQuantifier(
             )
         }),
     ]
-}
-
-/**
- * Returns the closest ancestor of all given elements.
- */
-function getClosestAncestorOfAll<T extends Node>(
-    elements: readonly [T, ...T[]],
-): ClosestAncestor<T, T> {
-    let leftMost = elements[0]
-    let rightMost = elements[0]
-    for (const e of elements) {
-        if (e.start < leftMost.start) leftMost = e
-        if (e.end > rightMost.end) rightMost = e
-    }
-    return getClosestAncestor(leftMost, rightMost)
 }
