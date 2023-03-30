@@ -101,8 +101,8 @@
         "comment-parser": "^1.1.2",
         "grapheme-splitter": "^1.0.4",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.9.0",
-        "regexp-ast-analysis": "^0.5.1",
-        "scslre": "^0.1.6"
+        "refa": "^0.11.0",
+        "regexp-ast-analysis": "^0.6.0",
+        "scslre": "^0.2.0"
     }
 }
