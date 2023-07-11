@@ -8,7 +8,10 @@ export const configs = {
     recommended,
     all,
 }
-export const rules = ruleList.reduce((obj, r) => {
-    obj[r.meta.docs.ruleName] = r
-    return obj
-}, {} as { [key: string]: RuleModule })
+export const rules = ruleList.reduce(
+    (obj, r) => {
+        obj[r.meta.docs.ruleName] = r
+        return obj
+    },
+    {} as { [key: string]: RuleModule },
+)

@@ -15,7 +15,7 @@ import {
 } from "../utils"
 
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
-type Case = typeof CASE_SCHEMA[number]
+type Case = (typeof CASE_SCHEMA)[number]
 
 const DEFAULTS = {
     caseInsensitive: "lowercase" as const,

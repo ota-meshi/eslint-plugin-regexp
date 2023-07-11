@@ -899,15 +899,21 @@ describe("Don't conflict even if using the rules together.", () => {
     ]
 
     const linter = new Linter()
-    const configAllRules = rules.reduce((p, r) => {
-        p[r.meta.docs.ruleId] = "error"
-        return p
-    }, {} as Exclude<Linter.Config["rules"], undefined>)
-    linter.defineRules(
-        rules.reduce((p, r) => {
-            p[r.meta.docs.ruleId] = r
+    const configAllRules = rules.reduce(
+        (p, r) => {
+            p[r.meta.docs.ruleId] = "error"
             return p
-        }, {} as { [name: string]: Rule.RuleModule }),
+        },
+        {} as Exclude<Linter.Config["rules"], undefined>,
+    )
+    linter.defineRules(
+        rules.reduce(
+            (p, r) => {
+                p[r.meta.docs.ruleId] = r
+                return p
+            },
+            {} as { [name: string]: Rule.RuleModule },
+        ),
     )
     for (const {
         code,

@@ -62,7 +62,7 @@ jobs:
             - name: Install Target Packages
               run: |+
                   npm ci
-                  npm i -D eslint@7
+                  npm i -D eslint@7 --legacy-peer-deps
             - name: Test
               run: npm test
     test-and-coverage:
