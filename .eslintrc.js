@@ -126,9 +126,9 @@ module.exports = {
             },
             rules: {
                 "require-jsdoc": "off",
-                "node/file-extension-in-import": "off",
-                "node/no-extraneous-import": "off",
-                "node/no-unsupported-features/es-syntax": "off",
+                "n/file-extension-in-import": "off",
+                "n/no-extraneous-import": "off",
+                "n/no-unsupported-features/es-syntax": "off",
                 "@typescript-eslint/no-explicit-any": "off",
             },
         },
