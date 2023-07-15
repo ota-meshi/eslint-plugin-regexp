@@ -56,7 +56,7 @@
         "eslint": ">=6.0.0"
     },
     "devDependencies": {
-        "@ota-meshi/eslint-plugin": "^0.13.0",
+        "@ota-meshi/eslint-plugin": "^0.15.0",
         "@ota-meshi/site-kit-eslint-editor-vue": "^0.1.0",
         "@types/chai": "^4.2.22",
         "@types/eslint": "^8.0.0",
