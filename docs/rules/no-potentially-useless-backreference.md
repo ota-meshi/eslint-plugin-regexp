@@ -39,7 +39,7 @@ var foo = /((a)|c)+b\2/;
 
 ### Possible fixes
 
-*Note:* Since this rule finds potential programming errors, there are no automatic fixes and suggestions. Fixing reports will always involve manually changing the regex. However, it is important to note that this rule reports *potential* errors. If you are confident that a regex is correct, feel free to disable this rule for that regex.
+_Note:_ Since this rule finds potential programming errors, there are no automatic fixes and suggestions. Fixing reports will always involve manually changing the regex. However, it is important to note that this rule reports _potential_ errors. If you are confident that a regex is correct, feel free to disable this rule for that regex.
 
 One common pattern this rule reports is `/(a)?b\1/`. This typically happens when searching for optionally quoted text. While it is possible to move the `?` inside the capturing group, it is often better to explicitly factor out the `b` path: `/(a)b\1|b/`. Since quoted and unquoted text typically have slightly different syntax, this form encourages using the correct syntax for each case, resulting in more correct regexes.
 
