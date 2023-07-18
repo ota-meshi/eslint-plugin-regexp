@@ -17,7 +17,7 @@ since: "v0.9.0"
 
 Characters that can use hexadecimal escape can use both hexadecimal escape and unicode escape.
 
-This rule aims is enforces the consistent use of hexadecimal escapes.
+This rule aims to enforce the consistent use of hexadecimal escapes.
 
 <eslint-code-block fix>
 

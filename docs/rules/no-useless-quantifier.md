@@ -19,7 +19,7 @@ since: "v0.10.0"
 
 This rule reports quantifiers that can trivially be removed without affecting the pattern.
 
-This rule only fixes constant one quantifiers (e.g. `a{1}`). All other reported useless quantifiers hint at programmer oversight or fundamental problems with the pattern.
+This rule only fixes constant-one quantifiers (e.g. `a{1}`). All other reported useless quantifiers hint at programmer oversight or fundamental problems with the pattern.
 
 Examples:
 

@@ -17,7 +17,7 @@ since: "v1.2.0"
 
 This rule reports regular expressions without the `u` flag.
 
-It will automatically add the `u` flag to regular expression where it is statically guaranteed to be safe to do so. In all other cases, the developer has to check that adding the `u` flag doesn't cause the regex to behave incorrectly.
+It will automatically add the `u` flag to regular expressions where it is statically guaranteed to be safe to do so. In all other cases, the developer has to check that adding the `u` flag doesn't cause the regex to behave incorrectly.
 
 This rule is inspired by the [require-unicode-regexp] rule. The position of the report is improved over the core rule and arguments of `new RegExp()` are also checked.
 
