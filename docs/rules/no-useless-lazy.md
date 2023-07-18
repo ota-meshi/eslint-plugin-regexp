@@ -29,7 +29,7 @@ There are two reasons why a lazy quantifier doesn't have to lazy:
 
    In the example above, the character `a` and the character `b` do not overlap. Therefore the quantifier `a+` is possessive.
 
-   Since an effectively possessive quantifier cannot give up characters to the expression after it, it doesn't matter whether the quantifier greedy or lazy. However, greedy quantifiers should be preferred because they require less characters to write and are easier to visually parse.
+   Since an effectively possessive quantifier cannot give up characters to the expression after it, it doesn't matter whether the quantifier greedy or lazy. However, greedy quantifiers should be preferred because they require fewer characters to write and are easier to visually parse.
 
 <eslint-code-block fix>
 

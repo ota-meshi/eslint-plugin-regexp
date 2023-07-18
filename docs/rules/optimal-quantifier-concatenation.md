@@ -59,7 +59,7 @@ var foo = /\w+(?:(a)|b)*/;
 
 ### `capturingGroups`
 
-The type of concatenation this rule reports might be intentional around capturing groups. This option allows you turn of false unfixable reports around capturing groups.
+The type of concatenation this rule reports might be intentional around capturing groups. This option allows you to turn off false unfixable reports around capturing groups.
 
 - `capturingGroups: "report"` (_default_)
 
@@ -69,7 +69,7 @@ The type of concatenation this rule reports might be intentional around capturin
 
   Concatenations around quantifiers will not be reported.
 
-  If this option is used, it is recommend to have the [regexp/no-super-linear-backtracking] rule enabled to protect against ReDoS.
+  If this option is used, it is recommended to have the [regexp/no-super-linear-backtracking] rule enabled to protect against ReDoS.
 
 ## :books: Further reading
 

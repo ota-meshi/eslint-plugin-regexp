@@ -39,7 +39,7 @@ var foo = /<.*?>/;
 
 Regexes are often used to find text of within a string (e.g. `/abc/.exec("123 abc def")`). The position of the matching text is unknown and has to be determined by the regex engine. In practice, the regex engine will move the regex across the input string character by character. While there are many optimizations to skip parts of the input string, there will still be _O(n)_ possible positions. If there is no text matching the regex in the input string, then all _O(n)_ positions will be checked.
 
-This is not problem in it self, _O(n)_ is expected for linear string searching algorithms.
+This is not a problem in itself, _O(n)_ is expected for linear string searching algorithms.
 
 Problems arise when the regex itself takes more than _O(1)_ steps (on average) to reject any position within the input.
 
@@ -65,7 +65,7 @@ This rule says that the first `\s*` causes quadratic runtime for "any attack str
 
 The problem with `\s*` is that `\s` also allows line break characters (the characters in the attack string). `^` already ensures the "start of a line" requirement, so there is no reason to allow line breaks after the `^`.
 
-The fix is to remove all line break characters from `\s`. This is difficult, so let's cheat a little and say that only spaces and tabs (`[\t ]`) are allows to surround the key.
+The fix is to remove all line break characters from `\s`. This is difficult, so let's cheat a little and say that only spaces and tabs (`[\t ]`) are allowed to surround the key.
 
 <eslint-code-block>
 
@@ -83,7 +83,7 @@ var fix = /^[\t ]*(\w+)[\t ]*[:=]/m
 
 #### Limit the quantifier
 
-All quantifiers reported by this rule are unbound (= maximum is infinite). This is because attackers need strings with a lengths >1000 character to exploit the quadratic runtime.
+All quantifiers reported by this rule are unbound (= maximum is infinite). This is because attackers need strings with lengths >1000 character to exploit the quadratic runtime.
 
 If the quantifier simply stops searching after some maximum number of steps, the quantifier isn't exploitable.
 

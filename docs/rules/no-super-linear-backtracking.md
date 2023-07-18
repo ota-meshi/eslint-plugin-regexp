@@ -67,7 +67,7 @@ Every input string that exploits super-linear worst-case runtime can be separate
 
 For some regexes it is not possible to find a rejecting suffix even though the regex contains exploitable ambiguity (e.g. `/(?:a+)+/`). These regexes are safe as long as they are used as is. However, regexes can also be used as building blocks to create more complex regexes. In this case, the ambiguity might cause super-linear backtracking in the composite regex.
 
-This options control whether ambiguity that might cause super-linear backtracking will be reported.
+These options control whether ambiguity that might cause super-linear backtracking will be reported.
 
 - `report: "certain"`  (_default_)
 

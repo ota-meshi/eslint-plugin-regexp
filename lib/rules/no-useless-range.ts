@@ -5,8 +5,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 export default createRule("no-useless-range", {
     meta: {
         docs: {
-            description:
-                "disallow unnecessary range of characters by using a hyphen",
+            description: "disallow unnecessary character ranges",
             category: "Best Practices",
             recommended: true,
         },
@@ -14,7 +13,7 @@ export default createRule("no-useless-range", {
         schema: [],
         messages: {
             unexpected:
-                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
         },
         type: "suggestion", // "problem",
     },

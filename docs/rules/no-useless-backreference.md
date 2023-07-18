@@ -25,7 +25,7 @@ Backreferences can be useless for multiple reasons.
 
 #### Empty capturing groups
 
-The is the easiest reason. The references capturing group does not consume any characters (e.g. `/(\b)a\1/`). Since the capturing group can only capture the empty string, the backreference is guaranteed to accept any input.
+The simplest reason. The references capturing group does not consume any characters (e.g. `/(\b)a\1/`). Since the capturing group can only capture the empty string, the backreference is guaranteed to accept any input.
 
 #### Nested backreferences
 
@@ -39,7 +39,7 @@ If a backreference and its referenced capturing group are in different alternati
 
 #### Forward references and backward references
 
-Backreferences are supposed to be matched **after** their referenced capturing group. Since regular expressions are matched from left to right, backreferences usually appear to the right of to their referenced capturing groups (e.g. `/(a)\1/`). However, backreferences can also be placed before (to the left of) their referenced capturing group (e.g. `/\1(a)/`). These backreferences are to trivially accept because the captured text of their referenced groups is undefined. We call these backreferences _forward references_.
+Backreferences are supposed to be matched **after** their referenced capturing group. Since regular expressions are matched from left to right, backreferences usually appear to the right of their referenced capturing groups (e.g. `/(a)\1/`). However, backreferences can also be placed before (to the left of) their referenced capturing group (e.g. `/\1(a)/`). These backreferences are to trivially accept because the captured text of their referenced groups is undefined. We call these backreferences _forward references_.
 
 Inside **lookbehind assertions**, regular expressions are matched from right to left and not from left to right. This means that only backreferences now have to appear to the left of their respective capturing group to be matched after them (e.g. `/(?<=\1(a))/`). Backreferences placed to before (to the right of) their referenced capturing group inside lookbehinds are guaranteed to trivially accept. We call these backreferences _backward references_.
 
@@ -50,7 +50,7 @@ If the referenced capturing group of a backreference is inside a negated lookaro
 To understand why this is the case, let's look at the example `/(?!(a))\w\1/y`.
 
 1. Let's assume the input string is `ab`. <br>
-   Since `(a)` accepts the character `a`, `(?!(a))` will reject. So the input is reject before the backreference `\1` can be reached.
+   Since `(a)` accepts the character `a`, `(?!(a))` will reject. So the input is rejected before the backreference `\1` can be reached.
 
    The result of `/(?!(a))\w\1/y.exec("ab")` is `null`.
 2. Let's assume the input string is `bc`. <br>

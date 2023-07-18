@@ -13,7 +13,7 @@ since: "v0.6.0"
 
 ## :book: Rule Details
 
-This rule aims to enforce escape when using the `$` character in replacement pattern of string replacement.
+This rule aims to enforce correct dollar sign escapes (`$$`) when using `$` in replacement pattern of string replacements.
 
 <eslint-code-block>
 
