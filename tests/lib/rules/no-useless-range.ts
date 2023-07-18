@@ -17,7 +17,7 @@ tester.run("no-useless-range", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected unnecessary range of characters by using a hyphen.",
+                        "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
                     line: 1,
                     column: 3,
                 },
@@ -29,7 +29,7 @@ tester.run("no-useless-range", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected unnecessary range of characters by using a hyphen.",
+                        "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
                     line: 1,
                     column: 3,
                 },
@@ -41,13 +41,13 @@ tester.run("no-useless-range", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected unnecessary range of characters by using a hyphen.",
+                        "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
                     line: 1,
                     column: 3,
                 },
                 {
                     message:
-                        "Unexpected unnecessary range of characters by using a hyphen.",
+                        "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
                     line: 1,
                     column: 7,
                 },
@@ -59,7 +59,7 @@ tester.run("no-useless-range", rule as any, {
             errors: [
                 {
                     message:
-                        "Unexpected unnecessary range of characters by using a hyphen.",
+                        "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
                     line: 1,
                     column: 3,
                 },
@@ -73,7 +73,7 @@ tester.run("no-useless-range", rule as any, {
             const s = "[a\\\\-c]"
             new RegExp(s)`,
             errors: [
-                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
             ],
         },
         {
@@ -82,7 +82,7 @@ tester.run("no-useless-range", rule as any, {
             new RegExp(s)`,
             output: null,
             errors: [
-                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
             ],
         },
         {
@@ -105,13 +105,13 @@ tester.run("no-useless-range", rule as any, {
             /[A-\\u004-5]/;
             `,
             errors: [
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
             ],
         },
         {
@@ -132,12 +132,12 @@ tester.run("no-useless-range", rule as any, {
             /[\\u 0023]/;
             `,
             errors: [
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
-                "Unexpected unnecessary range of characters by using a hyphen.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
             ],
         },
     ],
