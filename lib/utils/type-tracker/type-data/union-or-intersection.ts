@@ -84,7 +84,6 @@ export class TypeUnionOrIntersection implements ITypeClass {
     }
 
     public typeNames(): string[] {
-        // eslint-disable-next-line @typescript-eslint/require-array-sort-compare -- ignore
         return [...this.collection.strings()].sort()
     }
 
