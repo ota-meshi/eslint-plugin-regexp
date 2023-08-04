@@ -20,7 +20,7 @@ since: "v0.4.0"
 This rule is the same as the [regexp/sort-character-class-elements] rule. Use [regexp/sort-character-class-elements] instead.
 Replaced by [regexp/sort-character-class-elements] in v1.0.0, this rule will be marked as **deprecated**.
 
-[regexp/sort-character-class-elements]: no-useless-lazy.md
+[regexp/sort-character-class-elements]: ./sort-character-class-elements.md
 
 ## :rocket: Version
 
