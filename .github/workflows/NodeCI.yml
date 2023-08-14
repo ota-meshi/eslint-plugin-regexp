@@ -45,7 +45,7 @@ jobs:
             - name: Install Target Packages
               run: |+
                   npm ci
-                  npm i -D eslint@6 mocha@9
+                  npm i -D eslint@6 mocha@9 --legacy-peer-deps
             - name: Test
               run: npm test
     test-with-eslint7:
