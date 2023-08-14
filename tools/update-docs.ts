@@ -2,6 +2,7 @@ import path from "path"
 import fs from "fs"
 import { rules } from "../lib/utils/rules"
 import type { RuleModule } from "../lib/types"
+import { getNewVersion } from "./lib/changesets-util"
 
 //eslint-disable-next-line require-jsdoc -- tools
 function yamlValue(val: unknown) {
@@ -14,7 +15,7 @@ function yamlValue(val: unknown) {
 const ROOT = path.resolve(__dirname, "../docs/rules")
 
 //eslint-disable-next-line require-jsdoc -- tools
-function pickSince(content: string): string | null {
+function pickSince(content: string): string | null | Promise<string> {
     const fileIntro = /^---\n(?<content>.*\n)+---\n*/u.exec(content)
     if (fileIntro) {
         const since = /since: "?(?<version>v\d+\.\d+\.\d+)"?/u.exec(
@@ -29,6 +30,10 @@ function pickSince(content: string): string | null {
         // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- ignore
         return `v${require("../package.json").version}`
     }
+    // eslint-disable-next-line no-process-env -- ignore
+    if (process.env.IN_VERSION_CI_SCRIPT) {
+        return getNewVersion().then((v) => `v${v}`)
+    }
     return null
 }
 
@@ -39,7 +44,7 @@ class DocFile {
 
     private content: string
 
-    private readonly since: string | null
+    private readonly since: string | null | Promise<string>
 
     public constructor(rule: RuleModule) {
         this.rule = rule
@@ -52,15 +57,16 @@ class DocFile {
         return new DocFile(rule)
     }
 
-    public updateFooter() {
+    public async updateFooter() {
+        const since = await this.since
         const { ruleName } = this.rule.meta.docs
         const footerPattern =
             /## (?:(?::mag:)? ?Implementation|:rocket: Version).+$/su
         const footer = `## :rocket: Version
 
 ${
-    this.since
-        ? `This rule was introduced in eslint-plugin-regexp ${this.since}`
+    since
+        ? `This rule was introduced in eslint-plugin-regexp ${since}`
         : `:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>`
 }
 
@@ -114,7 +120,8 @@ ${
         return this
     }
 
-    public updateFileIntro() {
+    public async updateFileIntro() {
+        const since = await this.since
         const { ruleId, description } = this.rule.meta.docs
 
         const fileIntro = {
@@ -122,7 +129,7 @@ ${
             sidebarDepth: 0,
             title: ruleId,
             description,
-            ...(this.since ? { since: this.since } : {}),
+            ...(since ? { since } : {}),
         }
         const computed = `---\n${Object.keys(fileIntro)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tool
@@ -150,11 +157,16 @@ ${
     }
 }
 
-for (const rule of rules) {
-    DocFile.read(rule)
-        .updateFooter()
-        .updateCodeBlocks()
-        .updateFileIntro()
-        .adjustCodeBlocks()
-        .write()
+void main()
+
+/** main */
+async function main() {
+    for (const rule of rules) {
+        const doc = DocFile.read(rule)
+        await doc.updateFooter()
+        doc.updateCodeBlocks()
+        await doc.updateFileIntro()
+        doc.adjustCodeBlocks()
+        doc.write()
+    }
 }
