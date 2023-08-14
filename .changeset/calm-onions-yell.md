@@ -2,4 +2,4 @@
 "eslint-plugin-regexp": major
 ---
 
-Drop support fro Node.js <=v17, and v19
+Drop support for Node.js <=v17, and v19
