@@ -2,32 +2,36 @@ export const plugins = ["regexp"]
 export const rules = {
     // ESLint core rules
     "no-control-regex": "error",
-    "no-empty-character-class": "error",
     "no-misleading-character-class": "error",
     "no-regex-spaces": "error",
     "prefer-regex-literals": "error",
     // The ESLint rule will report fewer cases than our rule
     "no-invalid-regexp": "off",
     "no-useless-backreference": "off",
-    // TODO Switch in the major version.
-    // "no-empty-character-class": "off",
+    "no-empty-character-class": "off",
 
     // eslint-plugin-regexp rules
     "regexp/confusing-quantifier": "warn",
     "regexp/control-character-escape": "error",
     "regexp/match-any": "error",
     "regexp/negation": "error",
+    "regexp/no-contradiction-with-assertion": "error",
     "regexp/no-dupe-characters-character-class": "error",
     "regexp/no-dupe-disjunctions": "error",
     "regexp/no-empty-alternative": "warn",
     "regexp/no-empty-capturing-group": "error",
+    "regexp/no-empty-character-class": "error",
     "regexp/no-empty-group": "error",
     "regexp/no-empty-lookarounds-assertion": "error",
     "regexp/no-escape-backspace": "error",
+    "regexp/no-extra-lookaround-assertions": "error",
     "regexp/no-invalid-regexp": "error",
     "regexp/no-invisible-character": "error",
     "regexp/no-lazy-ends": "warn",
     "regexp/no-legacy-features": "error",
+    "regexp/no-misleading-capturing-group": "error",
+    "regexp/no-misleading-unicode-character": "error",
+    "regexp/no-missing-g-flag": "error",
     "regexp/no-non-standard-flag": "error",
     "regexp/no-obscure-range": "error",
     "regexp/no-optional-assertion": "error",
@@ -61,4 +65,5 @@ export const rules = {
     "regexp/prefer-w": "error",
     "regexp/sort-flags": "error",
     "regexp/strict": "error",
+    "regexp/use-ignore-case": "error",
 }

@@ -7,6 +7,8 @@ since: "v1.2.0"
 ---
 # regexp/no-misleading-unicode-character
 
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
+
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
 
 <!-- end auto-generated rule header -->

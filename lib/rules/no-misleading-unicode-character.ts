@@ -171,9 +171,7 @@ export default createRule("no-misleading-unicode-character", {
             description:
                 "disallow multi-code-point characters in character classes and quantifiers",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [
             {

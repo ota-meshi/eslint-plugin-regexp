@@ -16,20 +16,20 @@ sidebarDepth: 0
 
 | Name                                                                            | Description                                                                             | 💼 | ⚠️ | 🔧 | 💡 |
 | :------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------- | :- | :- | :- | :- |
-| [no-contradiction-with-assertion](no-contradiction-with-assertion.md)           | disallow elements that contradict assertions                                            |    |    |    | 💡 |
+| [no-contradiction-with-assertion](no-contradiction-with-assertion.md)           | disallow elements that contradict assertions                                            | ✅  |    |    | 💡 |
 | [no-control-character](no-control-character.md)                                 | disallow control characters                                                             |    |    |    | 💡 |
 | [no-dupe-disjunctions](no-dupe-disjunctions.md)                                 | disallow duplicate disjunctions                                                         | ✅  |    |    | 💡 |
 | [no-empty-alternative](no-empty-alternative.md)                                 | disallow alternatives without elements                                                  |    | ✅  |    |    |
 | [no-empty-capturing-group](no-empty-capturing-group.md)                         | disallow capturing group that captures empty.                                           | ✅  |    |    |    |
-| [no-empty-character-class](no-empty-character-class.md)                         | disallow character classes that match no characters                                     |    |    |    |    |
+| [no-empty-character-class](no-empty-character-class.md)                         | disallow character classes that match no characters                                     | ✅  |    |    |    |
 | [no-empty-group](no-empty-group.md)                                             | disallow empty group                                                                    | ✅  |    |    |    |
 | [no-empty-lookarounds-assertion](no-empty-lookarounds-assertion.md)             | disallow empty lookahead assertion or empty lookbehind assertion                        | ✅  |    |    |    |
 | [no-escape-backspace](no-escape-backspace.md)                                   | disallow escape backspace (`[\b]`)                                                      | ✅  |    |    |    |
 | [no-invalid-regexp](no-invalid-regexp.md)                                       | disallow invalid regular expression strings in `RegExp` constructors                    | ✅  |    |    |    |
 | [no-lazy-ends](no-lazy-ends.md)                                                 | disallow lazy quantifiers at the end of an expression                                   |    | ✅  |    |    |
-| [no-misleading-capturing-group](no-misleading-capturing-group.md)               | disallow capturing groups that do not behave as one would expect                        |    |    |    | 💡 |
-| [no-misleading-unicode-character](no-misleading-unicode-character.md)           | disallow multi-code-point characters in character classes and quantifiers               |    |    | 🔧 | 💡 |
-| [no-missing-g-flag](no-missing-g-flag.md)                                       | disallow missing `g` flag in patterns used in `String#matchAll` and `String#replaceAll` |    |    | 🔧 |    |
+| [no-misleading-capturing-group](no-misleading-capturing-group.md)               | disallow capturing groups that do not behave as one would expect                        | ✅  |    |    | 💡 |
+| [no-misleading-unicode-character](no-misleading-unicode-character.md)           | disallow multi-code-point characters in character classes and quantifiers               | ✅  |    | 🔧 | 💡 |
+| [no-missing-g-flag](no-missing-g-flag.md)                                       | disallow missing `g` flag in patterns used in `String#matchAll` and `String#replaceAll` | ✅  |    | 🔧 |    |
 | [no-optional-assertion](no-optional-assertion.md)                               | disallow optional assertions                                                            | ✅  |    |    |    |
 | [no-potentially-useless-backreference](no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched                |    | ✅  |    |    |
 | [no-super-linear-backtracking](no-super-linear-backtracking.md)                 | disallow exponential and polynomial backtracking                                        | ✅  |    | 🔧 |    |
@@ -47,7 +47,7 @@ sidebarDepth: 0
 | [control-character-escape](control-character-escape.md)                           | enforce consistent escaping of control characters                                          | ✅  |    | 🔧 |    |
 | [negation](negation.md)                                                           | enforce use of escapes on negation                                                         | ✅  |    | 🔧 |    |
 | [no-dupe-characters-character-class](no-dupe-characters-character-class.md)       | disallow duplicate characters in the RegExp character class                                | ✅  |    | 🔧 |    |
-| [no-extra-lookaround-assertions](no-extra-lookaround-assertions.md)               | disallow unnecessary nested lookaround assertions                                          |    |    | 🔧 |    |
+| [no-extra-lookaround-assertions](no-extra-lookaround-assertions.md)               | disallow unnecessary nested lookaround assertions                                          | ✅  |    | 🔧 |    |
 | [no-invisible-character](no-invisible-character.md)                               | disallow invisible raw character                                                           | ✅  |    | 🔧 |    |
 | [no-legacy-features](no-legacy-features.md)                                       | disallow legacy RegExp features                                                            | ✅  |    |    |    |
 | [no-non-standard-flag](no-non-standard-flag.md)                                   | disallow non-standard flags                                                                | ✅  |    |    |    |
@@ -74,7 +74,7 @@ sidebarDepth: 0
 | [prefer-regexp-test](prefer-regexp-test.md)                                       | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`             |    |    | 🔧 |    |
 | [require-unicode-regexp](require-unicode-regexp.md)                               | enforce the use of the `u` flag                                                            |    |    | 🔧 |    |
 | [sort-alternatives](sort-alternatives.md)                                         | sort alternatives if order doesn't matter                                                  |    |    | 🔧 |    |
-| [use-ignore-case](use-ignore-case.md)                                             | use the `i` flag if it simplifies the pattern                                              |    |    | 🔧 |    |
+| [use-ignore-case](use-ignore-case.md)                                             | use the `i` flag if it simplifies the pattern                                              | ✅  |    | 🔧 |    |
 
 ## Stylistic Issues
 

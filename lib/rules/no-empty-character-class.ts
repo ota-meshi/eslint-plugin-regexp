@@ -8,9 +8,7 @@ export default createRule("no-empty-character-class", {
         docs: {
             description: "disallow character classes that match no characters",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {
