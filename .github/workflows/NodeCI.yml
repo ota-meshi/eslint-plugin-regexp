@@ -35,32 +35,6 @@ jobs:
               run: npm ci
             - name: Test
               run: npm test
-    test-with-eslint6:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 18.x
-            - name: Install Target Packages
-              run: |+
-                  npm ci
-                  npm i -D eslint@6 mocha@9 --legacy-peer-deps
-            - name: Test
-              run: npm test
-    test-with-eslint7:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 18.x
-            - name: Install Target Packages
-              run: |+
-                  npm ci
-                  npm i -D eslint@7 --legacy-peer-deps
-            - name: Test
-              run: npm test
     test-and-coverage:
         runs-on: ubuntu-latest
         steps:
