@@ -2,7 +2,7 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-non-capturing-group"
-description: "disallow unnecessary Non-capturing group"
+description: "disallow unnecessary non-capturing group"
 since: "v0.4.0"
 ---
 # regexp/no-useless-non-capturing-group
