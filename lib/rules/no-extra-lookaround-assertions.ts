@@ -47,8 +47,7 @@ export default createRule("no-extra-lookaround-assertions", {
             assertion: LookaroundAssertion,
         ) {
             for (const alternative of assertion.alternatives) {
-                const nested = at(
-                    alternative.elements,
+                const nested = alternative.elements.at(
                     assertion.kind === "lookahead"
                         ? // The last positive lookahead assertion within
                           // a lookahead assertion is the same without the assertion.
@@ -101,19 +100,3 @@ export default createRule("no-extra-lookaround-assertions", {
         })
     },
 })
-
-// TODO After dropping support for Node < v16.6.0 we can use native `.at()`.
-/**
- * `.at()` polyfill
- * see https://github.com/tc39/proposal-relative-indexing-method#polyfill
- */
-function at<T>(array: T[], n: number) {
-    // ToInteger() abstract op
-    let num = Math.trunc(n) || 0
-    // Allow negative indexing from the end
-    if (num < 0) num += array.length
-    // OOB access is guaranteed to return undefined
-    if (num < 0 || num >= array.length) return undefined
-    // Otherwise, this is just normal property access
-    return array[num]
-}
