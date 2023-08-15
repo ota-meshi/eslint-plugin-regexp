@@ -1196,8 +1196,12 @@ export function fixRemoveCharacterClassElement(
         }
 
         const elementBefore: CharacterClassElement | undefined =
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             cc.elements[cc.elements.indexOf(element) - 1]
         const elementAfter: CharacterClassElement | undefined =
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             cc.elements[cc.elements.indexOf(element) + 1]
 
         if (

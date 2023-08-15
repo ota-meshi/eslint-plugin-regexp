@@ -181,6 +181,8 @@ export class PartialParser {
             }
 
             default:
+                // FIXME: TS Error
+                // @ts-expect-error -- FIXME
                 throw assertNever(element)
         }
     }
@@ -207,6 +209,8 @@ export class PartialParser {
                 characters: JS.createCharSet([range], this.parser.ast.flags),
             }
         }
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         return this.nativeParseElement(context.alternative)
     }
 

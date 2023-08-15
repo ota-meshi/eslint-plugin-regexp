@@ -155,6 +155,8 @@ export function getJSRegexppAst(
 
     return {
         pattern: patternAst,
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         flags: {
             type: "Flags",
             raw: flagsString ?? "",

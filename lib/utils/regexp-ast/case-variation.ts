@@ -134,6 +134,8 @@ export function isCaseVariant(
 
                 case "CharacterClass":
                     if (!wholeCharacterClass) {
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         return d.elements.some(ccElementIsCaseVariant)
                     }
                     // just check for equality

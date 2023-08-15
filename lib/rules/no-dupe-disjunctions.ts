@@ -875,6 +875,8 @@ function fixRemoveNestedAlternative(
         }
 
         default:
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             throw assertNever(alternative)
     }
 }

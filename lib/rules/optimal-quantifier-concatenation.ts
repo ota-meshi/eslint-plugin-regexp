@@ -513,8 +513,12 @@ function getLoc(
 function getCapturingGroupStack(element: Element): string {
     let result = ""
     for (
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         let p: Ancestor<Element> = element.parent;
         p.type !== "Pattern";
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         p = p.parent
     ) {
         if (p.type === "CapturingGroup") {

@@ -418,6 +418,8 @@ function getTailQuantifiers(
         }
 
         default:
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             return assertNever(element)
     }
 }

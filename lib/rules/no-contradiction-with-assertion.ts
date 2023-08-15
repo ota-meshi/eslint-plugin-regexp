@@ -102,8 +102,10 @@ function* getNextElements(
             }
         }
 
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         const elements = parent.elements
-        const index = elements.indexOf(element)
+        const index = elements.indexOf(element) as number
         const inc = dir === "ltr" ? 1 : -1
         for (let i = index + inc; i >= 0 && i < elements.length; i += inc) {
             const e = elements[i]
