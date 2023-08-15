@@ -84,7 +84,7 @@ sidebarDepth: 0
 | [letter-case](letter-case.md)                                           | enforce into your favorite case                                        |    |    | 🔧 |    |
 | [match-any](match-any.md)                                               | enforce match any character style                                      | ✅  |    | 🔧 |    |
 | [no-useless-escape](no-useless-escape.md)                               | disallow unnecessary escape characters in RegExp                       | ✅  |    | 🔧 |    |
-| [no-useless-non-capturing-group](no-useless-non-capturing-group.md)     | disallow unnecessary Non-capturing group                               | ✅  |    | 🔧 |    |
+| [no-useless-non-capturing-group](no-useless-non-capturing-group.md)     | disallow unnecessary non-capturing group                               | ✅  |    | 🔧 |    |
 | [prefer-character-class](prefer-character-class.md)                     | enforce using character class                                          | ✅  |    | 🔧 |    |
 | [prefer-d](prefer-d.md)                                                 | enforce using `\d`                                                     | ✅  |    | 🔧 |    |
 | [prefer-lookaround](prefer-lookaround.md)                               | prefer lookarounds over capturing group that do not replace            |    |    | 🔧 |    |

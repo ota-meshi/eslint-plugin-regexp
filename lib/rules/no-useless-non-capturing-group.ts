@@ -26,7 +26,7 @@ function isTopLevel(group: Group): boolean {
 export default createRule("no-useless-non-capturing-group", {
     meta: {
         docs: {
-            description: "disallow unnecessary Non-capturing group",
+            description: "disallow unnecessary non-capturing group",
             category: "Stylistic Issues",
             recommended: true,
         },
