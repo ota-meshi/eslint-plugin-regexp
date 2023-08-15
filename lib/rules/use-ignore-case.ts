@@ -117,9 +117,7 @@ export default createRule("use-ignore-case", {
         docs: {
             description: "use the `i` flag if it simplifies the pattern",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

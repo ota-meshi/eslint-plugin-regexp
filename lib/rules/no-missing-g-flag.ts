@@ -35,9 +35,7 @@ export default createRule("no-missing-g-flag", {
             description:
                 "disallow missing `g` flag in patterns used in `String#matchAll` and `String#replaceAll`",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [

@@ -6,7 +6,6 @@ import { rules } from "./lib/load-rules"
 const coreRules = [
     // Possible Errors
     "no-control-regex",
-    "no-empty-character-class",
     "no-misleading-character-class",
     "no-regex-spaces",
     // Best Practices
@@ -22,8 +21,7 @@ export const rules = {
     // The ESLint rule will report fewer cases than our rule
     "no-invalid-regexp": "off",
     "no-useless-backreference": "off",
-    // TODO Switch in the major version.
-    // "no-empty-character-class": "off",
+    "no-empty-character-class": "off",
 
     // eslint-plugin-regexp rules
     ${rules

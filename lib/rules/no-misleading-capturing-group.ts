@@ -266,9 +266,7 @@ export default createRule("no-misleading-capturing-group", {
             description:
                 "disallow capturing groups that do not behave as one would expect",
             category: "Possible Errors",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         hasSuggestions: true,
         schema: [

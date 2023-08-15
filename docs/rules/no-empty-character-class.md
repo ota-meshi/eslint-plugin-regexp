@@ -7,6 +7,8 @@ since: "v1.2.0"
 ---
 # regexp/no-empty-character-class
 
+💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 > disallow character classes that match no characters

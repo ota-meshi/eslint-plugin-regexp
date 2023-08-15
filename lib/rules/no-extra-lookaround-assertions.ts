@@ -8,9 +8,7 @@ export default createRule("no-extra-lookaround-assertions", {
         docs: {
             description: "disallow unnecessary nested lookaround assertions",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         fixable: "code",
         schema: [],

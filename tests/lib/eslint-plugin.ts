@@ -35,6 +35,7 @@ describe("Integration with eslint-plugin-regexp", () => {
                 "regexp/prefer-w",
                 "regexp/prefer-d",
                 "regexp/prefer-d",
+                "regexp/use-ignore-case",
             ],
         )
     })
