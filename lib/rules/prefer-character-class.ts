@@ -124,6 +124,8 @@ function elementsToCharacterClass(elements: CharElementArray): string {
                 break
 
             default:
+                // FIXME: TS Error
+                // @ts-expect-error -- FIXME
                 throw new Error(e)
         }
     })

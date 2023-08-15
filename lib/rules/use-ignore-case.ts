@@ -19,6 +19,8 @@ import type {
 import type { Rule } from "eslint"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
+// FIXME: TS Error
+// @ts-expect-error -- FIXME
 const ELEMENT_ORDER: Record<CharacterClassElement["type"], number> = {
     Character: 1,
     CharacterClassRange: 2,
@@ -179,6 +181,8 @@ export default createRule("use-ignore-case", {
                     }
 
                     const invariant = Chars.empty(flags).union(
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         ...invariantElement.map((e) => toCharSet(e, flags)),
                     )
 
@@ -191,6 +195,8 @@ export default createRule("use-ignore-case", {
                     // the i flag
                     const alwaysUseless = findUseless(
                         variantElements,
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         (e) => toCharSet(e, flags),
                         invariant,
                     )
@@ -202,6 +208,8 @@ export default createRule("use-ignore-case", {
                     const iFlags = getIgnoreCaseFlags(flags)
                     const useless = findUseless(
                         variantElements,
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         (e) => toCharSet(e, iFlags),
                         invariant,
                     )

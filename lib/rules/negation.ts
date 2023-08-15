@@ -58,6 +58,8 @@ export default createRule("negation", {
                         const negatedElementSet = toCharSet(
                             {
                                 ...element,
+                                // FIXME: TS Error
+                                // @ts-expect-error -- FIXME
                                 negate: !element.negate,
                             },
                             flags,

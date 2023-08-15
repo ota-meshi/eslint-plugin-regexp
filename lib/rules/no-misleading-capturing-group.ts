@@ -91,6 +91,8 @@ function* getStartQuantifiers(
             }
             break
         default:
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             yield assertNever(root)
     }
 }
@@ -179,6 +181,8 @@ function uncachedGetSingleRepeatedChar(
             return getSingleRepeatedChar(element.element, flags, cache)
 
         default:
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             return assertNever(element)
     }
 }
@@ -232,6 +236,8 @@ function getTradingQuantifiersAfter(
                         return state
 
                     default:
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         return assertNever(element)
                 }
             },

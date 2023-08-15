@@ -241,6 +241,8 @@ export default createRule("sort-character-class-elements", {
             if (node.type === "CharacterClassRange") {
                 return node.min.value
             }
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             return node.value
         }
 
@@ -257,6 +259,8 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
     let raw = node.raw
     if (raw.startsWith("-")) {
         const parent = target.parent as CharacterClass
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         const prev = parent.elements[parent.elements.indexOf(target) - 1]
         if (
             prev &&

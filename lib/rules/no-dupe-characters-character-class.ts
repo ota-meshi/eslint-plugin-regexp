@@ -67,6 +67,8 @@ function groupElements(
     }
 
     for (const e of elements) {
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         const charSet = toCharSet(e, flags)
 
         if (e.type === "Character") {
@@ -324,6 +326,8 @@ export default createRule("no-dupe-characters-character-class", {
                                 .filter((e) => !subsets.has(e) && e !== element)
                                 .filter(
                                     (e) =>
+                                        // FIXME: TS Error
+                                        // @ts-expect-error -- FIXME
                                         !toCharSet(e, flags).isDisjointWith(
                                             elementCharSet,
                                         ),

@@ -102,6 +102,8 @@ function* getNextElements(
             }
         }
 
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         const elements = parent.elements
         const index = elements.indexOf(element)
         const inc = dir === "ltr" ? 1 : -1

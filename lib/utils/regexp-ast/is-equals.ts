@@ -227,6 +227,8 @@ export function isEqualNodes<N extends Node>(
         }
     }
     if (/[(*+?[\\{|]/u.test(a.raw) || /[(*+?[\\{|]/u.test(b.raw)) {
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         return EQUALS_CHECKER[a.type](
             a as never,
             b as never,
