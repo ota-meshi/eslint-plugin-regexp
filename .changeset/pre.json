@@ -4,5 +4,9 @@
   "initialVersions": {
     "eslint-plugin-regexp": "1.15.0"
   },
-  "changesets": []
+  "changesets": [
+    "calm-onions-yell",
+    "khaki-colts-tell",
+    "small-doors-lie"
+  ]
 }
