@@ -42,7 +42,10 @@ export function getRegExpNodeFromExpression(
                     node.regex.pattern,
                     0,
                     node.regex.pattern.length,
-                    node.regex.flags.includes("u"),
+                    {
+                        unicode: node.regex.flags.includes("u"),
+                        unicodeSets: node.regex.flags.includes("v"),
+                    },
                 )
             } catch {
                 return null

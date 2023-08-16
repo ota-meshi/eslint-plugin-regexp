@@ -329,7 +329,7 @@ function buildRegexpVisitor(
                 patternSource.value,
                 0,
                 patternSource.value.length,
-                flags.unicode,
+                flags,
             )
         } catch (error: unknown) {
             if (error instanceof SyntaxError) {
