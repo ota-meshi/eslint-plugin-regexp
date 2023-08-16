@@ -42,8 +42,18 @@ export default createRule("negation", {
                     if (element.type !== "CharacterSet") {
                         return
                     }
+                    if (element.kind === "property" && element.strings) {
+                        // Unicode property escape with property of strings.
+                        // Actually the pattern passing through this branch is an invalid pattern,
+                        // but it has to be checked because of the type guards.
+                        return
+                    }
 
-                    if (flags.ignoreCase && element.kind === "property") {
+                    if (
+                        flags.ignoreCase &&
+                        !flags.unicodeSets &&
+                        element.kind === "property"
+                    ) {
                         // The ignore case canonicalization affects negated
                         // Unicode property escapes in a weird way. In short,
                         // /\p{Foo}/i is not the same as /[^\P{Foo}]/i if
