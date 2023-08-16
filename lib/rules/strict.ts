@@ -12,6 +12,7 @@ import {
     defineRegexpVisitor,
     isEscapeSequence,
 } from "../utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 
 const validator = new RegExpValidator({ strict: true, ecmaVersion: 2020 })
 
@@ -21,10 +22,10 @@ const validator = new RegExpValidator({ strict: true, ecmaVersion: 2020 })
  */
 function validateRegExpPattern(
     pattern: string,
-    uFlag?: boolean,
+    flags: ReadonlyFlags,
 ): string | null {
     try {
-        validator.validatePattern(pattern, undefined, undefined, uFlag)
+        validator.validatePattern(pattern, undefined, undefined, flags)
         return null
     } catch (err) {
         return err instanceof Error ? err.message : null
@@ -272,10 +273,7 @@ export default createRule("strict", {
                         // our own logic couldn't find any problems,
                         // so let's use a real parser to do the job.
 
-                        const message = validateRegExpPattern(
-                            pattern,
-                            flags.unicode,
-                        )
+                        const message = validateRegExpPattern(pattern, flags)
 
                         if (message) {
                             context.report({
