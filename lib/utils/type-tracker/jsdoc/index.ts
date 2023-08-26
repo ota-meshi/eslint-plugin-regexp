@@ -2,7 +2,7 @@ import type { Rule, SourceCode, AST } from "eslint"
 import type * as ES from "estree"
 import { isCommentToken } from "@eslint-community/eslint-utils"
 import * as commentParser from "comment-parser"
-import type { Spec } from "comment-parser/lib/primitives"
+import type { Spec } from "comment-parser"
 // @ts-expect-error -- no type
 import * as jsdocTypeParser from "jsdoctypeparser"
 import type { JSDocTypeNode } from "./jsdoctypeparser-ast"
