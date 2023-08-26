@@ -62,7 +62,7 @@ import rule from "../../../lib/rules/${ruleId}"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
