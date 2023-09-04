@@ -45,7 +45,7 @@ jobs:
             - name: Test
               run: npm run test:nyc
             - name: Coveralls GitHub Action
-              uses: coverallsapp/github-action@v2.2.1
+              uses: coverallsapp/github-action@3b7078ee895f74fc267b7b267c88211df59fa816 # v2.2.2
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
     update:
