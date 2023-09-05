@@ -206,7 +206,7 @@ export class PartialParser {
             }
             return {
                 type: "CharacterClass",
-                characters: JS.createCharSet([range], this.parser.ast.flags),
+                characters: JS.createCharSet([range], this.parser.flags),
             }
         }
         // FIXME: TS Error

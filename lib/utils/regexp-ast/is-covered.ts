@@ -435,6 +435,8 @@ function normalizeNodeWithoutCache(
         node.type === "Character" ||
         node.type === "CharacterClassRange"
     ) {
+        // FIXME: TS Error
+        // @ts-expect-error -- FIXME
         return NormalizedCharacter.fromElement(node, options)
     }
     if (node.type === "Alternative") {

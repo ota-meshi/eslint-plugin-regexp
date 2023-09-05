@@ -19,6 +19,7 @@ import {
     CP_APOSTROPHE,
     createRule,
     defineRegexpVisitor,
+    assertValidFlags,
 } from "../utils"
 import type {
     GetLongestPrefixOptions,
@@ -43,6 +44,7 @@ const cache = new Map<string, Readonly<AllowedChars>>()
 
 /** */
 function getAllowedChars(flags: ReadonlyFlags) {
+    assertValidFlags(flags)
     const cacheKey = (flags.ignoreCase ? "i" : "") + (flags.unicode ? "u" : "")
     let result = cache.get(cacheKey)
     if (result === undefined) {
@@ -168,6 +170,8 @@ function getLexicographicallySmallestFromAlternative(
         // fast path to avoid converting simple alternatives into NFAs
         const smallest: Word = []
         for (const e of elements) {
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             const cs = toCharSet(e, flags)
             if (cs.isEmpty) return undefined
             smallest.push(cs.ranges[0].min)

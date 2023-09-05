@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/disable-enable-pair -- x */
+/* eslint-disable complexity -- x */
 import type { JS } from "refa"
 import { DFA, NFA } from "refa"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
@@ -65,7 +67,7 @@ export function canSimplifyQuantifier(
     if (quantifier.min === quantifier.max) {
         return CANNOT_SIMPLIFY
     }
-    if (isZeroLength(quantifier)) {
+    if (isZeroLength(quantifier, flags)) {
         return CANNOT_SIMPLIFY
     }
     if (containsAssertions(quantifier)) {
@@ -75,7 +77,7 @@ export function canSimplifyQuantifier(
 
     // find the full set of quantifiers that precede this one
     const direction = getMatchingDirection(quantifier)
-    const preceding = getPrecedingQuantifiers(quantifier, direction)
+    const preceding = getPrecedingQuantifiers(quantifier, direction, flags)
     if (!preceding) {
         // there is something that is not a quantifier
         return CANNOT_SIMPLIFY
@@ -105,6 +107,7 @@ function canAbsorb(
         initialPreceding,
         quantifier,
         direction,
+        flags,
     )
     if (!preceding) {
         return CANNOT_SIMPLIFY
@@ -132,7 +135,7 @@ function canAbsorb(
 
     return formal.every((q) => {
         // try splitting the quantifier
-        const parts = splitQuantifierIntoTails(q, direction)
+        const parts = splitQuantifierIntoTails(q, direction, flags)
         if (!parts) return false
         const result = canAbsorb(parts, options)
         if (result.canSimplify) dependencies.push(...result.dependencies)
@@ -178,7 +181,7 @@ function canAbsorbElementFast(
         return false
     }
 
-    if (!isNonFinite(quantifier)) {
+    if (!isNonFinite(quantifier, flags)) {
         // to absorb `E*`, the `Q` needs to be non-finite language
         return false
     }
@@ -221,13 +224,13 @@ function canAbsorbElementFast(
 }
 
 /** Returns whether the given node accepts a non-finite language. */
-function isNonFinite(node: Node): boolean {
+function isNonFinite(node: Node, flags: ReadonlyFlags): boolean {
     return hasSomeDescendant(
         node,
         (n) =>
             n.type === "Quantifier" &&
             n.max === Infinity &&
-            !isZeroLength(n.element),
+            !isZeroLength(n.element, flags),
         // don't decent into assertions
         (n) => n.type !== "Assertion",
     )
@@ -293,11 +296,12 @@ function canAbsorbElementFormal(
 function splitQuantifierIntoTails(
     quantifier: Quantifier,
     direction: MatchingDirection,
+    flags: ReadonlyFlags,
 ): Quantifier[] | undefined {
-    if (isPotentiallyZeroLength(quantifier)) {
+    if (isPotentiallyZeroLength(quantifier, flags)) {
         return undefined
     }
-    return getTailQuantifiers(quantifier.element, direction)
+    return getTailQuantifiers(quantifier.element, direction, flags)
 }
 
 /**
@@ -311,16 +315,22 @@ function removeTargetQuantifier(
     quantifiers: readonly Quantifier[],
     target: Element,
     direction: MatchingDirection,
+    flags: ReadonlyFlags,
 ): Quantifier[] | undefined {
     const result: Quantifier[] = []
 
     for (const q of quantifiers) {
         if (hasSomeDescendant(q, target)) {
-            const inner = splitQuantifierIntoTails(q, direction)
+            const inner = splitQuantifierIntoTails(q, direction, flags)
             if (inner === undefined) {
                 return undefined
             }
-            const mapped = removeTargetQuantifier(inner, target, direction)
+            const mapped = removeTargetQuantifier(
+                inner,
+                target,
+                direction,
+                flags,
+            )
             if (mapped === undefined) {
                 return undefined
             }
@@ -371,6 +381,7 @@ function unionQuantifiers(sets: Iterable<QuantifierSet>): QuantifierSet {
 function getTailQuantifiers(
     element: Element | Alternative,
     direction: MatchingDirection,
+    flags: ReadonlyFlags,
 ): [Quantifier, ...Quantifier[]] | undefined {
     switch (element.type) {
         case "Assertion":
@@ -378,6 +389,7 @@ function getTailQuantifiers(
         case "Character":
         case "CharacterClass":
         case "CharacterSet":
+        case "ExpressionCharacterClass":
             return undefined
 
         case "Quantifier":
@@ -387,7 +399,7 @@ function getTailQuantifiers(
         case "CapturingGroup":
             return unionQuantifiers(
                 element.alternatives.map((a) =>
-                    getTailQuantifiers(a, direction),
+                    getTailQuantifiers(a, direction, flags),
                 ),
             )
 
@@ -398,7 +410,7 @@ function getTailQuantifiers(
                     : element.elements
             for (const e of elements) {
                 // skip empty elements
-                if (isEmpty(e)) continue
+                if (isEmpty(e, flags)) continue
 
                 if (e.type === "Quantifier") {
                     return [e]
@@ -414,12 +426,10 @@ function getTailQuantifiers(
                 // TODO: Assertions aren't supported for now.
                 return undefined
             }
-            return getPrecedingQuantifiers(parent, direction)
+            return getPrecedingQuantifiers(parent, direction, flags)
         }
 
         default:
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
             return assertNever(element)
     }
 }
@@ -430,6 +440,7 @@ function getTailQuantifiers(
 function getPrecedingQuantifiers(
     element: Element,
     direction: MatchingDirection,
+    flags: ReadonlyFlags,
 ): [Quantifier, ...Quantifier[]] | undefined {
     const parent = element.parent
     if (parent.type === "Quantifier") {
@@ -439,13 +450,13 @@ function getPrecedingQuantifiers(
         }
         if (parent.max === 1) {
             // the quantifier is essentially equivalent to a simple group
-            return getPrecedingQuantifiers(parent, direction)
+            return getPrecedingQuantifiers(parent, direction, flags)
         }
 
         // Both the elements preceding the quantifier as well as the quantifier itself have to be considered
         return unionQuantifiers([
-            getPrecedingQuantifiers(parent, direction),
-            getTailQuantifiers(parent.element, direction),
+            getPrecedingQuantifiers(parent, direction, flags),
+            getTailQuantifiers(parent.element, direction, flags),
         ])
     }
     if (parent.type !== "Alternative") {
@@ -463,13 +474,13 @@ function getPrecedingQuantifiers(
         const preceding = parent.elements[precedingIndex]
 
         // skip empty elements
-        if (isEmpty(preceding)) continue
+        if (isEmpty(preceding, flags)) continue
 
-        return getTailQuantifiers(preceding, direction)
+        return getTailQuantifiers(preceding, direction, flags)
     }
 
     if (parent.parent.type === "Pattern") {
         return undefined
     }
-    return getPrecedingQuantifiers(parent.parent, direction)
+    return getPrecedingQuantifiers(parent.parent, direction, flags)
 }
