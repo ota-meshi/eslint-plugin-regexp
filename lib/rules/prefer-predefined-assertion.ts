@@ -203,6 +203,8 @@ export default createRule("prefer-predefined-assertion", {
                         }
                     }
 
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     const charSet = toCharSet(chars, flags)
                     if (charSet.isAll) {
                         replaceEdgeAssertion(aNode, false)

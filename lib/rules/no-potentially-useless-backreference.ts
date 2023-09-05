@@ -28,11 +28,12 @@ export default createRule("no-potentially-useless-backreference", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(backreference) {
-                    if (isEmptyBackreference(backreference)) {
+                    if (isEmptyBackreference(backreference, flags)) {
                         // handled by regexp/no-useless-backreference
                         return
                     }

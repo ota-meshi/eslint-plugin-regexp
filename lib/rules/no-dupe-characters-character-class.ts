@@ -15,6 +15,7 @@ import {
     defineRegexpVisitor,
     toCharSetSource,
     fixRemoveCharacterClassElement,
+    assertValidFlags,
 } from "../utils"
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
@@ -276,6 +277,8 @@ export default createRule("no-dupe-characters-character-class", {
                     // report characters that are already matched by some range or set
                     for (const char of characters) {
                         for (const other of rangesAndSets) {
+                            // FIXME: TS Error
+                            // @ts-expect-error -- FIXME
                             if (toCharSet(other, flags).has(char.value)) {
                                 reportSubset(regexpContext, char, other)
                                 subsets.add(char)
@@ -292,7 +295,11 @@ export default createRule("no-dupe-characters-character-class", {
                             }
 
                             if (
+                                // FIXME: TS Error
+                                // @ts-expect-error -- FIXME
                                 toCharSet(element, flags).isSubsetOf(
+                                    // FIXME: TS Error
+                                    // @ts-expect-error -- FIXME
                                     toCharSet(other, flags),
                                 )
                             ) {
@@ -317,9 +324,13 @@ export default createRule("no-dupe-characters-character-class", {
                         const totalOthers = characterTotal.union(
                             ...rangesAndSets
                                 .filter((e) => !subsets.has(e) && e !== element)
+                                // FIXME: TS Error
+                                // @ts-expect-error -- FIXME
                                 .map((e) => toCharSet(e, flags)),
                         )
 
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         const elementCharSet = toCharSet(element, flags)
                         if (elementCharSet.isSubsetOf(totalOthers)) {
                             const superSetElements = ccNode.elements
@@ -359,6 +370,8 @@ export default createRule("no-dupe-characters-character-class", {
                             const intersection = toCharSet(
                                 range,
                                 flags,
+                                // FIXME: TS Error
+                                // @ts-expect-error -- FIXME
                             ).intersect(toCharSet(other, flags))
                             if (intersection.isEmpty) {
                                 continue
@@ -379,6 +392,7 @@ export default createRule("no-dupe-characters-character-class", {
                             // (see GH #189).
                             // to prevent this, we will create a new CharSet
                             // using `createCharSet`
+                            assertValidFlags(flags)
                             const interest = JS.createCharSet(
                                 interestingRanges,
                                 flags,

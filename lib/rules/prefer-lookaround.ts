@@ -27,6 +27,7 @@ import {
     getFirstConsumedCharPlusAfter,
     getPossiblyConsumedChar,
 } from "../utils/regexp-ast"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getLengthRange,
     isZeroLength,
@@ -175,7 +176,7 @@ function getSideEffectsWhenReplacingCapturingGroup(
 
     /** Checks whether the given element is constant length. */
     function isConstantLength(target: Element): boolean {
-        const range = getLengthRange(target)
+        const range = getLengthRange(target, flags)
         return range.min === range.max
     }
 }
@@ -183,8 +184,9 @@ function getSideEffectsWhenReplacingCapturingGroup(
 /** Checks whether the given element is a capturing group of length 1 or greater. */
 function isCapturingGroupAndNotZeroLength(
     element: Element,
+    flags: ReadonlyFlags,
 ): element is CapturingGroup {
-    return element.type === "CapturingGroup" && !isZeroLength(element)
+    return element.type === "CapturingGroup" && !isZeroLength(element, flags)
 }
 
 type ParsedStartPattern = {
@@ -227,7 +229,10 @@ type ParsedElements = {
 /**
  * Parse the elements of the pattern.
  */
-function parsePatternElements(node: Pattern): ParsedElements | null {
+function parsePatternElements(
+    node: Pattern,
+    flags: ReadonlyFlags,
+): ParsedElements | null {
     if (node.alternatives.length > 1) {
         return null
     }
@@ -236,11 +241,11 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let start: ParsedStartPattern | null = null
 
     for (const element of elements) {
-        if (isZeroLength(element)) {
+        if (isZeroLength(element, flags)) {
             leadingElements.push(element)
             continue
         }
-        if (isCapturingGroupAndNotZeroLength(element)) {
+        if (isCapturingGroupAndNotZeroLength(element, flags)) {
             const capturingGroup = element
             start = {
                 leadingElements,
@@ -261,12 +266,12 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let end: ParsedEndPattern | null = null
     const trailingElements: Element[] = []
     for (const element of [...elements].reverse()) {
-        if (isZeroLength(element)) {
+        if (isZeroLength(element, flags)) {
             trailingElements.unshift(element)
             continue
         }
 
-        if (isCapturingGroupAndNotZeroLength(element)) {
+        if (isCapturingGroupAndNotZeroLength(element, flags)) {
             const capturingGroup = element
             end = {
                 capturingGroup,
@@ -411,8 +416,8 @@ export default createRule("prefer-lookaround", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { regexpNode, patternAst } = regexpContext
-            const parsedElements = parsePatternElements(patternAst)
+            const { regexpNode, flags, patternAst } = regexpContext
+            const parsedElements = parsePatternElements(patternAst, flags)
             if (!parsedElements) {
                 return {}
             }

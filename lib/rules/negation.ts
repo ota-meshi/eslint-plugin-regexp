@@ -53,13 +53,15 @@ export default createRule("negation", {
                         // All other character sets are either case-invariant
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
 
+                        // FIXME: TS Error
+                        // @ts-expect-error -- FIXME
                         const ccSet = toCharSet(ccNode, flags)
 
                         const negatedElementSet = toCharSet(
+                            // FIXME: TS Error
+                            // @ts-expect-error -- FIXME
                             {
                                 ...element,
-                                // FIXME: TS Error
-                                // @ts-expect-error -- FIXME
                                 negate: !element.negate,
                             },
                             flags,

@@ -14,6 +14,7 @@ import {
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
+    assertValidFlags,
 } from "../utils"
 import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
@@ -434,6 +435,7 @@ function getPartialSubsetRelation(
  */
 function faToSource(fa: FiniteAutomaton, flags: ReadonlyFlags): string {
     try {
+        assertValidFlags(flags)
         return JS.toLiteral(fa.toRegex(), { flags }).source
     } catch (_error) {
         return "<ERROR>"

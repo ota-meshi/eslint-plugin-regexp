@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/disable-enable-pair -- x */
+/* eslint-disable complexity -- x */
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
@@ -48,10 +50,11 @@ function* iterReverse<T>(array: readonly T[]): Iterable<T> {
 function* getStartQuantifiers(
     root: Element | Alternative | Alternative[],
     direction: MatchingDirection,
+    flags: ReadonlyFlags,
 ): Iterable<Quantifier> {
     if (Array.isArray(root)) {
         for (const a of root) {
-            yield* getStartQuantifiers(a, direction)
+            yield* getStartQuantifiers(a, direction, flags)
         }
         return
     }
@@ -60,6 +63,7 @@ function* getStartQuantifiers(
         case "Character":
         case "CharacterClass":
         case "CharacterSet":
+        case "ExpressionCharacterClass":
         case "Backreference":
             // we can't go into terminals
             break
@@ -71,8 +75,8 @@ function* getStartQuantifiers(
             const elements =
                 direction === "ltr" ? root.elements : iterReverse(root.elements)
             for (const e of elements) {
-                if (isEmpty(e)) continue
-                yield* getStartQuantifiers(e, direction)
+                if (isEmpty(e, flags)) continue
+                yield* getStartQuantifiers(e, direction, flags)
                 break
             }
             break
@@ -82,17 +86,15 @@ function* getStartQuantifiers(
             // of this rule
             break
         case "Group":
-            yield* getStartQuantifiers(root.alternatives, direction)
+            yield* getStartQuantifiers(root.alternatives, direction, flags)
             break
         case "Quantifier":
             yield root
             if (root.max === 1) {
-                yield* getStartQuantifiers(root.element, direction)
+                yield* getStartQuantifiers(root.element, direction, flags)
             }
             break
         default:
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
             yield assertNever(root)
     }
 }
@@ -168,6 +170,9 @@ function uncachedGetSingleRepeatedChar(
         case "Character":
         case "CharacterClass":
         case "CharacterSet":
+        case "ExpressionCharacterClass":
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             return toCharSet(element, flags)
 
         case "CapturingGroup":
@@ -181,8 +186,6 @@ function uncachedGetSingleRepeatedChar(
             return getSingleRepeatedChar(element.element, flags, cache)
 
         default:
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
             return assertNever(element)
     }
 }
@@ -226,6 +229,7 @@ function getTradingQuantifiersAfter(
                     case "Character":
                     case "CharacterClass":
                     case "CharacterSet":
+                    case "ExpressionCharacterClass":
                         return state.intersect(
                             getSingleRepeatedChar(element, flags),
                         )
@@ -236,8 +240,6 @@ function getTradingQuantifiersAfter(
                         return state
 
                     default:
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
                         return assertNever(element)
                 }
             },
@@ -329,6 +331,7 @@ export default createRule("no-misleading-capturing-group", {
                 const startQuantifiers = getStartQuantifiers(
                     capturingGroup.alternatives,
                     direction,
+                    flags,
                 )
 
                 for (const quantifier of startQuantifiers) {
@@ -409,6 +412,7 @@ export default createRule("no-misleading-capturing-group", {
                 const endQuantifiers = getStartQuantifiers(
                     capturingGroup.alternatives,
                     invertMatchingDirection(direction),
+                    flags,
                 )
 
                 for (const quantifier of endQuantifiers) {
@@ -439,7 +443,10 @@ export default createRule("no-misleading-capturing-group", {
                         }
                         if (
                             trader.quant.min >= 1 &&
-                            !isPotentiallyZeroLength(trader.quant.element)
+                            !isPotentiallyZeroLength(
+                                trader.quant.element,
+                                flags,
+                            )
                         )
                             context.report({
                                 node,

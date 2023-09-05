@@ -155,6 +155,8 @@ function categorizeRawAlts(
                     isCharacter: true,
                     alternative,
                     element,
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     char: toCharSet(element, flags),
                 }
             }
@@ -219,6 +221,8 @@ function parseRawAlts(
                 return {
                     isCharacter: true,
                     elements,
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     char: toCharSet(a.element, flags),
                     raw: a.alternative.raw,
                 }
@@ -352,8 +356,12 @@ function totalIsAll(
     for (const a of alternatives) {
         if (a.isCharacter) {
             if (total === undefined) {
+                // FIXME: TS Error
+                // @ts-expect-error -- FIXME
                 total = toCharSet(a.element, flags)
             } else {
+                // FIXME: TS Error
+                // @ts-expect-error -- FIXME
                 total = total.union(toCharSet(a.element, flags))
             }
         }
