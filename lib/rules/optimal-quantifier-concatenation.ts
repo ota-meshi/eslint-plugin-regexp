@@ -17,8 +17,13 @@ import type { AST } from "eslint"
 import type { RegExpContext, Quant } from "../utils"
 import { createRule, defineRegexpVisitor, quantToString } from "../utils"
 import type { Ancestor, ReadonlyFlags } from "regexp-ast-analysis"
-import { Chars, hasSomeDescendant, toCharSet } from "regexp-ast-analysis"
-import { getParser, getPossiblyConsumedChar } from "../utils/regexp-ast"
+import {
+    Chars,
+    hasSomeDescendant,
+    toCharSet,
+    getConsumedChars,
+} from "regexp-ast-analysis"
+import { getParser } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
 import { joinEnglishList, mention } from "../utils/mention"
 import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
@@ -183,10 +188,10 @@ function getQuantifiersReplacement(
     const rSingle = getSingleConsumedChar(right.element, flags)
     const lPossibleChar = lSingle.complete
         ? lSingle.char
-        : getPossiblyConsumedChar(left.element, flags).char
+        : getConsumedChars(left.element, flags).chars
     const rPossibleChar = rSingle.complete
         ? rSingle.char
-        : getPossiblyConsumedChar(right.element, flags).char
+        : getConsumedChars(right.element, flags).chars
     const greedy = left.greedy
 
     let lQuant: Readonly<Quant>, rQuant: Readonly<Quant>
@@ -344,8 +349,8 @@ function getNestedReplacement(
         return null
     }
 
-    const nestedPossible = getPossiblyConsumedChar(nested.element, flags)
-    if (single.char.isSupersetOf(nestedPossible.char)) {
+    const nestedPossible = getConsumedChars(nested.element, flags)
+    if (single.char.isSupersetOf(nestedPossible.chars)) {
         const { min } = nested
         if (min === 0) {
             return {

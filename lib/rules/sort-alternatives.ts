@@ -31,10 +31,11 @@ import {
     canReorder,
     getLongestPrefix,
     toCharSet,
+    getConsumedChars,
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
-import { getParser, getPossiblyConsumedChar } from "../utils/regexp-ast"
+import { getParser } from "../utils/regexp-ast"
 
 interface AllowedChars {
     allowed: CharSet
@@ -549,11 +550,11 @@ export default createRule("sort-alternatives", {
             const possibleCharsCache = new Map<Alternative, CharSet>()
             const parser = getParser(regexpContext)
 
-            /** A cached version of getPossiblyConsumedChar */
+            /** A cached version of getConsumedChars */
             function getPossibleChars(a: Alternative): CharSet {
                 let chars = possibleCharsCache.get(a)
                 if (chars === undefined) {
-                    chars = getPossiblyConsumedChar(a, flags).char
+                    chars = getConsumedChars(a, flags).chars
                     possibleCharsCache.set(a, chars)
                 }
                 return chars

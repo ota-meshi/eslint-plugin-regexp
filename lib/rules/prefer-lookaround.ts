@@ -23,15 +23,13 @@ import type {
 import type { Expression, Literal } from "estree"
 import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
-import {
-    getFirstConsumedCharPlusAfter,
-    getPossiblyConsumedChar,
-} from "../utils/regexp-ast"
+import { getFirstConsumedCharPlusAfter } from "../utils/regexp-ast"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getLengthRange,
     isZeroLength,
     FirstConsumedChars,
+    getConsumedChars,
 } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 
@@ -123,15 +121,15 @@ function getSideEffectsWhenReplacingCapturingGroup(
     const result = new Set<SideEffect>()
 
     if (start) {
-        const { char } = getPossiblyConsumedChar(start, flags)
-        if (!hasDisjoint(char, elements.slice(1))) {
+        const { chars } = getConsumedChars(start, flags)
+        if (!hasDisjoint(chars, elements.slice(1))) {
             result.add(SideEffect.startRef)
         } else {
             const last = elements[elements.length - 1]
             const lastChar = FirstConsumedChars.toLook(
                 getFirstConsumedCharPlusAfter(last, "rtl", flags),
             )
-            if (!lastChar.char.isDisjointWith(char)) {
+            if (!lastChar.char.isDisjointWith(chars)) {
                 result.add(SideEffect.startRef)
             }
         }
@@ -140,12 +138,12 @@ function getSideEffectsWhenReplacingCapturingGroup(
     if (end && flags.global) {
         const first = elements[0]
         if (first) {
-            const { char } = getPossiblyConsumedChar(end, flags)
+            const { chars } = getConsumedChars(end, flags)
 
             const firstChar = FirstConsumedChars.toLook(
                 getFirstConsumedCharPlusAfter(first, "ltr", flags),
             )
-            if (!firstChar.char.isDisjointWith(char)) {
+            if (!firstChar.char.isDisjointWith(chars)) {
                 result.add(SideEffect.endRef)
             }
         }
@@ -157,11 +155,11 @@ function getSideEffectsWhenReplacingCapturingGroup(
     function hasDisjoint(target: CharSet, targetElements: Element[]) {
         for (const element of targetElements) {
             if (isConstantLength(element)) {
-                const elementChars = getPossiblyConsumedChar(element, flags)
-                if (elementChars.char.isEmpty) {
+                const elementChars = getConsumedChars(element, flags)
+                if (elementChars.chars.isEmpty) {
                     continue
                 }
-                if (elementChars.char.isDisjointWith(target)) {
+                if (elementChars.chars.isDisjointWith(target)) {
                     return true
                 }
             } else {

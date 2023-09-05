@@ -9,6 +9,7 @@ import {
     hasSomeDescendant,
     isZeroLength,
     isPotentiallyZeroLength,
+    getConsumedChars,
 } from "regexp-ast-analysis"
 import type {
     Alternative,
@@ -17,7 +18,6 @@ import type {
     QuantifiableElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import { getPossiblyConsumedChar } from "."
 
 /**
  * Wraps the given function to be cached by a `WeakMap`.
@@ -40,11 +40,9 @@ function weakCachedFn<T extends object, R>(
 const containsAssertions = weakCachedFn((node: Node) => {
     return hasSomeDescendant(node, (n) => n.type === "Assertion")
 })
-/** A cached (and curried) version of {@link getPossiblyConsumedChar}. */
+/** A cached (and curried) version of {@link getConsumedChars}. */
 const cachedGetPossiblyConsumedChar = weakCachedFn((flags: ReadonlyFlags) => {
-    return weakCachedFn((element: Element) =>
-        getPossiblyConsumedChar(element, flags),
-    )
+    return weakCachedFn((element: Element) => getConsumedChars(element, flags))
 })
 
 export type CanSimplify = {
@@ -189,12 +187,12 @@ function canAbsorbElementFast(
     const qChar = cachedGetPossiblyConsumedChar(flags)(quantifier.element)
     const eChar = cachedGetPossiblyConsumedChar(flags)(element)
 
-    if (qChar.char.isDisjointWith(eChar.char)) {
+    if (qChar.chars.isDisjointWith(eChar.chars)) {
         // Since `Q` and `E` are disjoint, there is no way for `Q` to absorb `E*`
         return false
     }
 
-    if (eChar.exact && !eChar.char.without(qChar.char).isEmpty) {
+    if (eChar.exact && !eChar.chars.without(qChar.chars).isEmpty) {
         // At least one char in `E` cannot be absorbed by `Q`
         return false
     }
@@ -215,7 +213,7 @@ function canAbsorbElementFast(
             return false
         }
 
-        if (qChar.exact && qChar.char.isSupersetOf(eChar.char)) {
+        if (qChar.exact && qChar.chars.isSupersetOf(eChar.chars)) {
             return true
         }
     }
