@@ -8,7 +8,7 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { analyse } from "scslre"
-import type { Descendant } from "regexp-ast-analysis"
+import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     isPotentiallyEmpty,
     getMatchingDirection,
@@ -52,13 +52,14 @@ function dedupeReports(reports: Iterable<Report>): Report[] {
  */
 function* findReachableQuantifiers(
     node: Descendant<Pattern> | Alternative,
+    flags: ReadonlyFlags,
 ): Iterable<Quantifier> {
     switch (node.type) {
         case "CapturingGroup":
         case "Group":
         case "Pattern": {
             for (const a of node.alternatives) {
-                yield* findReachableQuantifiers(a)
+                yield* findReachableQuantifiers(a, flags)
             }
             break
         }
@@ -66,7 +67,7 @@ function* findReachableQuantifiers(
         case "Assertion": {
             if (node.kind === "lookahead" || node.kind === "lookbehind") {
                 for (const a of node.alternatives) {
-                    yield* findReachableQuantifiers(a)
+                    yield* findReachableQuantifiers(a, flags)
                 }
             }
             break
@@ -84,9 +85,9 @@ function* findReachableQuantifiers(
                     dir === "ltr" ? i : node.elements.length - 1 - i
                 const element = node.elements[elementIndex]
 
-                yield* findReachableQuantifiers(element)
+                yield* findReachableQuantifiers(element, flags)
 
-                if (!isPotentiallyEmpty(element)) {
+                if (!isPotentiallyEmpty(element, flags)) {
                     break
                 }
             }
@@ -206,7 +207,7 @@ export default createRule("no-super-linear-move", {
                 getJSRegexppAst(regexpContext, true),
             )
 
-            for (const q of findReachableQuantifiers(patternAst)) {
+            for (const q of findReachableQuantifiers(patternAst, flags)) {
                 if (q.max !== Infinity) {
                     // we are only interested in star quantifiers
                     continue

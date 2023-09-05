@@ -35,7 +35,8 @@ export default createRule("no-useless-quantifier", {
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { node, getRegexpLocation, fixReplaceNode } = regexpContext
+            const { node, flags, getRegexpLocation, fixReplaceNode } =
+                regexpContext
 
             /**
              * Returns a fix that replaces the given quantifier with its
@@ -83,7 +84,7 @@ export default createRule("no-useless-quantifier", {
 
                     // the quantified element already accepts the empty string
                     // e.g. (||)*
-                    if (isEmpty(qNode.element)) {
+                    if (isEmpty(qNode.element, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(qNode),
@@ -99,7 +100,7 @@ export default createRule("no-useless-quantifier", {
                         qNode.min === 0 &&
                         qNode.max === 1 &&
                         qNode.greedy &&
-                        isPotentiallyEmpty(qNode.element)
+                        isPotentiallyEmpty(qNode.element, flags)
                     ) {
                         context.report({
                             node,
@@ -112,7 +113,7 @@ export default createRule("no-useless-quantifier", {
 
                     // the quantified is zero length
                     // e.g. (\b){5}
-                    if (qNode.min >= 1 && isZeroLength(qNode.element)) {
+                    if (qNode.min >= 1 && isZeroLength(qNode.element, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(qNode),
