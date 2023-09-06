@@ -19,7 +19,6 @@ import {
 import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
-    combineTransformers,
     Transformers,
     DFA,
     NFA,
@@ -144,17 +143,6 @@ function isNonRegular(node: Node): boolean {
     )
 }
 
-const creationOption: Transformers.CreationOptions = {
-    ignoreAmbiguity: true,
-    ignoreOrder: true,
-}
-const assertionTransformer = combineTransformers([
-    Transformers.applyAssertions(creationOption),
-    Transformers.removeUnnecessaryAssertions(creationOption),
-    Transformers.inline(creationOption),
-    Transformers.removeDeadBranches(creationOption),
-])
-
 /**
  * Create an NFA from the given element.
  *
@@ -175,7 +163,13 @@ function toNFA(
 
         let e
         if (containsAssertions(expression)) {
-            e = transform(assertionTransformer, expression)
+            e = transform(
+                Transformers.simplify({
+                    ignoreAmbiguity: true,
+                    ignoreOrder: true,
+                }),
+                expression,
+            )
         } else {
             e = expression
         }
@@ -191,7 +185,7 @@ function toNFA(
     } catch (_error) {
         return {
             nfa: NFA.empty({
-                maxCharacter: parser.ast.flags.unicode ? 0x10ffff : 0xffff,
+                maxCharacter: parser.maxCharacter,
             }),
             partial: true,
         }
@@ -270,7 +264,7 @@ function* iteratePartialAlternatives(
         return
     }
 
-    const maxCharacter = parser.ast.flags.unicode ? 0x10ffff : 0xffff
+    const maxCharacter = parser.maxCharacter
     const partialParser = new PartialParser(parser, {
         assertions: "throw",
         backreferences: "throw",
