@@ -1,5 +1,3 @@
-/* eslint-disable eslint-comments/disable-enable-pair -- x */
-
 import type { JS } from "refa"
 import { DFA, NFA } from "refa"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
