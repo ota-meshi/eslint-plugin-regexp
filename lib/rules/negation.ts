@@ -1,4 +1,4 @@
-import { toCharSet } from "regexp-ast-analysis"
+import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import type {
     EscapeCharacterSet,
     UnicodePropertyCharacterSet,
@@ -63,13 +63,12 @@ export default createRule("negation", {
                         // All other character sets are either case-invariant
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
 
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        const ccSet = toCharSet(ccNode, flags)
+                        // since we know that the property doesn't contain strings,
+                        // we can just get the characters of the character class
+                        // without worrying about the strings
+                        const ccSet = toUnicodeSet(ccNode, flags).chars
 
                         const negatedElementSet = toCharSet(
-                            // FIXME: TS Error
-                            // @ts-expect-error -- FIXME
                             {
                                 ...element,
                                 negate: !element.negate,
