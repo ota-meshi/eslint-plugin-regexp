@@ -3,13 +3,13 @@ import rule from "../../../lib/rules/prefer-w"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("prefer-w", rule as any, {
-    valid: ["/\\w/"],
+    valid: ["/\\w/", "/[\\Da-zA-Z_#]/", "/\\w/v", "/[\\Da-zA-Z_#]/v"],
     invalid: [
         {
             code: "/[0-9a-zA-Z_]/",
@@ -33,6 +33,20 @@ tester.run("prefer-w", rule as any, {
                     column: 2,
                     endColumn: 15,
                 },
+            ],
+        },
+        {
+            code: "/[\\da-zA-Z_#]/",
+            output: "/[\\w#]/",
+            errors: [
+                "Unexpected character class ranges '[\\da-zA-Z_]'. Use '\\w' instead.",
+            ],
+        },
+        {
+            code: "/[0-9a-z_[\\s&&\\p{ASCII}]]/iv",
+            output: "/[\\w[\\s&&\\p{ASCII}]]/iv",
+            errors: [
+                "Unexpected character class ranges '[0-9a-z_]'. Use '\\w' instead.",
             ],
         },
         {

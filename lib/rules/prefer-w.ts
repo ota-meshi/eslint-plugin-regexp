@@ -16,7 +16,7 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 /**
@@ -52,7 +52,7 @@ function isDigitRangeOrSet(node: CharacterClassElement) {
         (node.type === "CharacterClassRange" &&
             node.min.value === CP_DIGIT_ZERO &&
             node.max.value === CP_DIGIT_NINE) ||
-        (node.type === "CharacterSet" && node.kind === "digit")
+        (node.type === "CharacterSet" && node.kind === "digit" && !node.negate)
     )
 }
 
@@ -92,30 +92,31 @@ export default createRule("prefer-w", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(ccNode, flags)
+                    const charSet = toUnicodeSet(ccNode, flags)
 
-                    let predefined: string | undefined = undefined
-                    if (charSet.equals(Chars.word(flags))) {
-                        predefined = "\\w"
-                    } else if (charSet.equals(Chars.word(flags).negate())) {
-                        predefined = "\\W"
-                    }
+                    if (charSet.accept.isEmpty) {
+                        let predefined: string | undefined = undefined
+                        const word = Chars.word(flags)
+                        if (charSet.chars.equals(word)) {
+                            predefined = "\\w"
+                        } else if (charSet.chars.equals(word.negate())) {
+                            predefined = "\\W"
+                        }
 
-                    if (predefined) {
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(ccNode),
-                            messageId: "unexpected",
-                            data: {
-                                type: "character class",
-                                expr: mention(ccNode),
-                                instead: predefined,
-                            },
-                            fix: fixReplaceNode(ccNode, predefined),
-                        })
-                        return
+                        if (predefined) {
+                            context.report({
+                                node,
+                                loc: getRegexpLocation(ccNode),
+                                messageId: "unexpected",
+                                data: {
+                                    type: "character class",
+                                    expr: mention(ccNode),
+                                    instead: predefined,
+                                },
+                                fix: fixReplaceNode(ccNode, predefined),
+                            })
+                            return
+                        }
                     }
 
                     const lowerAToZ: CharacterClassElement[] = []
