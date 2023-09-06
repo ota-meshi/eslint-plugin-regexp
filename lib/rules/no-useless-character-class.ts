@@ -45,7 +45,6 @@ export default createRule("no-useless-character-class", {
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
-                // eslint-disable-next-line complexity -- X(
                 onCharacterClassEnter(ccNode) {
                     if (ccNode.elements.length !== 1) {
                         return

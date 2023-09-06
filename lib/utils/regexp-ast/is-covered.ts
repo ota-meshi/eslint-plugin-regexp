@@ -335,10 +335,8 @@ export function isCoveredNode(
     return isCoveredForNormalizedNode(leftNode, rightNode, options)
 }
 
-/* eslint-disable complexity -- X( */
 /** Checks whether the right node is covered by the left node. */
 function isCoveredForNormalizedNode(
-    /* eslint-enable complexity -- X( */
     left: NormalizedNode,
     right: NormalizedNode,
     options: Options,
@@ -478,10 +476,8 @@ function isCoveredAnyNode(
     return false
 }
 
-/* eslint-disable complexity -- X( */
 /** Check whether the right nodes is covered by the left nodes. */
 function isCoveredAltNodes(
-    /* eslint-enable complexity -- X( */
     leftNodes: NormalizedNode[],
     rightNodes: NormalizedNode[],
     options: Options,

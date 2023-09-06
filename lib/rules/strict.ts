@@ -133,7 +133,6 @@ export default createRule("strict", {
             }
 
             return {
-                // eslint-disable-next-line complexity -- x
                 onCharacterEnter(cNode) {
                     if (cNode.raw === "\\") {
                         // e.g. \c5 or \c

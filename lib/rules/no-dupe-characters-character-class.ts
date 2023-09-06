@@ -255,7 +255,6 @@ export default createRule("no-dupe-characters-character-class", {
             const { flags } = regexpContext
 
             return {
-                // eslint-disable-next-line complexity -- X
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const {
                         duplicates,

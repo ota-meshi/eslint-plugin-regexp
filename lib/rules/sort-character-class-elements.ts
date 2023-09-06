@@ -141,7 +141,6 @@ export default createRule("sort-character-class-elements", {
             }
         }
 
-        /* eslint-disable complexity -- X( */
         /**
          * Check that the two given CharacterClassElements are in a valid order.
          */
