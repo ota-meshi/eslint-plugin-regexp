@@ -209,6 +209,18 @@ export function parseFlags(flags: string): ReadonlyFlags {
 }
 
 /**
+ * Asserts that the given flags are valid (no `u` and `v` flag together).
+ * @param flags
+ */
+export function assertValidFlags(
+    flags: ReadonlyFlags,
+): asserts flags is JS.Flags {
+    if (!JS.isFlags(flags)) {
+        throw new Error(`Invalid flags: ${JSON.stringify(flags)}`)
+    }
+}
+
+/**
  * Define the rule.
  * @param ruleName ruleName
  * @param rule rule module
@@ -1071,6 +1083,7 @@ export function toCharSetSource(
     charSetOrChar: CharSet | number,
     flags: ReadonlyFlags,
 ): string {
+    assertValidFlags(flags)
     let charSet
     if (typeof charSetOrChar === "number") {
         charSet = JS.createCharSet([charSetOrChar], flags)

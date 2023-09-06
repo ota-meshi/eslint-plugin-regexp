@@ -7,6 +7,7 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getClosestAncestor,
     getMatchingDirection,
@@ -38,7 +39,10 @@ function hasNegatedLookaroundInBetween(
  * Returns the message id specifying the reason why the backreference is
  * useless.
  */
-function getUselessMessageId(backRef: Backreference): string | null {
+function getUselessMessageId(
+    backRef: Backreference,
+    flags: ReadonlyFlags,
+): string | null {
     const group = backRef.resolved
 
     const closestAncestor = getClosestAncestor(backRef, group)
@@ -69,7 +73,7 @@ function getUselessMessageId(backRef: Backreference): string | null {
         return "backward"
     }
 
-    if (isZeroLength(group)) {
+    if (isZeroLength(group, flags)) {
         // if the referenced group does not consume characters, then any
         // backreference will trivially be replaced with the empty string
         return "empty"
@@ -108,11 +112,12 @@ export default createRule("no-useless-backreference", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(backRef) {
-                    const messageId = getUselessMessageId(backRef)
+                    const messageId = getUselessMessageId(backRef, flags)
 
                     if (messageId) {
                         context.report({

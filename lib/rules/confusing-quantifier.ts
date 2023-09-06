@@ -29,11 +29,15 @@ export default createRule("confusing-quantifier", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onQuantifierEnter(qNode) {
-                    if (qNode.min > 0 && isPotentiallyEmpty(qNode.element)) {
+                    if (
+                        qNode.min > 0 &&
+                        isPotentiallyEmpty(qNode.element, flags)
+                    ) {
                         const proposal = quantToString({ ...qNode, min: 0 })
                         context.report({
                             node,

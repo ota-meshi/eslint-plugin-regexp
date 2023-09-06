@@ -85,7 +85,7 @@ function createReorderingGetFirstCharAfter(
             const start = elements.indexOf(afterThis)
             for (let i = start + inc; i >= 0 && i < elements.length; i += inc) {
                 const other = elements[i]
-                if (!isZeroLength(other)) {
+                if (!isZeroLength(other, flags)) {
                     break
                 }
                 if (hasForbidden(other)) {
@@ -318,7 +318,7 @@ export default createRule("no-useless-assertions", {
                 assertion: LookaroundAssertion,
                 getFirstCharAfterFn: GetFirstCharAfter,
             ): void {
-                if (isPotentiallyEmpty(assertion.alternatives)) {
+                if (isPotentiallyEmpty(assertion.alternatives, flags)) {
                     // we don't handle trivial accept/reject based on emptiness
                     return
                 }
@@ -372,7 +372,7 @@ export default createRule("no-useless-assertions", {
                         (d) => d !== assertion && d.type === "Assertion",
                     )
                 ) {
-                    const range = getLengthRange(assertion.alternatives)
+                    const range = getLengthRange(assertion.alternatives, flags)
                     // we only check the first character, so it's only correct if the assertion requires only one
                     // character
                     if (range.max === 1) {

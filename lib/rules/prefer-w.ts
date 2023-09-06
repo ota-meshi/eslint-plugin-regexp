@@ -92,6 +92,8 @@ export default createRule("prefer-w", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     const charSet = toCharSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined

@@ -24,6 +24,7 @@ export default createRule("no-empty-lookarounds-assertion", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
@@ -35,7 +36,7 @@ export default createRule("no-empty-lookarounds-assertion", {
                         return
                     }
 
-                    if (isPotentiallyEmpty(aNode.alternatives)) {
+                    if (isPotentiallyEmpty(aNode.alternatives, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(aNode),

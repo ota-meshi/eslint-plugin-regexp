@@ -1,5 +1,9 @@
-import type { ToCharSetElement, ReadonlyFlags } from "regexp-ast-analysis"
-import { toCharSet } from "regexp-ast-analysis"
+import type {
+    ToCharSetElement,
+    ReadonlyFlags,
+    ToUnicodeSetElement,
+} from "regexp-ast-analysis"
+import { toUnicodeSet } from "regexp-ast-analysis"
 import type {
     Alternative,
     Assertion,
@@ -24,12 +28,12 @@ import type { ShortCircuit } from "./common"
  * Returns whether the two given character element as equal in the characters
  * that they accept.
  *
- * This is equivalent to `toCharSet(a).equals(toCharSet(b))` but implemented
+ * This is equivalent to `toUnicodeSet(a).equals(toUnicodeSet(b))` but implemented
  * more efficiently.
  */
 function isEqualChar(
-    a: ToCharSetElement,
-    b: ToCharSetElement,
+    a: ToUnicodeSetElement,
+    b: ToUnicodeSetElement,
     flags: ReadonlyFlags,
 ): boolean {
     if (a.type === "Character") {
@@ -56,7 +60,7 @@ function isEqualChar(
         return true
     }
 
-    return toCharSet(a, flags).equals(toCharSet(b, flags))
+    return toUnicodeSet(a, flags).equals(toUnicodeSet(b, flags))
 }
 
 const EQUALS_CHECKER = {

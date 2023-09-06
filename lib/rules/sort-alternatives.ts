@@ -19,6 +19,7 @@ import {
     CP_APOSTROPHE,
     createRule,
     defineRegexpVisitor,
+    assertValidFlags,
 } from "../utils"
 import type {
     GetLongestPrefixOptions,
@@ -30,10 +31,11 @@ import {
     canReorder,
     getLongestPrefix,
     toCharSet,
+    getConsumedChars,
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
-import { getParser, getPossiblyConsumedChar } from "../utils/regexp-ast"
+import { getParser } from "../utils/regexp-ast"
 
 interface AllowedChars {
     allowed: CharSet
@@ -43,6 +45,7 @@ const cache = new Map<string, Readonly<AllowedChars>>()
 
 /** */
 function getAllowedChars(flags: ReadonlyFlags) {
+    assertValidFlags(flags)
     const cacheKey = (flags.ignoreCase ? "i" : "") + (flags.unicode ? "u" : "")
     let result = cache.get(cacheKey)
     if (result === undefined) {
@@ -168,6 +171,8 @@ function getLexicographicallySmallestFromAlternative(
         // fast path to avoid converting simple alternatives into NFAs
         const smallest: Word = []
         for (const e of elements) {
+            // FIXME: TS Error
+            // @ts-expect-error -- FIXME
             const cs = toCharSet(e, flags)
             if (cs.isEmpty) return undefined
             smallest.push(cs.ranges[0].min)
@@ -545,11 +550,11 @@ export default createRule("sort-alternatives", {
             const possibleCharsCache = new Map<Alternative, CharSet>()
             const parser = getParser(regexpContext)
 
-            /** A cached version of getPossiblyConsumedChar */
+            /** A cached version of getConsumedChars */
             function getPossibleChars(a: Alternative): CharSet {
                 let chars = possibleCharsCache.get(a)
                 if (chars === undefined) {
-                    chars = getPossiblyConsumedChar(a, flags).char
+                    chars = getConsumedChars(a, flags).chars
                     possibleCharsCache.set(a, chars)
                 }
                 return chars
