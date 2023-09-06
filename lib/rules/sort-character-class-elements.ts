@@ -145,7 +145,6 @@ export default createRule("sort-character-class-elements", {
          * Check that the two given CharacterClassElements are in a valid order.
          */
         function isValidOrder(
-            /* eslint-enable complexity -- X( */
             prev: CharacterClassElement,
             next: CharacterClassElement,
         ) {
