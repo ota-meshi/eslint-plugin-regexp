@@ -20,6 +20,7 @@ module.exports = {
         "require-jsdoc": "error",
         "no-warning-comments": "warn",
         "no-lonely-if": "off",
+        complexity: "off",
         "@typescript-eslint/no-non-null-assertion": "off",
 
         "no-shadow": "off",

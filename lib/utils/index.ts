@@ -1103,16 +1103,11 @@ export function toCharSetSource(
     ).source
 }
 
-/* eslint-disable complexity -- X( */
 /**
  * Returns whether the concatenation of the two string might create new escape
  * sequences or elements.
  */
-export function mightCreateNewElement(
-    /* eslint-enable complexity -- X( */
-    before: string,
-    after: string,
-): boolean {
+export function mightCreateNewElement(before: string, after: string): boolean {
     // control
     // \cA
     if (before.endsWith("\\c") && /^[a-z]/iu.test(after)) {

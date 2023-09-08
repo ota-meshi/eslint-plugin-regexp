@@ -1,5 +1,5 @@
 /* eslint-disable eslint-comments/disable-enable-pair -- x */
-/* eslint-disable complexity -- x */
+
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
