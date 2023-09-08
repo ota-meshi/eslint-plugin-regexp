@@ -1,5 +1,15 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.2
+
+### Patch Changes
+
+-   Use new refa AST transformers and fixed max character for `v`-flag regexes in `no-dupe-disjunctions` and `no-super-linear-move`. ([#569](https://github.com/ota-meshi/eslint-plugin-regexp/pull/569))
+
+-   Account for `v` flag in 2 util methods ([#570](https://github.com/ota-meshi/eslint-plugin-regexp/pull/570))
+
+-   Fix `parseFlags` ([#571](https://github.com/ota-meshi/eslint-plugin-regexp/pull/571))
+
 ## 2.0.0-next.1
 
 ### Major Changes
