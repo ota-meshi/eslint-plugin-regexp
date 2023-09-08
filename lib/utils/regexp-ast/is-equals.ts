@@ -142,8 +142,10 @@ const EQUALS_CHECKER = {
             a.global === b.global &&
             a.ignoreCase === b.ignoreCase &&
             a.multiline === b.multiline &&
+            a.hasIndices === b.hasIndices &&
             a.sticky === b.sticky &&
-            a.unicode === b.unicode
+            a.unicode === b.unicode &&
+            a.unicodeSets === b.unicodeSets
         )
     },
     Group(
