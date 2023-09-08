@@ -19,8 +19,8 @@ import {
     visitAst,
     JS,
     transform,
-    combineTransformers,
     Transformers,
+    CombinedTransformer,
 } from "refa"
 import { getJSRegexppAst } from "../utils/regexp-ast"
 
@@ -99,24 +99,16 @@ function* findReachableQuantifiers(
     }
 }
 
-const TRANFORMER_OPTIONS: Transformers.CreationOptions = {
+const TRANSFORMER_OPTIONS: Transformers.CreationOptions = {
     ignoreAmbiguity: true,
     ignoreOrder: true,
 }
-const PASS_1 = combineTransformers([
-    Transformers.inline(TRANFORMER_OPTIONS),
-    Transformers.removeDeadBranches(TRANFORMER_OPTIONS),
-    Transformers.unionCharacters(TRANFORMER_OPTIONS),
-    Transformers.moveUpEmpty(TRANFORMER_OPTIONS),
-    Transformers.nestedQuantifiers(TRANFORMER_OPTIONS),
-    Transformers.removeUnnecessaryAssertions(TRANFORMER_OPTIONS),
-    Transformers.applyAssertions(TRANFORMER_OPTIONS),
-])
-const PASS_2 = combineTransformers([
-    Transformers.inline(TRANFORMER_OPTIONS),
-    Transformers.removeDeadBranches(TRANFORMER_OPTIONS),
+const PASS_1 = Transformers.simplify(TRANSFORMER_OPTIONS)
+const PASS_2 = new CombinedTransformer([
+    Transformers.inline(TRANSFORMER_OPTIONS),
+    Transformers.removeDeadBranches(TRANSFORMER_OPTIONS),
     Transformers.replaceAssertions({
-        ...TRANFORMER_OPTIONS,
+        ...TRANSFORMER_OPTIONS,
         replacement: "empty-set",
     }),
 ])
