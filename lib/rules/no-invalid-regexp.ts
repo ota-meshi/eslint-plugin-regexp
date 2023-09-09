@@ -76,9 +76,6 @@ export default createRule("no-invalid-regexp", {
                 flagSet.add(flag)
             }
 
-            // `regexpp` checks the combination of `u` and `v` flags when parsing `Pattern` according to `ecma262`,
-            // but this rule may check only the flag when the pattern is unidentifiable, so check it here.
-            // https://tc39.es/ecma262/multipage/text-processing.html#sec-parsepattern
             if (flags.unicode && flags.unicodeSets) {
                 context.report({
                     node,
