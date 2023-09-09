@@ -1,4 +1,4 @@
-import type { RegExpContextForInvalid } from "../utils"
+import type { RegExpContextForInvalid, RegExpContextForUnknown } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
 /** Returns the position of the error */
@@ -22,6 +22,8 @@ export default createRule("no-invalid-regexp", {
         schema: [],
         messages: {
             error: "{{message}}",
+            duplicateFlag: "Duplicate {{flag}} flag.",
+            uvFlag: "Regex 'u' and 'v' flags cannot be used together.",
         },
         type: "problem",
     },
@@ -56,6 +58,33 @@ export default createRule("no-invalid-regexp", {
             })
         }
 
-        return defineRegexpVisitor(context, { visitInvalid })
+        /** Checks for the combination of `u` and `v` flags */
+        function visitUnknown(regexpContext: RegExpContextForUnknown): void {
+            const { node, flags, flagsString, getFlagsLocation } = regexpContext
+
+            const flagSet = new Set<string>()
+            for (const flag of flagsString ?? "") {
+                if (flagSet.has(flag)) {
+                    context.report({
+                        node,
+                        loc: getFlagsLocation(),
+                        messageId: "duplicateFlag",
+                        data: { flag },
+                    })
+                    return
+                }
+                flagSet.add(flag)
+            }
+
+            if (flags.unicode && flags.unicodeSets) {
+                context.report({
+                    node,
+                    loc: getFlagsLocation(),
+                    messageId: "uvFlag",
+                })
+            }
+        }
+
+        return defineRegexpVisitor(context, { visitInvalid, visitUnknown })
     },
 })
