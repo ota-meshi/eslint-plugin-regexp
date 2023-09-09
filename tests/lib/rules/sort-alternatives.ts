@@ -156,5 +156,12 @@ tester.run("sort-alternatives", rule as any, {
                 "The string alternatives can be sorted without affecting the regex.",
             ],
         },
+        {
+            code: String.raw`/[\q{ac|ab|aa}]/v`,
+            output: String.raw`/[\q{aa|ab|ac}]/v`,
+            errors: [
+                "The string alternatives can be sorted without affecting the regex.",
+            ],
+        },
     ],
 })
