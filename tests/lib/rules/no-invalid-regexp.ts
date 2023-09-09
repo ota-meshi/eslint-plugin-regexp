@@ -44,5 +44,16 @@ tester.run("no-invalid-regexp", rule as any, {
                 },
             ],
         },
+
+        // ES2024
+        {
+            code: "new RegExp(pattern, 'uv');",
+            errors: [
+                {
+                    message: "Regex 'u' and 'v' flags cannot be used together",
+                    column: 22,
+                },
+            ],
+        },
     ],
 })

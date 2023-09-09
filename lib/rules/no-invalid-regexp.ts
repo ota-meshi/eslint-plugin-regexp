@@ -1,4 +1,4 @@
-import type { RegExpContextForInvalid } from "../utils"
+import type { RegExpContextForInvalid, RegExpContextForUnknown } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
 /** Returns the position of the error */
@@ -56,6 +56,26 @@ export default createRule("no-invalid-regexp", {
             })
         }
 
-        return defineRegexpVisitor(context, { visitInvalid })
+        /** Checks for the combination of `u` and `v` flags */
+        function visitUnknown(regexpContext: RegExpContextForUnknown): void {
+            const { node, flags, getFlagsLocation } = regexpContext
+
+            // `regexpp` checks the combination of `u` and `v` flags when parsing `Pattern` according to `ecma262`,
+            // but this rule may check only the flag when the pattern is unidentifiable, so check it here.
+            // https://tc39.es/ecma262/multipage/text-processing.html#sec-parsepattern
+            if (flags.unicode && flags.unicodeSets) {
+                context.report({
+                    node,
+                    loc: getFlagsLocation(),
+                    messageId: "error",
+                    data: {
+                        message:
+                            "Regex 'u' and 'v' flags cannot be used together",
+                    },
+                })
+            }
+        }
+
+        return defineRegexpVisitor(context, { visitInvalid, visitUnknown })
     },
 })
