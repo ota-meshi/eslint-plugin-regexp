@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-misleading-unicode-character"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -46,6 +46,13 @@ tester.run("no-misleading-unicode-character", rule as any, {
 
         // Ignore escaped symbols because it's obvious they aren't together
         `/[\\uD83D\\uDC4D]/`,
+
+        // ES2024
+        "var r = /[👍]/v",
+        String.raw`var r = /^[\q{👶🏻}]$/v`,
+        String.raw`var r = /[🇯\q{abc}🇵]/v`,
+        "var r = /[🇯[A]🇵]/v",
+        "var r = /[🇯[A--B]🇵]/v",
     ],
     invalid: [
         {
@@ -261,6 +268,53 @@ tester.run("no-misleading-unicode-character", rule as any, {
             output: String.raw`new RegExp("👨‍👩‍👦", "u")`,
             options: [{ fixable: true }],
             errors: [{ messageId: "characterClass" }],
+        },
+
+        // ES2024
+        {
+            code: String.raw`/[[👶🏻]]/v`,
+            output: String.raw`/[[\q{👶🏻}]]/v`,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
+            code: String.raw`/[👶🏻[👨‍👩‍👦]]/v`,
+            output: String.raw`/[\q{👶🏻}[👨‍👩‍👦]]/v`,
+            options: [{ fixable: true }],
+            errors: [
+                { messageId: "characterClass", column: 3 },
+                { messageId: "characterClass", column: 8 },
+            ],
+        },
+        {
+            code: String.raw`/[👶🏻👨‍👩‍👦]/v`,
+            output: String.raw`/[\q{👶🏻|👨‍👩‍👦}]/v`,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
+            code: String.raw`/[👶🏻&👨‍👩‍👦]/v`,
+            output: String.raw`/[\q{👶🏻|👨‍👩‍👦}&]/v`,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
+            code: String.raw`/[^👨‍👩‍👦]/v`,
+            output: null,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
+            code: String.raw`new RegExp("[👨‍👩‍👦]", "v")`,
+            output: String.raw`new RegExp("[\\q{👨‍👩‍👦}]", "v")`,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
+            code: `/👨‍👩‍👦+/v`,
+            output: `/(?:👨‍👩‍👦)+/v`,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "quantifierMulti" }],
         },
     ],
 })
