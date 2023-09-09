@@ -4,9 +4,10 @@ import type {
     Character,
     CharacterClass,
     CharacterSet,
+    ClassStringDisjunction,
     Element,
-    Node,
     Pattern,
+    StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
@@ -30,8 +31,8 @@ import {
     hasSomeDescendant,
     canReorder,
     getLongestPrefix,
-    toCharSet,
     getConsumedChars,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
@@ -157,25 +158,44 @@ function approximateLexicographicallySmallest(
     return getLexicographicallySmallestFromCharSets(prefix)
 }
 
+function getLexicographicallySmallestFromAlternative(
+    alternative: Alternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word | undefined
+function getLexicographicallySmallestFromAlternative(
+    alternative: StringAlternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word
 /**
  * If defined, this will return the lexicographically smallest string accepted
  * by the given alternative (ignoring assertions).
  */
 function getLexicographicallySmallestFromAlternative(
-    alternative: Alternative,
+    alternative: Alternative | StringAlternative,
     parser: JS.Parser,
     flags: ReadonlyFlags,
 ): Word | undefined {
-    const { elements } = alternative
-    if (isOnlyCharacters(elements)) {
+    if (
+        alternative.type === "StringAlternative" ||
+        hasOnlyCharacters(alternative)
+    ) {
+        const elements = alternative.elements
         // fast path to avoid converting simple alternatives into NFAs
         const smallest: Word = []
         for (const e of elements) {
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            const cs = toCharSet(e, flags)
-            if (cs.isEmpty) return undefined
-            smallest.push(cs.ranges[0].min)
+            const cs = toUnicodeSet(e, flags)
+            const firstCharSets = [
+                ...(cs.chars.isEmpty ? [] : [cs.chars]),
+                ...cs.accept.wordSets
+                    .map((ws) => (ws.length ? ws[0] : null))
+                    .filter((wcs): wcs is CharSet => Boolean(wcs)),
+            ]
+            if (!firstCharSets.length) return undefined
+            smallest.push(
+                Math.min(...firstCharSets.map((fcs) => fcs.ranges[0].min)),
+            )
         }
         return smallest
     }
@@ -213,11 +233,16 @@ function getLexicographicallySmallestFromAlternative(
     }
 }
 
-/** Returns whether the given array of nodes contains only characters. */
-function isOnlyCharacters(
-    nodes: readonly Node[],
-): nodes is readonly (Character | CharacterClass | CharacterSet)[] {
-    return nodes.every(
+/**
+ * Returns whether the given alternative has contains only characters.
+ * But note that if the pattern has the v flag, the character class may contain strings.
+ */
+function hasOnlyCharacters(
+    alternative: Alternative,
+): alternative is Alternative & {
+    elements: readonly (Character | CharacterClass | CharacterSet)[]
+} {
+    return alternative.elements.every(
         (e) =>
             e.type === "Character" ||
             e.type === "CharacterClass" ||
@@ -435,6 +460,28 @@ function sortAlternatives(
 }
 
 /**
+ * Sorts the given string alternatives.
+ *
+ * Sorting is done by comparing the lexicographically smallest strings (LSS).
+ *
+ * For more information on why we use LSS-based comparison and how it works,
+ * see https://github.com/ota-meshi/eslint-plugin-regexp/pull/423.
+ */
+function sortStringAlternatives(
+    alternatives: StringAlternative[],
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): void {
+    alternatives.sort((a, b) => {
+        const lssDiff = compareWords(
+            getLexicographicallySmallestFromAlternative(a, parser, flags),
+            getLexicographicallySmallestFromAlternative(b, parser, flags),
+        )
+        return lssDiff
+    })
+}
+
+/**
  * Returns whether the given string is a valid integer.
  * @param str
  * @returns
@@ -447,7 +494,9 @@ function isIntegerString(str: string): boolean {
  * This tries to sort the given alternatives by assuming that all alternatives
  * are a number.
  */
-function trySortNumberAlternatives(alternatives: Alternative[]): void {
+function trySortNumberAlternatives(
+    alternatives: (Alternative | StringAlternative)[],
+): void {
     const runs = getRuns(alternatives, (a) => isIntegerString(a.raw))
     for (const { startIndex, elements } of runs) {
         elements.sort((a, b) => {
@@ -529,7 +578,7 @@ export default createRule("sort-alternatives", {
         fixable: "code",
         schema: [],
         messages: {
-            sort: "The alternatives of this group can be sorted without affecting the regex.",
+            sort: "The alternatives of this {{group}} can be sorted without affecting the regex.",
         },
         type: "suggestion", // "problem",
     },
@@ -555,7 +604,6 @@ export default createRule("sort-alternatives", {
                 let chars = possibleCharsCache.get(a)
                 if (chars === undefined) {
                     chars = getConsumedChars(a, flags).chars
-                    possibleCharsCache.set(a, chars)
                 }
                 return chars
             }
@@ -594,14 +642,17 @@ export default createRule("sort-alternatives", {
                     }
                 }
 
-                enforceSorted(run)
+                enforceSorted(run, "group")
             }
 
             /**
              * Creates a report if the sorted alternatives are different from
              * the unsorted ones.
              */
-            function enforceSorted(run: Run<Alternative>): void {
+            function enforceSorted(
+                run: Run<Alternative | StringAlternative>,
+                group: "group" | "string disjunctions",
+            ): void {
                 const sorted = run.elements
                 const parent = sorted[0].parent
                 const unsorted = parent.alternatives.slice(
@@ -623,6 +674,7 @@ export default createRule("sort-alternatives", {
                     node,
                     loc,
                     messageId: "sort",
+                    data: { group },
                     fix: fixReplaceNode(parent, () => {
                         const prefix = parent.raw.slice(
                             0,
@@ -687,10 +739,29 @@ export default createRule("sort-alternatives", {
                 }
             }
 
+            /** The handler for ClassStringDisjunction */
+            function onClassStringDisjunction(
+                parent: ClassStringDisjunction,
+            ): void {
+                if (parent.alternatives.length < 2) {
+                    return
+                }
+
+                const alternatives = [...parent.alternatives]
+                sortStringAlternatives(alternatives, parser, flags)
+                trySortNumberAlternatives(alternatives)
+                const run: Run<StringAlternative> = {
+                    startIndex: 0,
+                    elements: [...alternatives],
+                }
+                enforceSorted(run, "string disjunctions")
+            }
+
             return {
                 onGroupEnter: onParent,
                 onPatternEnter: onParent,
                 onCapturingGroupEnter: onParent,
+                onClassStringDisjunctionEnter: onClassStringDisjunction,
             }
         }
 

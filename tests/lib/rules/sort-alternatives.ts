@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/sort-alternatives"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -20,6 +20,7 @@ tester.run("sort-alternatives", rule as any, {
         String.raw`/\b(x?Rec|RequestOptionsPage)\b/`,
         String.raw`/\b([ft]|false|true)\b/`,
         String.raw`/\b(a+b|a+c)\b/`,
+        String.raw` /[\q{blue|green|red}]/v`,
     ],
     invalid: [
         {
@@ -138,6 +139,21 @@ tester.run("sort-alternatives", rule as any, {
             output: String.raw`/\b(?:sample|(?:script|source)_foo)\b/`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{red|green|blue}]/v`,
+            output: String.raw`/[\q{blue|green|red}]/v`,
+            errors: [
+                "The alternatives of this string disjunctions can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/(?:c|[\q{red|green|blue}]|a)/v`,
+            output: String.raw`/(?:a|[\q{red|green|blue}]|c)/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+                "The alternatives of this string disjunctions can be sorted without affecting the regex.",
             ],
         },
     ],
