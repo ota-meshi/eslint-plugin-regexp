@@ -15,8 +15,8 @@ import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     hasSomeDescendant,
     toCache,
-    toCharSet,
     getFirstCharAfter,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 
 const UTF16_MAX = 0xffff
@@ -146,9 +146,10 @@ function isCompatibleCharLike(
     flags: ReadonlyFlags,
     uFlags: ReadonlyFlags,
 ): boolean {
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const cs = toCharSet(char, flags)
+    // since we know that the property doesn't contain strings,
+    // we can just get the characters of the character class
+    // without worrying about the strings
+    const cs = toUnicodeSet(char, flags).chars
     if (!cs.isDisjointWith(SURROGATES)) {
         // If the character (class/set) contains high or low
         // surrogates, then we won't be able to guarantee that the
@@ -156,9 +157,7 @@ function isCompatibleCharLike(
         return false
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const uCs = toCharSet(char, uFlags)
+    const uCs = toUnicodeSet(char, uFlags).chars
 
     // Compare the ranges.
     return rangeEqual(cs.ranges, uCs.ranges)
@@ -203,17 +202,16 @@ function isCompatibleQuantifier(
         return undefined
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const cs = toCharSet(q.element, flags)
+    // since we know that the property doesn't contain strings,
+    // we can just get the characters of the character class
+    // without worrying about the strings
+    const cs = toUnicodeSet(q.element, flags).chars
     if (!cs.isSupersetOf(SURROGATES)) {
         // failed condition 1
         return false
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const uCs = toCharSet(q.element, uFlags)
+    const uCs = toUnicodeSet(q.element, uFlags).chars
     if (!uCs.isSupersetOf(SURROGATES) || !uCs.isSupersetOf(ASTRAL)) {
         // failed condition 2
         return false
@@ -356,7 +354,7 @@ export default createRule("require-unicode-regexp", {
                 return {}
             }
 
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 context.report({
                     node,
                     loc: getFlagsLocation(),
