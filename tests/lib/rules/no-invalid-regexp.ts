@@ -49,7 +49,7 @@ tester.run("no-invalid-regexp", rule as any, {
             code: "new RegExp(pattern, 'uu');",
             errors: [
                 {
-                    message: "Duplicate u flag",
+                    message: "Duplicate u flag.",
                     column: 22,
                 },
             ],
@@ -58,7 +58,7 @@ tester.run("no-invalid-regexp", rule as any, {
             code: "new RegExp(pattern, 'uv');",
             errors: [
                 {
-                    message: "Regex 'u' and 'v' flags cannot be used together",
+                    message: "Regex 'u' and 'v' flags cannot be used together.",
                     column: 22,
                 },
             ],

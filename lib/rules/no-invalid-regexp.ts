@@ -22,8 +22,8 @@ export default createRule("no-invalid-regexp", {
         schema: [],
         messages: {
             error: "{{message}}",
-            duplicateFlag: "Duplicate {{flag}} flag",
-            uvFlag: "Regex 'u' and 'v' flags cannot be used together",
+            duplicateFlag: "Duplicate {{flag}} flag.",
+            uvFlag: "Regex 'u' and 'v' flags cannot be used together.",
         },
         type: "problem",
     },
