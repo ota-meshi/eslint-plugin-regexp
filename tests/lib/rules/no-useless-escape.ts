@@ -182,6 +182,11 @@ tester.run("no-useless-escape", rule as any, {
                 "Unnecessary escape character: \\P.",
             ],
         },
+        {
+            code: String.raw`/[\q{abc}]/;`, // Missing v flag
+            output: null,
+            errors: ["Unnecessary escape character: \\q."],
+        },
 
         // ES2024
         {

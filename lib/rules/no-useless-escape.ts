@@ -75,7 +75,11 @@ const REGEX_ESCAPES = new Set([
     CP_CLOSING_PAREN, // )
 ])
 
-const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpPq")
+const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpP")
+const POTENTIAL_ESCAPE_SEQUENCE_FOR_CHAR_CLASS = new Set([
+    ...POTENTIAL_ESCAPE_SEQUENCE,
+    "q",
+])
 // A single character set of ClassSetReservedDoublePunctuator.
 // && !! ## $$ %% ** ++ ,, .. :: ;; << == >> ?? @@ ^^ `` ~~ are ClassSetReservedDoublePunctuator
 const REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR = new Set([
@@ -230,7 +234,11 @@ export default createRule("no-useless-escape", {
                                 cNode,
                                 0,
                                 char,
-                                !POTENTIAL_ESCAPE_SEQUENCE.has(char),
+                                !(
+                                    characterClassStack.length
+                                        ? POTENTIAL_ESCAPE_SEQUENCE_FOR_CHAR_CLASS
+                                        : POTENTIAL_ESCAPE_SEQUENCE
+                                ).has(char),
                             )
                         }
                     }
