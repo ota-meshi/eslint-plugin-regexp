@@ -22,6 +22,8 @@ export default createRule("no-invalid-regexp", {
         schema: [],
         messages: {
             error: "{{message}}",
+            duplicateFlag: "Duplicate {{flag}} flag",
+            uvFlag: "Regex 'u' and 'v' flags cannot be used together",
         },
         type: "problem",
     },
@@ -58,7 +60,21 @@ export default createRule("no-invalid-regexp", {
 
         /** Checks for the combination of `u` and `v` flags */
         function visitUnknown(regexpContext: RegExpContextForUnknown): void {
-            const { node, flags, getFlagsLocation } = regexpContext
+            const { node, flags, flagsString, getFlagsLocation } = regexpContext
+
+            const flagSet = new Set<string>()
+            for (const flag of flagsString ?? "") {
+                if (flagSet.has(flag)) {
+                    context.report({
+                        node,
+                        loc: getFlagsLocation(),
+                        messageId: "duplicateFlag",
+                        data: { flag },
+                    })
+                    return
+                }
+                flagSet.add(flag)
+            }
 
             // `regexpp` checks the combination of `u` and `v` flags when parsing `Pattern` according to `ecma262`,
             // but this rule may check only the flag when the pattern is unidentifiable, so check it here.
@@ -67,11 +83,7 @@ export default createRule("no-invalid-regexp", {
                 context.report({
                     node,
                     loc: getFlagsLocation(),
-                    messageId: "error",
-                    data: {
-                        message:
-                            "Regex 'u' and 'v' flags cannot be used together",
-                    },
+                    messageId: "uvFlag",
                 })
             }
         }

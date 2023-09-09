@@ -45,7 +45,15 @@ tester.run("no-invalid-regexp", rule as any, {
             ],
         },
 
-        // ES2024
+        {
+            code: "new RegExp(pattern, 'uu');",
+            errors: [
+                {
+                    message: "Duplicate u flag",
+                    column: 22,
+                },
+            ],
+        },
         {
             code: "new RegExp(pattern, 'uv');",
             errors: [
