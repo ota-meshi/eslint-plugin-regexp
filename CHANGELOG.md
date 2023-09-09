@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.3
+
+### Minor Changes
+
+-   Improve `regexp/no-invalid-regexp` rule to check for unknown pattern flags. ([#583](https://github.com/ota-meshi/eslint-plugin-regexp/pull/583))
+
 ## 2.0.0-next.2
 
 ### Patch Changes
