@@ -578,7 +578,7 @@ export default createRule("sort-alternatives", {
         fixable: "code",
         schema: [],
         messages: {
-            sort: "The alternatives of this {{group}} can be sorted without affecting the regex.",
+            sort: "The {{alternatives}} can be sorted without affecting the regex.",
         },
         type: "suggestion", // "problem",
     },
@@ -642,7 +642,7 @@ export default createRule("sort-alternatives", {
                     }
                 }
 
-                enforceSorted(run, "group")
+                enforceSorted(run, "alternatives of this group")
             }
 
             /**
@@ -651,7 +651,9 @@ export default createRule("sort-alternatives", {
              */
             function enforceSorted(
                 run: Run<Alternative | StringAlternative>,
-                group: "group" | "string disjunctions",
+                alternatives:
+                    | "alternatives of this group"
+                    | "string alternatives",
             ): void {
                 const sorted = run.elements
                 const parent = sorted[0].parent
@@ -674,7 +676,7 @@ export default createRule("sort-alternatives", {
                     node,
                     loc,
                     messageId: "sort",
-                    data: { group },
+                    data: { alternatives },
                     fix: fixReplaceNode(parent, () => {
                         const prefix = parent.raw.slice(
                             0,
@@ -754,7 +756,7 @@ export default createRule("sort-alternatives", {
                     startIndex: 0,
                     elements: [...alternatives],
                 }
-                enforceSorted(run, "string disjunctions")
+                enforceSorted(run, "string alternatives")
             }
 
             return {

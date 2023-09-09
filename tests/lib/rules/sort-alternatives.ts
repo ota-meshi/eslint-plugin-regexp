@@ -145,7 +145,7 @@ tester.run("sort-alternatives", rule as any, {
             code: String.raw`/[\q{red|green|blue}]/v`,
             output: String.raw`/[\q{blue|green|red}]/v`,
             errors: [
-                "The alternatives of this string disjunctions can be sorted without affecting the regex.",
+                "The string alternatives can be sorted without affecting the regex.",
             ],
         },
         {
@@ -153,7 +153,7 @@ tester.run("sort-alternatives", rule as any, {
             output: String.raw`/(?:a|[\q{red|green|blue}]|c)/v`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
-                "The alternatives of this string disjunctions can be sorted without affecting the regex.",
+                "The string alternatives can be sorted without affecting the regex.",
             ],
         },
     ],
