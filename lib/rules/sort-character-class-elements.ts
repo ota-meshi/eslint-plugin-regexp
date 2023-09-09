@@ -2,23 +2,32 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
+    ClassRangesCharacterClassElement,
     UnicodePropertyCharacterSet,
+    UnicodeSetsCharacterClassElement,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
-import {
-    CP_DIGIT_ZERO,
-    CP_SPACE,
-    createRule,
-    defineRegexpVisitor,
-} from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { toUnicodeSet } from "regexp-ast-analysis"
+import type { ReadonlyWord, ReadonlyWordSet, Word } from "refa"
 
-type CharacterClassElementKind = "\\w" | "\\d" | "\\s" | "\\p" | "*"
+type CharacterClassElementKind =
+    | "\\w"
+    | "\\d"
+    | "\\s"
+    | "\\p"
+    | "\\q"
+    | "[]"
+    | "*"
 const DEFAULT_ORDER: CharacterClassElementKind[] = [
     "\\s",
     "\\w",
     "\\d",
     "\\p",
+    "\\q",
+    "[]",
     "*",
 ]
 
@@ -37,7 +46,51 @@ function getCharacterClassElementKind(
             ? "\\s"
             : "\\p"
     }
+    if (node.type === "ClassStringDisjunction") {
+        return "\\q"
+    }
+    if (
+        node.type === "CharacterClass" ||
+        node.type === "ExpressionCharacterClass"
+    ) {
+        return "[]"
+    }
     return "*"
+}
+
+/**
+ * Return the lexicographically smallest string accepted by the given element.
+ * If the class set is negate, the original value is used for calculation.
+ */
+function getLexicographicallySmallestFromElement(
+    node: CharacterClassElement,
+    flags: ReadonlyFlags,
+): Word {
+    const us =
+        node.type === "CharacterSet" && node.negate
+            ? toUnicodeSet({ ...node, negate: false }, flags)
+            : toUnicodeSet(node, flags)
+    const wordSets: ReadonlyWordSet[] = [
+        ...(us.chars.isEmpty ? [] : [[us.chars]]),
+        ...(us.accept.isEmpty ? [] : us.accept.wordSets),
+    ]
+    const minimumWords: Word[] = wordSets.map((wordSet) =>
+        wordSet.filter((cs) => !cs.isEmpty).map((c) => c.ranges[0].min),
+    )
+    return minimumWords.sort(compareWords).shift() || []
+}
+
+/**
+ * Compare two strings of char sets by byte order.
+ */
+function compareWords(a: ReadonlyWord, b: ReadonlyWord): number {
+    const l = Math.min(a.length, b.length)
+    for (let i = 0; i < l; i++) {
+        const aI = a[i]
+        const bI = b[i]
+        if (aI !== bI) return aI - bI
+    }
+    return a.length - b.length
 }
 
 export default createRule("sort-character-class-elements", {
@@ -54,7 +107,17 @@ export default createRule("sort-character-class-elements", {
                 properties: {
                     order: {
                         type: "array",
-                        items: { enum: ["\\w", "\\d", "\\s", "\\p", "*"] },
+                        items: {
+                            enum: [
+                                "\\w",
+                                "\\d",
+                                "\\s",
+                                "\\p",
+                                "\\q",
+                                "[]",
+                                "*",
+                            ],
+                        },
                     },
                 },
                 additionalProperties: false,
@@ -73,6 +136,8 @@ export default createRule("sort-character-class-elements", {
             "\\d"?: number
             "\\s"?: number
             "\\p"?: number
+            "\\q"?: number
+            "[]"?: number
         } = { "*": Infinity }
 
         ;(
@@ -87,6 +152,7 @@ export default createRule("sort-character-class-elements", {
          */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
             patternSource,
         }: RegExpContext): RegExpVisitor.Handlers {
@@ -96,10 +162,10 @@ export default createRule("sort-character-class-elements", {
                     for (const next of ccNode.elements) {
                         if (prevList.length) {
                             const prev = prevList[0]
-                            if (!isValidOrder(prev, next)) {
+                            if (!isValidOrder(prev, next, flags)) {
                                 let moveTarget = prev
                                 for (const p of prevList) {
-                                    if (isValidOrder(p, next)) {
+                                    if (isValidOrder(p, next, flags)) {
                                         break
                                     } else {
                                         moveTarget = p
@@ -147,6 +213,7 @@ export default createRule("sort-character-class-elements", {
         function isValidOrder(
             prev: CharacterClassElement,
             next: CharacterClassElement,
+            flags: ReadonlyFlags,
         ) {
             const prevKind = getCharacterClassElementKind(prev)
             const nextKind = getCharacterClassElementKind(next)
@@ -157,41 +224,42 @@ export default createRule("sort-character-class-elements", {
             } else if (prevOrder > nextOrder) {
                 return false
             }
-            if (prev.type === "CharacterSet" && prev.kind === "property") {
-                if (next.type === "CharacterSet") {
-                    if (next.kind === "property") {
-                        return isValidOrderForUnicodePropertyCharacterSet(
-                            prev,
-                            next,
-                        )
-                    }
-                    // e.g. /[\p{ASCII}\d]/
-                    return false
-                }
-                // e.g. /[\p{ASCII}a]/
+
+            const orderOfShortCircuit = {
+                "\\s": 1,
+                "\\w": 2,
+                "\\d": 3,
+                "\\p": 4,
+                "*": 5,
+                "\\q": 5,
+                "[]": 5,
+            }
+            const prevOrderS = orderOfShortCircuit[prevKind]
+            const nextOrderS = orderOfShortCircuit[nextKind]
+            if (prevOrderS < nextOrderS) {
                 return true
-            } else if (
+            } else if (prevOrderS > nextOrderS) {
+                return false
+            }
+
+            if (
+                prev.type === "CharacterSet" &&
+                prev.kind === "property" &&
                 next.type === "CharacterSet" &&
                 next.kind === "property"
             ) {
-                if (prev.type === "CharacterSet") {
-                    // e.g. /[\d\p{ASCII}]/
-                    return true
-                }
-                // e.g. /[a\p{ASCII}]/
-                return false
+                return isValidOrderForUnicodePropertyCharacterSet(prev, next)
             }
-            if (prev.type === "CharacterSet" && next.type === "CharacterSet") {
-                if (prev.kind === "word" && next.kind === "digit") {
-                    return true
-                }
-                if (prev.kind === "digit" && next.kind === "word") {
-                    return false
-                }
-            }
-            const prevCP = getTargetCodePoint(prev)
-            const nextCP = getTargetCodePoint(next)
-            if (prevCP <= nextCP) {
+
+            const prevWord = getLexicographicallySmallestFromElement(
+                prev,
+                flags,
+            )
+            const nextWord = getLexicographicallySmallestFromElement(
+                next,
+                flags,
+            )
+            if (compareWords(prevWord, nextWord) <= 0) {
                 return true
             }
             return false
@@ -221,29 +289,6 @@ export default createRule("sort-character-class-elements", {
             return true
         }
 
-        /**
-         * Gets the target code point for a given element.
-         */
-        function getTargetCodePoint(
-            node: Exclude<CharacterClassElement, UnicodePropertyCharacterSet>,
-        ) {
-            if (node.type === "CharacterSet") {
-                if (node.kind === "digit" || node.kind === "word") {
-                    return CP_DIGIT_ZERO
-                }
-                if (node.kind === "space") {
-                    return CP_SPACE
-                }
-                return Infinity
-            }
-            if (node.type === "CharacterClassRange") {
-                return node.min.value
-            }
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            return node.value
-        }
-
         return defineRegexpVisitor(context, {
             createVisitor,
         })
@@ -257,9 +302,11 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
     let raw = node.raw
     if (raw.startsWith("-")) {
         const parent = target.parent as CharacterClass
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
-        const prev = parent.elements[parent.elements.indexOf(target) - 1]
+        const elements: (
+            | UnicodeSetsCharacterClassElement
+            | ClassRangesCharacterClassElement
+        )[] = parent.elements
+        const prev = elements[elements.indexOf(target) - 1]
         if (
             prev &&
             (prev.type === "Character" || prev.type === "CharacterSet")
