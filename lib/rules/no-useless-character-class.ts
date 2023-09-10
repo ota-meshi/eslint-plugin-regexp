@@ -75,6 +75,7 @@ export default createRule("no-useless-character-class", {
                     if (ignores.length > 0 && ignores.includes(element.raw)) {
                         return
                     }
+                    let messageData: { type: string; additional?: string }
                     if (element.type === "Character") {
                         if (element.raw === "\\b") {
                             // Backspace escape
@@ -98,20 +99,29 @@ export default createRule("no-useless-character-class", {
                         if (!canUnwrapped(ccNode, element.raw)) {
                             return
                         }
+                        messageData = { type: "character" }
                     } else if (element.type === "CharacterClassRange") {
                         if (element.min.value !== element.max.value) {
                             return
+                        }
+                        messageData = {
+                            type: "character class range",
+                            additional: " and range",
                         }
                     } else if (element.type === "ClassStringDisjunction") {
                         if (!characterClassStack.length) {
                             // Only nesting character class
                             return
                         }
+                        messageData = { type: "string alternative" }
+                    } else if (element.type === "CharacterSet") {
+                        messageData = { type: "character class escape" }
                     } else if (
-                        element.type !== "CharacterSet" &&
-                        element.type !== "ExpressionCharacterClass" &&
-                        element.type !== "CharacterClass"
+                        element.type === "CharacterClass" ||
+                        element.type === "ExpressionCharacterClass"
                     ) {
+                        messageData = { type: "character class" }
+                    } else {
                         return
                     }
 
@@ -120,16 +130,8 @@ export default createRule("no-useless-character-class", {
                         loc: getRegexpLocation(ccNode),
                         messageId: "unexpected",
                         data: {
-                            type:
-                                element.type === "Character"
-                                    ? "character"
-                                    : element.type === "CharacterClassRange"
-                                    ? "character class range"
-                                    : "character class escape",
-                            additional:
-                                element.type === "CharacterClassRange"
-                                    ? " and range"
-                                    : "",
+                            type: messageData.type,
+                            additional: messageData.additional || "",
                         },
                         fix: fixReplaceNode(ccNode, () => {
                             let text: string =
