@@ -48,6 +48,10 @@ tester.run("no-useless-character-class", rule as any, {
         String.raw`/\c[Z]/`,
         String.raw`/\c[m]/`,
         String.raw`/[\q{abc}]/v`,
+        // This rule does not support them.
+        String.raw`/[^[abc]]/v`, // -> /[^abc]/v
+        String.raw`/[^[abc]d]/v`, // -> /[^abcd]/v
+        String.raw`/[[abc][def]ghi]/v`, // -> /[abcdefghi]/v
     ],
     invalid: [
         {
@@ -203,6 +207,11 @@ tester.run("no-useless-character-class", rule as any, {
             code: String.raw`/[[\q{abc}]]/v`,
             output: String.raw`/[\q{abc}]/v`,
             errors: 2,
+        },
+        {
+            code: String.raw`/[[^\w&&\d]]/v`,
+            output: String.raw`/[^\w&&\d]/v`,
+            errors: 1,
         },
     ],
 })
