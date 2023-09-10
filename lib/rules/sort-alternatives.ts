@@ -213,13 +213,14 @@ function getLexicographicallySmallestFromAlternative(
                         // This compares `'a'+'bb'` and `'aba'+'bb'`
                         // if the current word set is 'a' and 'aba', and the following string is 'bb'.
                         // We expect `'aba'+'bb'` to become an LSA as a result.
+                        .map((word) => ({
+                            word,
+                            concatenated: [...word, ...smallest],
+                        }))
                         .sort((a, b) =>
-                            compareWords(
-                                [...a, ...smallest],
-                                [...b, ...smallest],
-                            ),
+                            compareWords(a.concatenated, b.concatenated),
                         )
-                        .shift()!,
+                        .shift()!.word,
                 )
             }
         }
