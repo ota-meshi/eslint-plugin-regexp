@@ -18,17 +18,17 @@ type CharacterClassElementKind =
     | "\\d"
     | "\\s"
     | "\\p"
+    | "*"
     | "\\q"
     | "[]"
-    | "*"
 const DEFAULT_ORDER: CharacterClassElementKind[] = [
     "\\s",
     "\\w",
     "\\d",
     "\\p",
+    "*",
     "\\q",
     "[]",
-    "*",
 ]
 
 /**
@@ -109,13 +109,13 @@ export default createRule("sort-character-class-elements", {
                         type: "array",
                         items: {
                             enum: [
+                                "\\s",
                                 "\\w",
                                 "\\d",
-                                "\\s",
                                 "\\p",
+                                "*",
                                 "\\q",
                                 "[]",
-                                "*",
                             ],
                         },
                     },
@@ -225,20 +225,11 @@ export default createRule("sort-character-class-elements", {
                 return false
             }
 
-            const orderOfShortCircuit = {
-                "\\s": 1,
-                "\\w": 2,
-                "\\d": 3,
-                "\\p": 4,
-                "*": 5,
-                "\\q": 5,
-                "[]": 5,
-            }
-            const prevOrderS = orderOfShortCircuit[prevKind]
-            const nextOrderS = orderOfShortCircuit[nextKind]
-            if (prevOrderS < nextOrderS) {
+            const prevOrderShortCircuit = DEFAULT_ORDER.indexOf(prevKind)
+            const nextOrderShortCircuit = DEFAULT_ORDER.indexOf(nextKind)
+            if (prevOrderShortCircuit < nextOrderShortCircuit) {
                 return true
-            } else if (prevOrderS > nextOrderS) {
+            } else if (prevOrderShortCircuit > nextOrderShortCircuit) {
                 return false
             }
 
