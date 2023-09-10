@@ -88,7 +88,7 @@ export default createRule("strict", {
             const { node, flags, pattern, getRegexpLocation, fixReplaceNode } =
                 regexpContext
 
-            if (flags.unicode) {
+            if (flags.unicode || flags.unicodeSets) {
                 // the Unicode flag enables strict parsing mode automatically
                 return {}
             }
