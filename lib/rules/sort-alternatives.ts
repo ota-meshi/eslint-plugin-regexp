@@ -6,6 +6,7 @@ import type {
     CharacterSet,
     ClassStringDisjunction,
     Element,
+    ExpressionCharacterClass,
     Pattern,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
@@ -33,6 +34,7 @@ import {
     getLongestPrefix,
     getConsumedChars,
     toUnicodeSet,
+    hasStrings,
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
@@ -88,7 +90,8 @@ function containsOnlyLiterals(
                 d.type === "Backreference" ||
                 d.type === "CharacterSet" ||
                 (d.type === "Quantifier" && d.max === Infinity) ||
-                (d.type === "CharacterClass" && d.negate)
+                (d.type === "CharacterClass" && d.negate) ||
+                (d.type === "ExpressionCharacterClass" && d.negate)
             )
         },
         (d) => d.type !== "Assertion",
@@ -179,23 +182,46 @@ function getLexicographicallySmallestFromAlternative(
 ): Word | undefined {
     if (
         alternative.type === "StringAlternative" ||
-        hasOnlyCharacters(alternative)
+        hasOnlyCharacters(alternative, flags)
     ) {
-        const elements = alternative.elements
         // fast path to avoid converting simple alternatives into NFAs
         const smallest: Word = []
-        for (const e of elements) {
-            const cs = toUnicodeSet(e, flags)
-            const firstCharSets = [
-                ...(cs.chars.isEmpty ? [] : [cs.chars]),
-                ...cs.accept.wordSets
-                    .map((ws) => (ws.length ? ws[0] : null))
-                    .filter((wcs): wcs is CharSet => Boolean(wcs)),
-            ]
-            if (!firstCharSets.length) return undefined
-            smallest.push(
-                Math.min(...firstCharSets.map((fcs) => fcs.ranges[0].min)),
-            )
+        for (const e of alternative.elements) {
+            const cs = toUnicodeSet(e, flags).chars
+            if (cs.isEmpty) return undefined
+            smallest.push(cs.ranges[0].min)
+        }
+        return smallest
+    }
+
+    if (isOnlyCharacterElements(alternative.elements)) {
+        const reversedElements = [...alternative.elements].reverse()
+        const smallest: Word = []
+        for (const e of reversedElements) {
+            const us = toUnicodeSet(e, flags)
+            if (us.isEmpty) return undefined
+            if (us.accept.isEmpty) {
+                smallest.unshift(us.chars.ranges[0].min)
+            } else {
+                const words: ReadonlyWord[] = [
+                    ...(us.chars.isEmpty ? [] : [[us.chars.ranges[0].min]]),
+                    ...us.accept.words,
+                ]
+                smallest.unshift(
+                    ...words
+                        // Sort by connecting the following string.
+                        // This compares `'a'+'bb'` and `'aba'+'bb'`
+                        // if the current word set is 'a' and 'aba', and the following string is 'bb'.
+                        // We expect `'aba'+'bb'` to become an LSA as a result.
+                        .sort((a, b) =>
+                            compareWords(
+                                [...a, ...smallest],
+                                [...b, ...smallest],
+                            ),
+                        )
+                        .shift()!,
+                )
+            }
         }
         return smallest
     }
@@ -234,19 +260,44 @@ function getLexicographicallySmallestFromAlternative(
 }
 
 /**
- * Returns whether the given alternative has contains only characters.
+ * Returns whether the given array of nodes contains only characters.
  * But note that if the pattern has the v flag, the character class may contain strings.
  */
-function hasOnlyCharacters(
-    alternative: Alternative,
-): alternative is Alternative & {
-    elements: readonly (Character | CharacterClass | CharacterSet)[]
-} {
-    return alternative.elements.every(
+function isOnlyCharacterElements(
+    nodes: Element[],
+): nodes is (
+    | Character
+    | CharacterClass
+    | CharacterSet
+    | ExpressionCharacterClass
+)[] {
+    return nodes.every(
         (e) =>
             e.type === "Character" ||
             e.type === "CharacterClass" ||
-            e.type === "CharacterSet",
+            e.type === "CharacterSet" ||
+            e.type === "ExpressionCharacterClass",
+    )
+}
+
+/**
+ * Returns whether the given alternative has contains only characters.
+ * The v flag in the pattern does not contains the string.
+ */
+function hasOnlyCharacters(
+    alternative: Alternative,
+    flags: ReadonlyFlags,
+): alternative is Alternative & {
+    elements: readonly (
+        | Character
+        | CharacterClass
+        | CharacterSet
+        | ExpressionCharacterClass
+    )[]
+} {
+    return (
+        isOnlyCharacterElements(alternative.elements) &&
+        alternative.elements.every((e) => !hasStrings(e, flags))
     )
 }
 

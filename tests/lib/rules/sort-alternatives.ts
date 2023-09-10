@@ -163,5 +163,33 @@ tester.run("sort-alternatives", rule as any, {
                 "The string alternatives can be sorted without affecting the regex.",
             ],
         },
+        {
+            code: String.raw`/(?:b|[a-b])/v`,
+            output: String.raw`/(?:[a-b]|b)/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:a[\q{bd}]|abc)\b/v`,
+            output: String.raw`/\b(?:abc|a[\q{bd}])\b/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:abb|[\q{a|aba}]bb)\b/v`,
+            output: String.raw`/\b(?:[\q{a|aba}]bb|abb)\b/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:c|b_|[\q{b|da}]_|b_2)\b/v`,
+            output: String.raw`/\b(?:b_|[\q{b|da}]_|b_2|c)\b/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
     ],
 })
