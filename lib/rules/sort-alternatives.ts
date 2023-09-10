@@ -49,7 +49,10 @@ const cache = new Map<string, Readonly<AllowedChars>>()
 /** */
 function getAllowedChars(flags: ReadonlyFlags) {
     assertValidFlags(flags)
-    const cacheKey = (flags.ignoreCase ? "i" : "") + (flags.unicode ? "u" : "")
+    const cacheKey =
+        (flags.ignoreCase ? "i" : "") +
+        (flags.unicode ? "u" : "") +
+        (flags.unicodeSets ? "v" : "")
     let result = cache.get(cacheKey)
     if (result === undefined) {
         result = {
