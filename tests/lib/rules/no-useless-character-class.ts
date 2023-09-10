@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-character-class"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -128,6 +128,12 @@ tester.run("no-useless-character-class", rule as any, {
             errors: 18,
         },
         {
+            code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\]/v`,
+            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/v`,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
             code: String.raw`/[.-.]/u`,
             output: String.raw`/\./u`,
             options: [{ ignores: [] }],
@@ -148,6 +154,42 @@ tester.run("no-useless-character-class", rule as any, {
         {
             code: String.raw`RegExp("[\"]" + '[\']')`,
             output: String.raw`RegExp("\"" + '\'')`,
+            options: [{ ignores: [] }],
+            errors: 2,
+        },
+        {
+            code: String.raw`/[ [.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\] ]/v`,
+            output: String.raw`/[ . * + ? \^ = ! : $ \{ \} \( \) \| \[ \] \/ \\ ]/v`,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
+            code: String.raw`/[[\^]A]/v`,
+            output: String.raw`/[\^A]/v`,
+            options: [{ ignores: [] }],
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[A]--[B]]/v`,
+            output: String.raw`/[A--B]/v`,
+            options: [{ ignores: [] }],
+            errors: 2,
+        },
+        {
+            code: String.raw`/[A[&]&B]/v; /[A&&[&]]/v`,
+            output: String.raw`/[A\&&B]/v; /[A&&\&]/v`,
+            options: [{ ignores: [] }],
+            errors: 2,
+        },
+        {
+            code: String.raw`/[A[&-&]&B]/v`,
+            output: String.raw`/[A\&&B]/v`,
+            options: [{ ignores: [] }],
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[&]&&[&]]/v`,
+            output: String.raw`/[\&&&\&]/v`,
             options: [{ ignores: [] }],
             errors: 2,
         },

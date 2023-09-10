@@ -1,6 +1,10 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
+import type {
+    CharacterClass,
+    ExpressionCharacterClass,
+} from "@eslint-community/regexpp/ast"
 
 export default createRule("no-useless-character-class", {
     meta: {
@@ -40,12 +44,27 @@ export default createRule("no-useless-character-class", {
          */
         function createVisitor({
             node,
+            pattern,
             flags,
             fixReplaceNode,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
+            const characterClassStack: (
+                | CharacterClass
+                | ExpressionCharacterClass
+            )[] = []
             return {
+                onExpressionCharacterClassEnter(eccNode) {
+                    characterClassStack.push(eccNode)
+                },
+                onExpressionCharacterClassLeave() {
+                    characterClassStack.pop()
+                },
                 onCharacterClassEnter(ccNode) {
+                    characterClassStack.push(ccNode)
+                },
+                onCharacterClassLeave(ccNode) {
+                    characterClassStack.pop()
                     if (ccNode.elements.length !== 1) {
                         return
                     }
@@ -112,10 +131,27 @@ export default createRule("no-useless-character-class", {
                                 element.type === "Character" ||
                                 element.type === "CharacterClassRange"
                             ) {
-                                if (
-                                    /^[$()*+./?[{|]$/u.test(text) ||
-                                    (flags.unicode && text === "}")
-                                ) {
+                                let needsEscape = false
+                                if (characterClassStack.length) {
+                                    // Nesting character class
+
+                                    // A single character of ClassSetReservedDoublePunctuator.
+                                    // && !! ## $$ %% ** ++ ,, .. :: ;; << == >> ?? @@ ^^ `` ~~ are ClassSetReservedDoublePunctuator
+                                    if (/^[!#$%&*+,.:;<=>?@^`~]$/u.test(text)) {
+                                        // Avoid [A[&]&B] => [A&&B], [A&&[&]] => [A&&&]
+                                        needsEscape =
+                                            // The previous character is the same
+                                            pattern[ccNode.end] === text ||
+                                            // The next character is the same
+                                            pattern[ccNode.start - 1] === text
+                                    }
+                                } else {
+                                    // Flat character class
+                                    needsEscape =
+                                        /^[$()*+./?[{|]$/u.test(text) ||
+                                        (flags.unicode && text === "}")
+                                }
+                                if (needsEscape) {
                                     text = `\\${text}`
                                 }
                             }
