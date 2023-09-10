@@ -48,10 +48,6 @@ tester.run("no-useless-character-class", rule as any, {
         String.raw`/\c[Z]/`,
         String.raw`/\c[m]/`,
         String.raw`/[\q{abc}]/v`,
-        // This rule does not support them.
-        String.raw`/[^[abc]]/v`, // -> /[^abc]/v
-        String.raw`/[^[abc]d]/v`, // -> /[^abcd]/v
-        String.raw`/[[abc][def]ghi]/v`, // -> /[abcdefghi]/v
     ],
     invalid: [
         {
@@ -196,22 +192,70 @@ tester.run("no-useless-character-class", rule as any, {
         {
             code: String.raw`/[[abc]]/v`,
             output: String.raw`/[abc]/v`,
-            errors: 1,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
         },
         {
             code: String.raw`/[[A&&B]]/v`,
             output: String.raw`/[A&&B]/v`,
-            errors: 1,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+            ],
         },
         {
             code: String.raw`/[[\q{abc}]]/v`,
             output: String.raw`/[\q{abc}]/v`,
-            errors: 2,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+                "Unexpected character class with one string alternative. Can remove brackets.",
+            ],
         },
         {
             code: String.raw`/[[^\w&&\d]]/v`,
             output: String.raw`/[^\w&&\d]/v`,
             errors: 1,
         },
+        {
+            code: String.raw`/[^[abc]]/v`,
+            output: String.raw`/[^abc]/v`,
+            errors: [
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[^[abc]d]/v`,
+            output: String.raw`/[^abcd]/v`,
+            errors: [
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[[abc][def]ghi]/v`,
+            output: String.raw`/[abc[def]ghi]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[abc[def]ghi]/v`,
+            output: String.raw`/[abcdefghi]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[abc&]&[&bd]]/v`,
+            output: String.raw`/[abc\&&\&bd]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[[abc!-&]&[&-1bd]]/v`,
+            output: String.raw`/[abc!-\&&\&-1bd]/v`,
+            errors: 2,
+        },
+        // We don't need to do anything with auto-fix escaping because the original pattern will cause a parsing error.
+        // {
+        //     code: String.raw`/[a[-b]]/v`,
+        //     output: String.raw`/[a\-b]/v`,
+        //     errors: 1,
+        // },
     ],
 })
