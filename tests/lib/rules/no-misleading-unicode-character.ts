@@ -299,6 +299,12 @@ tester.run("no-misleading-unicode-character", rule as any, {
             errors: [{ messageId: "characterClass" }],
         },
         {
+            code: String.raw`/[^👶🏻&👨‍👩‍👦]/v`,
+            output: null,
+            options: [{ fixable: true }],
+            errors: [{ messageId: "characterClass" }],
+        },
+        {
             code: String.raw`/[^👨‍👩‍👦]/v`,
             output: null,
             options: [{ fixable: true }],
