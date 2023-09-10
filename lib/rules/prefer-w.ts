@@ -16,8 +16,9 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { Chars, hasStrings, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
+import { JS } from "refa"
 
 /**
  * Checks if small letter char class range
@@ -90,16 +91,19 @@ export default createRule("prefer-w", {
             fixReplaceNode,
             patternSource,
         }: RegExpContext): RegExpVisitor.Handlers {
+            const charSetWord = Chars.word(flags)
+            const unicodeSetWord = JS.UnicodeSet.fromChars(charSetWord)
+            const unicodeSetNegateWord = JS.UnicodeSet.fromChars(
+                charSetWord.negate(),
+            )
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(ccNode, flags)
-
+                    if (hasStrings(ccNode, flags)) return
+                    const us = toUnicodeSet(ccNode, flags)
                     let predefined: string | undefined = undefined
-                    if (charSet.equals(Chars.word(flags))) {
+                    if (us.equals(unicodeSetWord)) {
                         predefined = "\\w"
-                    } else if (charSet.equals(Chars.word(flags).negate())) {
+                    } else if (us.equals(unicodeSetNegateWord)) {
                         predefined = "\\W"
                     }
 

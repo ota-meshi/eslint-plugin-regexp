@@ -3,13 +3,18 @@ import rule from "../../../lib/rules/prefer-w"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("prefer-w", rule as any, {
-    valid: ["/\\w/"],
+    valid: [
+        "/\\w/",
+        String.raw`/[0-9a-x\q{y|z}A-W[YZ_]]/v`,
+        String.raw`/[0-9a-x\q{z}A-X[YZ_]]/v`,
+        String.raw`/[0-9a-x\q{y|z}A-X[[YZ_]--_]]/v`,
+    ],
     invalid: [
         {
             code: "/[0-9a-zA-Z_]/",
@@ -113,6 +118,30 @@ tester.run("prefer-w", rule as any, {
             `,
             errors: [
                 "Unexpected character class ranges '[0-9A-Z_]'. Use '\\w' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[0-9a-x\q{y|z}A-X[YZ_]]/v`,
+            output: "/\\w/v",
+            errors: [
+                {
+                    message:
+                        "Unexpected character class '[0-9a-x\\q{y|z}A-X[YZ_]]'. Use '\\w' instead.",
+                    column: 2,
+                    endColumn: 25,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[0-9a-zA-Z[[_\q{abc}]--\q{abc}]]/v`,
+            output: "/\\w/v",
+            errors: [
+                {
+                    message:
+                        "Unexpected character class '[0-9a-zA-Z[[_\\q{abc}]--\\q{abc}]]'. Use '\\w' instead.",
+                    column: 2,
+                    endColumn: 34,
+                },
             ],
         },
     ],
