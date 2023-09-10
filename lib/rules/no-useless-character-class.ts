@@ -158,7 +158,7 @@ export default createRule("no-useless-character-class", {
                                 // Only nesting character class
                                 return
                             }
-                            messageData = { type: "string alternative" }
+                            messageData = { type: "string literal" }
                         } else if (element.type === "CharacterSet") {
                             messageData = { type: "character class escape" }
                         } else if (

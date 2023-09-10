@@ -209,7 +209,7 @@ tester.run("no-useless-character-class", rule as any, {
             output: String.raw`/[\q{abc}]/v`,
             errors: [
                 "Unexpected character class with one character class. Can remove brackets.",
-                "Unexpected character class with one string alternative. Can remove brackets.",
+                "Unexpected character class with one string literal. Can remove brackets.",
             ],
         },
         {
