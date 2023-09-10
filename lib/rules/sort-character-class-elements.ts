@@ -11,7 +11,7 @@ import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type { ReadonlyWord, ReadonlyWordSet, Word } from "refa"
+import type { ReadonlyWord } from "refa"
 
 type CharacterClassElementKind =
     | "\\w"
@@ -65,18 +65,15 @@ function getCharacterClassElementKind(
 function getLexicographicallySmallestFromElement(
     node: CharacterClassElement,
     flags: ReadonlyFlags,
-): Word {
+): ReadonlyWord {
     const us =
         node.type === "CharacterSet" && node.negate
             ? toUnicodeSet({ ...node, negate: false }, flags)
             : toUnicodeSet(node, flags)
-    const wordSets: ReadonlyWordSet[] = [
-        ...(us.chars.isEmpty ? [] : [[us.chars]]),
-        ...us.accept.wordSets,
+    const minimumWords: ReadonlyWord[] = [
+        ...(us.chars.isEmpty ? [] : [[us.chars.ranges[0].min]]),
+        ...us.accept.words,
     ]
-    const minimumWords: Word[] = wordSets.map((wordSet) =>
-        wordSet.filter((cs) => !cs.isEmpty).map((c) => c.ranges[0].min),
-    )
     return minimumWords.sort(compareWords).shift() || []
 }
 
