@@ -47,6 +47,7 @@ tester.run("no-useless-character-class", rule as any, {
         String.raw`/\c[A]/`,
         String.raw`/\c[Z]/`,
         String.raw`/\c[m]/`,
+        String.raw`/[\q{abc}]/v`,
     ],
     invalid: [
         {
@@ -166,31 +167,41 @@ tester.run("no-useless-character-class", rule as any, {
         {
             code: String.raw`/[[\^]A]/v`,
             output: String.raw`/[\^A]/v`,
-            options: [{ ignores: [] }],
             errors: 1,
         },
         {
             code: String.raw`/[[A]--[B]]/v`,
             output: String.raw`/[A--B]/v`,
-            options: [{ ignores: [] }],
             errors: 2,
         },
         {
             code: String.raw`/[A[&]&B]/v; /[A&&[&]]/v`,
             output: String.raw`/[A\&&B]/v; /[A&&\&]/v`,
-            options: [{ ignores: [] }],
             errors: 2,
         },
         {
             code: String.raw`/[A[&-&]&B]/v`,
             output: String.raw`/[A\&&B]/v`,
-            options: [{ ignores: [] }],
             errors: 1,
         },
         {
             code: String.raw`/[[&]&&[&]]/v`,
             output: String.raw`/[\&&&\&]/v`,
-            options: [{ ignores: [] }],
+            errors: 2,
+        },
+        {
+            code: String.raw`/[[abc]]/v`,
+            output: String.raw`/[abc]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[A&&B]]/v`,
+            output: String.raw`/[A&&B]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[\q{abc}]]/v`,
+            output: String.raw`/[\q{abc}]/v`,
             errors: 2,
         },
     ],

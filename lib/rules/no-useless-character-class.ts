@@ -102,7 +102,16 @@ export default createRule("no-useless-character-class", {
                         if (element.min.value !== element.max.value) {
                             return
                         }
-                    } else if (element.type !== "CharacterSet") {
+                    } else if (element.type === "ClassStringDisjunction") {
+                        if (!characterClassStack.length) {
+                            // Only nesting character class
+                            return
+                        }
+                    } else if (
+                        element.type !== "CharacterSet" &&
+                        element.type !== "ExpressionCharacterClass" &&
+                        element.type !== "CharacterClass"
+                    ) {
                         return
                     }
 
