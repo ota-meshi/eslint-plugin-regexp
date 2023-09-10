@@ -2,4 +2,4 @@
 "eslint-plugin-regexp": minor
 ---
 
-Improve `regexp/no-useless-character-class` rule auto-fix to supports nested character classes
+Add support for v flag to  `regexp/no-useless-character-class` rule
