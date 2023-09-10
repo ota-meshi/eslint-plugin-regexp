@@ -72,7 +72,7 @@ function getLexicographicallySmallestFromElement(
             : toUnicodeSet(node, flags)
     const wordSets: ReadonlyWordSet[] = [
         ...(us.chars.isEmpty ? [] : [[us.chars]]),
-        ...(us.accept.isEmpty ? [] : us.accept.wordSets),
+        ...us.accept.wordSets,
     ]
     const minimumWords: Word[] = wordSets.map((wordSet) =>
         wordSet.filter((cs) => !cs.isEmpty).map((c) => c.ranges[0].min),
