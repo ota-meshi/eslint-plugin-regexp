@@ -94,11 +94,57 @@ export default createRule("require-reduce-negation", {
                     toNegationOfConjunction(ccNode)
                 },
                 onExpressionCharacterClassEnter(eccNode) {
-                    if (toNegationOfDisjunctionForCharacterClass(eccNode)) {
+                    if (toNegationOfDisjunction(eccNode)) {
                         return
                     }
                     verifyExpressions(eccNode)
                 },
+            }
+
+            /**
+             * Reports if the fixed pattern is compatible with the original pattern.
+             * Returns true if reported.
+             */
+            function reportWhenFixedIsCompatible({
+                reportNode,
+                targetNode,
+                messageId,
+                data,
+                fix,
+            }: {
+                reportNode:
+                    | CharacterClass
+                    | ExpressionCharacterClass
+                    | ClassIntersection
+                    | ClassSubtraction
+                targetNode: CharacterClass | ExpressionCharacterClass
+                messageId:
+                    | "doubleNegationElimination"
+                    | "toNegationOfDisjunction"
+                    | "toNegationOfConjunction"
+                    | "toSubtraction"
+                    | "toIntersection"
+                data?: Record<string, string>
+                fix: () => string
+            }) {
+                const us = toUnicodeSet(targetNode, flags)
+                const fixedText = fix()
+                const convertedElement = getParsedElement(fixedText, flags)
+                if (!convertedElement) {
+                    return false
+                }
+                const convertedUs = toUnicodeSet(convertedElement, flags)
+                if (!us.equals(convertedUs)) {
+                    return false
+                }
+                context.report({
+                    node,
+                    loc: getRegexpLocation(reportNode),
+                    messageId,
+                    data: data || {},
+                    fix: fixReplaceNode(targetNode, fixedText),
+                })
+                return true
             }
 
             /** Verify for intersections and subtractions */
@@ -116,12 +162,9 @@ export default createRule("require-reduce-negation", {
                     operand.type === "ClassIntersection" ||
                     operand.type === "ClassSubtraction"
                 ) {
-                    if (toNegationOfDisjunctionForExpression(operand)) {
-                        return
-                    }
                     void (
-                        toSubtraction(operand, right) ||
-                        toIntersection(operand, right)
+                        toSubtraction(operand, right, eccNode) ||
+                        toIntersection(operand, right, eccNode)
                     )
                     right = operand.right
                     operand = operand.left
@@ -148,21 +191,11 @@ export default createRule("require-reduce-negation", {
                 ) {
                     return false
                 }
-                const complementElement: NegatableCharacterClassElement = {
-                    ...element,
-                    negate: false,
-                }
-
-                const us = toUnicodeSet(ccNode, flags)
-                const convertedUs = toUnicodeSet(complementElement, flags)
-                if (!us.equals(convertedUs)) {
-                    return false
-                }
-                context.report({
-                    node,
-                    loc: getRegexpLocation(ccNode),
+                return reportWhenFixedIsCompatible({
+                    reportNode: ccNode,
+                    targetNode: ccNode,
                     messageId: "doubleNegationElimination",
-                    fix: fixReplaceNode(ccNode, () => {
+                    fix: () => {
                         let fixedElementText = getRawTextForNot(element)
                         if (
                             element.type === "CharacterClass" &&
@@ -173,9 +206,8 @@ export default createRule("require-reduce-negation", {
                         }
 
                         return `[${fixedElementText}]`
-                    }),
+                    },
                 })
-                return true // reported
             }
 
             /**
@@ -186,99 +218,85 @@ export default createRule("require-reduce-negation", {
              * e.g.
              * - `[[^a]&&[^b]]` -> `[^ab]`
              * - `[^[^a]&&[^b]]` -> `[ab]`
-             */
-            function toNegationOfDisjunctionForCharacterClass(
-                eccNode: ExpressionCharacterClass,
-            ) {
-                return toNegationOfDisjunction(
-                    eccNode.expression,
-                    eccNode,
-                    (fixedElements) => {
-                        return `[${eccNode.negate ? "" : "^"}${fixedElements}]`
-                    },
-                )
-            }
-
-            /**
-             * Checks the given expression and reports if it can be converted to the negation of a disjunction
-             * using De Morgan's laws.
-             * Returns true if reported.
-             *
-             * e.g.
              * - `[[^a]&&[^b]&&c]` -> `[[^ab]&&c]`
              */
-            function toNegationOfDisjunctionForExpression(
-                expression: ClassIntersection | ClassSubtraction,
-            ) {
-                return toNegationOfDisjunction(
-                    expression,
-                    expression,
-                    (fixedElements) => {
-                        return `[^${fixedElements}]`
-                    },
-                )
-            }
-
-            /**
-             * Checks the given expression and reports if it can be converted to the negation of a disjunction
-             * using De Morgan's laws.
-             * Returns true if reported.
-             */
             function toNegationOfDisjunction(
-                expression: ClassIntersection | ClassSubtraction,
-                targetNode:
-                    | ExpressionCharacterClass
-                    | ClassIntersection
-                    | ClassSubtraction,
-                postFix: (fixedElements: string) => string,
+                eccNode: ExpressionCharacterClass,
             ) {
+                const expression = eccNode.expression
                 if (expression.type !== "ClassIntersection") {
                     return false
                 }
                 const operands: ClassSetOperand[] = []
+                const intersections = [expression]
                 let operand: ClassIntersection | ClassSetOperand = expression
                 while (operand.type === "ClassIntersection") {
+                    intersections.unshift(operand)
                     operands.unshift(operand.right)
                     operand = operand.left
                 }
                 operands.unshift(operand)
-                const elements = operands
-                    .filter(isNegatableCharacterClassElement)
-                    .filter((e) => e.negate)
-                if (elements.length !== operands.length) {
-                    return false
-                }
-                const us = toUnicodeSet(targetNode, flags)
-                const fixedElements = elements.map((element) => {
-                    let fixedElementText = getRawTextForNot(element)
-                    if (element.type === "CharacterClass" && element.negate) {
-                        // Remove brackets
-                        fixedElementText = fixedElementText.slice(1, -1)
+                const elements: (NegatableCharacterClassElement &
+                    ClassSetOperand)[] = []
+                const others: ClassSetOperand[] = []
+                for (const e of operands) {
+                    if (isNegatableCharacterClassElement(e) && e.negate) {
+                        elements.push(e)
+                    } else {
+                        others.push(e)
                     }
-                    return fixedElementText
-                })
-                const fixedText = postFix(fixedElements.join(""))
-                const convertedElement = getParsedElement(fixedText, flags)
-                if (!convertedElement) {
-                    return false
                 }
-                const convertedUs = toUnicodeSet(convertedElement, flags)
-                if (!us.equals(convertedUs)) {
-                    return false
+                const fixedElements = elements
+                    .map((element) => {
+                        let fixedElementText = getRawTextForNot(element)
+                        if (
+                            element.type === "CharacterClass" &&
+                            element.negate
+                        ) {
+                            // Remove brackets
+                            fixedElementText = fixedElementText.slice(1, -1)
+                        }
+                        return fixedElementText
+                    })
+                    .join("")
+                if (elements.length === operands.length) {
+                    return reportWhenFixedIsCompatible({
+                        reportNode: eccNode,
+                        targetNode: eccNode,
+                        messageId: "toNegationOfDisjunction",
+                        data: {
+                            target: "character class",
+                        },
+                        fix: () =>
+                            `[${eccNode.negate ? "" : "^"}${fixedElements}]`,
+                    })
                 }
-                context.report({
-                    node,
-                    loc: getRegexpLocation(targetNode),
+                if (elements.length < 2) {
+                    return null
+                }
+                return reportWhenFixedIsCompatible({
+                    reportNode: intersections.find((intersection) =>
+                        elements.every(
+                            (element) =>
+                                intersection.start <= element.start &&
+                                element.end <= intersection.end,
+                        ),
+                    )!,
+                    targetNode: eccNode,
                     messageId: "toNegationOfDisjunction",
                     data: {
-                        target:
-                            targetNode.type === "ExpressionCharacterClass"
-                                ? "character class"
-                                : "expression",
+                        target: "expression",
                     },
-                    fix: fixReplaceNode(targetNode, fixedText),
+                    fix: () => {
+                        const operandTestList = [
+                            `[^${fixedElements}]`,
+                            ...others.map((e) => e.raw),
+                        ]
+                        return `[${
+                            eccNode.negate ? "^" : ""
+                        }${operandTestList.join("&&")}]`
+                    },
                 })
-                return true // reported
             }
 
             /**
@@ -300,37 +318,28 @@ export default createRule("require-reduce-negation", {
                 if (elements.length !== operands.length) {
                     return false
                 }
-                const us = toUnicodeSet(ccNode, flags)
-                const fixedElements = elements.map((element) => {
-                    let fixedElementText = getRawTextForNot(element)
-                    if (
-                        element.type === "CharacterClass" &&
-                        element.negate &&
-                        element.elements.length === 1
-                    ) {
-                        // Remove brackets
-                        fixedElementText = fixedElementText.slice(1, -1)
-                    }
-                    return fixedElementText
-                })
-                const fixedText = `[${
-                    ccNode.negate ? "" : "^"
-                }${fixedElements.join("&&")}]`
-                const convertedElement = getParsedElement(fixedText, flags)
-                if (!convertedElement) {
-                    return false
-                }
-                const convertedUs = toUnicodeSet(convertedElement, flags)
-                if (!us.equals(convertedUs)) {
-                    return false
-                }
-                context.report({
-                    node,
-                    loc: getRegexpLocation(ccNode),
+                return reportWhenFixedIsCompatible({
+                    reportNode: ccNode,
+                    targetNode: ccNode,
                     messageId: "toNegationOfConjunction",
-                    fix: fixReplaceNode(ccNode, fixedText),
+                    fix: () => {
+                        const fixedElements = elements.map((element) => {
+                            let fixedElementText = getRawTextForNot(element)
+                            if (
+                                element.type === "CharacterClass" &&
+                                element.negate &&
+                                element.elements.length === 1
+                            ) {
+                                // Remove brackets
+                                fixedElementText = fixedElementText.slice(1, -1)
+                            }
+                            return fixedElementText
+                        })
+                        return `[${
+                            ccNode.negate ? "" : "^"
+                        }${fixedElements.join("&&")}]`
+                    },
                 })
-                return true // reported
             }
 
             /**
@@ -348,6 +357,7 @@ export default createRule("require-reduce-negation", {
                     | ClassSubtraction
                     | ClassSetOperand
                     | null,
+                eccNode: ExpressionCharacterClass,
             ) {
                 if (expression.type !== "ClassIntersection") {
                     return false
@@ -368,44 +378,39 @@ export default createRule("require-reduce-negation", {
                 } else {
                     return false
                 }
-                const us = toUnicodeSet(expression, flags)
-                let fixedLeftText = fixedLeft.raw
-                if (fixedLeft.type === "ClassIntersection") {
-                    // Wrap with brackets
-                    fixedLeftText = `[${fixedLeftText}]`
-                }
-                let fixedRightText = getRawTextForNot(fixedRight)
-                if (
-                    fixedRight.type === "CharacterClass" &&
-                    fixedRight.negate &&
-                    fixedRight.elements.length === 1
-                ) {
-                    // Remove brackets
-                    fixedRightText = fixedRightText.slice(1, -1)
-                }
-                let fixedText = `${fixedLeftText}--${fixedRightText}`
-                if (expressionRight) {
-                    // Wrap with brackets
-                    fixedText = `[${fixedText}]`
-                }
-                const convertedElement = getParsedElement(
-                    `[${fixedText}]`,
-                    flags,
-                )
-                if (!convertedElement) {
-                    return false
-                }
-                const convertedUs = toUnicodeSet(convertedElement, flags)
-                if (!us.equals(convertedUs)) {
-                    return false
-                }
-                context.report({
-                    node,
-                    loc: getRegexpLocation(expression),
+                return reportWhenFixedIsCompatible({
+                    reportNode: expression,
+                    targetNode: eccNode,
                     messageId: "toSubtraction",
-                    fix: fixReplaceNode(expression, fixedText),
+                    fix() {
+                        let fixedLeftText = fixedLeft.raw
+                        if (fixedLeft.type === "ClassIntersection") {
+                            // Wrap with brackets
+                            fixedLeftText = `[${fixedLeftText}]`
+                        }
+                        let fixedRightText = getRawTextForNot(fixedRight)
+                        if (
+                            fixedRight.type === "CharacterClass" &&
+                            fixedRight.negate &&
+                            fixedRight.elements.length === 1
+                        ) {
+                            // Remove brackets
+                            fixedRightText = fixedRightText.slice(1, -1)
+                        }
+                        let fixedText = `${fixedLeftText}--${fixedRightText}`
+                        if (expressionRight) {
+                            // Wrap with brackets
+                            fixedText = `[${fixedText}]`
+                        }
+                        const targetRaw = eccNode.raw
+                        return `${targetRaw.slice(
+                            0,
+                            expression.start - eccNode.start,
+                        )}${fixedText}${targetRaw.slice(
+                            expression.end - eccNode.start,
+                        )}`
+                    },
                 })
-                return true // reported
             }
 
             /**
@@ -422,6 +427,7 @@ export default createRule("require-reduce-negation", {
                     | ClassSubtraction
                     | ClassSetOperand
                     | null,
+                eccNode: ExpressionCharacterClass,
             ) {
                 if (expression.type !== "ClassSubtraction") {
                     return false
@@ -430,47 +436,40 @@ export default createRule("require-reduce-negation", {
                 if (!isNegatableCharacterClassElement(right) || !right.negate) {
                     return false
                 }
-
-                const us = toUnicodeSet(expression, flags)
-                let fixedLeftText = left.raw
-                if (left.type === "ClassSubtraction") {
-                    // Wrap with brackets
-                    fixedLeftText = `[${fixedLeftText}]`
-                }
-                let fixedRightText = getRawTextForNot(right)
-                if (
-                    right.type === "CharacterClass" &&
-                    right.negate &&
-                    right.elements.length === 1
-                ) {
-                    // Remove brackets
-                    fixedRightText = fixedRightText.slice(1, -1)
-                }
-                let fixedText = `${fixedLeftText}&&${fixedRightText}`
-
-                if (expressionRight) {
-                    // Wrap with brackets
-                    fixedText = `[${fixedText}]`
-                }
-                const convertedElement = getParsedElement(
-                    `[${fixedText}]`,
-                    flags,
-                )
-                if (!convertedElement) {
-                    return false
-                }
-                const convertedUs = toUnicodeSet(convertedElement, flags)
-                if (!us.equals(convertedUs)) {
-                    return false
-                }
-
-                context.report({
-                    node,
-                    loc: getRegexpLocation(expression),
+                return reportWhenFixedIsCompatible({
+                    reportNode: expression,
+                    targetNode: eccNode,
                     messageId: "toIntersection",
-                    fix: fixReplaceNode(expression, fixedText),
+                    fix() {
+                        let fixedLeftText = left.raw
+                        if (left.type === "ClassSubtraction") {
+                            // Wrap with brackets
+                            fixedLeftText = `[${fixedLeftText}]`
+                        }
+                        let fixedRightText = getRawTextForNot(right)
+                        if (
+                            right.type === "CharacterClass" &&
+                            right.negate &&
+                            right.elements.length === 1
+                        ) {
+                            // Remove brackets
+                            fixedRightText = fixedRightText.slice(1, -1)
+                        }
+                        let fixedText = `${fixedLeftText}&&${fixedRightText}`
+
+                        if (expressionRight) {
+                            // Wrap with brackets
+                            fixedText = `[${fixedText}]`
+                        }
+                        const targetRaw = eccNode.raw
+                        return `${targetRaw.slice(
+                            0,
+                            expression.start - eccNode.start,
+                        )}${fixedText}${targetRaw.slice(
+                            expression.end - eccNode.start,
+                        )}`
+                    },
                 })
-                return true // reported
             }
         }
 
@@ -499,14 +498,13 @@ function getParsedElement(
             if (ast.alternatives[0].elements.length === 1) {
                 const element = ast.alternatives[0].elements[0]
                 if (
-                    element.type === "Assertion" ||
-                    element.type === "Quantifier" ||
-                    element.type === "CapturingGroup" ||
-                    element.type === "Group" ||
-                    element.type === "Backreference"
+                    element.type !== "Assertion" &&
+                    element.type !== "Quantifier" &&
+                    element.type !== "CapturingGroup" &&
+                    element.type !== "Group" &&
+                    element.type !== "Backreference"
                 )
-                    return null
-                return element
+                    return element
             }
     } catch (_error) {
         // ignore
