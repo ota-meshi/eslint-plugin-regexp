@@ -13,7 +13,7 @@ since: "v0.4.0"
 
 <!-- end auto-generated rule header -->
 
-> disallow unnecessary Non-capturing group
+> disallow unnecessary non-capturing group
 
 ## :book: Rule Details
 

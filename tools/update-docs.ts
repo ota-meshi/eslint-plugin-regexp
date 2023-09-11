@@ -150,6 +150,22 @@ ${
         return this
     }
 
+    public updateHeaderDescription() {
+        const { description } = this.rule.meta.docs
+
+        this.content = this.content.replace(
+            // eslint-disable-next-line regexp/no-super-linear-move -- ignore
+            /\n+> [^\n]*\n+##\s[^\n]+Rule Details/u,
+            `
+
+> ${description.replace(/\$/gu, "$$$$")}
+
+## :book: Rule Details`,
+        )
+
+        return this
+    }
+
     public write() {
         this.content = this.content.replace(/\r?\n/gu, "\n")
 
@@ -166,6 +182,7 @@ async function main() {
         await doc.updateFooter()
         doc.updateCodeBlocks()
         await doc.updateFileIntro()
+        doc.updateHeaderDescription()
         doc.adjustCodeBlocks()
         doc.write()
     }
