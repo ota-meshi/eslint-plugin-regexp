@@ -72,6 +72,7 @@ sidebarDepth: 0
 | [prefer-range](prefer-range.md)                                                   | enforce using character class range                                                        | ✅  |    | 🔧 |    |
 | [prefer-regexp-exec](prefer-regexp-exec.md)                                       | enforce that `RegExp#exec` is used instead of `String#match` if no global flag is provided |    |    |    |    |
 | [prefer-regexp-test](prefer-regexp-test.md)                                       | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`             |    |    | 🔧 |    |
+| [require-reduce-negation](require-reduce-negation.md)                             | require to reduce negation of character classes                                            | ✅  |    | 🔧 |    |
 | [require-unicode-regexp](require-unicode-regexp.md)                               | enforce the use of the `u` flag                                                            |    |    | 🔧 |    |
 | [sort-alternatives](sort-alternatives.md)                                         | sort alternatives if order doesn't matter                                                  |    |    | 🔧 |    |
 | [use-ignore-case](use-ignore-case.md)                                             | use the `i` flag if it simplifies the pattern                                              | ✅  |    | 🔧 |    |

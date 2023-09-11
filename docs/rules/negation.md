@@ -53,6 +53,12 @@ var foo = /[^\P{ASCII}]/u
 
 Nothing.
 
+## :couple: Related rules
+
+- [regexp/require-reduce-negation]
+
+[regexp/require-reduce-negation]: ./require-reduce-negation.md
+
 ## :rocket: Version
 
 This rule was introduced in eslint-plugin-regexp v0.4.0
