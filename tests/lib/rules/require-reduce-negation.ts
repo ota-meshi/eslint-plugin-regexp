@@ -57,12 +57,11 @@ tester.run("require-reduce-negation", rule as any, {
             output: String.raw`/[a--b]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
-        // FIXME: https://github.com/eslint-community/regexpp/pull/136
-        // {
-        //     code: String.raw`/[a&&b&&[^c]]/v`,
-        //     output: String.raw`/[[a&&b]--c]/v`,
-        //     errors: ["This character class can be converted to the subtraction."],
-        // },
+        {
+            code: String.raw`/[a&&b&&[^c]]/v`,
+            output: String.raw`/[[a&&b]--c]/v`,
+            errors: ["This expression can be converted to the subtraction."],
+        },
         {
             code: String.raw`/[a&&[^b]&&c]/v`,
             output: String.raw`/[[a--b]&&c]/v`,
@@ -93,12 +92,11 @@ tester.run("require-reduce-negation", rule as any, {
             output: String.raw`/[[a&&b]--c]/v`,
             errors: ["This expression can be converted to the intersection."],
         },
-        // FIXME: https://github.com/eslint-community/regexpp/pull/136
-        // {
-        //     code: String.raw`/[a--b--[^c]]/v`,
-        //     output: String.raw`/[[a--b]&&c]/v`,
-        //     errors: ["This expression can be converted to the intersection."],
-        // },
+        {
+            code: String.raw`/[a--b--[^c]]/v`,
+            output: String.raw`/[[a--b]&&c]/v`,
+            errors: ["This expression can be converted to the intersection."],
+        },
         {
             code: String.raw`/[[abc]--[^def]]/v`,
             output: String.raw`/[[abc]&&[def]]/v`,
@@ -146,14 +144,13 @@ tester.run("require-reduce-negation", rule as any, {
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
-        // FIXME: https://github.com/eslint-community/regexpp/pull/136
-        // {
-        //     code: String.raw`/[[^a]&&[b]&&[^c]]/v`,
-        //     output: String.raw`/[[^ac]&&b]/v`,
-        //     errors: [
-        //         "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
-        //     ],
-        // },
+        {
+            code: String.raw`/[[^a]&&[b]&&[^c]]/v`,
+            output: String.raw`/[[^ac]&&[b]]/v`,
+            errors: [
+                "This expression can be converted to the negation of a disjunction using De Morgan's laws.",
+            ],
+        },
         {
             code: String.raw`/[[^a][^b]]/v`,
             output: String.raw`/[^a&&b]/v`,
