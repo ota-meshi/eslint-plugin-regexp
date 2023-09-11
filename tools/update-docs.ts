@@ -155,7 +155,7 @@ ${
 
         this.content = this.content.replace(
             // eslint-disable-next-line regexp/no-super-linear-move -- ignore
-            /\n+> [^\n]*\n+##\s[^\n]+Rule Details/u,
+            /\n+> [^\n]*\n+##\s[^\n]*Rule Details/u,
             `
 
 > ${description.replace(/\$/gu, "$$$$")}
