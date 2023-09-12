@@ -20,6 +20,9 @@ type NegatableCharacterClassElement =
     | ExpressionCharacterClass
     | EscapeCharacterSet
     | CharacterUnicodePropertyCharacterSet
+type NegateCharacterClassElement = NegatableCharacterClassElement & {
+    negate: true
+}
 
 /** Checks whether the given character class is negatable. */
 function isNegatableCharacterClassElement<
@@ -33,25 +36,27 @@ function isNegatableCharacterClassElement<
     )
 }
 
+/** Checks whether the given character class is negate. */
+function isNegate<
+    N extends CharacterClassElement | CharacterClass | ClassIntersection,
+>(node: N): node is N & NegateCharacterClassElement {
+    return isNegatableCharacterClassElement(node) && node.negate
+}
+
 /**
  * Gets the text of a character class that negates the given character class.
  */
-function getRawTextForNot(node: NegatableCharacterClassElement) {
-    const raw = node.raw
+function getRawTextToNot(negateNode: NegateCharacterClassElement) {
+    const raw = negateNode.raw
     if (
-        node.type === "CharacterClass" ||
-        node.type === "ExpressionCharacterClass"
+        negateNode.type === "CharacterClass" ||
+        negateNode.type === "ExpressionCharacterClass"
     ) {
-        if (node.negate) {
-            return `${raw[0]}${raw.slice(2)}`
-        }
-        return `${raw[0]}^${raw.slice(1)}`
+        return `${raw[0]}${raw.slice(2)}`
     }
     // else if (node.type === "CharacterSet") {
-    const escapeChar = node.raw[1]
-    return `${raw[0]}${
-        node.negate ? escapeChar.toLowerCase() : escapeChar.toUpperCase()
-    }${raw.slice(2)}`
+    const escapeChar = negateNode.raw[1].toLowerCase()
+    return `${raw[0]}${escapeChar}${raw.slice(2)}`
 }
 
 /** Collect the operands from the given intersection expression */
@@ -199,10 +204,7 @@ export default createRule("require-reduce-negation", {
                     return false
                 }
                 const element = ccNode.elements[0]
-                if (
-                    !isNegatableCharacterClassElement(element) ||
-                    !element.negate
-                ) {
+                if (!isNegate(element)) {
                     return false
                 }
                 return reportWhenFixedIsCompatible({
@@ -210,11 +212,8 @@ export default createRule("require-reduce-negation", {
                     targetNode: ccNode,
                     messageId: "doubleNegationElimination",
                     fix: () => {
-                        let fixedElementText = getRawTextForNot(element)
-                        if (
-                            element.type === "CharacterClass" &&
-                            element.negate
-                        ) {
+                        let fixedElementText = getRawTextToNot(element)
+                        if (element.type === "CharacterClass") {
                             // Remove brackets
                             fixedElementText = fixedElementText.slice(1, -1)
                         }
@@ -242,30 +241,27 @@ export default createRule("require-reduce-negation", {
                     return false
                 }
                 const operands = collectIntersectionOperands(expression)
-                const elements: (NegatableCharacterClassElement &
+                const negateOperands: (NegateCharacterClassElement &
                     ClassSetOperand)[] = []
                 const others: ClassSetOperand[] = []
                 for (const e of operands) {
-                    if (isNegatableCharacterClassElement(e) && e.negate) {
-                        elements.push(e)
+                    if (isNegate(e)) {
+                        negateOperands.push(e)
                     } else {
                         others.push(e)
                     }
                 }
-                const fixedElements = elements
-                    .map((element) => {
-                        let fixedElementText = getRawTextForNot(element)
-                        if (
-                            element.type === "CharacterClass" &&
-                            element.negate
-                        ) {
+                const fixedOperands = negateOperands
+                    .map((negateOperand) => {
+                        let fixedText = getRawTextToNot(negateOperand)
+                        if (negateOperand.type === "CharacterClass") {
                             // Remove brackets
-                            fixedElementText = fixedElementText.slice(1, -1)
+                            fixedText = fixedText.slice(1, -1)
                         }
-                        return fixedElementText
+                        return fixedText
                     })
                     .join("")
-                if (elements.length === operands.length) {
+                if (negateOperands.length === operands.length) {
                     return reportWhenFixedIsCompatible({
                         reportNode: eccNode,
                         targetNode: eccNode,
@@ -274,14 +270,14 @@ export default createRule("require-reduce-negation", {
                             target: "character class",
                         },
                         fix: () =>
-                            `[${eccNode.negate ? "" : "^"}${fixedElements}]`,
+                            `[${eccNode.negate ? "" : "^"}${fixedOperands}]`,
                     })
                 }
-                if (elements.length < 2) {
+                if (negateOperands.length < 2) {
                     return null
                 }
                 return reportWhenFixedIsCompatible({
-                    reportNode: elements[elements.length - 1]
+                    reportNode: negateOperands[negateOperands.length - 1]
                         .parent as ClassIntersection,
                     targetNode: eccNode,
                     messageId: "toNegationOfDisjunction",
@@ -290,7 +286,7 @@ export default createRule("require-reduce-negation", {
                     },
                     fix: () => {
                         const operandTestList = [
-                            `[^${fixedElements}]`,
+                            `[^${fixedOperands}]`,
                             ...others.map((e) => e.raw),
                         ]
                         return `[${
@@ -312,11 +308,9 @@ export default createRule("require-reduce-negation", {
                 if (ccNode.elements.length <= 1 || !flags.unicodeSets) {
                     return false
                 }
-                const operands: CharacterClassElement[] = ccNode.elements
-                const elements = operands
-                    .filter(isNegatableCharacterClassElement)
-                    .filter((e) => e.negate)
-                if (elements.length !== operands.length) {
+                const elements: CharacterClassElement[] = ccNode.elements
+                const negateElements = elements.filter(isNegate)
+                if (negateElements.length !== elements.length) {
                     return false
                 }
                 return reportWhenFixedIsCompatible({
@@ -324,18 +318,23 @@ export default createRule("require-reduce-negation", {
                     targetNode: ccNode,
                     messageId: "toNegationOfConjunction",
                     fix: () => {
-                        const fixedElements = elements.map((element) => {
-                            let fixedElementText = getRawTextForNot(element)
-                            if (
-                                element.type === "CharacterClass" &&
-                                element.negate &&
-                                element.elements.length === 1
-                            ) {
-                                // Remove brackets
-                                fixedElementText = fixedElementText.slice(1, -1)
-                            }
-                            return fixedElementText
-                        })
+                        const fixedElements = negateElements.map(
+                            (negateElement) => {
+                                let fixedElementText =
+                                    getRawTextToNot(negateElement)
+                                if (
+                                    negateElement.type === "CharacterClass" &&
+                                    negateElement.elements.length === 1
+                                ) {
+                                    // Remove brackets
+                                    fixedElementText = fixedElementText.slice(
+                                        1,
+                                        -1,
+                                    )
+                                }
+                                return fixedElementText
+                            },
+                        )
                         return `[${
                             ccNode.negate ? "" : "^"
                         }${fixedElements.join("&&")}]`
@@ -358,10 +357,8 @@ export default createRule("require-reduce-negation", {
                     return false
                 }
                 const operands = collectIntersectionOperands(expression)
-                const negativeOperand = operands
-                    .filter(isNegatableCharacterClassElement)
-                    .find((e) => e.negate)
-                if (!negativeOperand) {
+                const negateOperand = operands.find(isNegate)
+                if (!negateOperand) {
                     return false
                 }
                 return reportWhenFixedIsCompatible({
@@ -370,18 +367,17 @@ export default createRule("require-reduce-negation", {
                     messageId: "toSubtraction",
                     fix() {
                         const others = operands.filter(
-                            (e) => e !== negativeOperand,
+                            (e) => e !== negateOperand,
                         )
                         let fixedLeftText = others.map((e) => e.raw).join("&&")
                         if (others.length >= 2) {
                             // Wrap with brackets
                             fixedLeftText = `[${fixedLeftText}]`
                         }
-                        let fixedRightText = getRawTextForNot(negativeOperand)
+                        let fixedRightText = getRawTextToNot(negateOperand)
                         if (
-                            negativeOperand.type === "CharacterClass" &&
-                            negativeOperand.negate &&
-                            negativeOperand.elements.length === 1
+                            negateOperand.type === "CharacterClass" &&
+                            negateOperand.elements.length === 1
                         ) {
                             // Remove brackets
                             fixedRightText = fixedRightText.slice(1, -1)
@@ -413,7 +409,7 @@ export default createRule("require-reduce-negation", {
                     return false
                 }
                 const { left, right } = expression
-                if (!isNegatableCharacterClassElement(right) || !right.negate) {
+                if (!isNegate(right)) {
                     return false
                 }
                 return reportWhenFixedIsCompatible({
@@ -426,10 +422,9 @@ export default createRule("require-reduce-negation", {
                             // Wrap with brackets
                             fixedLeftText = `[${fixedLeftText}]`
                         }
-                        let fixedRightText = getRawTextForNot(right)
+                        let fixedRightText = getRawTextToNot(right)
                         if (
                             right.type === "CharacterClass" &&
-                            right.negate &&
                             right.elements.length === 1
                         ) {
                             // Remove brackets
