@@ -24,7 +24,7 @@ This rule is aimed at optimizing patterns by reducing the negation (complement) 
 /* eslint regexp/require-reduce-negation: "error" */
 
 /* ✗ BAD */
-var re = /[^[^abc]]/v; // -> /[[abc]]/v
+var re = /[^[^abc]]/v; // -> /[abc]/v
 var re = /[^\D]/u; // -> /[\d]/u
 var re = /[a&&[^b]]/v; // -> /[a--b]/v
 var re = /[[^b]&&a]/v; // -> /[a--b]/v
@@ -33,7 +33,7 @@ var re = /[[^a]&&[^b]]/v; // -> /[^ab]/v
 var re = /[[^a][^b]]/v; // -> /[^a&&b]/v
 
 /* ✓ GOOD */
-var re = /[[abc]]/v;
+var re = /[abc]/v;
 var re = /[\d]/u;
 var re = /[\D]/u;
 var re = /[a--b]/v;
@@ -43,6 +43,34 @@ var re = /[^a&&b]/v;
 ```
 
 </eslint-code-block>
+
+This rule attempts to reduce complements in several ways:
+
+### Double negation elimination
+
+This rule look for patterns that can eliminate double negatives, report on them, and auto-fix them.\
+For example, `/[^[^abc]]/v` is equivalent to `/[abc]/v`.
+
+See <https://en.wikipedia.org/wiki/Double_negation#Elimination_and_introduction>.
+
+### De Morgan's laws
+
+This rule uses De Morgan's laws to look for patterns that can convert multiple negations into a single negation, reports on them, auto-fix them.\
+For example, `/[[^a]&&[^b]]/v` is equivalent to `/[^ab]/v`, `/[[^a][^b]]/v` is equivalent to `/[^a&&b]/v`.
+
+See <https://en.wikipedia.org/wiki/De_Morgan's_laws>.
+
+### Conversion from the intersection to the subtraction
+
+Intersection sets with complement operands can be converted to difference sets.\
+The rule looks for character class intersection with negation operands, reports on them, auto-fix them.\
+For example, `/[a&&[^b]]/v` is equivalent to `/[a--b]/v`, `/[[^a]&&b]/v` is equivalent to `/[b--a]/v`.
+
+### Conversion from the subtraction to the intersection
+
+Difference set with a complement operand on the right side can be converted to intersection sets.\
+The rule looks for character class subtraction with negation operand on the right side, reports on them, auto-fix them.\
+For example, `/[a--[^b]]/v` is equivalent to `/[a&&b]/v`.
 
 ## :wrench: Options
 
