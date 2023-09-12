@@ -9,7 +9,7 @@ const tester = new RuleTester({
 })
 
 tester.run("require-unicode-sets-regexp", rule as any, {
-    valid: [String.raw`/[\P{ASCII}]/iu`, `/a/v`],
+    valid: [`/a/v`],
     invalid: [
         {
             code: `/a/`,
