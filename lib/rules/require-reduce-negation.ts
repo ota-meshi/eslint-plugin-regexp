@@ -54,6 +54,20 @@ function getRawTextForNot(node: NegatableCharacterClassElement) {
     }${raw.slice(2)}`
 }
 
+/** Collect the operands from the given intersection expression */
+function collectIntersectionOperands(
+    expression: ClassIntersection,
+): ClassSetOperand[] {
+    const operands: ClassSetOperand[] = []
+    let operand: ClassIntersection | ClassSetOperand = expression
+    while (operand.type === "ClassIntersection") {
+        operands.unshift(operand.right)
+        operand = operand.left
+    }
+    operands.unshift(operand)
+    return operands
+}
+
 export default createRule("require-reduce-negation", {
     meta: {
         docs: {
@@ -95,6 +109,9 @@ export default createRule("require-reduce-negation", {
                 },
                 onExpressionCharacterClassEnter(eccNode) {
                     if (toNegationOfDisjunction(eccNode)) {
+                        return
+                    }
+                    if (toSubtraction(eccNode)) {
                         return
                     }
                     verifyExpressions(eccNode)
@@ -162,10 +179,7 @@ export default createRule("require-reduce-negation", {
                     operand.type === "ClassIntersection" ||
                     operand.type === "ClassSubtraction"
                 ) {
-                    void (
-                        toSubtraction(operand, right, eccNode) ||
-                        toIntersection(operand, right, eccNode)
-                    )
+                    toIntersection(operand, right, eccNode)
                     right = operand.right
                     operand = operand.left
                 }
@@ -227,15 +241,7 @@ export default createRule("require-reduce-negation", {
                 if (expression.type !== "ClassIntersection") {
                     return false
                 }
-                const operands: ClassSetOperand[] = []
-                const intersections = [expression]
-                let operand: ClassIntersection | ClassSetOperand = expression
-                while (operand.type === "ClassIntersection") {
-                    intersections.unshift(operand)
-                    operands.unshift(operand.right)
-                    operand = operand.left
-                }
-                operands.unshift(operand)
+                const operands = collectIntersectionOperands(expression)
                 const elements: (NegatableCharacterClassElement &
                     ClassSetOperand)[] = []
                 const others: ClassSetOperand[] = []
@@ -275,13 +281,8 @@ export default createRule("require-reduce-negation", {
                     return null
                 }
                 return reportWhenFixedIsCompatible({
-                    reportNode: intersections.find((intersection) =>
-                        elements.every(
-                            (element) =>
-                                intersection.start <= element.start &&
-                                element.end <= intersection.end,
-                        ),
-                    )!,
+                    reportNode: elements[elements.length - 1]
+                        .parent as ClassIntersection,
                     targetNode: eccNode,
                     messageId: "toNegationOfDisjunction",
                     data: {
@@ -349,33 +350,18 @@ export default createRule("require-reduce-negation", {
              * e.g.
              * - `[a&&[^b]]` -> `[a--b]`
              * - `[[^a]&&b]` -> `[b--a]`
+             * - `[a&&[^b]&&c]` -> `[[a&&c]--b]`
              */
-            function toSubtraction(
-                expression: ClassIntersection | ClassSubtraction,
-                expressionRight:
-                    | ClassIntersection
-                    | ClassSubtraction
-                    | ClassSetOperand
-                    | null,
-                eccNode: ExpressionCharacterClass,
-            ) {
+            function toSubtraction(eccNode: ExpressionCharacterClass) {
+                const expression = eccNode.expression
                 if (expression.type !== "ClassIntersection") {
                     return false
                 }
-                const { left, right } = expression
-
-                let fixedLeft: ClassSetOperand | ClassIntersection,
-                    fixedRight: ClassSetOperand & NegatableCharacterClassElement
-                if (isNegatableCharacterClassElement(left) && left.negate) {
-                    fixedLeft = right
-                    fixedRight = left
-                } else if (
-                    isNegatableCharacterClassElement(right) &&
-                    right.negate
-                ) {
-                    fixedLeft = left
-                    fixedRight = right
-                } else {
+                const operands = collectIntersectionOperands(expression)
+                const negativeOperand = operands
+                    .filter(isNegatableCharacterClassElement)
+                    .find((e) => e.negate)
+                if (!negativeOperand) {
                     return false
                 }
                 return reportWhenFixedIsCompatible({
@@ -383,32 +369,26 @@ export default createRule("require-reduce-negation", {
                     targetNode: eccNode,
                     messageId: "toSubtraction",
                     fix() {
-                        let fixedLeftText = fixedLeft.raw
-                        if (fixedLeft.type === "ClassIntersection") {
+                        const others = operands.filter(
+                            (e) => e !== negativeOperand,
+                        )
+                        let fixedLeftText = others.map((e) => e.raw).join("&&")
+                        if (others.length >= 2) {
                             // Wrap with brackets
                             fixedLeftText = `[${fixedLeftText}]`
                         }
-                        let fixedRightText = getRawTextForNot(fixedRight)
+                        let fixedRightText = getRawTextForNot(negativeOperand)
                         if (
-                            fixedRight.type === "CharacterClass" &&
-                            fixedRight.negate &&
-                            fixedRight.elements.length === 1
+                            negativeOperand.type === "CharacterClass" &&
+                            negativeOperand.negate &&
+                            negativeOperand.elements.length === 1
                         ) {
                             // Remove brackets
                             fixedRightText = fixedRightText.slice(1, -1)
                         }
-                        let fixedText = `${fixedLeftText}--${fixedRightText}`
-                        if (expressionRight) {
-                            // Wrap with brackets
-                            fixedText = `[${fixedText}]`
-                        }
-                        const targetRaw = eccNode.raw
-                        return `${targetRaw.slice(
-                            0,
-                            expression.start - eccNode.start,
-                        )}${fixedText}${targetRaw.slice(
-                            expression.end - eccNode.start,
-                        )}`
+                        return `[${
+                            eccNode.negate ? "^" : ""
+                        }${`${fixedLeftText}--${fixedRightText}`}]`
                     },
                 })
             }
