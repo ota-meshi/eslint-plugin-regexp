@@ -356,7 +356,7 @@ export default createRule("require-unicode-regexp", {
                 return {}
             }
 
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 context.report({
                     node,
                     loc: getFlagsLocation(),
