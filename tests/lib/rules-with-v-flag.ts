@@ -4,29 +4,99 @@ import { rules } from "../../lib/index"
 import assert from "assert"
 
 describe("Don't crash even if with v flag.", () => {
-    const pattern = String.raw`^(a|b)(?:c|d)[e-f][[g--[h&&i]][j]\q{k}](?=l)(?!m)(?<=n)(?<!o)p+\1\b.\d\s\w\p{ASCII}$`
-    const code = [
-        (p: string, flag: string) => `export const ${flag} = /${p}/${flag}`,
-        (p: string, flag: string) =>
-            `new RegExp(${JSON.stringify(p)}, ${JSON.stringify(flag)})`,
+    const elements = [
+        // Character
+        "a",
+        // CharacterClass
+        "[abc]",
+        "[^abc]",
+        // CharacterClassRange
+        "[a-z]",
+        "[^a-z]",
+        // EscapeCharacterSet
+        String.raw`\d`,
+        String.raw`\D`,
+        String.raw`\s`,
+        String.raw`\S`,
+        String.raw`\s`,
+        String.raw`\W`,
+        // UnicodePropertyCharacterSet
+        String.raw`\p{ASCII}`,
+        String.raw`\P{ASCII}`,
+        // ClassIntersection
+        `[a&&b]`,
+        `[^a&&b]`,
+        // ClassStringDisjunction
+        String.raw`[\q{a|b|c}]`,
+        // ClassSubtraction
+        `[a--b]`,
+        `[^a--b]`,
     ]
-        .flatMap((f) => [f(pattern, "v"), f(pattern, "iv")])
+    const alternatives = [
+        // Alternative
+        "a|b",
+        // LookaheadAssertion
+        "(?=ab)",
+        "(?!ab)",
+        // LookbehindAssertion
+        `(?<=ab)`,
+        `(?<!ab)`,
+        // WordBoundaryAssertion
+        String.raw`\b`,
+        String.raw`\B`,
+        // AnyCharacterSet
+        ".",
+        // Quantifier
+        `a?`,
+        `a*`,
+        `a+`,
+        `a{1,2}`,
+        `a??`,
+        `a*?`,
+        `a+?`,
+        `a{1,2}?`,
+        elements.join(""),
+        `[${elements.join("")}]`,
+        `[^${elements.join("")}]`,
+    ]
+    const patternsWithGroup = [
+        // Group
+        `(?:${alternatives.join("")})`,
+        // CapturingGroup
+        `(${alternatives.join("")})`,
+    ]
+    const patternsWithBackreference = [
+        String.raw`(a)\1`,
+        String.raw`(?<name>a)\k<name>`,
+    ]
+    const patternWithEdgeAssertion = [
+        alternatives.join(""),
+        ...patternsWithGroup,
+        ...patternsWithBackreference,
+    ].map((p) => `^${p}$`)
+    const patterns = [
+        alternatives.join(""),
+        ...patternsWithGroup,
+        ...patternWithEdgeAssertion,
+    ]
+    const code = patterns
+        .flatMap((p, i) => [
+            `export const re${i + 1} = /${p}/v`,
+            `export const re${i + 1}i = /${p}/iv`,
+        ])
         .join(";\n")
 
-    const RULE_SPECIFIC: Record<string, string[] | number | undefined> = {
-        "regexp/no-non-standard-flag": Array(4).fill(
-            "Unexpected non-standard flag 'v'.",
-        ),
-        "regexp/no-useless-assertions": 20,
-        "regexp/order-in-character-class": 8,
-        "regexp/prefer-named-capture-group": Array(4).fill(
-            "Capture group '(a|b)' should be converted to a named or non-capturing group.",
-        ),
-        "regexp/require-unicode-regexp": Array(4).fill("Use the 'u' flag."),
-        "regexp/sort-character-class-elements": 8,
-        "regexp/strict": Array(4).fill(
-            "Invalid regular expression: /^(a|b)(?:c|d)[e-f][[g--[h&&i]][j]\\q{k}](?=l)(?!m)(?<=n)(?<!o)p+\\1\\b.\\d\\s\\w\\p{ASCII}$/: Range out of order in character class.",
-        ),
+    const RULE_SPECIFIC_HAS_ERROR: Record<
+        string,
+        number | boolean | undefined
+    > = {
+        "regexp/no-empty-character-class": true,
+        "regexp/no-super-linear-backtracking": true,
+        "regexp/no-useless-assertions": true,
+        "regexp/order-in-character-class": true,
+        "regexp/prefer-named-capture-group": true,
+        "regexp/sort-character-class-elements": true,
+        "regexp/optimal-quantifier-concatenation": true,
     }
 
     for (const key of Object.keys(rules)) {
@@ -51,71 +121,27 @@ describe("Don't crash even if with v flag.", () => {
 
             const resultVue = linter.verifyAndFix(code, config, "test.js")
 
-            const expected = RULE_SPECIFIC[ruleId] ?? []
-            if (Array.isArray(expected)) {
+            const expected = RULE_SPECIFIC_HAS_ERROR[ruleId] ?? false
+            if (expected === false) {
                 assert.deepStrictEqual(
-                    resultVue.messages.map((m) => ({
-                        ruleId: m.ruleId,
-                        message: m.message,
-                    })),
-                    expected.map((message) => ({
-                        ruleId,
-                        message,
-                    })),
+                    resultVue.messages.map((m) => m.message),
+                    [],
                 )
-            } else {
+            } else if (typeof expected === "number") {
                 assert.deepStrictEqual(
                     resultVue.messages.map((m) => ({
                         ruleId: m.ruleId,
                     })),
                     Array(expected).fill({ ruleId }),
                 )
+            } else {
+                assert.deepStrictEqual(
+                    resultVue.messages.map((m) => ({
+                        ruleId: m.ruleId,
+                    })),
+                    Array(resultVue.messages.length).fill({ ruleId }),
+                )
             }
         })
     }
 })
-
-// describe("Don't crash even if with unknown flag in core rules", () => {
-//     const code = "var foo = /a/abcdefgg;\n new RegExp('a', 'abcdefgg')"
-
-//     for (const ruleId of new Set([
-//         ...Object.keys(configs.recommended.rules),
-//         "no-empty-character-class",
-//     ])) {
-//         if (ruleId.startsWith("regexp/")) {
-//             continue
-//         }
-
-//         it(ruleId, () => {
-//             const linter = new Linter()
-//             const config: Linter.Config = {
-//                 parser: "@typescript-eslint/parser",
-//                 parserOptions: {
-//                     ecmaVersion: 2020,
-//                 },
-//                 rules: {
-//                     [ruleId]: "error",
-//                 },
-//             }
-//             // @ts-expect-error -- ignore
-//             linter.defineParser("@typescript-eslint/parser", parser)
-//             const resultVue = linter.verifyAndFix(code, config, "test.js")
-
-//             const msgs = resultVue.messages.map((m) => ({
-//                 ruleId: m.ruleId,
-//                 line: m.line,
-//             }))
-//             if (ruleId === "no-invalid-regexp") {
-//                 assert.deepStrictEqual(msgs, [
-//                     { ruleId: "no-invalid-regexp", line: 2 },
-//                 ])
-//             } else if (ruleId === "prefer-regex-literals") {
-//                 assert.deepStrictEqual(msgs, [
-//                     { ruleId: "prefer-regex-literals", line: 2 },
-//                 ])
-//             } else {
-//                 assert.deepStrictEqual(msgs, [])
-//             }
-//         })
-//     }
-// })
