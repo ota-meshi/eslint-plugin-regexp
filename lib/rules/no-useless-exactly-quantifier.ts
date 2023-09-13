@@ -18,9 +18,6 @@ export default createRule("no-useless-exactly-quantifier", {
         replacedBy: ["no-useless-quantifier", "no-zero-quantifier"],
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

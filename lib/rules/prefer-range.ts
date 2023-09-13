@@ -49,9 +49,6 @@ export default createRule("prefer-range", {
             nodes: (Character | CharacterClassRange)[]
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -22,16 +22,10 @@ export default createRule("no-empty-alternative", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
-            /**
-             * Verify alternatives
-             */
             function verifyAlternatives(
                 regexpNode: CapturingGroup | Group | Pattern,
             ) {
