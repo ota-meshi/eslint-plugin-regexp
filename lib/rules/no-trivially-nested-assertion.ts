@@ -8,9 +8,6 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { hasSomeDescendant } from "regexp-ast-analysis"
 
-/**
- * Returns whether the given node is a lookaround.
- */
 function isLookaround(node: RegExpNode): node is LookaroundAssertion {
     return (
         node.type === "Assertion" &&
@@ -68,9 +65,6 @@ export default createRule("no-trivially-nested-assertion", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             fixReplaceNode,

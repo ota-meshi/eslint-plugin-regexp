@@ -154,9 +154,6 @@ export default createRule("no-trivially-nested-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             fixReplaceNode,

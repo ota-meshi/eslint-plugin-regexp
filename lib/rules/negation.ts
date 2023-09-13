@@ -23,9 +23,6 @@ export default createRule("negation", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

@@ -203,7 +203,6 @@ export default createRule("no-misleading-unicode-character", {
     create(context) {
         const fixable = context.options[0]?.fixable ?? false
 
-        /** */
         function makeFix(
             fix: Rule.ReportFixer,
             messageId: string,
@@ -217,9 +216,6 @@ export default createRule("no-misleading-unicode-character", {
             }
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

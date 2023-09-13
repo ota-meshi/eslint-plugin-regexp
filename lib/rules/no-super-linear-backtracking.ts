@@ -62,9 +62,6 @@ export default createRule("no-super-linear-backtracking", {
         const reportUncertain =
             (context.options[0]?.report ?? "certain") === "potential"
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

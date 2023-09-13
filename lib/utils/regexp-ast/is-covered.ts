@@ -410,7 +410,6 @@ function isCoveredForNormalizedNode(
 
 const cacheNormalizeNode = new WeakMap<Node, NormalizedNode>()
 
-/** Normalize node */
 function normalizeNode(node: Node, options: Options): NormalizedNode {
     let n = cacheNormalizeNode.get(node)
     if (n) {
@@ -422,7 +421,6 @@ function normalizeNode(node: Node, options: Options): NormalizedNode {
     return n
 }
 
-/** Normalize node without cache */
 function normalizeNodeWithoutCache(
     node: Node,
     options: Options,
