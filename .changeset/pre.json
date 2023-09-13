@@ -5,7 +5,9 @@
     "eslint-plugin-regexp": "1.15.0"
   },
   "changesets": [
+    "brown-dragons-dance",
     "calm-onions-yell",
+    "clever-jobs-clap",
     "cyan-waves-notice",
     "hungry-spoons-mix",
     "khaki-colts-tell",
