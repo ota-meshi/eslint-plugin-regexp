@@ -1,5 +1,13 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.4
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/no-non-standard-flag` rule ([#596](https://github.com/ota-meshi/eslint-plugin-regexp/pull/596))
+
+-   Improve `regexp/strict` rule to ignore patterns with v flag ([#591](https://github.com/ota-meshi/eslint-plugin-regexp/pull/591))
+
 ## 2.0.0-next.3
 
 ### Minor Changes
