@@ -59,11 +59,7 @@ export default createRule("negation", {
                         // Note: This only affects Unicode property escapes.
                         // All other character sets are either case-invariant
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
-
-                        // since we know that the property doesn't contain strings,
-                        // we can just get the characters of the character class
-                        // without worrying about the strings
-                        const ccSet = toUnicodeSet(ccNode, flags).chars
+                        const ccSet = toUnicodeSet(ccNode, flags)
 
                         const negatedElementSet = toCharSet(
                             {
