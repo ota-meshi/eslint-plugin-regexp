@@ -455,9 +455,6 @@ export default createRule("prefer-character-class", {
         const minCharacterAlternatives: number =
             context.options[0]?.minAlternatives ?? 3
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -492,7 +489,6 @@ export default createRule("prefer-character-class", {
                 return { start, end }
             }
 
-            // eslint-disable-next-line require-jsdoc -- X
             function process(n: NodeWithAlternatives): void {
                 if (n.alternatives.length < 2) {
                     // we need at least 2 alternatives with characters to make this work

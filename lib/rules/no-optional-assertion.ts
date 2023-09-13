@@ -87,9 +87,6 @@ export default createRule("no-optional-assertion", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,

@@ -107,9 +107,6 @@ export default createRule("no-useless-backreference", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,

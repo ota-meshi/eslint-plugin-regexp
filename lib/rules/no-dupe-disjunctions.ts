@@ -281,9 +281,6 @@ function* iteratePartialAlternatives(
     }
 }
 
-/**
- * Unions all given NFAs
- */
 function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
     if (nfas.length === 0) {
         throw new Error("Cannot union 0 NFAs.")
@@ -300,9 +297,6 @@ function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
 
 const MAX_DFA_NODES = 100_000
 
-/**
- * Returns whether one NFA is a subset of another.
- */
 function isSubsetOf(
     superset: ReadonlyNFA,
     subset: ReadonlyNFA,
@@ -330,9 +324,6 @@ const enum SubsetRelation {
     unknown,
 }
 
-/**
- * Returns the subset relation
- */
 function getSubsetRelation(
     left: ReadonlyNFA,
     right: ReadonlyNFA,
@@ -832,14 +823,10 @@ function deduplicateResults(
     })
 }
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }
 
-/** Mentions the given nested alternative. */
 function mentionNested(nested: NestedAlternative): string {
     if (nested.type === "Alternative") {
         return mention(nested)
@@ -963,9 +950,6 @@ export default createRule("no-dupe-disjunctions", {
 
         const allowedRanges = getAllowedCharRanges(undefined, context)
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -1135,7 +1119,6 @@ export default createRule("no-dupe-disjunctions", {
                 }
             }
 
-            /** Prints the given character. */
             function printChar(char: number): string {
                 if (inRange(allowedRanges, char)) {
                     return String.fromCodePoint(char)
@@ -1150,7 +1133,6 @@ export default createRule("no-dupe-disjunctions", {
                 return `\\u{${char.toString(16)}}`
             }
 
-            /** Returns suggestions for fixing the given report */
             function getSuggestions(
                 result: Result,
             ): Rule.SuggestionReportDescriptor[] {
@@ -1232,7 +1214,6 @@ export default createRule("no-dupe-disjunctions", {
                 ]
             }
 
-            /** Report the given result. */
             function reportResult(result: Result, { stared }: FilterInfo) {
                 let exp
                 if (stared === MaybeBool.true) {

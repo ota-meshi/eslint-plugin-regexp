@@ -17,9 +17,6 @@ export default createRule("prefer-named-backreference", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             fixReplaceNode,

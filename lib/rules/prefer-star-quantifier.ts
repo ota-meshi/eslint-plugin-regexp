@@ -17,9 +17,6 @@ export default createRule("prefer-star-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

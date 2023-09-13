@@ -82,9 +82,6 @@ export default createRule("sort-character-class-elements", {
             orderOption[o] = i + 1
         })
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
