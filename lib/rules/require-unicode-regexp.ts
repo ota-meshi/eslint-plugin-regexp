@@ -146,10 +146,7 @@ function isCompatibleCharLike(
     flags: ReadonlyFlags,
     uFlags: ReadonlyFlags,
 ): boolean {
-    // since we know that the property doesn't contain strings,
-    // we can just get the characters of the character class
-    // without worrying about the strings
-    const cs = toUnicodeSet(char, flags).chars
+    const cs = toUnicodeSet(char, flags)
     if (!cs.isDisjointWith(SURROGATES)) {
         // If the character (class/set) contains high or low
         // surrogates, then we won't be able to guarantee that the
@@ -157,10 +154,10 @@ function isCompatibleCharLike(
         return false
     }
 
-    const uCs = toUnicodeSet(char, uFlags).chars
+    const uCs = toUnicodeSet(char, uFlags)
 
     // Compare the ranges.
-    return rangeEqual(cs.ranges, uCs.ranges)
+    return rangeEqual(cs.chars.ranges, uCs.chars.ranges)
 }
 
 /**
@@ -202,22 +199,19 @@ function isCompatibleQuantifier(
         return undefined
     }
 
-    // since we know that the property doesn't contain strings,
-    // we can just get the characters of the character class
-    // without worrying about the strings
-    const cs = toUnicodeSet(q.element, flags).chars
+    const cs = toUnicodeSet(q.element, flags)
     if (!cs.isSupersetOf(SURROGATES)) {
         // failed condition 1
         return false
     }
 
-    const uCs = toUnicodeSet(q.element, uFlags).chars
+    const uCs = toUnicodeSet(q.element, uFlags)
     if (!uCs.isSupersetOf(SURROGATES) || !uCs.isSupersetOf(ASTRAL)) {
         // failed condition 2
         return false
     }
 
-    if (!rangeEqual(cs.ranges, uCs.without(ASTRAL).ranges)) {
+    if (!rangeEqual(cs.chars.ranges, uCs.without(ASTRAL).chars.ranges)) {
         // failed condition 3
         return false
     }
