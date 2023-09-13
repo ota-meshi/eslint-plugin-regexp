@@ -10,9 +10,6 @@ import type { AST } from "@eslint-community/regexpp"
 
 export type NestedAlternative = AST.Alternative | AST.CharacterClassElement
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }

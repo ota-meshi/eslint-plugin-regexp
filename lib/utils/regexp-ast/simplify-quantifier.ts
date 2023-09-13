@@ -339,9 +339,6 @@ function removeTargetQuantifier(
     return result
 }
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }

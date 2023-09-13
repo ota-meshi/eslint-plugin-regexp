@@ -79,9 +79,6 @@ export default createRule("strict", {
         hasSuggestions: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -96,7 +93,6 @@ export default createRule("strict", {
             let reported = false
             let hasNamedBackreference = false
 
-            /** Report */
             function report(
                 messageId: string,
                 element: Element,

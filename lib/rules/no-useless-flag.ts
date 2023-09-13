@@ -371,9 +371,6 @@ function createUselessGlobalFlagVisitor(
         return buildReportData(regExpReference)
     }
 
-    /**
-     * Build the report data.
-     */
     function buildReportData(regExpReference: RegExpReference) {
         const usedNodes = regExpReference.getUsedNodes()
         if (usedNodes.size === 1) {
@@ -464,9 +461,6 @@ function createUselessStickyFlagVisitor(
         return buildReportData(regExpReference)
     }
 
-    /**
-     * Build the report data.
-     */
     function buildReportData(regExpReference: RegExpReference) {
         const usedNodes = regExpReference.getUsedNodes()
         if (usedNodes.size === 1) {
@@ -765,9 +759,6 @@ function createOwnedRegExpFlagsVisitor(context: Rule.RuleContext) {
     })
 }
 
-/**
- * Parse option
- */
 function parseOption(
     userOption:
         | {

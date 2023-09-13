@@ -582,9 +582,6 @@ export default createRule("optimal-quantifier-concatenation", {
             context.options[0]?.capturingGroups ??
             CapturingGroupReporting.report
 
-        /**
-         * Creates a visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -291,9 +291,6 @@ function* iteratePropertyReferencesForShallowCopy(
     }
 }
 
-/**
- * Get property from given node
- */
 function getProperty(
     node: MemberExpression | Property,
     context: Rule.RuleContext,

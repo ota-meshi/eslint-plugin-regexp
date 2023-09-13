@@ -28,7 +28,6 @@ export default createRule("no-invalid-regexp", {
         type: "problem",
     },
     create(context) {
-        /** Visit invalid regexes */
         function visitInvalid(regexpContext: RegExpContextForInvalid): void {
             const { node, error, patternSource } = regexpContext
 

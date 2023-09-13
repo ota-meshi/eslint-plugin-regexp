@@ -74,9 +74,6 @@ export default createRule("optimal-lookaround-quantifier", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
