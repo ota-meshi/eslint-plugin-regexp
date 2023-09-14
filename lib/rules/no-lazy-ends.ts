@@ -4,9 +4,6 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
-/**
- * Extract lazy end quantifiers
- */
 function* extractLazyEndQuantifiers(
     alternatives: Alternative[],
 ): IterableIterator<Quantifier> {
@@ -73,9 +70,6 @@ export default createRule("no-lazy-ends", {
     create(context) {
         const ignorePartial = context.options[0]?.ignorePartial ?? true
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

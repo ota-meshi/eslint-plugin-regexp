@@ -39,9 +39,6 @@ export default createRule("prefer-result-array-groups", {
         const strictTypes = context.options[0]?.strictTypes ?? true
         const sourceCode = context.getSourceCode()
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

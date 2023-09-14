@@ -18,9 +18,6 @@ export default createRule("no-useless-range", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             fixReplaceNode,

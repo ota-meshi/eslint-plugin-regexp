@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/strict"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -22,6 +22,7 @@ tester.run("strict", rule as any, {
         String.raw`/[\( \) \[ \] \{ \} \| \* \+ \? \^ \$ \\ \/ \. \-]/`,
         "/\\u000f/",
         "/\\x000f/",
+        String.raw`/[A--B]/v`,
     ],
     invalid: [
         // source characters

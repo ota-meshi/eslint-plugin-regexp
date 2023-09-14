@@ -113,9 +113,6 @@ export default createRule("prefer-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             patternSource,
@@ -142,9 +139,6 @@ export default createRule("prefer-quantifier", {
 
                     validateBuffer(charBuffer)
 
-                    /**
-                     * Validate
-                     */
                     function validateBuffer(buffer: CharBuffer | null) {
                         if (!buffer || buffer.isValid()) {
                             return

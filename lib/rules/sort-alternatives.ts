@@ -46,7 +46,6 @@ interface AllowedChars {
 }
 const cache = new Map<string, Readonly<AllowedChars>>()
 
-/** */
 function getAllowedChars(flags: ReadonlyFlags) {
     assertValidFlags(flags)
     const cacheKey =
@@ -640,9 +639,6 @@ export default createRule("sort-alternatives", {
     create(context) {
         const sliceMinLength = 3
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -748,7 +744,6 @@ export default createRule("sort-alternatives", {
                 })
             }
 
-            /** The handler for parents */
             function onParent(parent: Alternative["parent"]): void {
                 if (parent.alternatives.length < 2) {
                     return

@@ -79,16 +79,13 @@ export default createRule("strict", {
         hasSuggestions: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { node, flags, pattern, getRegexpLocation, fixReplaceNode } =
                 regexpContext
 
-            if (flags.unicode) {
+            if (flags.unicode || flags.unicodeSets) {
                 // the Unicode flag enables strict parsing mode automatically
                 return {}
             }
@@ -96,7 +93,6 @@ export default createRule("strict", {
             let reported = false
             let hasNamedBackreference = false
 
-            /** Report */
             function report(
                 messageId: string,
                 element: Element,
