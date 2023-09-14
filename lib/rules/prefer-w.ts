@@ -16,13 +16,9 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
-/**
- * Checks if small letter char class range
- * @param node The node to check
- */
 function isSmallLetterRange(node: CharacterClassElement) {
     return (
         node.type === "CharacterClassRange" &&
@@ -31,10 +27,6 @@ function isSmallLetterRange(node: CharacterClassElement) {
     )
 }
 
-/**
- * Checks if capital letter char class range
- * @param node The node to check
- */
 function isCapitalLetterRange(node: CharacterClassElement) {
     return (
         node.type === "CharacterClassRange" &&
@@ -43,23 +35,15 @@ function isCapitalLetterRange(node: CharacterClassElement) {
     )
 }
 
-/**
- * Checks if digit char class
- * @param node The node to check
- */
 function isDigitRangeOrSet(node: CharacterClassElement) {
     return (
         (node.type === "CharacterClassRange" &&
             node.min.value === CP_DIGIT_ZERO &&
             node.max.value === CP_DIGIT_NINE) ||
-        (node.type === "CharacterSet" && node.kind === "digit")
+        (node.type === "CharacterSet" && node.kind === "digit" && !node.negate)
     )
 }
 
-/**
- * Checks if includes `_`
- * @param node The node to check
- */
 function isUnderscoreCharacter(node: CharacterClassElement) {
     return node.type === "Character" && node.value === CP_LOW_LINE
 }
@@ -80,9 +64,6 @@ export default createRule("prefer-w", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,
@@ -92,14 +73,13 @@ export default createRule("prefer-w", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(ccNode, flags)
+                    const charSet = toUnicodeSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined
-                    if (charSet.equals(Chars.word(flags))) {
+                    const word = Chars.word(flags)
+                    if (charSet.equals(word)) {
                         predefined = "\\w"
-                    } else if (charSet.equals(Chars.word(flags).negate())) {
+                    } else if (charSet.equals(word.negate())) {
                         predefined = "\\W"
                     }
 

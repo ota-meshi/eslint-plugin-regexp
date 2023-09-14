@@ -16,9 +16,6 @@ export default createRule("no-escape-backspace", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

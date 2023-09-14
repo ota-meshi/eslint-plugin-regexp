@@ -296,7 +296,6 @@ export function defineRegexpVisitor(
     return visitor
 }
 
-/** Build RegExp visitor */
 function buildRegexpVisitor(
     context: Rule.RuleContext,
     rules: RegexpRule[],

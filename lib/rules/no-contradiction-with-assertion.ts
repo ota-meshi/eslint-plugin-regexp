@@ -249,7 +249,6 @@ export default createRule("no-contradiction-with-assertion", {
         type: "problem",
     },
     create(context) {
-        /** Create visitor */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -42,9 +42,7 @@ export default createRule("${ruleId}", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
+
         function createVisitor(regexpContext: RegExpContext): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation } = regexpContext
         }

@@ -19,9 +19,6 @@ export default createRule("no-octal", {
         hasSuggestions: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             fixReplaceNode,

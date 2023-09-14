@@ -20,9 +20,6 @@ export default createRule("prefer-t", {
         replacedBy: ["control-character-escape"],
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
             allows: string[],

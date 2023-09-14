@@ -21,9 +21,6 @@ export default createRule("no-extra-lookaround-assertions", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -39,7 +36,6 @@ export default createRule("no-extra-lookaround-assertions", {
             }
         }
 
-        /** Verify for lookaround assertion */
         function verify(
             regexpContext: RegExpContext,
             assertion: LookaroundAssertion,
@@ -64,7 +60,6 @@ export default createRule("no-extra-lookaround-assertions", {
             }
         }
 
-        /** Report */
         function reportLookaroundAssertion(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             assertion: LookaroundAssertion,

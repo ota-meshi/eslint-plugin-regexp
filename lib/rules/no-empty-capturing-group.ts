@@ -17,9 +17,6 @@ export default createRule("no-empty-capturing-group", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,

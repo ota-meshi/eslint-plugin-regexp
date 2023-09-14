@@ -32,9 +32,6 @@ export default createRule("hexadecimal-escape", {
     create(context) {
         const always = context.options[0] !== "never"
 
-        /**
-         * Verify for always
-         */
         function verifyForAlways(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             kind: EscapeSequenceKind,
@@ -62,9 +59,6 @@ export default createRule("hexadecimal-escape", {
             })
         }
 
-        /**
-         * Verify for never
-         */
         function verifyForNever(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             kind: EscapeSequenceKind,
@@ -86,9 +80,6 @@ export default createRule("hexadecimal-escape", {
 
         const verify = always ? verifyForAlways : verifyForNever
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

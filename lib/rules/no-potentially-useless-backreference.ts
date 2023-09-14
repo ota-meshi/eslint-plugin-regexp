@@ -23,9 +23,6 @@ export default createRule("no-potentially-useless-backreference", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,
