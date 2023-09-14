@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-contradiction-with-assertion"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -15,10 +15,12 @@ tester.run("no-contradiction-with-assertion", rule as any, {
         String.raw`/(?!)a/`,
         String.raw`/(?=)a/`,
         String.raw`/$a/`,
+        String.raw`/$a/v`,
 
         // Other valid regexes
         String.raw`/(^|[\s\S])\bfoo/`,
         String.raw`/(?:aa|a\b)-?a/`,
+        String.raw`/(?:aa|a\b)-?a/v`,
     ],
     invalid: [
         {
@@ -45,6 +47,15 @@ tester.run("no-contradiction-with-assertion", rule as any, {
                 {
                     messageId: "cannotEnterQuantifier",
                     suggestions: [{ output: String.raw`/a\b-/` }],
+                },
+            ],
+        },
+        {
+            code: String.raw`/a\b[a\q{foo|bar}]*-/v`,
+            errors: [
+                {
+                    messageId: "cannotEnterQuantifier",
+                    suggestions: [{ output: String.raw`/a\b-/v` }],
                 },
             ],
         },
