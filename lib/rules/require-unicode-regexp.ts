@@ -15,8 +15,8 @@ import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     hasSomeDescendant,
     toCache,
-    toCharSet,
     getFirstCharAfter,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 
 const UTF16_MAX = 0xffff
@@ -146,9 +146,7 @@ function isCompatibleCharLike(
     flags: ReadonlyFlags,
     uFlags: ReadonlyFlags,
 ): boolean {
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const cs = toCharSet(char, flags)
+    const cs = toUnicodeSet(char, flags)
     if (!cs.isDisjointWith(SURROGATES)) {
         // If the character (class/set) contains high or low
         // surrogates, then we won't be able to guarantee that the
@@ -156,12 +154,10 @@ function isCompatibleCharLike(
         return false
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const uCs = toCharSet(char, uFlags)
+    const uCs = toUnicodeSet(char, uFlags)
 
     // Compare the ranges.
-    return rangeEqual(cs.ranges, uCs.ranges)
+    return rangeEqual(cs.chars.ranges, uCs.chars.ranges)
 }
 
 /**
@@ -203,23 +199,19 @@ function isCompatibleQuantifier(
         return undefined
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const cs = toCharSet(q.element, flags)
+    const cs = toUnicodeSet(q.element, flags)
     if (!cs.isSupersetOf(SURROGATES)) {
         // failed condition 1
         return false
     }
 
-    // FIXME: TS Error
-    // @ts-expect-error -- FIXME
-    const uCs = toCharSet(q.element, uFlags)
+    const uCs = toUnicodeSet(q.element, uFlags)
     if (!uCs.isSupersetOf(SURROGATES) || !uCs.isSupersetOf(ASTRAL)) {
         // failed condition 2
         return false
     }
 
-    if (!rangeEqual(cs.ranges, uCs.without(ASTRAL).ranges)) {
+    if (!rangeEqual(cs.chars.ranges, uCs.without(ASTRAL).chars.ranges)) {
         // failed condition 3
         return false
     }
@@ -353,7 +345,7 @@ export default createRule("require-unicode-regexp", {
                 return {}
             }
 
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 context.report({
                     node,
                     loc: getFlagsLocation(),
