@@ -1,5 +1,17 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.6
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/prefer-unicode-codepoint-escapes` rule ([#592](https://github.com/ota-meshi/eslint-plugin-regexp/pull/592))
+
+-   Add support for v flag to `regexp/unicode-escape` rule ([#592](https://github.com/ota-meshi/eslint-plugin-regexp/pull/592))
+
+### Patch Changes
+
+-   Add support for `v` flag to `regexp/no-contradiction-with-assertion` ([#606](https://github.com/ota-meshi/eslint-plugin-regexp/pull/606))
+
 ## 2.0.0-next.5
 
 ### Minor Changes
