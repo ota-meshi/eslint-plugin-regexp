@@ -23,7 +23,7 @@ export default createRule("prefer-unicode-codepoint-escapes", {
         ): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation, fixReplaceNode } =
                 regexpContext
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 return {}
             }
             return {

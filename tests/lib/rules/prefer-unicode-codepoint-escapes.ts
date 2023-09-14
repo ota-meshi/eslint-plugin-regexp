@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-unicode-codepoint-escapes"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -15,6 +15,8 @@ tester.run("prefer-unicode-codepoint-escapes", rule as any, {
         String.raw`/[\ud83d\ude00]/`,
         String.raw`/\u{1f600}/u`,
         String.raw`/😀/u`,
+        String.raw`/\u{1f600}/v`,
+        String.raw`/😀/v`,
     ],
     invalid: [
         {
@@ -73,6 +75,20 @@ tester.run("prefer-unicode-codepoint-escapes", rule as any, {
             output: null,
             errors: [
                 "Use Unicode codepoint escapes instead of Unicode escapes using surrogate pairs.",
+            ],
+        },
+        {
+            code: String.raw`/\ud83d\ude00/v`,
+            output: String.raw`/\u{1f600}/v`,
+            errors: [
+                {
+                    message:
+                        "Use Unicode codepoint escapes instead of Unicode escapes using surrogate pairs.",
+                    line: 1,
+                    column: 2,
+                    endLine: 1,
+                    endColumn: 14,
+                },
             ],
         },
     ],
