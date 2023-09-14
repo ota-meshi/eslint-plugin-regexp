@@ -1,9 +1,4 @@
-import type {
-    RegExpLiteral,
-    Pattern,
-    Element,
-    Alternative,
-} from "@eslint-community/regexpp/ast"
+import type { RegExpLiteral, Pattern } from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 import type { Expression } from "estree"
 import {
@@ -13,14 +8,6 @@ import {
 } from "@eslint-community/regexpp"
 import { getStaticValue } from "../ast-utils"
 import { JS } from "refa"
-import type { CharRange, CharSet } from "refa"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import {
-    Chars,
-    hasSomeDescendant,
-    isEmptyBackreference,
-    toCharSet,
-} from "regexp-ast-analysis"
 import type { RegExpContext } from ".."
 export { getFirstConsumedCharPlusAfter } from "./common"
 export type { ShortCircuit } from "./common"
@@ -42,7 +29,10 @@ export function getRegExpNodeFromExpression(
                     node.regex.pattern,
                     0,
                     node.regex.pattern.length,
-                    node.regex.flags.includes("u"),
+                    {
+                        unicode: node.regex.flags.includes("u"),
+                        unicodeSets: node.regex.flags.includes("v"),
+                    },
                 )
             } catch {
                 return null
@@ -82,67 +72,6 @@ export function extractCaptures(patternNode: RegExpLiteral | Pattern): {
     return { count, names }
 }
 
-export interface PossiblyConsumedChar {
-    char: CharSet
-    /**
-     * Whether `char` is exact.
-     *
-     * If `false`, then `char` is only guaranteed to be a superset of the
-     * actually possible characters.
-     */
-    exact: boolean
-}
-
-/**
- * Returns the union of all characters that can possibly be consumed by the
- * given element.
- */
-export function getPossiblyConsumedChar(
-    element: Element | Pattern | Alternative,
-    flags: ReadonlyFlags,
-): PossiblyConsumedChar {
-    const ranges: CharRange[] = []
-    let exact = true
-
-    // we misuse hasSomeDescendant to iterate all relevant elements
-    hasSomeDescendant(
-        element,
-        (d) => {
-            if (
-                d.type === "Character" ||
-                d.type === "CharacterClass" ||
-                d.type === "CharacterSet"
-            ) {
-                const c = toCharSet(d, flags)
-                ranges.push(...c.ranges)
-                exact = exact && !c.isEmpty
-            } else if (d.type === "Backreference" && !isEmptyBackreference(d)) {
-                const c = getPossiblyConsumedChar(d.resolved, flags)
-                ranges.push(...c.char.ranges)
-                exact = exact && c.exact && c.char.size < 2
-            }
-
-            // always continue to the next element
-            return false
-        },
-        // don't go into assertions
-        (d) => {
-            if (d.type === "CharacterClass") {
-                return false
-            }
-            if (d.type === "Assertion") {
-                exact = false
-                return false
-            }
-            return true
-        },
-    )
-
-    const char = Chars.empty(flags).union(ranges)
-
-    return { char, exact }
-}
-
 /**
  * Create a `JS.RegexppAst` object as required by refa's `JS.Parser.fromAst`
  * method and `ParsedLiteral` interface of the scslre library.
@@ -155,8 +84,6 @@ export function getJSRegexppAst(
 
     return {
         pattern: patternAst,
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
         flags: {
             type: "Flags",
             raw: flagsString ?? "",
@@ -170,6 +97,7 @@ export function getJSRegexppAst(
             multiline: flags.multiline ?? false,
             sticky: !ignoreSticky && (flags.sticky ?? false),
             unicode: flags.unicode ?? false,
+            unicodeSets: flags.unicodeSets ?? false,
         },
     }
 }

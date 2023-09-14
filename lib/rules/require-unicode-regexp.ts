@@ -46,7 +46,7 @@ function isSyntacticallyCompatible(pattern: Pattern): false | Pattern {
             pattern.raw,
             undefined,
             undefined,
-            true,
+            { unicode: true },
         )
     } catch (_error) {
         return false
@@ -146,6 +146,8 @@ function isCompatibleCharLike(
     flags: ReadonlyFlags,
     uFlags: ReadonlyFlags,
 ): boolean {
+    // FIXME: TS Error
+    // @ts-expect-error -- FIXME
     const cs = toCharSet(char, flags)
     if (!cs.isDisjointWith(SURROGATES)) {
         // If the character (class/set) contains high or low
@@ -154,6 +156,8 @@ function isCompatibleCharLike(
         return false
     }
 
+    // FIXME: TS Error
+    // @ts-expect-error -- FIXME
     const uCs = toCharSet(char, uFlags)
 
     // Compare the ranges.
@@ -199,12 +203,16 @@ function isCompatibleQuantifier(
         return undefined
     }
 
+    // FIXME: TS Error
+    // @ts-expect-error -- FIXME
     const cs = toCharSet(q.element, flags)
     if (!cs.isSupersetOf(SURROGATES)) {
         // failed condition 1
         return false
     }
 
+    // FIXME: TS Error
+    // @ts-expect-error -- FIXME
     const uCs = toCharSet(q.element, uFlags)
     if (!uCs.isSupersetOf(SURROGATES) || !uCs.isSupersetOf(ASTRAL)) {
         // failed condition 2
@@ -328,9 +336,6 @@ export default createRule("require-unicode-regexp", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -17,16 +17,14 @@ export default createRule("no-empty-capturing-group", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCapturingGroupEnter(cgNode) {
-                    if (isZeroLength(cgNode)) {
+                    if (isZeroLength(cgNode, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(cgNode),

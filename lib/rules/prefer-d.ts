@@ -60,9 +60,6 @@ export default createRule("prefer-d", {
         const insideCharacterClass: "ignore" | "range" | "d" =
             context.options[0]?.insideCharacterClass ?? "d"
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,
@@ -71,6 +68,8 @@ export default createRule("prefer-d", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode) {
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     const charSet = toCharSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined

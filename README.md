@@ -40,7 +40,7 @@ npm install --save-dev eslint eslint-plugin-regexp
 
 > **Requirements**
 >
-> - ESLint v6.0.0 and above
+> - ESLint v8.44.0 and above
 > - Node.js v18.x, v20.x and above
 
 <!--DOCS_IGNORE_END-->

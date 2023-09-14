@@ -18,9 +18,6 @@ export default createRule("prefer-unicode-codepoint-escapes", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

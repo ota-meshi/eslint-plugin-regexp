@@ -129,9 +129,6 @@ export default createRule("match-any", {
             return range?.replace(fixer, preference) ?? null
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -4,6 +4,7 @@ import {
     hasSomeDescendant,
     toCharSet,
     isEmptyBackreference,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 import type {
     Alternative,
@@ -93,7 +94,9 @@ export function isCaseVariant(
                         return unicode
                     case "property":
                         // just check for equality
-                        return !toCharSet(e, iSet).equals(toCharSet(e, iUnset))
+                        return !toUnicodeSet(e, iSet).equals(
+                            toUnicodeSet(e, iUnset),
+                        )
                     default:
                         // all other character sets are case-invariant
                         return false
@@ -123,7 +126,7 @@ export function isCaseVariant(
                     }
 
                     return (
-                        !isEmptyBackreference(d) &&
+                        !isEmptyBackreference(d, flags) &&
                         isCaseVariant(d.resolved, flags)
                     )
 
@@ -139,7 +142,9 @@ export function isCaseVariant(
                         return d.elements.some(ccElementIsCaseVariant)
                     }
                     // just check for equality
-                    return !toCharSet(d, iSet).equals(toCharSet(d, iUnset))
+                    return !toUnicodeSet(d, iSet).equals(
+                        toUnicodeSet(d, iUnset),
+                    )
 
                 default:
                     return false

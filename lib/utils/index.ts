@@ -179,13 +179,15 @@ type RegexpRule = ParsableRegexpRule & UnparsableRegexpRule
 const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
 
 export const FLAG_GLOBAL = "g"
-export const FLAG_DOTALL = "s"
+export const FLAG_DOT_ALL = "s"
+export const FLAG_HAS_INDICES = "d"
 export const FLAG_IGNORECASE = "i"
 export const FLAG_MULTILINE = "m"
 export const FLAG_STICKY = "y"
 export const FLAG_UNICODE = "u"
+export const FLAG_UNICODE_SETS = "v"
 
-const flagsCache = new Map<string, ReadonlyFlags>()
+const flagsCache = new Map<string, Required<ReadonlyFlags>>()
 
 /**
  * Given some flags, this will return a parsed flags object.
@@ -196,16 +198,30 @@ export function parseFlags(flags: string): ReadonlyFlags {
     let cached = flagsCache.get(flags)
     if (cached === undefined) {
         cached = {
-            dotAll: flags.includes(FLAG_DOTALL),
+            dotAll: flags.includes(FLAG_DOT_ALL),
             global: flags.includes(FLAG_GLOBAL),
+            hasIndices: flags.includes(FLAG_HAS_INDICES),
             ignoreCase: flags.includes(FLAG_IGNORECASE),
             multiline: flags.includes(FLAG_MULTILINE),
             sticky: flags.includes(FLAG_STICKY),
             unicode: flags.includes(FLAG_UNICODE),
+            unicodeSets: flags.includes(FLAG_UNICODE_SETS),
         }
         flagsCache.set(flags, cached)
     }
     return cached
+}
+
+/**
+ * Asserts that the given flags are valid (no `u` and `v` flag together).
+ * @param flags
+ */
+export function assertValidFlags(
+    flags: ReadonlyFlags,
+): asserts flags is JS.Flags {
+    if (!JS.isFlags(flags)) {
+        throw new Error(`Invalid flags: ${JSON.stringify(flags)}`)
+    }
 }
 
 /**
@@ -280,7 +296,6 @@ export function defineRegexpVisitor(
     return visitor
 }
 
-/** Build RegExp visitor */
 function buildRegexpVisitor(
     context: Rule.RuleContext,
     rules: RegexpRule[],
@@ -329,7 +344,7 @@ function buildRegexpVisitor(
                 patternSource.value,
                 0,
                 patternSource.value.length,
-                flags.unicode,
+                flags,
             )
         } catch (error: unknown) {
             if (error instanceof SyntaxError) {
@@ -1071,6 +1086,7 @@ export function toCharSetSource(
     charSetOrChar: CharSet | number,
     flags: ReadonlyFlags,
 ): string {
+    assertValidFlags(flags)
     let charSet
     if (typeof charSetOrChar === "number") {
         charSet = JS.createCharSet([charSetOrChar], flags)
@@ -1086,16 +1102,11 @@ export function toCharSetSource(
     ).source
 }
 
-/* eslint-disable complexity -- X( */
 /**
  * Returns whether the concatenation of the two string might create new escape
  * sequences or elements.
  */
-export function mightCreateNewElement(
-    /* eslint-enable complexity -- X( */
-    before: string,
-    after: string,
-): boolean {
+export function mightCreateNewElement(before: string, after: string): boolean {
     // control
     // \cA
     if (before.endsWith("\\c") && /^[a-z]/iu.test(after)) {

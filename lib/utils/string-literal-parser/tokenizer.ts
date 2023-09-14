@@ -95,7 +95,6 @@ export class Tokenizer {
         }
     }
 
-    // eslint-disable-next-line complexity -- ignore
     private readEscape(inTemplate: boolean): {
         value: string
         kind: EscapeToken["kind"]

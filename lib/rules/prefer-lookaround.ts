@@ -23,14 +23,13 @@ import type {
 import type { Expression, Literal } from "estree"
 import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
-import {
-    getFirstConsumedCharPlusAfter,
-    getPossiblyConsumedChar,
-} from "../utils/regexp-ast"
+import { getFirstConsumedCharPlusAfter } from "../utils/regexp-ast"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getLengthRange,
     isZeroLength,
     FirstConsumedChars,
+    getConsumedChars,
 } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 
@@ -122,15 +121,15 @@ function getSideEffectsWhenReplacingCapturingGroup(
     const result = new Set<SideEffect>()
 
     if (start) {
-        const { char } = getPossiblyConsumedChar(start, flags)
-        if (!hasDisjoint(char, elements.slice(1))) {
+        const { chars } = getConsumedChars(start, flags)
+        if (!hasDisjoint(chars, elements.slice(1))) {
             result.add(SideEffect.startRef)
         } else {
             const last = elements[elements.length - 1]
             const lastChar = FirstConsumedChars.toLook(
                 getFirstConsumedCharPlusAfter(last, "rtl", flags),
             )
-            if (!lastChar.char.isDisjointWith(char)) {
+            if (!lastChar.char.isDisjointWith(chars)) {
                 result.add(SideEffect.startRef)
             }
         }
@@ -139,12 +138,12 @@ function getSideEffectsWhenReplacingCapturingGroup(
     if (end && flags.global) {
         const first = elements[0]
         if (first) {
-            const { char } = getPossiblyConsumedChar(end, flags)
+            const { chars } = getConsumedChars(end, flags)
 
             const firstChar = FirstConsumedChars.toLook(
                 getFirstConsumedCharPlusAfter(first, "ltr", flags),
             )
-            if (!firstChar.char.isDisjointWith(char)) {
+            if (!firstChar.char.isDisjointWith(chars)) {
                 result.add(SideEffect.endRef)
             }
         }
@@ -156,11 +155,11 @@ function getSideEffectsWhenReplacingCapturingGroup(
     function hasDisjoint(target: CharSet, targetElements: Element[]) {
         for (const element of targetElements) {
             if (isConstantLength(element)) {
-                const elementChars = getPossiblyConsumedChar(element, flags)
-                if (elementChars.char.isEmpty) {
+                const elementChars = getConsumedChars(element, flags)
+                if (elementChars.chars.isEmpty) {
                     continue
                 }
-                if (elementChars.char.isDisjointWith(target)) {
+                if (elementChars.chars.isDisjointWith(target)) {
                     return true
                 }
             } else {
@@ -175,7 +174,7 @@ function getSideEffectsWhenReplacingCapturingGroup(
 
     /** Checks whether the given element is constant length. */
     function isConstantLength(target: Element): boolean {
-        const range = getLengthRange(target)
+        const range = getLengthRange(target, flags)
         return range.min === range.max
     }
 }
@@ -183,8 +182,9 @@ function getSideEffectsWhenReplacingCapturingGroup(
 /** Checks whether the given element is a capturing group of length 1 or greater. */
 function isCapturingGroupAndNotZeroLength(
     element: Element,
+    flags: ReadonlyFlags,
 ): element is CapturingGroup {
-    return element.type === "CapturingGroup" && !isZeroLength(element)
+    return element.type === "CapturingGroup" && !isZeroLength(element, flags)
 }
 
 type ParsedStartPattern = {
@@ -224,10 +224,10 @@ type ParsedElements = {
     end: ParsedEndPattern | null
 }
 
-/**
- * Parse the elements of the pattern.
- */
-function parsePatternElements(node: Pattern): ParsedElements | null {
+function parsePatternElements(
+    node: Pattern,
+    flags: ReadonlyFlags,
+): ParsedElements | null {
     if (node.alternatives.length > 1) {
         return null
     }
@@ -236,11 +236,11 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let start: ParsedStartPattern | null = null
 
     for (const element of elements) {
-        if (isZeroLength(element)) {
+        if (isZeroLength(element, flags)) {
             leadingElements.push(element)
             continue
         }
-        if (isCapturingGroupAndNotZeroLength(element)) {
+        if (isCapturingGroupAndNotZeroLength(element, flags)) {
             const capturingGroup = element
             start = {
                 leadingElements,
@@ -261,12 +261,12 @@ function parsePatternElements(node: Pattern): ParsedElements | null {
     let end: ParsedEndPattern | null = null
     const trailingElements: Element[] = []
     for (const element of [...elements].reverse()) {
-        if (isZeroLength(element)) {
+        if (isZeroLength(element, flags)) {
             trailingElements.unshift(element)
             continue
         }
 
-        if (isCapturingGroupAndNotZeroLength(element)) {
+        if (isCapturingGroupAndNotZeroLength(element, flags)) {
             const capturingGroup = element
             end = {
                 capturingGroup,
@@ -358,9 +358,6 @@ function leadingTrailingElementsToLookaroundAssertionPatternText(
     return leadingTrailingElements.map((e) => e.raw).join("")
 }
 
-/**
- * Parse option
- */
 function parseOption(
     userOption:
         | {
@@ -405,14 +402,11 @@ export default createRule("prefer-lookaround", {
         const { lookbehind, strictTypes } = parseOption(context.options[0])
         const typeTracer = createTypeTracker(context)
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
-            const { regexpNode, patternAst } = regexpContext
-            const parsedElements = parsePatternElements(patternAst)
+            const { regexpNode, flags, patternAst } = regexpContext
+            const parsedElements = parsePatternElements(patternAst, flags)
             if (!parsedElements) {
                 return {}
             }
@@ -482,9 +476,6 @@ export default createRule("prefer-lookaround", {
             )
         }
 
-        /**
-         * Get the replace reference info from given call expression
-         */
         function getReplaceReferenceFromCallExpression(
             node: KnownMethodCall,
         ): ReplaceReferences | null {
@@ -508,9 +499,6 @@ export default createRule("prefer-lookaround", {
             )
         }
 
-        /**
-         * Get the replace reference info from given literal replacement argument
-         */
         function getReplaceReferenceFromLiteralReplacementArgument(
             node: Literal,
         ): ReplaceReferences | null {
@@ -542,9 +530,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Get the replace reference info from given non-literal replacement argument
-         */
         function getReplaceReferenceFromNonLiteralReplacementArgument(
             node: Expression,
         ): ReplaceReferences | null {
@@ -584,9 +569,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Create visitor for verify capturing groups
-         */
         function createVerifyVisitor(
             regexpContext: RegExpContext,
             parsedElements: ParsedElements,
@@ -621,7 +603,6 @@ export default createRule("prefer-lookaround", {
                         endRefState,
                     )
 
-                    /** Process state */
                     function processForState(
                         refName: string | number | undefined,
                         otherThanRefNames: Set<string | number>,
@@ -782,9 +763,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Build fixer function
-         */
         function buildFixer(
             regexpContext: RegExpContext,
             replaceCapturingGroups: (ParsedStartPattern | ParsedEndPattern)[],

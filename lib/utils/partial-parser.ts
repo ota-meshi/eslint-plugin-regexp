@@ -10,9 +10,6 @@ import type { AST } from "@eslint-community/regexpp"
 
 export type NestedAlternative = AST.Alternative | AST.CharacterClassElement
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }
@@ -206,7 +203,7 @@ export class PartialParser {
             }
             return {
                 type: "CharacterClass",
-                characters: JS.createCharSet([range], this.parser.ast.flags),
+                characters: JS.createCharSet([range], this.parser.flags),
             }
         }
         // FIXME: TS Error

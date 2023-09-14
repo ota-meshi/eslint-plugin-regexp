@@ -53,9 +53,6 @@ export default createRule("prefer-predefined-assertion", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -203,6 +200,8 @@ export default createRule("prefer-predefined-assertion", {
                         }
                     }
 
+                    // FIXME: TS Error
+                    // @ts-expect-error -- FIXME
                     const charSet = toCharSet(chars, flags)
                     if (charSet.isAll) {
                         replaceEdgeAssertion(aNode, false)

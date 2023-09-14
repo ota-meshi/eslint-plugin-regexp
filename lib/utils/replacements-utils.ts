@@ -17,9 +17,6 @@ type BaseReferenceElement<T> = {
     refText: string
 } & T
 
-/**
- * Parse replacements string
- */
 export function parseReplacementsForString(
     text: string,
 ): BaseReplacementElement<{
@@ -36,9 +33,6 @@ export function parseReplacementsForString(
     )
 }
 
-/**
- * Parse replacements base
- */
 export function baseParseReplacements<T, E extends { value: string }>(
     chars: E[],
     getData: (start: E, end: E) => T,
@@ -81,7 +75,6 @@ export function baseParseReplacements<T, E extends { value: string }>(
 
     return elements
 
-    /** Parse number reference */
     function parseNumberRef(dollarToken: E, startToken: E): boolean {
         if (!/^\d$/u.test(startToken.value)) {
             return false
@@ -114,7 +107,6 @@ export function baseParseReplacements<T, E extends { value: string }>(
         return true
     }
 
-    /** Parse named reference */
     function parseNamedRef(dollarToken: E, startToken: E): boolean {
         if (startToken.value !== "<") {
             return false

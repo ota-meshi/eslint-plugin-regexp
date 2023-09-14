@@ -14,11 +14,11 @@ import {
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
+    assertValidFlags,
 } from "../utils"
 import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
-    combineTransformers,
     Transformers,
     DFA,
     NFA,
@@ -143,17 +143,6 @@ function isNonRegular(node: Node): boolean {
     )
 }
 
-const creationOption: Transformers.CreationOptions = {
-    ignoreAmbiguity: true,
-    ignoreOrder: true,
-}
-const assertionTransformer = combineTransformers([
-    Transformers.applyAssertions(creationOption),
-    Transformers.removeUnnecessaryAssertions(creationOption),
-    Transformers.inline(creationOption),
-    Transformers.removeDeadBranches(creationOption),
-])
-
 /**
  * Create an NFA from the given element.
  *
@@ -174,7 +163,13 @@ function toNFA(
 
         let e
         if (containsAssertions(expression)) {
-            e = transform(assertionTransformer, expression)
+            e = transform(
+                Transformers.simplify({
+                    ignoreAmbiguity: true,
+                    ignoreOrder: true,
+                }),
+                expression,
+            )
         } else {
             e = expression
         }
@@ -190,7 +185,7 @@ function toNFA(
     } catch (_error) {
         return {
             nfa: NFA.empty({
-                maxCharacter: parser.ast.flags.unicode ? 0x10ffff : 0xffff,
+                maxCharacter: parser.maxCharacter,
             }),
             partial: true,
         }
@@ -269,7 +264,7 @@ function* iteratePartialAlternatives(
         return
     }
 
-    const maxCharacter = parser.ast.flags.unicode ? 0x10ffff : 0xffff
+    const maxCharacter = parser.maxCharacter
     const partialParser = new PartialParser(parser, {
         assertions: "throw",
         backreferences: "throw",
@@ -286,9 +281,6 @@ function* iteratePartialAlternatives(
     }
 }
 
-/**
- * Unions all given NFAs
- */
 function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
     if (nfas.length === 0) {
         throw new Error("Cannot union 0 NFAs.")
@@ -305,9 +297,6 @@ function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
 
 const MAX_DFA_NODES = 100_000
 
-/**
- * Returns whether one NFA is a subset of another.
- */
 function isSubsetOf(
     superset: ReadonlyNFA,
     subset: ReadonlyNFA,
@@ -335,9 +324,6 @@ const enum SubsetRelation {
     unknown,
 }
 
-/**
- * Returns the subset relation
- */
 function getSubsetRelation(
     left: ReadonlyNFA,
     right: ReadonlyNFA,
@@ -434,6 +420,7 @@ function getPartialSubsetRelation(
  */
 function faToSource(fa: FiniteAutomaton, flags: ReadonlyFlags): string {
     try {
+        assertValidFlags(flags)
         return JS.toLiteral(fa.toRegex(), { flags }).source
     } catch (_error) {
         return "<ERROR>"
@@ -836,14 +823,10 @@ function deduplicateResults(
     })
 }
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }
 
-/** Mentions the given nested alternative. */
 function mentionNested(nested: NestedAlternative): string {
     if (nested.type === "Alternative") {
         return mention(nested)
@@ -967,9 +950,6 @@ export default createRule("no-dupe-disjunctions", {
 
         const allowedRanges = getAllowedCharRanges(undefined, context)
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -1139,7 +1119,6 @@ export default createRule("no-dupe-disjunctions", {
                 }
             }
 
-            /** Prints the given character. */
             function printChar(char: number): string {
                 if (inRange(allowedRanges, char)) {
                     return String.fromCodePoint(char)
@@ -1154,7 +1133,6 @@ export default createRule("no-dupe-disjunctions", {
                 return `\\u{${char.toString(16)}}`
             }
 
-            /** Returns suggestions for fixing the given report */
             function getSuggestions(
                 result: Result,
             ): Rule.SuggestionReportDescriptor[] {
@@ -1236,7 +1214,6 @@ export default createRule("no-dupe-disjunctions", {
                 ]
             }
 
-            /** Report the given result. */
             function reportResult(result: Result, { stared }: FilterInfo) {
                 let exp
                 if (stared === MaybeBool.true) {

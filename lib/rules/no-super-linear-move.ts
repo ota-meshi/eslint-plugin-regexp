@@ -8,7 +8,7 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { analyse } from "scslre"
-import type { Descendant } from "regexp-ast-analysis"
+import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     isPotentiallyEmpty,
     getMatchingDirection,
@@ -19,8 +19,8 @@ import {
     visitAst,
     JS,
     transform,
-    combineTransformers,
     Transformers,
+    CombinedTransformer,
 } from "refa"
 import { getJSRegexppAst } from "../utils/regexp-ast"
 
@@ -52,13 +52,14 @@ function dedupeReports(reports: Iterable<Report>): Report[] {
  */
 function* findReachableQuantifiers(
     node: Descendant<Pattern> | Alternative,
+    flags: ReadonlyFlags,
 ): Iterable<Quantifier> {
     switch (node.type) {
         case "CapturingGroup":
         case "Group":
         case "Pattern": {
             for (const a of node.alternatives) {
-                yield* findReachableQuantifiers(a)
+                yield* findReachableQuantifiers(a, flags)
             }
             break
         }
@@ -66,7 +67,7 @@ function* findReachableQuantifiers(
         case "Assertion": {
             if (node.kind === "lookahead" || node.kind === "lookbehind") {
                 for (const a of node.alternatives) {
-                    yield* findReachableQuantifiers(a)
+                    yield* findReachableQuantifiers(a, flags)
                 }
             }
             break
@@ -84,9 +85,9 @@ function* findReachableQuantifiers(
                     dir === "ltr" ? i : node.elements.length - 1 - i
                 const element = node.elements[elementIndex]
 
-                yield* findReachableQuantifiers(element)
+                yield* findReachableQuantifiers(element, flags)
 
-                if (!isPotentiallyEmpty(element)) {
+                if (!isPotentiallyEmpty(element, flags)) {
                     break
                 }
             }
@@ -98,24 +99,16 @@ function* findReachableQuantifiers(
     }
 }
 
-const TRANFORMER_OPTIONS: Transformers.CreationOptions = {
+const TRANSFORMER_OPTIONS: Transformers.CreationOptions = {
     ignoreAmbiguity: true,
     ignoreOrder: true,
 }
-const PASS_1 = combineTransformers([
-    Transformers.inline(TRANFORMER_OPTIONS),
-    Transformers.removeDeadBranches(TRANFORMER_OPTIONS),
-    Transformers.unionCharacters(TRANFORMER_OPTIONS),
-    Transformers.moveUpEmpty(TRANFORMER_OPTIONS),
-    Transformers.nestedQuantifiers(TRANFORMER_OPTIONS),
-    Transformers.removeUnnecessaryAssertions(TRANFORMER_OPTIONS),
-    Transformers.applyAssertions(TRANFORMER_OPTIONS),
-])
-const PASS_2 = combineTransformers([
-    Transformers.inline(TRANFORMER_OPTIONS),
-    Transformers.removeDeadBranches(TRANFORMER_OPTIONS),
+const PASS_1 = Transformers.simplify(TRANSFORMER_OPTIONS)
+const PASS_2 = new CombinedTransformer([
+    Transformers.inline(TRANSFORMER_OPTIONS),
+    Transformers.removeDeadBranches(TRANSFORMER_OPTIONS),
     Transformers.replaceAssertions({
-        ...TRANFORMER_OPTIONS,
+        ...TRANSFORMER_OPTIONS,
         replacement: "empty-set",
     }),
 ])
@@ -156,7 +149,6 @@ export default createRule("no-super-linear-move", {
         const ignoreSticky = context.options[0]?.ignoreSticky ?? false
         const ignorePartial = context.options[0]?.ignorePartial ?? true
 
-        /** Returns reports reported by scslre. */
         function getScslreReports(
             regexpContext: RegExpContext,
             assumeRejectingSuffix: boolean,
@@ -206,7 +198,7 @@ export default createRule("no-super-linear-move", {
                 getJSRegexppAst(regexpContext, true),
             )
 
-            for (const q of findReachableQuantifiers(patternAst)) {
+            for (const q of findReachableQuantifiers(patternAst, flags)) {
                 if (q.max !== Infinity) {
                     // we are only interested in star quantifiers
                     continue
@@ -284,9 +276,6 @@ export default createRule("no-super-linear-move", {
             }
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

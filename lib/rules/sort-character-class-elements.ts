@@ -82,9 +82,6 @@ export default createRule("sort-character-class-elements", {
             orderOption[o] = i + 1
         })
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
@@ -141,12 +138,10 @@ export default createRule("sort-character-class-elements", {
             }
         }
 
-        /* eslint-disable complexity -- X( */
         /**
          * Check that the two given CharacterClassElements are in a valid order.
          */
         function isValidOrder(
-            /* eslint-enable complexity -- X( */
             prev: CharacterClassElement,
             next: CharacterClassElement,
         ) {

@@ -1,7 +1,7 @@
 import type { RegExpContext, UnparsableRegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
-const STANDARD_FLAGS = "dgimsuy"
+const STANDARD_FLAGS = "dgimsuvy"
 
 export default createRule("no-non-standard-flag", {
     meta: {

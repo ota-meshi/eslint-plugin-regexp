@@ -8,6 +8,7 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { isZeroLength } from "regexp-ast-analysis"
 
 type ZeroQuantifier = Quantifier & { min: 0 }
@@ -26,7 +27,11 @@ function isZeroQuantifier(node: Quantifier): node is ZeroQuantifier {
  * consume characters. For more information and examples on optional assertions, see the documentation page of this
  * rule.
  */
-function isOptional(assertion: Assertion, quantifier: ZeroQuantifier): boolean {
+function isOptional(
+    assertion: Assertion,
+    quantifier: ZeroQuantifier,
+    flags: ReadonlyFlags,
+): boolean {
     let element: Assertion | Quantifier | Group | CapturingGroup = assertion
     while (element.parent !== quantifier) {
         const parent: Quantifier | Alternative = element.parent
@@ -37,7 +42,7 @@ function isOptional(assertion: Assertion, quantifier: ZeroQuantifier): boolean {
                     continue // we will ignore this element.
                 }
 
-                if (!isZeroLength(e)) {
+                if (!isZeroLength(e, flags)) {
                     // Some element around our target element can possibly consume characters.
                     // This means, we found a path from or to the assertion which can consume characters.
                     return false
@@ -52,7 +57,7 @@ function isOptional(assertion: Assertion, quantifier: ZeroQuantifier): boolean {
             element = parent.parent
         } else {
             // parent.type === "Quantifier"
-            if (parent.max > 1 && !isZeroLength(parent)) {
+            if (parent.max > 1 && !isZeroLength(parent, flags)) {
                 // If an ascendant quantifier of the element has maximum of 2 or more, we have to check whether
                 // the quantifier itself has zero length.
                 // E.g. in /(?:a|(\b|-){2})?/ the \b is not optional
@@ -82,11 +87,9 @@ export default createRule("no-optional-assertion", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
+            flags,
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             // The closest quantifier with a minimum of 0 is stored at index = 0.
@@ -105,7 +108,7 @@ export default createRule("no-optional-assertion", {
                 onAssertionEnter(assertion) {
                     const q = zeroQuantifierStack[0]
 
-                    if (q && isOptional(assertion, q)) {
+                    if (q && isOptional(assertion, q, flags)) {
                         context.report({
                             node,
                             loc: getRegexpLocation(assertion),

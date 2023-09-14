@@ -43,7 +43,7 @@ function isTrivialAssertion(
     }
 
     if (assertion.kind === "lookahead" || assertion.kind === "lookbehind") {
-        if (isPotentiallyEmpty(assertion.alternatives)) {
+        if (isPotentiallyEmpty(assertion.alternatives, flags)) {
             // The assertion is guaranteed to trivially accept/reject.
             return true
         }
@@ -80,6 +80,7 @@ function isTrivialAssertion(
 function* getNextElements(
     start: Element,
     dir: MatchingDirection,
+    flags: ReadonlyFlags,
 ): Iterable<Element> {
     let element = start
 
@@ -110,7 +111,7 @@ function* getNextElements(
         for (let i = index + inc; i >= 0 && i < elements.length; i += inc) {
             const e = elements[i]
             yield e
-            if (!isZeroLength(e)) {
+            if (!isZeroLength(e, flags)) {
                 return
             }
         }
@@ -142,6 +143,7 @@ function tryFindContradictionIn(
     element: Element,
     dir: MatchingDirection,
     condition: (e: Element | Alternative) => boolean,
+    flags: ReadonlyFlags,
 ): boolean {
     if (condition(element)) {
         return true
@@ -151,7 +153,7 @@ function tryFindContradictionIn(
         // Go into the alternatives of groups
         let some = false
         element.alternatives.forEach((a) => {
-            if (tryFindContradictionInAlternative(a, dir, condition)) {
+            if (tryFindContradictionInAlternative(a, dir, condition, flags)) {
                 some = true
             }
         })
@@ -160,7 +162,7 @@ function tryFindContradictionIn(
 
     if (element.type === "Quantifier" && element.max === 1) {
         // Go into the element of quantifiers if their maximum is 1
-        return tryFindContradictionIn(element.element, dir, condition)
+        return tryFindContradictionIn(element.element, dir, condition, flags)
     }
 
     if (
@@ -173,7 +175,7 @@ function tryFindContradictionIn(
         // Since we don't consume characters, we want to keep going even if we
         // find a contradiction inside the lookaround.
         element.alternatives.forEach((a) =>
-            tryFindContradictionInAlternative(a, dir, condition),
+            tryFindContradictionInAlternative(a, dir, condition, flags),
         )
     }
 
@@ -188,6 +190,7 @@ function tryFindContradictionInAlternative(
     alternative: Alternative,
     dir: MatchingDirection,
     condition: (e: Element | Alternative) => boolean,
+    flags: ReadonlyFlags,
 ): boolean {
     if (condition(alternative)) {
         return true
@@ -199,10 +202,10 @@ function tryFindContradictionInAlternative(
     const inc = dir === "ltr" ? 1 : -1
     for (let i = first; i >= 0 && i < elements.length; i += inc) {
         const e = elements[i]
-        if (tryFindContradictionIn(e, dir, condition)) {
+        if (tryFindContradictionIn(e, dir, condition, flags)) {
             return true
         }
-        if (!isZeroLength(e)) {
+        if (!isZeroLength(e, flags)) {
             break
         }
     }
@@ -246,7 +249,6 @@ export default createRule("no-contradiction-with-assertion", {
         type: "problem",
     },
     create(context) {
-        /** Create visitor */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -271,8 +273,10 @@ export default createRule("no-contradiction-with-assertion", {
                     getFirstConsumedChar(assertion, dir, flags),
                 )
 
-                for (const element of getNextElements(assertion, dir)) {
-                    if (tryFindContradictionIn(element, dir, contradicts)) {
+                for (const element of getNextElements(assertion, dir, flags)) {
+                    if (
+                        tryFindContradictionIn(element, dir, contradicts, flags)
+                    ) {
                         break
                     }
                 }

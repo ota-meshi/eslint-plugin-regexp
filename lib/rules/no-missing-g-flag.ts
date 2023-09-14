@@ -7,9 +7,6 @@ import {
 } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 
-/**
- * Parse option
- */
 function parseOption(
     userOption:
         | {
@@ -77,9 +74,6 @@ export default createRule("no-missing-g-flag", {
             }
         }
 
-        /**
-         * Verify RegExp reference
-         */
         function verifyExpressionReference(
             ref: ExpressionReference,
             {
@@ -121,7 +115,6 @@ export default createRule("no-missing-g-flag", {
                 fix: buildFixer(),
             })
 
-            /** Build fixer */
             function buildFixer() {
                 if (
                     node.arguments[0] !== regexpNode ||

@@ -42,9 +42,7 @@ export default createRule("${ruleId}", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
+
         function createVisitor(regexpContext: RegExpContext): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation } = regexpContext
         }
@@ -62,7 +60,7 @@ import rule from "../../../lib/rules/${ruleId}"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
