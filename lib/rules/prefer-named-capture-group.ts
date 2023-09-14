@@ -18,9 +18,6 @@ export default createRule("prefer-named-capture-group", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -143,9 +143,6 @@ export default createRule("no-useless-assertions", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,
@@ -153,7 +150,6 @@ export default createRule("no-useless-assertions", {
         }: RegExpContext): RegExpVisitor.Handlers {
             const reported = new Set<Assertion>()
 
-            /** Report */
             function report(
                 assertion: Assertion,
                 messageId: keyof typeof messages,

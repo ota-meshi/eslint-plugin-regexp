@@ -27,9 +27,6 @@ import { joinEnglishList, mention } from "../utils/mention"
 import { getParser } from "../utils/regexp-ast"
 import { CharSet } from "refa"
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }
@@ -109,9 +106,6 @@ function hasCapturingGroup(node: Node): boolean {
 type CharCache = WeakMap<Element | Alternative, CharSet>
 const caches = new WeakMap<ReadonlyFlags, CharCache>()
 
-/**
- * Returns a char cache for some given flags.
- */
 function getCache(flags: ReadonlyFlags): CharCache {
     let cache = caches.get(flags)
     if (cache === undefined) {
@@ -310,9 +304,6 @@ export default createRule("no-misleading-capturing-group", {
         const reportBacktrackingEnds =
             context.options[0]?.reportBacktrackingEnds ?? true
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

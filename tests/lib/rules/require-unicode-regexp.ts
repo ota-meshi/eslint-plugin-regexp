@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/require-unicode-regexp"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -28,6 +28,8 @@ tester.run("require-unicode-regexp", rule as any, {
         String.raw`const flags = 'u'; new globalThis.RegExp('', flags)`,
         String.raw`const flags = 'g'; new globalThis.RegExp('', flags + 'u')`,
         String.raw`const flags = 'gimu'; new globalThis.RegExp('foo', flags[3])`,
+        String.raw`/foo/v`,
+        String.raw`new RegExp('foo', 'v')`,
     ],
     invalid: [
         {

@@ -34,9 +34,6 @@ export default createRule("unicode-escape", {
         const preferUnicodeCodePointEscape =
             context.options[0] !== "unicodeEscape"
 
-        /**
-         * Verify for unicodeCodePointEscape
-         */
         function verifyForUnicodeCodePointEscape(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             kind: EscapeSequenceKind,
@@ -60,9 +57,6 @@ export default createRule("unicode-escape", {
             })
         }
 
-        /**
-         * Verify for unicodeEscape
-         */
         function verifyForUnicodeEscape(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             kind: EscapeSequenceKind,
@@ -90,14 +84,11 @@ export default createRule("unicode-escape", {
             ? verifyForUnicodeCodePointEscape
             : verifyForUnicodeEscape
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { flags } = regexpContext
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 return {}
             }
             return {

@@ -224,9 +224,6 @@ type ParsedElements = {
     end: ParsedEndPattern | null
 }
 
-/**
- * Parse the elements of the pattern.
- */
 function parsePatternElements(
     node: Pattern,
     flags: ReadonlyFlags,
@@ -361,9 +358,6 @@ function leadingTrailingElementsToLookaroundAssertionPatternText(
     return leadingTrailingElements.map((e) => e.raw).join("")
 }
 
-/**
- * Parse option
- */
 function parseOption(
     userOption:
         | {
@@ -408,9 +402,6 @@ export default createRule("prefer-lookaround", {
         const { lookbehind, strictTypes } = parseOption(context.options[0])
         const typeTracer = createTypeTracker(context)
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -485,9 +476,6 @@ export default createRule("prefer-lookaround", {
             )
         }
 
-        /**
-         * Get the replace reference info from given call expression
-         */
         function getReplaceReferenceFromCallExpression(
             node: KnownMethodCall,
         ): ReplaceReferences | null {
@@ -511,9 +499,6 @@ export default createRule("prefer-lookaround", {
             )
         }
 
-        /**
-         * Get the replace reference info from given literal replacement argument
-         */
         function getReplaceReferenceFromLiteralReplacementArgument(
             node: Literal,
         ): ReplaceReferences | null {
@@ -545,9 +530,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Get the replace reference info from given non-literal replacement argument
-         */
         function getReplaceReferenceFromNonLiteralReplacementArgument(
             node: Expression,
         ): ReplaceReferences | null {
@@ -587,9 +569,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Create visitor for verify capturing groups
-         */
         function createVerifyVisitor(
             regexpContext: RegExpContext,
             parsedElements: ParsedElements,
@@ -624,7 +603,6 @@ export default createRule("prefer-lookaround", {
                         endRefState,
                     )
 
-                    /** Process state */
                     function processForState(
                         refName: string | number | undefined,
                         otherThanRefNames: Set<string | number>,
@@ -785,9 +763,6 @@ export default createRule("prefer-lookaround", {
             }
         }
 
-        /**
-         * Build fixer function
-         */
         function buildFixer(
             regexpContext: RegExpContext,
             replaceCapturingGroups: (ParsedStartPattern | ParsedEndPattern)[],
