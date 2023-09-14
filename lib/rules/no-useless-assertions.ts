@@ -25,6 +25,7 @@ import {
     FirstConsumedChars,
 } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
+import { assertNever } from "../utils/util"
 
 /**
  * Combines 2 look chars such that the result is equivalent to 2 adjacent
@@ -414,6 +415,7 @@ export default createRule("no-useless-assertions", {
                         verifyLookaround(assertion, getFirstCharAfterFn)
                         break
                     default:
+                        throw assertNever(assertion)
                 }
             }
 
