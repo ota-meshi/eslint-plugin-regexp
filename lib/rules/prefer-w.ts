@@ -16,7 +16,7 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 function isSmallLetterRange(node: CharacterClassElement) {
@@ -40,7 +40,7 @@ function isDigitRangeOrSet(node: CharacterClassElement) {
         (node.type === "CharacterClassRange" &&
             node.min.value === CP_DIGIT_ZERO &&
             node.max.value === CP_DIGIT_NINE) ||
-        (node.type === "CharacterSet" && node.kind === "digit")
+        (node.type === "CharacterSet" && node.kind === "digit" && !node.negate)
     )
 }
 
@@ -73,14 +73,13 @@ export default createRule("prefer-w", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterClassEnter(ccNode: CharacterClass) {
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(ccNode, flags)
+                    const charSet = toUnicodeSet(ccNode, flags)
 
                     let predefined: string | undefined = undefined
-                    if (charSet.equals(Chars.word(flags))) {
+                    const word = Chars.word(flags)
+                    if (charSet.equals(word)) {
                         predefined = "\\w"
-                    } else if (charSet.equals(Chars.word(flags).negate())) {
+                    } else if (charSet.equals(word.negate())) {
                         predefined = "\\W"
                     }
 
