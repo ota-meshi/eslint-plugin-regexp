@@ -39,6 +39,7 @@ import {
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
 import { getParser } from "../utils/regexp-ast"
+import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest"
 
 interface AllowedChars {
     allowed: CharSet
@@ -197,36 +198,9 @@ function getLexicographicallySmallestFromAlternative(
     }
 
     if (isOnlyCharacterElements(alternative.elements)) {
-        const reversedElements = [...alternative.elements].reverse()
-        const smallest: Word = []
-        for (const e of reversedElements) {
-            const us = toUnicodeSet(e, flags)
-            if (us.isEmpty) return undefined
-            if (us.accept.isEmpty) {
-                smallest.unshift(us.chars.ranges[0].min)
-            } else {
-                const words: ReadonlyWord[] = [
-                    ...(us.chars.isEmpty ? [] : [[us.chars.ranges[0].min]]),
-                    ...us.accept.words,
-                ]
-                smallest.unshift(
-                    ...words
-                        // Sort by connecting the following string.
-                        // This compares `'a'+'bb'` and `'aba'+'bb'`
-                        // if the current word set is 'a' and 'aba', and the following string is 'bb'.
-                        // We expect `'aba'+'bb'` to become an LSA as a result.
-                        .map((word) => ({
-                            word,
-                            concatenated: [...word, ...smallest],
-                        }))
-                        .sort((a, b) =>
-                            compareWords(a.concatenated, b.concatenated),
-                        )
-                        .shift()!.word,
-                )
-            }
-        }
-        return smallest
+        return getLexicographicallySmallestInConcatenation(
+            alternative.elements.map((e) => toUnicodeSet(e, flags)),
+        )
     }
 
     try {
