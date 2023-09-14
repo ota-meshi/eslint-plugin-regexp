@@ -12,6 +12,7 @@ import { mention } from "../utils/mention"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
 import type { ReadonlyWord } from "refa"
+import { getLexicographicallySmallest } from "../utils/lexicographically-smallest"
 
 type CharacterClassElementKind =
     | "\\w"
@@ -70,11 +71,7 @@ function getLexicographicallySmallestFromElement(
         node.type === "CharacterSet" && node.negate
             ? toUnicodeSet({ ...node, negate: false }, flags)
             : toUnicodeSet(node, flags)
-    const minimumWords: ReadonlyWord[] = [
-        ...(us.chars.isEmpty ? [] : [[us.chars.ranges[0].min]]),
-        ...us.accept.words,
-    ]
-    return minimumWords.sort(compareWords).shift() || []
+    return getLexicographicallySmallest(us) || []
 }
 
 /**
