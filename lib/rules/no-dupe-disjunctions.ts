@@ -41,6 +41,7 @@ import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
 import type { Rule } from "eslint"
 import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
+import { assertNever } from "../utils/util"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -393,7 +394,7 @@ function getPartialSubsetRelation(
                 return SubsetRelation.leftSupersetOfRight
 
             default:
-                throw new Error(relation)
+                return assertNever(relation)
         }
     }
     if (rightIsPartial && !leftIsPartial) {
@@ -406,7 +407,7 @@ function getPartialSubsetRelation(
                 return SubsetRelation.none
 
             default:
-                throw new Error(relation)
+                return assertNever(relation)
         }
     }
 
@@ -696,7 +697,7 @@ function* findDuplicationNfa(
                 }
 
                 default:
-                    throw new Error(relation)
+                    throw assertNever(relation)
             }
         }
 
@@ -821,10 +822,6 @@ function deduplicateResults(
 
         return false
     })
-}
-
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
 }
 
 function mentionNested(nested: NestedAlternative): string {
@@ -1338,7 +1335,7 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     default:
-                        throw new Error(result)
+                        throw assertNever(result)
                 }
             }
 

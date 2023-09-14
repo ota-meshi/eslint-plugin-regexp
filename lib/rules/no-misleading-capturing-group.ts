@@ -25,11 +25,8 @@ import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { joinEnglishList, mention } from "../utils/mention"
 import { getParser } from "../utils/regexp-ast"
+import { assertNever } from "../utils/util"
 import { CharSet } from "refa"
-
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
-}
 
 /**
  * Returns an iterator that goes through all elements in the given array in
