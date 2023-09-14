@@ -26,9 +26,6 @@ export default createRule("no-invisible-character", {
     create(context) {
         const sourceCode = context.getSourceCode()
 
-        /**
-         * Create visitor
-         */
         function createLiteralVisitor({
             node,
             flags,

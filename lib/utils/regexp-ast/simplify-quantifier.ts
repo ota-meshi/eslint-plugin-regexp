@@ -1,5 +1,3 @@
-/* eslint-disable eslint-comments/disable-enable-pair -- x */
-/* eslint-disable complexity -- x */
 import type { JS } from "refa"
 import { DFA, NFA } from "refa"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
@@ -341,9 +339,6 @@ function removeTargetQuantifier(
     return result
 }
 
-/**
- * Throws if called.
- */
 function assertNever(value: never): never {
     throw new Error(`Invalid value: ${value}`)
 }

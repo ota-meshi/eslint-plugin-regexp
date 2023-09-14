@@ -91,9 +91,6 @@ function groupElements(
         characterSets: [...characterSets.values()],
     }
 
-    /**
-     * Build key of range
-     */
     function buildRangeKey(rangeCharSet: CharSet) {
         return rangeCharSet.ranges
             .map((r) => String.fromCodePoint(r.min, r.max))
@@ -246,16 +243,12 @@ export default createRule("no-dupe-characters-character-class", {
             })
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { flags } = regexpContext
 
             return {
-                // eslint-disable-next-line complexity -- X
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const {
                         duplicates,

@@ -84,8 +84,6 @@ export function getJSRegexppAst(
 
     return {
         pattern: patternAst,
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
         flags: {
             type: "Flags",
             raw: flagsString ?? "",
@@ -99,6 +97,7 @@ export function getJSRegexppAst(
             multiline: flags.multiline ?? false,
             sticky: !ignoreSticky && (flags.sticky ?? false),
             unicode: flags.unicode ?? false,
+            unicodeSets: flags.unicodeSets ?? false,
         },
     }
 }

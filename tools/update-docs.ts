@@ -4,7 +4,6 @@ import { rules } from "../lib/utils/rules"
 import type { RuleModule } from "../lib/types"
 import { getNewVersion } from "./lib/changesets-util"
 
-//eslint-disable-next-line require-jsdoc -- tools
 function yamlValue(val: unknown) {
     if (typeof val === "string") {
         return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
@@ -14,7 +13,6 @@ function yamlValue(val: unknown) {
 
 const ROOT = path.resolve(__dirname, "../docs/rules")
 
-//eslint-disable-next-line require-jsdoc -- tools
 function pickSince(content: string): string | null | Promise<string> {
     const fileIntro = /^---\n(?<content>.*\n)+---\n*/u.exec(content)
     if (fileIntro) {
@@ -150,6 +148,22 @@ ${
         return this
     }
 
+    public updateHeaderDescription() {
+        const { description } = this.rule.meta.docs
+
+        this.content = this.content.replace(
+            // eslint-disable-next-line regexp/no-super-linear-move -- ignore
+            /\n+> [^\n]*\n+##\s[^\n]*Rule Details/u,
+            `
+
+> ${description.replace(/\$/gu, "$$$$")}
+
+## :book: Rule Details`,
+        )
+
+        return this
+    }
+
     public write() {
         this.content = this.content.replace(/\r?\n/gu, "\n")
 
@@ -166,6 +180,7 @@ async function main() {
         await doc.updateFooter()
         doc.updateCodeBlocks()
         await doc.updateFileIntro()
+        doc.updateHeaderDescription()
         doc.adjustCodeBlocks()
         doc.write()
     }

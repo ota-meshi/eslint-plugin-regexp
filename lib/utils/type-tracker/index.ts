@@ -140,14 +140,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         }
     }
 
-    /* eslint-disable complexity -- X( */
     /**
      * Get the type name from given node.
      */
-    function getTypeWithoutCache(
-        /* eslint-enable complexity -- X( */
-        node: ES.Expression,
-    ): TypeInfo | null {
+    function getTypeWithoutCache(node: ES.Expression): TypeInfo | null {
         if (node.type === "Literal") {
             if (typeof node.value === "string") {
                 return STRING
@@ -517,14 +513,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         return tsType && getTypeFromTsType(tsType)
     }
 
-    /* eslint-disable complexity -- X( */
     /**
      * Check if the name of the given type is expected or not.
      */
-    function getTypeFromTsType(
-        /* eslint-enable complexity -- X( */
-        tsType: TS.Type,
-    ): TypeInfo | null {
+    function getTypeFromTsType(tsType: TS.Type): TypeInfo | null {
         if (isStringLine(tsType)) {
             return STRING
         }
@@ -604,12 +596,8 @@ function typeTextToTypeInfo(typeText?: string): TypeInfo | null {
     return jsDocTypeNodeToTypeInfo(parseTypeText(typeText))
 }
 
-/* eslint-disable complexity -- X-( */
 /** Get type from JSDocTypeNode */
-function jsDocTypeNodeToTypeInfo(
-    /* eslint-enable complexity -- X-( */
-    node: JSDocTypeNode | null,
-): TypeInfo | null {
+function jsDocTypeNodeToTypeInfo(node: JSDocTypeNode | null): TypeInfo | null {
     if (node == null) {
         return null
     }
@@ -698,12 +686,8 @@ function jsDocTypeNodeToTypeInfo(
     return null
 }
 
-/* eslint-disable complexity -- X( */
 /** Get type from type name */
-function typeNameToTypeInfo(
-    /* eslint-enable complexity -- X( */
-    name: string,
-): TypeInfo | null {
+function typeNameToTypeInfo(name: string): TypeInfo | null {
     if (name === "String" || name === "string") {
         return STRING
     }

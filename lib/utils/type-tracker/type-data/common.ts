@@ -44,7 +44,6 @@ export function hasType(
     return result.has(type)
 }
 
-/** Create object */
 export function createObject<T>(t: T): T {
     return Object.assign(Object.create(null), t)
 }

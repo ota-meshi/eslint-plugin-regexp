@@ -63,15 +63,11 @@ export default createRule("no-useless-escape", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
             fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
-            /** Report */
             function report(
                 cNode: Character,
                 offset: number,

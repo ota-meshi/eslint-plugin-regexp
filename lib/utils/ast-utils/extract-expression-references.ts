@@ -94,10 +94,8 @@ export function* extractExpressionReferencesForVariable(
     })
 }
 
-/* eslint-disable complexity -- ignore */
 /** Iterate references from the given expression */
 function* iterateReferencesForExpression(
-    /* eslint-enable complexity -- ignore */
     expression: Expression,
     context: Rule.RuleContext,
     alreadyChecked: AlreadyChecked,

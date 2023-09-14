@@ -17,9 +17,10 @@ module.exports = {
         "plugin:regexp/recommended",
     ],
     rules: {
-        "require-jsdoc": "error",
+        "require-jsdoc": "off",
         "no-warning-comments": "warn",
         "no-lonely-if": "off",
+        complexity: "off",
         "@typescript-eslint/no-non-null-assertion": "off",
 
         "no-shadow": "off",
