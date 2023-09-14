@@ -53,6 +53,7 @@ var foo = /[^0-9]/;
 This option control how character class element equivalent to `\d` will be treated.
 
 *Note:* This option does not affect character classes equivalent to `\d`. E.g. `[\d]`, `[0-9]`, and `[0123456789]` are unaffected.
+It also does not affect expression non-nested operands equivalent to `\d`. E.g. `[\d&&x]`, and `[\d--x]` are unaffected.
 
 - `insideCharacterClass: "d"` (*default*)
 
@@ -88,6 +89,11 @@ This option control how character class element equivalent to `\d` will be treat
   /* ✗ BAD */
   var foo = /[\da-z]/;
   var foo = /[0-9]/;
+
+  /* Ignore */
+  var foo = /[\d--0]/v;
+  /* ✗ BAD */
+  var foo = /[[\da-z]--0]/v;
   ```
 
   </eslint-code-block>
@@ -107,6 +113,7 @@ This option control how character class element equivalent to `\d` will be treat
 
   /* ✗ BAD */
   var foo = /[0-9]/;
+  var foo = /[[0-9a-z]--0]/v;
   ```
 
   </eslint-code-block>

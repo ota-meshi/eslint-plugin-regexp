@@ -1,5 +1,35 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.5
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/prefer-d` rule ([#602](https://github.com/ota-meshi/eslint-plugin-regexp/pull/602))
+
+-   Add support for v flag to `regexp/negation` rule ([#560](https://github.com/ota-meshi/eslint-plugin-regexp/pull/560))
+
+-   Improve `regexp/require-unicode-regexp` rule to allow patterns with v flag ([#586](https://github.com/ota-meshi/eslint-plugin-regexp/pull/586))
+
+-   Add support for v flag to `regexp/no-useless-escape` rule ([#585](https://github.com/ota-meshi/eslint-plugin-regexp/pull/585))
+
+-   Add support for v flag to `regexp/no-misleading-unicode-character` rule ([#584](https://github.com/ota-meshi/eslint-plugin-regexp/pull/584))
+
+-   `prefer-w`: Add support for `v` flag ([#578](https://github.com/ota-meshi/eslint-plugin-regexp/pull/578))
+
+## 2.0.0-next.4
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/no-non-standard-flag` rule ([#596](https://github.com/ota-meshi/eslint-plugin-regexp/pull/596))
+
+-   Improve `regexp/strict` rule to ignore patterns with v flag ([#591](https://github.com/ota-meshi/eslint-plugin-regexp/pull/591))
+
+## 2.0.0-next.3
+
+### Minor Changes
+
+-   Improve `regexp/no-invalid-regexp` rule to check for unknown pattern flags. ([#583](https://github.com/ota-meshi/eslint-plugin-regexp/pull/583))
+
 ## 2.0.0-next.2
 
 ### Patch Changes

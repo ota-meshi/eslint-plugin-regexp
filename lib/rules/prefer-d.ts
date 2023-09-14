@@ -6,12 +6,14 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
 } from "../utils"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 import type {
+    CharacterClass,
     CharacterClassElement,
     CharacterClassRange,
     EscapeCharacterSet,
+    ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
 
 /**
@@ -60,70 +62,72 @@ export default createRule("prefer-d", {
         const insideCharacterClass: "ignore" | "range" | "d" =
             context.options[0]?.insideCharacterClass ?? "d"
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,
             getRegexpLocation,
             fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
-            return {
-                onCharacterClassEnter(ccNode) {
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(ccNode, flags)
+            function verifyCharacterClass(
+                ccNode: CharacterClass | ExpressionCharacterClass,
+            ) {
+                const charSet = toUnicodeSet(ccNode, flags)
 
-                    let predefined: string | undefined = undefined
-                    if (charSet.equals(Chars.digit(flags))) {
-                        predefined = "\\d"
-                    } else if (charSet.equals(Chars.digit(flags).negate())) {
-                        predefined = "\\D"
-                    }
+                let predefined: string | undefined = undefined
+                if (charSet.equals(Chars.digit(flags))) {
+                    predefined = "\\d"
+                } else if (charSet.equals(Chars.digit(flags).negate())) {
+                    predefined = "\\D"
+                }
 
-                    if (predefined) {
+                if (predefined) {
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(ccNode),
+                        messageId: "unexpected",
+                        data: {
+                            type: "character class",
+                            expr: mention(ccNode),
+                            instead: predefined,
+                        },
+                        fix: fixReplaceNode(ccNode, predefined),
+                    })
+                    return
+                }
+
+                if (
+                    insideCharacterClass === "ignore" ||
+                    ccNode.type !== "CharacterClass"
+                ) {
+                    return
+                }
+
+                const expected = insideCharacterClass === "d" ? "\\d" : "0-9"
+
+                // check the elements in this character class
+                for (const e of ccNode.elements) {
+                    if (isDigits(e) && e.raw !== expected) {
                         context.report({
                             node,
-                            loc: getRegexpLocation(ccNode),
+                            loc: getRegexpLocation(e),
                             messageId: "unexpected",
                             data: {
-                                type: "character class",
-                                expr: mention(ccNode),
-                                instead: predefined,
+                                type:
+                                    e.type === "CharacterSet"
+                                        ? "character set"
+                                        : "character class range",
+                                expr: mention(e),
+                                instead: expected,
                             },
-                            fix: fixReplaceNode(ccNode, predefined),
+                            fix: fixReplaceNode(e, expected),
                         })
-                        return
                     }
+                }
+            }
 
-                    if (insideCharacterClass === "ignore") {
-                        return
-                    }
-
-                    const expected =
-                        insideCharacterClass === "d" ? "\\d" : "0-9"
-
-                    // check the elements in this character class
-                    for (const e of ccNode.elements) {
-                        if (isDigits(e) && e.raw !== expected) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(e),
-                                messageId: "unexpected",
-                                data: {
-                                    type:
-                                        e.type === "CharacterSet"
-                                            ? "character set"
-                                            : "character class range",
-                                    expr: mention(e),
-                                    instead: expected,
-                                },
-                                fix: fixReplaceNode(e, expected),
-                            })
-                        }
-                    }
-                },
+            return {
+                onCharacterClassEnter: verifyCharacterClass,
+                onExpressionCharacterClassEnter: verifyCharacterClass,
             }
         }
 
