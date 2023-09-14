@@ -1335,7 +1335,7 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     default:
-                        return assertNever(result)
+                        throw assertNever(result)
                 }
             }
 
