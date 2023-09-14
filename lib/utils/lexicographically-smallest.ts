@@ -64,9 +64,10 @@ export function getLexicographicallySmallestInConcatenation(
         } else if (set.accept.isEmpty) {
             smallest.unshift(set.chars.ranges[0].min)
         } else {
-            let words = set.accept.wordSets.map(
-                (w): Word => w.map((c) => c.ranges[0].min),
-            )
+            let words = [
+                ...(set.chars.isEmpty ? [] : [[set.chars]]),
+                ...set.accept.wordSets,
+            ].map((w): Word => w.map((c) => c.ranges[0].min))
             // we only have to consider the lexicographically smallest words with unique length
             const seenLengths = new Set<number>()
             words = words.sort(compareWords).filter((w) => {
