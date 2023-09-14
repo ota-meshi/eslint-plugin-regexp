@@ -75,29 +75,27 @@ export default createRule("prefer-w", {
                 onCharacterClassEnter(ccNode: CharacterClass) {
                     const charSet = toUnicodeSet(ccNode, flags)
 
-                    if (charSet.accept.isEmpty) {
-                        let predefined: string | undefined = undefined
-                        const word = Chars.word(flags)
-                        if (charSet.chars.equals(word)) {
-                            predefined = "\\w"
-                        } else if (charSet.chars.equals(word.negate())) {
-                            predefined = "\\W"
-                        }
+                    let predefined: string | undefined = undefined
+                    const word = Chars.word(flags)
+                    if (charSet.equals(word)) {
+                        predefined = "\\w"
+                    } else if (charSet.equals(word.negate())) {
+                        predefined = "\\W"
+                    }
 
-                        if (predefined) {
-                            context.report({
-                                node,
-                                loc: getRegexpLocation(ccNode),
-                                messageId: "unexpected",
-                                data: {
-                                    type: "character class",
-                                    expr: mention(ccNode),
-                                    instead: predefined,
-                                },
-                                fix: fixReplaceNode(ccNode, predefined),
-                            })
-                            return
-                        }
+                    if (predefined) {
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(ccNode),
+                            messageId: "unexpected",
+                            data: {
+                                type: "character class",
+                                expr: mention(ccNode),
+                                instead: predefined,
+                            },
+                            fix: fixReplaceNode(ccNode, predefined),
+                        })
+                        return
                     }
 
                     const lowerAToZ: CharacterClassElement[] = []
