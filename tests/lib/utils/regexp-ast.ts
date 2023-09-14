@@ -202,6 +202,11 @@ const TESTCASES_FOR_IS_EQUAL_NODES: TestCase[] = [
         b: /ya?ml/u,
         result: true,
     },
+    {
+        a: String.raw`/[\q{foo|bar}]/v`,
+        b: String.raw`/[\q{bar|foo}]/v`,
+        result: true,
+    },
 ]
 describe("regexp-ast isEqualNodes", () => {
     for (const testCase of TESTCASES_FOR_IS_EQUAL_NODES) {
