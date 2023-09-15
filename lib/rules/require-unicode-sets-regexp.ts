@@ -4,6 +4,29 @@ import { createRule, defineRegexpVisitor } from "../utils"
 import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import { toUnicodeSet } from "regexp-ast-analysis"
 
+const CLASS_SET_RESERVED_DOUBLE_PUNCTUATORS = [
+    "&&",
+    "!!",
+    "##",
+    "$$",
+    "%%",
+    "**",
+    "++",
+    ",,",
+    "..",
+    "::",
+    ";;",
+    "<<",
+    "==",
+    ">>",
+    "??",
+    "@@",
+    "^^",
+    "``",
+    "~~",
+    "--",
+]
+
 /**
  * Returns whether the regex would keep its behavior if the v flag were to be
  * added.
@@ -23,6 +46,13 @@ function isCompatible(regexpContext: RegExpContext): boolean {
                     flagsWithV,
                 )
                 if (!us.equals(vus)) {
+                    throw INCOMPATIBLE
+                }
+                if (
+                    CLASS_SET_RESERVED_DOUBLE_PUNCTUATORS.some((punctuator) =>
+                        node.raw.includes(punctuator),
+                    )
+                ) {
                     throw INCOMPATIBLE
                 }
             },

@@ -46,5 +46,35 @@ tester.run("require-unicode-sets-regexp", rule as any, {
             output: null, // Converting to the v flag changes the behavior of the character set.
             errors: ["Use the 'v' flag."],
         },
+        ...[
+            "&&",
+            "!!",
+            "##",
+            "$$",
+            "%%",
+            "**",
+            "++",
+            ",,",
+            "..",
+            "::",
+            ";;",
+            "<<",
+            "==",
+            ">>",
+            "??",
+            "@@",
+            "^^",
+            "``",
+            "~~",
+        ].map((punctuator) => ({
+            code: String.raw`/[a${punctuator}b]/u`,
+            output: null, // Converting to the v flag changes the behavior of the character set.
+            errors: ["Use the 'v' flag."],
+        })),
+        {
+            code: String.raw`/[+--b]/u`,
+            output: null, // Converting to the v flag changes the behavior of the character set.
+            errors: ["Use the 'v' flag."],
+        },
     ],
 })
