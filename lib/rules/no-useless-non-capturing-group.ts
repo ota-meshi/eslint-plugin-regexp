@@ -61,9 +61,6 @@ export default createRule("no-useless-non-capturing-group", {
                 ? "never"
                 : context.options[0]?.allowTop ?? "partial"
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

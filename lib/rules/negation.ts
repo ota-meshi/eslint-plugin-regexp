@@ -1,4 +1,4 @@
-import { toCharSet } from "regexp-ast-analysis"
+import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import type {
     EscapeCharacterSet,
     UnicodePropertyCharacterSet,
@@ -23,9 +23,6 @@ export default createRule("negation", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,
@@ -42,8 +39,18 @@ export default createRule("negation", {
                     if (element.type !== "CharacterSet") {
                         return
                     }
+                    if (element.kind === "property" && element.strings) {
+                        // Unicode property escape with property of strings.
+                        // Actually the pattern passing through this branch is an invalid pattern,
+                        // but it has to be checked because of the type guards.
+                        return
+                    }
 
-                    if (flags.ignoreCase && element.kind === "property") {
+                    if (
+                        flags.ignoreCase &&
+                        !flags.unicodeSets &&
+                        element.kind === "property"
+                    ) {
                         // The ignore case canonicalization affects negated
                         // Unicode property escapes in a weird way. In short,
                         // /\p{Foo}/i is not the same as /[^\P{Foo}]/i if
@@ -52,14 +59,9 @@ export default createRule("negation", {
                         // Note: This only affects Unicode property escapes.
                         // All other character sets are either case-invariant
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
-
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        const ccSet = toCharSet(ccNode, flags)
+                        const ccSet = toUnicodeSet(ccNode, flags)
 
                         const negatedElementSet = toCharSet(
-                            // FIXME: TS Error
-                            // @ts-expect-error -- FIXME
                             {
                                 ...element,
                                 negate: !element.negate,

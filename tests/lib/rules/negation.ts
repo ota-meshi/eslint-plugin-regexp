@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/negation"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -14,6 +14,8 @@ tester.run("negation", rule as any, {
         String.raw`/[^\d\s]/`,
         String.raw`/[^\p{ASCII}]/iu`,
         String.raw`/[^\P{Ll}]/iu`,
+        String.raw`/[\p{Basic_Emoji}]/v`,
+        String.raw`/[^\P{Lowercase_Letter}]/iu`,
     ],
     invalid: [
         {
@@ -139,6 +141,13 @@ tester.run("negation", rule as any, {
             new RegExp(s)`,
             output: null,
             errors: ["Unexpected negated character class. Use '\\W' instead."],
+        },
+        {
+            code: String.raw`/[^\P{Lowercase_Letter}]/iv`,
+            output: String.raw`/\p{Lowercase_Letter}/iv`,
+            errors: [
+                "Unexpected negated character class. Use '\\p{Lowercase_Letter}' instead.",
+            ],
         },
     ],
 })

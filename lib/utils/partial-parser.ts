@@ -7,15 +7,9 @@ import type {
 } from "refa"
 import { JS } from "refa"
 import type { AST } from "@eslint-community/regexpp"
+import { assertNever } from "./util"
 
 export type NestedAlternative = AST.Alternative | AST.CharacterClassElement
-
-/**
- * Throws if called.
- */
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
-}
 
 class Context {
     public readonly ancestors: ReadonlySet<AST.Node>

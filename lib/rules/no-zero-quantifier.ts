@@ -25,9 +25,6 @@ export default createRule("no-zero-quantifier", {
         hasSuggestions: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

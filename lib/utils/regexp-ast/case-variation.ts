@@ -15,6 +15,7 @@ import type {
     Element,
     Pattern,
 } from "@eslint-community/regexpp/ast"
+import { assertNever } from "../util"
 
 const ignoreCaseFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()
 const caseSensitiveFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()
@@ -103,7 +104,7 @@ export function isCaseVariant(
                 }
 
             default:
-                throw new Error(`Unknown type: ${e}`)
+                return assertNever(e)
         }
     }
 

@@ -149,7 +149,6 @@ export default createRule("no-super-linear-move", {
         const ignoreSticky = context.options[0]?.ignoreSticky ?? false
         const ignorePartial = context.options[0]?.ignorePartial ?? true
 
-        /** Returns reports reported by scslre. */
         function getScslreReports(
             regexpContext: RegExpContext,
             assumeRejectingSuffix: boolean,
@@ -277,9 +276,6 @@ export default createRule("no-super-linear-move", {
             }
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

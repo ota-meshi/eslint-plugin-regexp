@@ -179,9 +179,6 @@ export function getScope(
     return scopeManager.scopes[0]
 }
 
-/**
- * Find function node
- */
 export function findFunction(
     context: Rule.RuleContext,
     id: Identifier,

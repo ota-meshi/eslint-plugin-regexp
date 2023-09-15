@@ -17,16 +17,12 @@ export default createRule("sort-flags", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Sort regexp flags
-         */
         function sortFlags(flagsStr: string): string {
             return [...flagsStr]
                 .sort((a, b) => a.codePointAt(0)! - b.codePointAt(0)!)
                 .join("")
         }
 
-        /** The logic of this rule */
         function visit({
             regexpNode,
             flagsString,

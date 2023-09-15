@@ -19,9 +19,6 @@ export default createRule("no-empty-lookarounds-assertion", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,

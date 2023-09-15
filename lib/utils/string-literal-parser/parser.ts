@@ -24,7 +24,6 @@ export type EcmaVersion =
     | 12
     | 2021
 
-/** Parse for string literal */
 export function parseStringLiteral(
     source: string,
     option?: {
@@ -54,7 +53,6 @@ export function parseStringLiteral(
     }
 }
 
-/** Parse for string tokens */
 export function* parseStringTokens(
     source: string,
     option?: {

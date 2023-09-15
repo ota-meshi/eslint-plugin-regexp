@@ -43,9 +43,6 @@ export default createRule("no-obscure-range", {
             context,
         )
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

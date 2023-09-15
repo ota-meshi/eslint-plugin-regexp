@@ -53,9 +53,6 @@ export default createRule("no-useless-character-class", {
     create(context) {
         const ignores: string[] = context.options[0]?.ignores ?? ["="]
 
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             pattern,
