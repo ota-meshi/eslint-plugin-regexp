@@ -44,33 +44,40 @@ var re = /[^a&&b]/v;
 
 </eslint-code-block>
 
+### How does this rule work?
+
 This rule attempts to reduce complements in several ways:
 
-### Double negation elimination
+#### Double negation elimination
 
 This rule look for patterns that can eliminate double negatives, report on them, and auto-fix them.\
 For example, `/[^[^abc]]/v` is equivalent to `/[abc]/v`.
 
 See <https://en.wikipedia.org/wiki/Double_negation#Elimination_and_introduction>.
 
-### De Morgan's laws
+#### De Morgan's laws
 
 This rule uses De Morgan's laws to look for patterns that can convert multiple negations into a single negation, reports on them, auto-fix them.\
 For example, `/[[^a]&&[^b]]/v` is equivalent to `/[^ab]/v`, `/[[^a][^b]]/v` is equivalent to `/[^a&&b]/v`.
 
 See <https://en.wikipedia.org/wiki/De_Morgan's_laws>.
 
-### Conversion from the intersection to the subtraction
+#### Conversion from the intersection to the subtraction
 
 Intersection sets with complement operands can be converted to difference sets.\
 The rule looks for character class intersection with negation operands, reports on them, auto-fix them.\
 For example, `/[a&&[^b]]/v` is equivalent to `/[a--b]/v`, `/[[^a]&&b]/v` is equivalent to `/[b--a]/v`.
 
-### Conversion from the subtraction to the intersection
+#### Conversion from the subtraction to the intersection
 
 Difference set with a complement operand on the right side can be converted to intersection sets.\
 The rule looks for character class subtraction with negation operand on the right side, reports on them, auto-fix them.\
 For example, `/[a--[^b]]/v` is equivalent to `/[a&&b]/v`.
+
+### Auto Fixes
+
+This rule's auto-fix does not remove unnecessary brackets. For example, `/[[^a]&&[^b]]/v` will be automatically fixed to `/[[a][b]]/v`.\
+If you want to remove unnecessary brackets (e.g. auto-fixed to `/[^ab]/v`), use [regexp/no-useless-character-class] rule together.
 
 ## :wrench: Options
 
@@ -79,8 +86,10 @@ Nothing.
 ## :couple: Related rules
 
 - [regexp/negation]
+- [regexp/no-useless-character-class]
 
 [regexp/negation]: ./negation.md
+[regexp/no-useless-character-class]: ./no-useless-character-class.md
 
 ## :rocket: Version
 

@@ -211,15 +211,7 @@ export default createRule("require-reduce-negation", {
                     reportNode: ccNode,
                     targetNode: ccNode,
                     messageId: "doubleNegationElimination",
-                    fix: () => {
-                        let fixedElementText = getRawTextToNot(element)
-                        if (element.type === "CharacterClass") {
-                            // Remove brackets
-                            fixedElementText = fixedElementText.slice(1, -1)
-                        }
-
-                        return `[${fixedElementText}]`
-                    },
+                    fix: () => `[${getRawTextToNot(element)}]`,
                 })
             }
 
@@ -252,14 +244,7 @@ export default createRule("require-reduce-negation", {
                     }
                 }
                 const fixedOperands = negateOperands
-                    .map((negateOperand) => {
-                        let fixedText = getRawTextToNot(negateOperand)
-                        if (negateOperand.type === "CharacterClass") {
-                            // Remove brackets
-                            fixedText = fixedText.slice(1, -1)
-                        }
-                        return fixedText
-                    })
+                    .map((negateOperand) => getRawTextToNot(negateOperand))
                     .join("")
                 if (negateOperands.length === operands.length) {
                     return reportWhenFixedIsCompatible({
@@ -319,21 +304,7 @@ export default createRule("require-reduce-negation", {
                     messageId: "toNegationOfConjunction",
                     fix: () => {
                         const fixedElements = negateElements.map(
-                            (negateElement) => {
-                                let fixedElementText =
-                                    getRawTextToNot(negateElement)
-                                if (
-                                    negateElement.type === "CharacterClass" &&
-                                    negateElement.elements.length === 1
-                                ) {
-                                    // Remove brackets
-                                    fixedElementText = fixedElementText.slice(
-                                        1,
-                                        -1,
-                                    )
-                                }
-                                return fixedElementText
-                            },
+                            (negateElement) => getRawTextToNot(negateElement),
                         )
                         return `[${
                             ccNode.negate ? "" : "^"
@@ -374,14 +345,7 @@ export default createRule("require-reduce-negation", {
                             // Wrap with brackets
                             fixedLeftText = `[${fixedLeftText}]`
                         }
-                        let fixedRightText = getRawTextToNot(negateOperand)
-                        if (
-                            negateOperand.type === "CharacterClass" &&
-                            negateOperand.elements.length === 1
-                        ) {
-                            // Remove brackets
-                            fixedRightText = fixedRightText.slice(1, -1)
-                        }
+                        const fixedRightText = getRawTextToNot(negateOperand)
                         return `[${
                             eccNode.negate ? "^" : ""
                         }${`${fixedLeftText}--${fixedRightText}`}]`
@@ -422,14 +386,7 @@ export default createRule("require-reduce-negation", {
                             // Wrap with brackets
                             fixedLeftText = `[${fixedLeftText}]`
                         }
-                        let fixedRightText = getRawTextToNot(right)
-                        if (
-                            right.type === "CharacterClass" &&
-                            right.elements.length === 1
-                        ) {
-                            // Remove brackets
-                            fixedRightText = fixedRightText.slice(1, -1)
-                        }
+                        const fixedRightText = getRawTextToNot(right)
                         let fixedText = `${fixedLeftText}&&${fixedRightText}`
 
                         if (expressionRight) {

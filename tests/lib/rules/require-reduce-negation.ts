@@ -13,6 +13,7 @@ tester.run("require-reduce-negation", rule as any, {
         String.raw`/[[abc]]/v`,
         String.raw`/[\d]/u`,
         String.raw`/[^\d]/v`, // Converting to `\D` does not reduce negation, so ignore it. The `negation` rule handles it.
+        String.raw`/[^\P{ASCII}]/iu`,
         String.raw`/[a--b]/v`,
         String.raw`/[a&&b]/v`,
         String.raw`/[^ab]/v`,
@@ -26,7 +27,7 @@ tester.run("require-reduce-negation", rule as any, {
     invalid: [
         {
             code: String.raw`/[^[^abc]]/v`,
-            output: String.raw`/[abc]/v`,
+            output: String.raw`/[[abc]]/v`,
             errors: [
                 "This character class can be double negation elimination.",
             ],
@@ -54,32 +55,32 @@ tester.run("require-reduce-negation", rule as any, {
         },
         {
             code: String.raw`/[a&&[^b]]/v`,
-            output: String.raw`/[a--b]/v`,
+            output: String.raw`/[a--[b]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
             code: String.raw`/[a&&b&&[^c]]/v`,
-            output: String.raw`/[[a&&b]--c]/v`,
+            output: String.raw`/[[a&&b]--[c]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
             code: String.raw`/[a&&[^b]&&c]/v`,
-            output: String.raw`/[[a&&c]--b]/v`,
+            output: String.raw`/[[a&&c]--[b]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
             code: String.raw`/[a&&b&&[^c]&&d]/v`,
-            output: String.raw`/[[a&&b&&d]--c]/v`,
+            output: String.raw`/[[a&&b&&d]--[c]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
             code: String.raw`/[[^a]&&b&&c]/v`,
-            output: String.raw`/[[b&&c]--a]/v`,
+            output: String.raw`/[[b&&c]--[a]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
             code: String.raw`/[[^b]&&a]/v`,
-            output: String.raw`/[a--b]/v`,
+            output: String.raw`/[a--[b]]/v`,
             errors: ["This expression can be converted to the subtraction."],
         },
         {
@@ -89,17 +90,17 @@ tester.run("require-reduce-negation", rule as any, {
         },
         {
             code: String.raw`/[a--[^b]]/v`,
-            output: String.raw`/[a&&b]/v`,
+            output: String.raw`/[a&&[b]]/v`,
             errors: ["This expression can be converted to the intersection."],
         },
         {
             code: String.raw`/[a--[^b]--c]/v`,
-            output: String.raw`/[[a&&b]--c]/v`,
+            output: String.raw`/[[a&&[b]]--c]/v`,
             errors: ["This expression can be converted to the intersection."],
         },
         {
             code: String.raw`/[a--b--[^c]]/v`,
-            output: String.raw`/[[a--b]&&c]/v`,
+            output: String.raw`/[[a--b]&&[c]]/v`,
             errors: ["This expression can be converted to the intersection."],
         },
         {
@@ -109,56 +110,56 @@ tester.run("require-reduce-negation", rule as any, {
         },
         {
             code: String.raw`/[[^a]&&[^b]]/v`,
-            output: String.raw`/[^ab]/v`,
+            output: String.raw`/[^[a][b]]/v`,
             errors: [
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[^[^a]&&[^b]]/v`,
-            output: String.raw`/[ab]/v`,
+            output: String.raw`/[[a][b]]/v`,
             errors: [
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[[^a]&&[^b]&&\D]/v`,
-            output: String.raw`/[^ab\d]/v`,
+            output: String.raw`/[^[a][b]\d]/v`,
             errors: [
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[^[^a]&&[^b]&&\D]/v`,
-            output: String.raw`/[ab\d]/v`,
+            output: String.raw`/[[a][b]\d]/v`,
             errors: [
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[[^a]&&\D&&b]/v`,
-            output: String.raw`/[[^a\d]&&b]/v`,
+            output: String.raw`/[[^[a]\d]&&b]/v`,
             errors: [
                 "This expression can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[[^abc]&&[^def]&&\D]/v`,
-            output: String.raw`/[^abcdef\d]/v`,
+            output: String.raw`/[^[abc][def]\d]/v`,
             errors: [
                 "This character class can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[[^a]&&[b]&&[^c]]/v`,
-            output: String.raw`/[[^ac]&&[b]]/v`,
+            output: String.raw`/[[^[a][c]]&&[b]]/v`,
             errors: [
                 "This expression can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
         },
         {
             code: String.raw`/[[^a][^b]]/v`,
-            output: String.raw`/[^a&&b]/v`,
+            output: String.raw`/[^[a]&&[b]]/v`,
             errors: [
                 "This character class can be converted to the negation of a conjunction using De Morgan's laws.",
             ],
@@ -172,7 +173,7 @@ tester.run("require-reduce-negation", rule as any, {
         },
         {
             code: String.raw`/[^[^a][^b]]/v`,
-            output: String.raw`/[a&&b]/v`,
+            output: String.raw`/[[a]&&[b]]/v`,
             errors: [
                 "This character class can be converted to the negation of a conjunction using De Morgan's laws.",
             ],
@@ -186,7 +187,7 @@ tester.run("require-reduce-negation", rule as any, {
         },
         {
             code: String.raw`/[a&&[^b]&&[^c]&&d]/v`,
-            output: String.raw`/[[^bc]&&a&&d]/v`,
+            output: String.raw`/[[^[b][c]]&&a&&d]/v`,
             errors: [
                 "This expression can be converted to the negation of a disjunction using De Morgan's laws.",
             ],
