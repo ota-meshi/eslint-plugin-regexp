@@ -5,6 +5,7 @@ import type {
     CharacterClass,
     CharacterClassElement,
     ExpressionCharacterClass,
+    UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
 
 const ESCAPES_OUTSIDE_CHARACTER_CLASS = new Set("$()*+./?[{|")
@@ -89,7 +90,7 @@ export default createRule("no-useless-character-class", {
                                     ? getEscapedFirstRawIfNeeded(element)
                                     : null) ??
                                 (index === ccNode.elements.length - 1
-                                    ? getEscapedLatsRawIfNeeded(element)
+                                    ? getEscapedLastRawIfNeeded(element)
                                     : null) ??
                                 element.raw
                             )
@@ -102,6 +103,21 @@ export default createRule("no-useless-character-class", {
                         messageId = "unexpectedUnnecessaryNestingCharacterClass"
                         messageData = {
                             type: "unnecessary nesting character class",
+                        }
+                        if (!ccNode.elements.length) {
+                            // empty character class
+                            const nextElement =
+                                ccNode.parent.elements[
+                                    ccNode.parent.elements.indexOf(
+                                        ccNode as UnicodeSetsCharacterClass,
+                                    ) + 1
+                                ]
+                            if (
+                                nextElement &&
+                                isNeedEscapedForFirstElement(nextElement)
+                            ) {
+                                unwrapped.push("\\") // Add a backslash to escape the next character.
+                            }
                         }
                     } else {
                         if (ccNode.elements.length !== 1) {
@@ -148,7 +164,7 @@ export default createRule("no-useless-character-class", {
                             }
                             unwrapped[0] =
                                 getEscapedFirstRawIfNeeded(element.min) ??
-                                getEscapedLatsRawIfNeeded(element.min) ??
+                                getEscapedLastRawIfNeeded(element.min) ??
                                 element.min.raw
                         } else if (element.type === "ClassStringDisjunction") {
                             if (!characterClassStack.length) {
@@ -181,20 +197,20 @@ export default createRule("no-useless-character-class", {
                     })
 
                     /**
-                     * Returns the escaped raw text, if the given first element requires escaping.
-                     * Otherwise, returns null.
+                     * Checks whether an escape is required if the given element is placed first
+                     * after character class replacement.
                      */
-                    function getEscapedFirstRawIfNeeded(
-                        firstElement: CharacterClassElement,
+                    function isNeedEscapedForFirstElement(
+                        element: CharacterClassElement,
                     ) {
-                        const firstRaw =
-                            firstElement.type === "Character"
-                                ? firstElement.raw
-                                : firstElement.type === "CharacterClassRange"
-                                ? firstElement.min.raw
+                        const char =
+                            element.type === "Character"
+                                ? element.raw
+                                : element.type === "CharacterClassRange"
+                                ? element.min.raw
                                 : null
-                        if (firstRaw == null) {
-                            return null
+                        if (char == null) {
+                            return false
                         }
                         if (characterClassStack.length) {
                             // Nesting character class
@@ -202,23 +218,69 @@ export default createRule("no-useless-character-class", {
                             // Avoid [A&&[&]] => [A&&&]
                             if (
                                 REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
-                                    firstRaw,
+                                    char,
                                 ) &&
                                 // The previous character is the same
-                                pattern[ccNode.start - 1] === firstRaw
+                                pattern[ccNode.start - 1] === char
                             ) {
-                                return `\\${firstElement.raw}`
+                                return true
                             }
-                            return null
+
+                            // Avoid [[]^] => [^]
+                            return (
+                                char === "^" &&
+                                ccNode.parent.type === "CharacterClass" &&
+                                ccNode.parent.elements[0] === ccNode
+                            )
                         }
 
                         // Flat character class
-                        if (
-                            (flags.unicode
+                        return (
+                            flags.unicode
                                 ? ESCAPES_OUTSIDE_CHARACTER_CLASS_WITH_U
                                 : ESCAPES_OUTSIDE_CHARACTER_CLASS
-                            ).has(firstRaw)
-                        ) {
+                        ).has(char)
+                    }
+
+                    /**
+                     * Checks whether an escape is required if the given element is placed last
+                     * after character class replacement.
+                     */
+                    function needEscapedForLastElement(
+                        element: CharacterClassElement,
+                    ) {
+                        const char =
+                            element.type === "Character"
+                                ? element.raw
+                                : element.type === "CharacterClassRange"
+                                ? element.max.raw
+                                : null
+                        if (char == null) {
+                            return false
+                        }
+                        if (characterClassStack.length) {
+                            // Nesting character class
+
+                            // Avoid [A[&]&B] => [A&&B]
+                            return (
+                                REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
+                                    char,
+                                ) &&
+                                // The next character is the same
+                                pattern[ccNode.end] === char
+                            )
+                        }
+                        return false
+                    }
+
+                    /**
+                     * Returns the escaped raw text, if the given first element requires escaping.
+                     * Otherwise, returns null.
+                     */
+                    function getEscapedFirstRawIfNeeded(
+                        firstElement: CharacterClassElement,
+                    ) {
+                        if (isNeedEscapedForFirstElement(firstElement)) {
                             return `\\${firstElement.raw}`
                         }
                         return null
@@ -228,35 +290,21 @@ export default createRule("no-useless-character-class", {
                      * Returns the escaped raw text, if the given last element requires escaping.
                      * Otherwise, returns null.
                      */
-                    function getEscapedLatsRawIfNeeded(
+                    function getEscapedLastRawIfNeeded(
                         lastElement: CharacterClassElement,
                     ) {
-                        const lastRaw =
-                            lastElement.type === "Character"
-                                ? lastElement.raw
-                                : lastElement.type === "CharacterClassRange"
-                                ? lastElement.max.raw
-                                : null
-                        if (lastRaw == null) {
-                            return null
-                        }
-                        if (characterClassStack.length) {
-                            // Nesting character class
-
-                            // Avoid [A[&]&B] => [A&&B]
-                            if (
-                                REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
-                                    lastRaw,
-                                ) &&
-                                // The next character is the same
-                                pattern[ccNode.end] === lastRaw
-                            ) {
-                                const prefix = lastElement.raw.slice(
-                                    0,
-                                    -lastRaw.length,
-                                )
-                                return `${prefix}\\${lastRaw}`
-                            }
+                        if (needEscapedForLastElement(lastElement)) {
+                            const lastRaw =
+                                lastElement.type === "Character"
+                                    ? lastElement.raw
+                                    : lastElement.type === "CharacterClassRange"
+                                    ? lastElement.max.raw
+                                    : "" // never
+                            const prefix = lastElement.raw.slice(
+                                0,
+                                -lastRaw.length,
+                            )
+                            return `${prefix}\\${lastRaw}`
                         }
                         return null
                     }

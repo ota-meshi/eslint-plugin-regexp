@@ -257,5 +257,15 @@ tester.run("no-useless-character-class", rule as any, {
         //     output: String.raw`/[a\-b]/v`,
         //     errors: 1,
         // },
+        {
+            code: String.raw`/[[]^]/v`,
+            output: String.raw`/[\^]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[&[]&]/v`,
+            output: String.raw`/[&\&]/v`,
+            errors: 1,
+        },
     ],
 })
