@@ -54,6 +54,14 @@ export function getTypeScript(): TypeScript | undefined {
             // For browser
             return undefined
         }
+        if (
+            typeof e.message === "string" &&
+            e.message.includes("Dynamic require") &&
+            e.message.includes("is not supported")
+        ) {
+            // For vite config
+            return undefined
+        }
 
         throw e
     }
