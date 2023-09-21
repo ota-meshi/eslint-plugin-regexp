@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-dupe-disjunctions"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -19,6 +19,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
         `/(?:js|json)?abc/`,
         `/<("[^"]*"|'[^']*'|[^'">])*>/g`,
         `/c+|[a-f]/`,
+        `/c+|[a-f]/v`,
         String.raw`/b+(?:\w+|[+-]?\d+)/`,
         String.raw`/\d*\.\d+_|\d+\.\d*_/`,
         String.raw`/\d*\.\d+|\d+\.\d*/`,
@@ -145,6 +146,12 @@ tester.run("no-dupe-disjunctions", rule as any, {
         },
         {
             code: `/((?:ab|ba)|(?:ab|ba))/`,
+            errors: [
+                "Unexpected duplicate alternative. This alternative can be removed.",
+            ],
+        },
+        {
+            code: `/((?:ab|ba)|(?:ab|ba))/v`,
             errors: [
                 "Unexpected duplicate alternative. This alternative can be removed.",
             ],
@@ -512,6 +519,12 @@ tester.run("no-dupe-disjunctions", rule as any, {
             code: String.raw`/(?:A+|A*)_/`,
             errors: [
                 "Unexpected useless alternative. This alternative is a strict subset of 'A*' and can be removed.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{a|bb}]|bb/v`,
+            errors: [
+                "Unexpected useless alternative. This alternative is a strict subset of '[\\q{a|bb}]' and can be removed.",
             ],
         },
         {
