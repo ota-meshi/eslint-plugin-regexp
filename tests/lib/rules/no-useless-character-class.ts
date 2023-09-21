@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-character-class"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -47,6 +47,7 @@ tester.run("no-useless-character-class", rule as any, {
         String.raw`/\c[A]/`,
         String.raw`/\c[Z]/`,
         String.raw`/\c[m]/`,
+        String.raw`/[\q{abc}]/v`,
     ],
     invalid: [
         {
@@ -128,6 +129,12 @@ tester.run("no-useless-character-class", rule as any, {
             errors: 18,
         },
         {
+            code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\]/v`,
+            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/v`,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
             code: String.raw`/[.-.]/u`,
             output: String.raw`/\./u`,
             options: [{ ignores: [] }],
@@ -150,6 +157,115 @@ tester.run("no-useless-character-class", rule as any, {
             output: String.raw`RegExp("\"" + '\'')`,
             options: [{ ignores: [] }],
             errors: 2,
+        },
+        {
+            code: String.raw`/[ [.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\] ]/v`,
+            output: String.raw`/[ . * + ? \^ = ! : $ \{ \} \( \) \| \[ \] \/ \\ ]/v`,
+            options: [{ ignores: [] }],
+            errors: 18,
+        },
+        {
+            code: String.raw`/[[\^]A]/v`,
+            output: String.raw`/[\^A]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[A]--[B]]/v`,
+            output: String.raw`/[A--B]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[A[&]&B]/v; /[A&&[&]]/v`,
+            output: String.raw`/[A\&&B]/v; /[A&&\&]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[A[&-&]&B]/v`,
+            output: String.raw`/[A\&&B]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[&]&&[&]]/v`,
+            output: String.raw`/[\&&&\&]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[[abc]]/v`,
+            output: String.raw`/[abc]/v`,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[[A&&B]]/v`,
+            output: String.raw`/[A&&B]/v`,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[[\q{abc}]]/v`,
+            output: String.raw`/[\q{abc}]/v`,
+            errors: [
+                "Unexpected character class with one character class. Can remove brackets.",
+                "Unexpected character class with one string literal. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[[^\w&&\d]]/v`,
+            output: String.raw`/[^\w&&\d]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[^[abc]]/v`,
+            output: String.raw`/[^abc]/v`,
+            errors: [
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[^[abc]d]/v`,
+            output: String.raw`/[^abcd]/v`,
+            errors: [
+                "Unexpected unnecessary nesting character class. Can remove brackets.",
+            ],
+        },
+        {
+            code: String.raw`/[[abc][def]ghi]/v`,
+            output: String.raw`/[abc[def]ghi]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[abc[def]ghi]/v`,
+            output: String.raw`/[abcdefghi]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[[abc&]&[&bd]]/v`,
+            output: String.raw`/[abc\&&\&bd]/v`,
+            errors: 2,
+        },
+        {
+            code: String.raw`/[[abc!-&]&[&-1bd]]/v`,
+            output: String.raw`/[abc!-\&&\&-1bd]/v`,
+            errors: 2,
+        },
+        // We don't need to do anything with auto-fix escaping because the original pattern will cause a parsing error.
+        // {
+        //     code: String.raw`/[a[-b]]/v`,
+        //     output: String.raw`/[a\-b]/v`,
+        //     errors: 1,
+        // },
+        {
+            code: String.raw`/[[]^]/v`,
+            output: String.raw`/[\^]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/[&[]&]/v`,
+            output: String.raw`/[&\&]/v`,
+            errors: 1,
         },
     ],
 })
