@@ -88,7 +88,7 @@ export default createRule("unicode-escape", {
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { flags } = regexpContext
-            if (!flags.unicode) {
+            if (!flags.unicode && !flags.unicodeSets) {
                 return {}
             }
             return {
