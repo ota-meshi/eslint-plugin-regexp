@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-dupe-characters-character-class"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -21,6 +21,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
         "/[\\w\\p{L}]/u",
         "/\\p{ASCII}abc/u",
         String.raw`/[\u1fff-\u2020\s]/`,
+        String.raw`/[\q{a}\q{ab}\q{abc}[\w--[ab]][\w&&b]]/v`,
         // error
         "var r = new RegExp('[\\\\wA-Za-z0-9_][invalid');",
     ],
@@ -684,6 +685,26 @@ tester.run("no-dupe-characters-character-class", rule as any, {
             code: "/[\\x0x9]/",
             output: null,
             errors: 1,
+        },
+        // v flags
+        {
+            code: String.raw`/[\q{a}aa-c[\w--b][\w&&a]]/v`,
+            output: String.raw`/[aa-c[\w--b]]/v`,
+            errors: [
+                "'\\q{a}' is already included in 'a-c' (U+0061 - U+0063).",
+                "'a' (U+0061) is already included in 'a-c' (U+0061 - U+0063).",
+                "Unexpected overlap of 'a-c' (U+0061 - U+0063) and '[\\w--b]' was found '[ac]'.",
+                "'[\\w&&a]' is already included in 'a-c' (U+0061 - U+0063).",
+            ],
+        },
+        {
+            code: String.raw`/[\q{abc}\q{abc|ab}[\q{abc}--b][\q{abc}&&\q{abc|ab}]]/v`,
+            output: String.raw`/[\q{abc|ab}[\q{abc}&&\q{abc|ab}]]/v`,
+            errors: [
+                "'\\q{abc}' is already included in '\\q{abc|ab}'.",
+                "'[\\q{abc}--b]' is already included in '\\q{abc|ab}'.",
+                "'[\\q{abc}&&\\q{abc|ab}]' is already included in '\\q{abc|ab}'.",
+            ],
         },
     ],
 })
