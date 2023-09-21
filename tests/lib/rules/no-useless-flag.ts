@@ -846,6 +846,7 @@ describe("Don't conflict even if using the rules together.", () => {
             rulesConfig: {
                 "regexp/no-useless-flag": ["error"],
                 "regexp/require-unicode-regexp": "off",
+                "regexp/require-unicode-sets-regexp": "off",
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
             },
             messages: [
@@ -874,6 +875,7 @@ describe("Don't conflict even if using the rules together.", () => {
             rulesConfig: {
                 "regexp/match-any": ["error", { allows: ["dotAll"] }],
                 "regexp/require-unicode-regexp": "off",
+                "regexp/require-unicode-sets-regexp": "off",
                 "regexp/no-useless-flag": ["error"],
             },
             messages: [
