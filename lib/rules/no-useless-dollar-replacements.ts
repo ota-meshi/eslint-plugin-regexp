@@ -44,7 +44,6 @@ export default createRule("no-useless-dollar-replacements", {
         const typeTracer = createTypeTracker(context)
         const sourceCode = context.getSourceCode()
 
-        /** Verify */
         function verify(
             patternNode: Pattern | RegExpLiteral,
             replacement: Literal,

@@ -35,7 +35,11 @@ function getProblem(grapheme: string, flags: ReadonlyFlags): Problem | null {
         (grapheme.length === 2 && !startsWithSurrogate(grapheme))
     ) {
         return "Multi"
-    } else if (!flags.unicode && startsWithSurrogate(grapheme)) {
+    } else if (
+        !flags.unicode &&
+        !flags.unicodeSets &&
+        startsWithSurrogate(grapheme)
+    ) {
         return "Surrogate"
     }
     return null
@@ -84,6 +88,13 @@ function getGraphemeProblems(
 ): GraphemeProblem[] {
     let offset = cc.negate ? 2 : 1
 
+    const ignoreElements = cc.elements.filter(
+        (element) =>
+            element.type === "CharacterClass" || // Nesting CharacterClass
+            element.type === "ExpressionCharacterClass" || // Nesting ExpressionCharacterClass
+            element.type === "ClassStringDisjunction",
+    )
+
     const graphemes = splitter.splitGraphemes(cc.raw.slice(offset, -1))
     const problems: GraphemeProblem[] = []
 
@@ -92,6 +103,14 @@ function getGraphemeProblems(
         if (problem !== null) {
             const start = offset + cc.start
             const end = start + grapheme.length
+
+            if (
+                ignoreElements.some(
+                    (ignore) => ignore.start <= start && end <= ignore.end,
+                )
+            ) {
+                continue
+            }
 
             problems.push({
                 grapheme,
@@ -113,6 +132,7 @@ function getGraphemeProblems(
 function getGraphemeProblemsFix(
     problems: readonly GraphemeProblem[],
     cc: CharacterClass,
+    flags: ReadonlyFlags,
 ): string | null {
     if (cc.negate) {
         // we can't fix a negated character class
@@ -131,10 +151,7 @@ function getGraphemeProblemsFix(
     }
 
     // The prefix of graphemes
-    const prefix = problems
-        .map((p) => p.grapheme)
-        .sort((a, b) => b.length - a.length)
-        .join("|")
+    const prefixGraphemes = problems.map((p) => p.grapheme)
 
     // The rest of the character class
     let ccRaw = cc.raw
@@ -142,10 +159,17 @@ function getGraphemeProblemsFix(
         const { start, end } = problems[i]
         ccRaw = ccRaw.slice(0, start - cc.start) + ccRaw.slice(end - cc.start)
     }
+
+    if (flags.unicodeSets) {
+        const prefix = prefixGraphemes.join("|")
+        return `[\\q{${prefix}}${ccRaw.slice(1, -1)}]`
+    }
+
     if (ccRaw.startsWith("[^")) {
         ccRaw = `[\\${ccRaw.slice(1)}`
     }
 
+    const prefix = prefixGraphemes.sort((a, b) => b.length - a.length).join("|")
     let fix = prefix
     let singleAlternative = problems.length === 1
     if (ccRaw !== "[]") {
@@ -203,7 +227,6 @@ export default createRule("no-misleading-unicode-character", {
     create(context) {
         const fixable = context.options[0]?.fixable ?? false
 
-        /** */
         function makeFix(
             fix: Rule.ReportFixer,
             messageId: string,
@@ -217,9 +240,6 @@ export default createRule("no-misleading-unicode-character", {
             }
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -242,8 +262,7 @@ export default createRule("no-misleading-unicode-character", {
                         start: problems[0].start,
                         end: problems[problems.length - 1].end,
                     }
-
-                    const fix = getGraphemeProblemsFix(problems, ccNode)
+                    const fix = getGraphemeProblemsFix(problems, ccNode, flags)
 
                     const graphemes = problems
                         .map((p) => mention(p.grapheme))

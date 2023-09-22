@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/sort-alternatives"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -20,6 +20,7 @@ tester.run("sort-alternatives", rule as any, {
         String.raw`/\b(x?Rec|RequestOptionsPage)\b/`,
         String.raw`/\b([ft]|false|true)\b/`,
         String.raw`/\b(a+b|a+c)\b/`,
+        String.raw` /[\q{blue|green|red}]/v`,
     ],
     invalid: [
         {
@@ -136,6 +137,56 @@ tester.run("sort-alternatives", rule as any, {
         {
             code: String.raw`/\b(?:(?:script|source)_foo|sample)\b/`,
             output: String.raw`/\b(?:sample|(?:script|source)_foo)\b/`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{red|green|blue}]/v`,
+            output: String.raw`/[\q{blue|green|red}]/v`,
+            errors: [
+                "The string alternatives can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/(?:c|[\q{red|green|blue}]|a)/v`,
+            output: String.raw`/(?:a|[\q{red|green|blue}]|c)/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+                "The string alternatives can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{ac|ab|aa}]/v`,
+            output: String.raw`/[\q{aa|ab|ac}]/v`,
+            errors: [
+                "The string alternatives can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/(?:b|[a-b])/v`,
+            output: String.raw`/(?:[a-b]|b)/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:a[\q{bd}]|abc)\b/v`,
+            output: String.raw`/\b(?:abc|a[\q{bd}])\b/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:abb|[\q{a|aba}]bb)\b/v`,
+            output: String.raw`/\b(?:[\q{a|aba}]bb|abb)\b/v`,
+            errors: [
+                "The alternatives of this group can be sorted without affecting the regex.",
+            ],
+        },
+        {
+            code: String.raw`/\b(?:c|b_|[\q{b|da}]_|b_2)\b/v`,
+            output: String.raw`/\b(?:b_|[\q{b|da}]_|b_2|c)\b/v`,
             errors: [
                 "The alternatives of this group can be sorted without affecting the regex.",
             ],

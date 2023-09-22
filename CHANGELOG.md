@@ -1,5 +1,57 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.7
+
+### Minor Changes
+
+-   Add support for `v` flag to `regexp/no-dupe-disjunctions` ([#612](https://github.com/ota-meshi/eslint-plugin-regexp/pull/612))
+
+-   Add support for v flag to `regexp/no-dupe-characters-character-class` rule ([#608](https://github.com/ota-meshi/eslint-plugin-regexp/pull/608))
+
+-   Add support for v flag to `regexp/no-useless-character-class` rule ([#593](https://github.com/ota-meshi/eslint-plugin-regexp/pull/593))
+
+-   Improve `regexp/sort-alternatives` rule to add support for string alternatives and v flag ([#587](https://github.com/ota-meshi/eslint-plugin-regexp/pull/587))
+
+-   Add `regexp/require-unicode-sets-regexp` rule ([#598](https://github.com/ota-meshi/eslint-plugin-regexp/pull/598))
+
+-   Add support for `v` flag to `regexp/prefer-predefined-assertion` ([#611](https://github.com/ota-meshi/eslint-plugin-regexp/pull/611))
+
+## 2.0.0-next.6
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/prefer-unicode-codepoint-escapes` rule ([#592](https://github.com/ota-meshi/eslint-plugin-regexp/pull/592))
+
+-   Add support for v flag to `regexp/unicode-escape` rule ([#592](https://github.com/ota-meshi/eslint-plugin-regexp/pull/592))
+
+### Patch Changes
+
+-   Add support for `v` flag to `regexp/no-contradiction-with-assertion` ([#606](https://github.com/ota-meshi/eslint-plugin-regexp/pull/606))
+
+## 2.0.0-next.5
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/prefer-d` rule ([#602](https://github.com/ota-meshi/eslint-plugin-regexp/pull/602))
+
+-   Add support for v flag to `regexp/negation` rule ([#560](https://github.com/ota-meshi/eslint-plugin-regexp/pull/560))
+
+-   Improve `regexp/require-unicode-regexp` rule to allow patterns with v flag ([#586](https://github.com/ota-meshi/eslint-plugin-regexp/pull/586))
+
+-   Add support for v flag to `regexp/no-useless-escape` rule ([#585](https://github.com/ota-meshi/eslint-plugin-regexp/pull/585))
+
+-   Add support for v flag to `regexp/no-misleading-unicode-character` rule ([#584](https://github.com/ota-meshi/eslint-plugin-regexp/pull/584))
+
+-   `prefer-w`: Add support for `v` flag ([#578](https://github.com/ota-meshi/eslint-plugin-regexp/pull/578))
+
+## 2.0.0-next.4
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/no-non-standard-flag` rule ([#596](https://github.com/ota-meshi/eslint-plugin-regexp/pull/596))
+
+-   Improve `regexp/strict` rule to ignore patterns with v flag ([#591](https://github.com/ota-meshi/eslint-plugin-regexp/pull/591))
+
 ## 2.0.0-next.3
 
 ### Minor Changes

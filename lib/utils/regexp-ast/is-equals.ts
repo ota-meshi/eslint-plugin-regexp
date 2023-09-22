@@ -4,24 +4,7 @@ import type {
     ToUnicodeSetElement,
 } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type {
-    Alternative,
-    Assertion,
-    CapturingGroup,
-    Quantifier,
-    Group,
-    CharacterClass,
-    CharacterSet,
-    Character,
-    Backreference,
-    CharacterClassRange,
-    Node,
-    RegExpLiteral,
-    Pattern,
-    Flags,
-    Element,
-    CharacterClassElement,
-} from "@eslint-community/regexpp/ast"
+import type { Node } from "@eslint-community/regexpp/ast"
 import type { ShortCircuit } from "./common"
 
 /**
@@ -63,21 +46,19 @@ function isEqualChar(
     return toUnicodeSet(a, flags).equals(toUnicodeSet(b, flags))
 }
 
-const EQUALS_CHECKER = {
-    Alternative(
-        a: Alternative,
-        b: Alternative,
+type OfType<T extends Node["type"]> = Extract<Node, { type: T }>
+const EQUALS_CHECKER: {
+    [T in Node["type"]]: (
+        a: OfType<T>,
+        b: OfType<T>,
         flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
-        return isEqualElements(a.elements, b.elements, flags, shortCircuit)
+        shortCircuit: ShortCircuit | undefined,
+    ) => boolean
+} = {
+    Alternative(a, b, flags, shortCircuit) {
+        return isEqualConcatenation(a.elements, b.elements, flags, shortCircuit)
     },
-    Assertion(
-        a: Assertion,
-        b: Assertion,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
+    Assertion(a, b, flags, shortCircuit) {
         if (a.kind === "start" || a.kind === "end") {
             /* istanbul ignore next */
             return a.kind === b.kind
@@ -87,7 +68,7 @@ const EQUALS_CHECKER = {
         }
         if (a.kind === "lookahead" || a.kind === "lookbehind") {
             if (b.kind === a.kind && a.negate === b.negate) {
-                return isEqualAlternatives(
+                return isEqualSet(
                     a.alternatives,
                     b.alternatives,
                     flags,
@@ -99,43 +80,52 @@ const EQUALS_CHECKER = {
         /* istanbul ignore next */
         return false
     },
-    Backreference(a: Backreference, b: Backreference) {
+    Backreference(a, b) {
         return a.ref === b.ref
     },
-    CapturingGroup(
-        a: CapturingGroup,
-        b: CapturingGroup,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
+    CapturingGroup(a, b, flags, shortCircuit) {
         return (
             a.name === b.name &&
-            isEqualAlternatives(
-                a.alternatives,
-                b.alternatives,
-                flags,
-                shortCircuit,
-            )
+            isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
         )
     },
-    Character(a: Character, b: Character, flags: ReadonlyFlags) {
+    Character(a, b, flags) {
         return isEqualChar(a, b, flags)
     },
-    CharacterClass(a: CharacterClass, b: CharacterClass, flags: ReadonlyFlags) {
+    CharacterClass(a, b, flags) {
         return isEqualChar(a, b, flags)
     },
-    CharacterClassRange(
-        a: CharacterClassRange,
-        b: CharacterClassRange,
-        flags: ReadonlyFlags,
-    ) {
+    CharacterClassRange(a, b, flags) {
         return isEqualChar(a, b, flags)
     },
-    CharacterSet(a: CharacterSet, b: CharacterSet, flags: ReadonlyFlags) {
+    CharacterSet(a, b, flags) {
         return isEqualChar(a, b, flags)
+    },
+    ClassIntersection(a, b, flags, shortCircuit) {
+        return isEqualSet(
+            [a.left, a.right],
+            [b.left, b.right],
+            flags,
+            shortCircuit,
+        )
+    },
+    ClassStringDisjunction(a, b, flags, shortCircuit) {
+        return isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
+    },
+    ClassSubtraction(a, b, flags, shortCircuit) {
+        return (
+            isEqualNodes(a.left, b.left, flags, shortCircuit) &&
+            isEqualNodes(a.right, b.right, flags, shortCircuit)
+        )
+    },
+    ExpressionCharacterClass(a, b, flags) {
+        return (
+            a.negate === b.negate &&
+            isEqualNodes(a.expression, b.expression, flags)
+        )
     },
     /* istanbul ignore next */
-    Flags(a: Flags, b: Flags) {
+    Flags(a, b) {
         /* istanbul ignore next */
         return (
             a.dotAll === b.dotAll &&
@@ -148,38 +138,13 @@ const EQUALS_CHECKER = {
             a.unicodeSets === b.unicodeSets
         )
     },
-    Group(
-        a: Group,
-        b: Group,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
-        return isEqualAlternatives(
-            a.alternatives,
-            b.alternatives,
-            flags,
-            shortCircuit,
-        )
+    Group(a, b, flags, shortCircuit) {
+        return isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
     },
-    Pattern(
-        a: Pattern,
-        b: Pattern,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
-        return isEqualAlternatives(
-            a.alternatives,
-            b.alternatives,
-            flags,
-            shortCircuit,
-        )
+    Pattern(a, b, flags, shortCircuit) {
+        return isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
     },
-    Quantifier(
-        a: Quantifier,
-        b: Quantifier,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
+    Quantifier(a, b, flags, shortCircuit) {
         return (
             a.min === b.min &&
             a.max === b.max &&
@@ -187,16 +152,14 @@ const EQUALS_CHECKER = {
             isEqualNodes(a.element, b.element, flags, shortCircuit)
         )
     },
-    RegExpLiteral(
-        a: RegExpLiteral,
-        b: RegExpLiteral,
-        flags: ReadonlyFlags,
-        shortCircuit?: ShortCircuit,
-    ) {
+    RegExpLiteral(a, b, flags, shortCircuit) {
         return (
             isEqualNodes(a.pattern, b.pattern, flags, shortCircuit) &&
             isEqualNodes(a.flags, b.flags, flags, shortCircuit)
         )
+    },
+    StringAlternative(a, b, flags, shortCircuit) {
+        return isEqualConcatenation(a.elements, b.elements, flags, shortCircuit)
     },
 }
 
@@ -233,8 +196,6 @@ export function isEqualNodes<N extends Node>(
         }
     }
     if (/[(*+?[\\{|]/u.test(a.raw) || /[(*+?[\\{|]/u.test(b.raw)) {
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
         return EQUALS_CHECKER[a.type](
             a as never,
             b as never,
@@ -246,9 +207,9 @@ export function isEqualNodes<N extends Node>(
 }
 
 /** Check whether given elements are equals or not. */
-function isEqualElements(
-    a: Element[],
-    b: Element[],
+function isEqualConcatenation<N extends Node>(
+    a: readonly N[],
+    b: readonly N[],
     flags: ReadonlyFlags,
     shortCircuit?: ShortCircuit,
 ) {
@@ -266,9 +227,9 @@ function isEqualElements(
 }
 
 /** Check whether given alternatives are equals or not. */
-function isEqualAlternatives<N extends Alternative | CharacterClassElement>(
-    a: N[],
-    b: N[],
+function isEqualSet<N extends Node>(
+    a: readonly N[],
+    b: readonly N[],
     flags: ReadonlyFlags,
     shortCircuit?: ShortCircuit,
 ) {

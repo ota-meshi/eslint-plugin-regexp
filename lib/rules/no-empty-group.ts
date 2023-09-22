@@ -17,9 +17,6 @@ export default createRule("no-empty-group", {
         type: "suggestion",
     },
     create(context) {
-        /**
-         * verify group node
-         */
         function verifyGroup(
             { node, getRegexpLocation }: RegExpContext,
             gNode: Group | CapturingGroup,
@@ -33,9 +30,6 @@ export default createRule("no-empty-group", {
             }
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

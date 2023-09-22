@@ -26,6 +26,7 @@ import type { CharSet } from "refa"
 import { joinEnglishList, mention } from "../utils/mention"
 import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
+import { assertNever } from "../utils/util"
 
 /**
  * Returns whether the given node is or contains a capturing group.
@@ -75,6 +76,7 @@ function getSingleConsumedChar(
         case "Character":
         case "CharacterSet":
         case "CharacterClass":
+        case "ExpressionCharacterClass":
             return {
                 // FIXME: TS Error
                 // @ts-expect-error -- FIXME
@@ -94,8 +96,13 @@ function getSingleConsumedChar(
             }
         }
 
-        default:
+        case "Assertion":
+        case "Backreference":
+        case "Quantifier":
             return empty
+
+        default:
+            return assertNever(element)
     }
 }
 
@@ -140,9 +147,14 @@ function isGroupOrCharacter(element: Element): element is GroupOrCharacter {
         case "Character":
         case "CharacterClass":
         case "CharacterSet":
+        case "ExpressionCharacterClass":
             return true
-        default:
+        case "Assertion":
+        case "Backreference":
+        case "Quantifier":
             return false
+        default:
+            return assertNever(element)
     }
 }
 
@@ -582,9 +594,6 @@ export default createRule("optimal-quantifier-concatenation", {
             context.options[0]?.capturingGroups ??
             CapturingGroupReporting.report
 
-        /**
-         * Creates a visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

@@ -3,6 +3,7 @@
 /dist
 /docs/.vitepress/dist
 /docs/.vitepress/build-system/shim/eslint.mjs
+/docs/.vitepress/cache
 /node_modules
 /assets
 !/docs/.vitepress

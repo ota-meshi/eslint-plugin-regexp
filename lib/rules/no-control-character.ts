@@ -36,16 +36,12 @@ export default createRule("no-control-character", {
         hasSuggestions: true,
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
             const { node, patternSource, getRegexpLocation, fixReplaceNode } =
                 regexpContext
 
-            /** */
             function isBadEscapeRaw(raw: string, cp: number): boolean {
                 return (
                     raw.codePointAt(0)! === cp ||
@@ -54,7 +50,6 @@ export default createRule("no-control-character", {
                 )
             }
 
-            /** */
             function isAllowedEscapeRaw(raw: string): boolean {
                 return (
                     ALLOWED_CONTROL_CHARS.test(raw) ||

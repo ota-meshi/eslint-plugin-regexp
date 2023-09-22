@@ -1,6 +1,6 @@
 {
     "name": "eslint-plugin-regexp",
-    "version": "2.0.0-next.3",
+    "version": "2.0.0-next.7",
     "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
     "engines": {
         "node": "^18 || >=20"
@@ -98,7 +98,7 @@
         "stylelint-config-standard-vue": "^1.0.0",
         "ts-node": "^10.2.1",
         "typescript": "~5.2.0",
-        "vitepress": "^1.0.0-alpha.29",
+        "vitepress": "^1.0.0-rc.14",
         "vue-eslint-parser": "^9.0.0"
     },
     "dependencies": {
@@ -107,8 +107,8 @@
         "comment-parser": "^1.4.0",
         "grapheme-splitter": "^1.0.4",
         "jsdoctypeparser": "^9.0.0",
-        "refa": "^0.12.0",
-        "regexp-ast-analysis": "^0.7.0",
+        "refa": "^0.12.1",
+        "regexp-ast-analysis": "^0.7.1",
         "scslre": "^0.3.0"
     },
     "publishConfig": {

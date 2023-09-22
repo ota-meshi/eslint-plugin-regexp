@@ -2,6 +2,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
+    CharacterClassElement,
     Group,
     LookaroundAssertion,
     Node,
@@ -15,6 +16,7 @@ import {
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
     assertValidFlags,
+    fixRemoveStringAlternative,
 } from "../utils"
 import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
@@ -41,6 +43,7 @@ import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
 import type { Rule } from "eslint"
 import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
+import { assertNever } from "../utils/util"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 
@@ -220,21 +223,46 @@ function* iterateNestedAlternatives(
 
         if (e.type === "CharacterClass" && !e.negate) {
             const nested: NestedAlternative[] = []
-            for (const charElement of e.elements) {
-                if (charElement.type === "CharacterClassRange") {
-                    const min = charElement.min
-                    const max = charElement.max
-                    if (min.value === max.value) {
-                        nested.push(charElement)
-                    } else if (min.value + 1 === max.value) {
-                        nested.push(min, max)
-                    } else {
-                        nested.push(charElement, min, max)
+
+            // eslint-disable-next-line func-style -- x
+            const addToNested = (charElement: CharacterClassElement) => {
+                switch (charElement.type) {
+                    case "CharacterClassRange": {
+                        const min = charElement.min
+                        const max = charElement.max
+                        if (min.value === max.value) {
+                            nested.push(charElement)
+                        } else if (min.value + 1 === max.value) {
+                            nested.push(min, max)
+                        } else {
+                            nested.push(charElement, min, max)
+                        }
+                        break
                     }
-                } else {
-                    nested.push(charElement)
+                    case "ClassStringDisjunction": {
+                        nested.push(...charElement.alternatives)
+                        break
+                    }
+                    case "CharacterClass": {
+                        if (!charElement.negate) {
+                            charElement.elements.forEach(addToNested)
+                        } else {
+                            nested.push(charElement)
+                        }
+                        break
+                    }
+                    case "Character":
+                    case "CharacterSet":
+                    case "ExpressionCharacterClass": {
+                        nested.push(charElement)
+                        break
+                    }
+                    default:
+                        throw assertNever(charElement)
                 }
             }
+            e.elements.forEach(addToNested)
+
             if (nested.length > 1) yield* nested
         }
     }
@@ -281,9 +309,6 @@ function* iteratePartialAlternatives(
     }
 }
 
-/**
- * Unions all given NFAs
- */
 function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
     if (nfas.length === 0) {
         throw new Error("Cannot union 0 NFAs.")
@@ -300,9 +325,6 @@ function unionAll(nfas: readonly ReadonlyNFA[]): ReadonlyNFA {
 
 const MAX_DFA_NODES = 100_000
 
-/**
- * Returns whether one NFA is a subset of another.
- */
 function isSubsetOf(
     superset: ReadonlyNFA,
     subset: ReadonlyNFA,
@@ -330,9 +352,6 @@ const enum SubsetRelation {
     unknown,
 }
 
-/**
- * Returns the subset relation
- */
 function getSubsetRelation(
     left: ReadonlyNFA,
     right: ReadonlyNFA,
@@ -402,7 +421,7 @@ function getPartialSubsetRelation(
                 return SubsetRelation.leftSupersetOfRight
 
             default:
-                throw new Error(relation)
+                return assertNever(relation)
         }
     }
     if (rightIsPartial && !leftIsPartial) {
@@ -415,7 +434,7 @@ function getPartialSubsetRelation(
                 return SubsetRelation.none
 
             default:
-                throw new Error(relation)
+                return assertNever(relation)
         }
     }
 
@@ -705,7 +724,7 @@ function* findDuplicationNfa(
                 }
 
                 default:
-                    throw new Error(relation)
+                    throw assertNever(relation)
             }
         }
 
@@ -832,16 +851,8 @@ function deduplicateResults(
     })
 }
 
-/**
- * Throws if called.
- */
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
-}
-
-/** Mentions the given nested alternative. */
 function mentionNested(nested: NestedAlternative): string {
-    if (nested.type === "Alternative") {
+    if (nested.type === "Alternative" || nested.type === "StringAlternative") {
         return mention(nested)
     }
     return mentionChar(nested)
@@ -858,9 +869,15 @@ function fixRemoveNestedAlternative(
         case "Alternative":
             return fixRemoveAlternative(context, alternative)
 
+        case "StringAlternative":
+            return fixRemoveStringAlternative(context, alternative)
+
         case "Character":
         case "CharacterClassRange":
-        case "CharacterSet": {
+        case "CharacterSet":
+        case "CharacterClass":
+        case "ExpressionCharacterClass":
+        case "ClassStringDisjunction": {
             if (alternative.parent.type !== "CharacterClass") {
                 // This isn't supposed to happen. We can't just remove the only
                 // alternative of its parent
@@ -871,8 +888,6 @@ function fixRemoveNestedAlternative(
         }
 
         default:
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
             throw assertNever(alternative)
     }
 }
@@ -963,9 +978,6 @@ export default createRule("no-dupe-disjunctions", {
 
         const allowedRanges = getAllowedCharRanges(undefined, context)
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -1135,7 +1147,6 @@ export default createRule("no-dupe-disjunctions", {
                 }
             }
 
-            /** Prints the given character. */
             function printChar(char: number): string {
                 if (inRange(allowedRanges, char)) {
                     return String.fromCodePoint(char)
@@ -1150,7 +1161,6 @@ export default createRule("no-dupe-disjunctions", {
                 return `\\u{${char.toString(16)}}`
             }
 
-            /** Returns suggestions for fixing the given report */
             function getSuggestions(
                 result: Result,
             ): Rule.SuggestionReportDescriptor[] {
@@ -1232,7 +1242,6 @@ export default createRule("no-dupe-disjunctions", {
                 ]
             }
 
-            /** Report the given result. */
             function reportResult(result: Result, { stared }: FilterInfo) {
                 let exp
                 if (stared === MaybeBool.true) {
@@ -1357,7 +1366,7 @@ export default createRule("no-dupe-disjunctions", {
                         break
 
                     default:
-                        throw new Error(result)
+                        throw assertNever(result)
                 }
             }
 

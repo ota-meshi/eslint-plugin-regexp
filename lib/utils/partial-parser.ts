@@ -7,17 +7,17 @@ import type {
 } from "refa"
 import { JS } from "refa"
 import type { AST } from "@eslint-community/regexpp"
+import { assertNever } from "./util"
 
-export type NestedAlternative = AST.Alternative | AST.CharacterClassElement
-
-/**
- * Throws if called.
- */
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
-}
+export type NestedAlternative =
+    | AST.Alternative
+    | AST.CharacterClassElement
+    | AST.StringAlternative
 
 class Context {
+    /**
+     * The ancestor nodes of the alternative + the alternative itself.
+     */
     public readonly ancestors: ReadonlySet<AST.Node>
 
     public readonly alternative: NestedAlternative
@@ -33,15 +33,14 @@ class Context {
     }
 }
 
+type Parsable = JS.ParsableElement | AST.CharacterClassElement
+
 export class PartialParser {
     private readonly parser: JS.Parser
 
     private readonly options: JS.ParseOptions
 
-    private readonly nativeCache = new WeakMap<
-        JS.ParsableElement,
-        NoParent<Element>
-    >()
+    private readonly nativeCache = new WeakMap<Parsable, NoParent<Element>>()
 
     public constructor(parser: JS.Parser, options: JS.ParseOptions = {}) {
         this.parser = parser
@@ -123,8 +122,34 @@ export class PartialParser {
         }
     }
 
+    private parseStringAlternatives(
+        alternatives: readonly AST.StringAlternative[],
+        context: Context,
+    ): NoParent<Concatenation>[] {
+        const ancestor = alternatives.find((a) => context.ancestors.has(a))
+        if (ancestor) {
+            return [this.parseStringAlternative(ancestor)]
+        }
+
+        return alternatives.map((a) => this.parseStringAlternative(a))
+    }
+
+    private parseStringAlternative(
+        alternative: AST.StringAlternative,
+    ): NoParent<Concatenation> {
+        return {
+            type: "Concatenation",
+            elements: alternative.elements.map((e) =>
+                this.nativeParseElement(e),
+            ),
+        }
+    }
+
     private parseElement(
-        element: AST.Element,
+        element:
+            | AST.Element
+            | AST.CharacterClassRange
+            | AST.ClassStringDisjunction,
         context: Context,
     ): NoParent<Element> {
         if (!context.ancestors.has(element)) {
@@ -136,10 +161,28 @@ export class PartialParser {
             case "Backreference":
             case "Character":
             case "CharacterSet":
+            case "ExpressionCharacterClass":
+                return this.nativeParseElement(element)
+
+            case "CharacterClassRange":
+                if (context.alternative === element.min) {
+                    return this.nativeParseElement(context.alternative)
+                } else if (context.alternative === element.max) {
+                    return this.nativeParseElement(context.alternative)
+                }
                 return this.nativeParseElement(element)
 
             case "CharacterClass":
                 return this.parseCharacterClass(element, context)
+
+            case "ClassStringDisjunction":
+                return {
+                    type: "Alternation",
+                    alternatives: this.parseStringAlternatives(
+                        element.alternatives,
+                        context,
+                    ),
+                }
 
             case "Group":
             case "CapturingGroup":
@@ -181,8 +224,6 @@ export class PartialParser {
             }
 
             default:
-                // FIXME: TS Error
-                // @ts-expect-error -- FIXME
                 throw assertNever(element)
         }
     }
@@ -199,22 +240,17 @@ export class PartialParser {
             return this.nativeParseElement(cc)
         }
 
-        if (context.alternative.type === "CharacterClassRange") {
-            const range: CharRange = {
-                min: context.alternative.min.value,
-                max: context.alternative.max.value,
-            }
-            return {
-                type: "CharacterClass",
-                characters: JS.createCharSet([range], this.parser.flags),
+        for (const e of cc.elements) {
+            if (context.ancestors.has(e)) {
+                return this.parseElement(e, context)
             }
         }
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
-        return this.nativeParseElement(context.alternative)
+
+        // this means that cc === context.alternative
+        return this.nativeParseElement(cc)
     }
 
-    private nativeParseElement(element: JS.ParsableElement): NoParent<Element> {
+    private nativeParseElement(element: Parsable): NoParent<Element> {
         let cached = this.nativeCache.get(element)
         if (!cached) {
             cached = this.nativeParseElementUncached(element)
@@ -223,9 +259,25 @@ export class PartialParser {
         return cached
     }
 
-    private nativeParseElementUncached(
-        element: JS.ParsableElement,
-    ): NoParent<Element> {
+    private nativeParseElementUncached(element: Parsable): NoParent<Element> {
+        if (element.type === "CharacterClassRange") {
+            const range: CharRange = {
+                min: element.min.value,
+                max: element.max.value,
+            }
+            return {
+                type: "CharacterClass",
+                characters: JS.createCharSet([range], this.parser.flags),
+            }
+        } else if (element.type === "ClassStringDisjunction") {
+            return {
+                type: "Alternation",
+                alternatives: element.alternatives.map((a) =>
+                    this.parseStringAlternative(a),
+                ),
+            }
+        }
+
         const { expression } = this.parser.parseElement(element, this.options)
 
         if (expression.alternatives.length === 1) {

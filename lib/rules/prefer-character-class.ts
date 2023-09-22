@@ -22,6 +22,7 @@ import {
     getMatchingDirection,
 } from "regexp-ast-analysis"
 import type { Position, SourceLocation } from "estree"
+import { assertNever } from "../utils/util"
 
 /**
  * Find the first index of an element that satisfies the given condition.
@@ -126,7 +127,7 @@ function elementsToCharacterClass(elements: CharElementArray): string {
             default:
                 // FIXME: TS Error
                 // @ts-expect-error -- FIXME
-                throw new Error(e)
+                throw assertNever(e)
         }
     })
 
@@ -397,7 +398,7 @@ function getParentPrefixAndSuffix(
             return ["", ""]
 
         default:
-            throw new Error(parent)
+            return assertNever(parent)
     }
 }
 
@@ -455,9 +456,6 @@ export default createRule("prefer-character-class", {
         const minCharacterAlternatives: number =
             context.options[0]?.minAlternatives ?? 3
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -492,7 +490,6 @@ export default createRule("prefer-character-class", {
                 return { start, end }
             }
 
-            // eslint-disable-next-line require-jsdoc -- X
             function process(n: NodeWithAlternatives): void {
                 if (n.alternatives.length < 2) {
                     // we need at least 2 alternatives with characters to make this work

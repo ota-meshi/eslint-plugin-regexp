@@ -3,18 +3,13 @@ import { defineConfig } from "vitepress"
 import { BUNDLED_LANGUAGES } from "shiki"
 import path from "path"
 import { fileURLToPath } from "url"
-import { rules } from "../../lib/utils/rules"
-import type { RuleModule } from "../../lib/types"
+import { rules } from "../../lib/utils/rules.js"
+import type { RuleModule } from "../../lib/types.js"
 
 // Pre-build cjs packages that cannot be bundled well.
 import "./build-system/build"
 
-const dirname = path.dirname(
-    fileURLToPath(
-        // @ts-expect-error -- Cannot change `module` option
-        import.meta.url,
-    ),
-)
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Include `json5` as alias for jsonc
 const jsonc = BUNDLED_LANGUAGES.find((lang) => lang.id === "jsonc")
@@ -67,6 +62,12 @@ export default defineConfig({
 
     lastUpdated: true,
     themeConfig: {
+        search: {
+            provider: "local",
+            options: {
+                detailedView: true,
+            },
+        },
         editLink: {
             pattern:
                 "https://github.com/ota-meshi/eslint-plugin-regexp/edit/master/docs/:path",
@@ -92,17 +93,17 @@ export default defineConfig({
                 },
                 {
                     text: "Possible Errors",
-                    collapsible: false,
+                    collapsed: false,
                     items: categories["Possible Errors"].map(ruleToSidebarItem),
                 },
                 {
                     text: "Best Practices",
-                    collapsible: false,
+                    collapsed: false,
                     items: categories["Best Practices"].map(ruleToSidebarItem),
                 },
                 {
                     text: "Stylistic Issues",
-                    collapsible: false,
+                    collapsed: false,
                     items: categories["Stylistic Issues"].map(
                         ruleToSidebarItem,
                     ),
@@ -111,7 +112,7 @@ export default defineConfig({
                     ? [
                           {
                               text: "Deprecated",
-                              collapsible: false,
+                              collapsed: false,
                               items: categories.deprecated.map(
                                   ruleToSidebarItem,
                               ),

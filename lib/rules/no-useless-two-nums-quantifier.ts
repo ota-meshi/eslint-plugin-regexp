@@ -17,9 +17,6 @@ export default createRule("no-useless-two-nums-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             getRegexpLocation,

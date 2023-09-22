@@ -4,9 +4,11 @@ import type {
     Character,
     CharacterClass,
     CharacterSet,
+    ClassStringDisjunction,
     Element,
-    Node,
+    ExpressionCharacterClass,
     Pattern,
+    StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
@@ -30,12 +32,14 @@ import {
     hasSomeDescendant,
     canReorder,
     getLongestPrefix,
-    toCharSet,
     getConsumedChars,
+    toUnicodeSet,
+    hasStrings,
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
 import { getParser } from "../utils/regexp-ast"
+import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest"
 
 interface AllowedChars {
     allowed: CharSet
@@ -43,10 +47,12 @@ interface AllowedChars {
 }
 const cache = new Map<string, Readonly<AllowedChars>>()
 
-/** */
 function getAllowedChars(flags: ReadonlyFlags) {
     assertValidFlags(flags)
-    const cacheKey = (flags.ignoreCase ? "i" : "") + (flags.unicode ? "u" : "")
+    const cacheKey =
+        (flags.ignoreCase ? "i" : "") +
+        (flags.unicode ? "u" : "") +
+        (flags.unicodeSets ? "v" : "")
     let result = cache.get(cacheKey)
     if (result === undefined) {
         result = {
@@ -87,7 +93,8 @@ function containsOnlyLiterals(
                 d.type === "Backreference" ||
                 d.type === "CharacterSet" ||
                 (d.type === "Quantifier" && d.max === Infinity) ||
-                (d.type === "CharacterClass" && d.negate)
+                (d.type === "CharacterClass" && d.negate) ||
+                (d.type === "ExpressionCharacterClass" && d.negate)
             )
         },
         (d) => d.type !== "Assertion",
@@ -157,27 +164,43 @@ function approximateLexicographicallySmallest(
     return getLexicographicallySmallestFromCharSets(prefix)
 }
 
+function getLexicographicallySmallestFromAlternative(
+    alternative: Alternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word | undefined
+function getLexicographicallySmallestFromAlternative(
+    alternative: StringAlternative,
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): Word
 /**
  * If defined, this will return the lexicographically smallest string accepted
  * by the given alternative (ignoring assertions).
  */
 function getLexicographicallySmallestFromAlternative(
-    alternative: Alternative,
+    alternative: Alternative | StringAlternative,
     parser: JS.Parser,
     flags: ReadonlyFlags,
 ): Word | undefined {
-    const { elements } = alternative
-    if (isOnlyCharacters(elements)) {
+    if (
+        alternative.type === "StringAlternative" ||
+        hasOnlyCharacters(alternative, flags)
+    ) {
         // fast path to avoid converting simple alternatives into NFAs
         const smallest: Word = []
-        for (const e of elements) {
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            const cs = toCharSet(e, flags)
+        for (const e of alternative.elements) {
+            const cs = toUnicodeSet(e, flags).chars
             if (cs.isEmpty) return undefined
             smallest.push(cs.ranges[0].min)
         }
         return smallest
+    }
+
+    if (isOnlyCharacterElements(alternative.elements)) {
+        return getLexicographicallySmallestInConcatenation(
+            alternative.elements.map((e) => toUnicodeSet(e, flags)),
+        )
     }
 
     try {
@@ -213,15 +236,45 @@ function getLexicographicallySmallestFromAlternative(
     }
 }
 
-/** Returns whether the given array of nodes contains only characters. */
-function isOnlyCharacters(
-    nodes: readonly Node[],
-): nodes is readonly (Character | CharacterClass | CharacterSet)[] {
+/**
+ * Returns whether the given array of nodes contains only characters.
+ * But note that if the pattern has the v flag, the character class may contain strings.
+ */
+function isOnlyCharacterElements(
+    nodes: Element[],
+): nodes is (
+    | Character
+    | CharacterClass
+    | CharacterSet
+    | ExpressionCharacterClass
+)[] {
     return nodes.every(
         (e) =>
             e.type === "Character" ||
             e.type === "CharacterClass" ||
-            e.type === "CharacterSet",
+            e.type === "CharacterSet" ||
+            e.type === "ExpressionCharacterClass",
+    )
+}
+
+/**
+ * Returns whether the given alternative has contains only characters.
+ * The v flag in the pattern does not contains the string.
+ */
+function hasOnlyCharacters(
+    alternative: Alternative,
+    flags: ReadonlyFlags,
+): alternative is Alternative & {
+    elements: readonly (
+        | Character
+        | CharacterClass
+        | CharacterSet
+        | ExpressionCharacterClass
+    )[]
+} {
+    return (
+        isOnlyCharacterElements(alternative.elements) &&
+        alternative.elements.every((e) => !hasStrings(e, flags))
     )
 }
 
@@ -435,6 +488,28 @@ function sortAlternatives(
 }
 
 /**
+ * Sorts the given string alternatives.
+ *
+ * Sorting is done by comparing the lexicographically smallest strings (LSS).
+ *
+ * For more information on why we use LSS-based comparison and how it works,
+ * see https://github.com/ota-meshi/eslint-plugin-regexp/pull/423.
+ */
+function sortStringAlternatives(
+    alternatives: StringAlternative[],
+    parser: JS.Parser,
+    flags: ReadonlyFlags,
+): void {
+    alternatives.sort((a, b) => {
+        const lssDiff = compareWords(
+            getLexicographicallySmallestFromAlternative(a, parser, flags),
+            getLexicographicallySmallestFromAlternative(b, parser, flags),
+        )
+        return lssDiff
+    })
+}
+
+/**
  * Returns whether the given string is a valid integer.
  * @param str
  * @returns
@@ -447,7 +522,9 @@ function isIntegerString(str: string): boolean {
  * This tries to sort the given alternatives by assuming that all alternatives
  * are a number.
  */
-function trySortNumberAlternatives(alternatives: Alternative[]): void {
+function trySortNumberAlternatives(
+    alternatives: (Alternative | StringAlternative)[],
+): void {
     const runs = getRuns(alternatives, (a) => isIntegerString(a.raw))
     for (const { startIndex, elements } of runs) {
         elements.sort((a, b) => {
@@ -529,16 +606,13 @@ export default createRule("sort-alternatives", {
         fixable: "code",
         schema: [],
         messages: {
-            sort: "The alternatives of this group can be sorted without affecting the regex.",
+            sort: "The {{alternatives}} can be sorted without affecting the regex.",
         },
         type: "suggestion", // "problem",
     },
     create(context) {
         const sliceMinLength = 3
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -555,7 +629,6 @@ export default createRule("sort-alternatives", {
                 let chars = possibleCharsCache.get(a)
                 if (chars === undefined) {
                     chars = getConsumedChars(a, flags).chars
-                    possibleCharsCache.set(a, chars)
                 }
                 return chars
             }
@@ -594,14 +667,19 @@ export default createRule("sort-alternatives", {
                     }
                 }
 
-                enforceSorted(run)
+                enforceSorted(run, "alternatives of this group")
             }
 
             /**
              * Creates a report if the sorted alternatives are different from
              * the unsorted ones.
              */
-            function enforceSorted(run: Run<Alternative>): void {
+            function enforceSorted(
+                run: Run<Alternative | StringAlternative>,
+                alternatives:
+                    | "alternatives of this group"
+                    | "string alternatives",
+            ): void {
                 const sorted = run.elements
                 const parent = sorted[0].parent
                 const unsorted = parent.alternatives.slice(
@@ -623,6 +701,7 @@ export default createRule("sort-alternatives", {
                     node,
                     loc,
                     messageId: "sort",
+                    data: { alternatives },
                     fix: fixReplaceNode(parent, () => {
                         const prefix = parent.raw.slice(
                             0,
@@ -639,7 +718,6 @@ export default createRule("sort-alternatives", {
                 })
             }
 
-            /** The handler for parents */
             function onParent(parent: Alternative["parent"]): void {
                 if (parent.alternatives.length < 2) {
                     return
@@ -687,10 +765,29 @@ export default createRule("sort-alternatives", {
                 }
             }
 
+            /** The handler for ClassStringDisjunction */
+            function onClassStringDisjunction(
+                parent: ClassStringDisjunction,
+            ): void {
+                if (parent.alternatives.length < 2) {
+                    return
+                }
+
+                const alternatives = [...parent.alternatives]
+                sortStringAlternatives(alternatives, parser, flags)
+                trySortNumberAlternatives(alternatives)
+                const run: Run<StringAlternative> = {
+                    startIndex: 0,
+                    elements: [...alternatives],
+                }
+                enforceSorted(run, "string alternatives")
+            }
+
             return {
                 onGroupEnter: onParent,
                 onPatternEnter: onParent,
                 onCapturingGroupEnter: onParent,
+                onClassStringDisjunctionEnter: onClassStringDisjunction,
             }
         }
 

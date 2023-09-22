@@ -74,6 +74,7 @@ sidebarDepth: 0
 | [prefer-regexp-test](prefer-regexp-test.md)                                       | enforce that `RegExp#test` is used instead of `String#match` and `RegExp#exec`             |    |    | 🔧 |    |
 | [require-reduce-negation](require-reduce-negation.md)                             | require to reduce negation of character classes                                            | ✅  |    | 🔧 |    |
 | [require-unicode-regexp](require-unicode-regexp.md)                               | enforce the use of the `u` flag                                                            |    |    | 🔧 |    |
+| [require-unicode-sets-regexp](require-unicode-sets-regexp.md)                     | enforce the use of the `v` flag                                                            |    |    | 🔧 |    |
 | [sort-alternatives](sort-alternatives.md)                                         | sort alternatives if order doesn't matter                                                  |    |    | 🔧 |    |
 | [use-ignore-case](use-ignore-case.md)                                             | use the `i` flag if it simplifies the pattern                                              | ✅  |    | 🔧 |    |
 

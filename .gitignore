@@ -105,3 +105,4 @@ dist
 
 ## Repo
 docs/.vitepress/build-system/shim/eslint.mjs
+docs/.vitepress/cache

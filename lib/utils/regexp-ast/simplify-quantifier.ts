@@ -16,6 +16,7 @@ import type {
     QuantifiableElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
+import { assertNever } from "../util"
 
 /**
  * Wraps the given function to be cached by a `WeakMap`.
@@ -337,13 +338,6 @@ function removeTargetQuantifier(
     }
 
     return result
-}
-
-/**
- * Throws if called.
- */
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
 }
 
 /**

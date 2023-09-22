@@ -8,6 +8,9 @@ import type {
     CharacterClassRange,
     CharacterSet,
     AnyCharacterSet,
+    UnicodeSetsCharacterClass,
+    ClassStringDisjunction,
+    ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import {
@@ -20,8 +23,9 @@ import {
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { toCharSet } from "regexp-ast-analysis"
+import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import { mentionChar } from "../utils/mention"
+import { assertNever } from "../utils/util"
 
 interface Grouping {
     duplicates: {
@@ -30,7 +34,13 @@ interface Grouping {
     }[]
     characters: Character[]
     characterRanges: CharacterClassRange[]
-    characterSets: (EscapeCharacterSet | UnicodePropertyCharacterSet)[]
+    characterSetAndClasses: (
+        | EscapeCharacterSet
+        | UnicodePropertyCharacterSet
+        | UnicodeSetsCharacterClass
+        | ClassStringDisjunction
+        | ExpressionCharacterClass
+    )[]
 }
 
 /**
@@ -44,9 +54,13 @@ function groupElements(
     const duplicates: Grouping["duplicates"] = []
     const characters = new Map<number, Character>()
     const characterRanges = new Map<string, CharacterClassRange>()
-    const characterSets = new Map<
+    const characterSetAndClasses = new Map<
         string,
-        EscapeCharacterSet | UnicodePropertyCharacterSet
+        | EscapeCharacterSet
+        | UnicodePropertyCharacterSet
+        | UnicodeSetsCharacterClass
+        | ClassStringDisjunction
+        | ExpressionCharacterClass
     >()
 
     /**
@@ -68,19 +82,24 @@ function groupElements(
     }
 
     for (const e of elements) {
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
-        const charSet = toCharSet(e, flags)
-
         if (e.type === "Character") {
+            const charSet = toCharSet(e, flags)
             const key = charSet.ranges[0].min
             addToGroup(characters, key, e)
         } else if (e.type === "CharacterClassRange") {
+            const charSet = toCharSet(e, flags)
             const key = buildRangeKey(charSet)
             addToGroup(characterRanges, key, e)
-        } else if (e.type === "CharacterSet") {
+        } else if (
+            e.type === "CharacterSet" ||
+            e.type === "CharacterClass" ||
+            e.type === "ClassStringDisjunction" ||
+            e.type === "ExpressionCharacterClass"
+        ) {
             const key = e.raw
-            addToGroup(characterSets, key, e)
+            addToGroup(characterSetAndClasses, key, e)
+        } else {
+            assertNever(e)
         }
     }
 
@@ -88,12 +107,9 @@ function groupElements(
         duplicates,
         characters: [...characters.values()],
         characterRanges: [...characterRanges.values()],
-        characterSets: [...characterSets.values()],
+        characterSetAndClasses: [...characterSetAndClasses.values()],
     }
 
-    /**
-     * Build key of range
-     */
     function buildRangeKey(rangeCharSet: CharSet) {
         return rangeCharSet.ranges
             .map((r) => String.fromCodePoint(r.min, r.max))
@@ -200,7 +216,10 @@ export default createRule("no-dupe-characters-character-class", {
             subsetElement: CharacterClassElement,
             element:
                 | Exclude<CharacterSet, AnyCharacterSet>
-                | CharacterClassRange,
+                | CharacterClassRange
+                | UnicodeSetsCharacterClass
+                | ClassStringDisjunction
+                | ExpressionCharacterClass,
         ) {
             const { node, getRegexpLocation } = regexpContext
 
@@ -246,9 +265,6 @@ export default createRule("no-dupe-characters-character-class", {
             })
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {
@@ -260,9 +276,12 @@ export default createRule("no-dupe-characters-character-class", {
                         duplicates,
                         characters,
                         characterRanges,
-                        characterSets,
+                        characterSetAndClasses,
                     } = groupElements(ccNode.elements, flags)
-                    const rangesAndSets = [...characterRanges, ...characterSets]
+                    const elementsOtherThanCharacter = [
+                        ...characterRanges,
+                        ...characterSetAndClasses,
+                    ]
 
                     // keep track of all reported subset elements
                     const subsets = new Set<CharacterClassElement>()
@@ -275,10 +294,10 @@ export default createRule("no-dupe-characters-character-class", {
 
                     // report characters that are already matched by some range or set
                     for (const char of characters) {
-                        for (const other of rangesAndSets) {
-                            // FIXME: TS Error
-                            // @ts-expect-error -- FIXME
-                            if (toCharSet(other, flags).has(char.value)) {
+                        for (const other of elementsOtherThanCharacter) {
+                            if (
+                                toUnicodeSet(other, flags).chars.has(char.value)
+                            ) {
                                 reportSubset(regexpContext, char, other)
                                 subsets.add(char)
                                 break
@@ -287,19 +306,15 @@ export default createRule("no-dupe-characters-character-class", {
                     }
 
                     // report character ranges and sets that are already matched by some range or set
-                    for (const element of rangesAndSets) {
-                        for (const other of rangesAndSets) {
+                    for (const element of elementsOtherThanCharacter) {
+                        for (const other of elementsOtherThanCharacter) {
                             if (element === other || subsets.has(other)) {
                                 continue
                             }
 
                             if (
-                                // FIXME: TS Error
-                                // @ts-expect-error -- FIXME
-                                toCharSet(element, flags).isSubsetOf(
-                                    // FIXME: TS Error
-                                    // @ts-expect-error -- FIXME
-                                    toCharSet(other, flags),
+                                toUnicodeSet(element, flags).isSubsetOf(
+                                    toUnicodeSet(other, flags),
                                 )
                             ) {
                                 reportSubset(regexpContext, element, other)
@@ -311,34 +326,28 @@ export default createRule("no-dupe-characters-character-class", {
 
                     // character ranges and sets might be a subset of a combination of other elements
                     // e.g. `b-d` is a subset of `a-cd-f`
-                    const characterTotal = toCharSet(
+                    const characterTotal = toUnicodeSet(
                         characters.filter((c) => !subsets.has(c)),
                         flags,
                     )
-                    for (const element of rangesAndSets) {
+                    for (const element of elementsOtherThanCharacter) {
                         if (subsets.has(element)) {
                             continue
                         }
 
                         const totalOthers = characterTotal.union(
-                            ...rangesAndSets
+                            ...elementsOtherThanCharacter
                                 .filter((e) => !subsets.has(e) && e !== element)
-                                // FIXME: TS Error
-                                // @ts-expect-error -- FIXME
-                                .map((e) => toCharSet(e, flags)),
+                                .map((e) => toUnicodeSet(e, flags)),
                         )
 
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        const elementCharSet = toCharSet(element, flags)
+                        const elementCharSet = toUnicodeSet(element, flags)
                         if (elementCharSet.isSubsetOf(totalOthers)) {
                             const superSetElements = ccNode.elements
                                 .filter((e) => !subsets.has(e) && e !== element)
                                 .filter(
                                     (e) =>
-                                        // FIXME: TS Error
-                                        // @ts-expect-error -- FIXME
-                                        !toCharSet(e, flags).isDisjointWith(
+                                        !toUnicodeSet(e, flags).isDisjointWith(
                                             elementCharSet,
                                         ),
                                 )
@@ -360,18 +369,20 @@ export default createRule("no-dupe-characters-character-class", {
                             continue
                         }
 
-                        for (let j = i + 1; j < rangesAndSets.length; j++) {
-                            const other = rangesAndSets[j]
+                        for (
+                            let j = i + 1;
+                            j < elementsOtherThanCharacter.length;
+                            j++
+                        ) {
+                            const other = elementsOtherThanCharacter[j]
                             if (range === other || subsets.has(other)) {
                                 continue
                             }
 
-                            const intersection = toCharSet(
+                            const intersection = toUnicodeSet(
                                 range,
                                 flags,
-                                // FIXME: TS Error
-                                // @ts-expect-error -- FIXME
-                            ).intersect(toCharSet(other, flags))
+                            ).intersect(toUnicodeSet(other, flags))
                             if (intersection.isEmpty) {
                                 continue
                             }
@@ -381,7 +392,8 @@ export default createRule("no-dupe-characters-character-class", {
                             // character range.
                             // there is no point in reporting overlaps that can't be fixed.
                             const interestingRanges =
-                                intersection.ranges.filter(
+                                // Range and string never intersect, so we can only check `chars`.
+                                intersection.chars.ranges.filter(
                                     (r) =>
                                         inRange(r, range.min.value) ||
                                         inRange(r, range.max.value),

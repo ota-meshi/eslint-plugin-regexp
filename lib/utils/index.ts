@@ -9,6 +9,7 @@ import type {
     Node,
     Pattern,
     Quantifier,
+    StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import {
@@ -296,7 +297,6 @@ export function defineRegexpVisitor(
     return visitor
 }
 
-/** Build RegExp visitor */
 function buildRegexpVisitor(
     context: Rule.RuleContext,
     rules: RegexpRule[],
@@ -1207,14 +1207,13 @@ export function fixRemoveCharacterClassElement(
             return null
         }
 
+        const elements: CharacterClassElement[] = cc.elements
+        const elementIndex = elements.indexOf(element)
+
         const elementBefore: CharacterClassElement | undefined =
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            cc.elements[cc.elements.indexOf(element) - 1]
+            cc.elements[elementIndex - 1]
         const elementAfter: CharacterClassElement | undefined =
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            cc.elements[cc.elements.indexOf(element) + 1]
+            cc.elements[elementIndex + 1]
 
         if (
             elementBefore &&
@@ -1259,6 +1258,32 @@ export function fixRemoveAlternative(
         // So instead, we will replace the alternative with an empty character
         // set. This ensure that the alternative is *functionally* removed.
         return context.fixReplaceNode(alternative, "[]")
+    }
+
+    return context.fixReplaceNode(parent, () => {
+        let { start, end } = alternative
+        if (parent.alternatives[0] === alternative) {
+            end++
+        } else {
+            start--
+        }
+
+        const before = parent.raw.slice(0, start - parent.start)
+        const after = parent.raw.slice(end - parent.start)
+
+        return before + after
+    })
+}
+
+export function fixRemoveStringAlternative(
+    context: RegExpContext,
+    alternative: StringAlternative,
+): (fixer: Rule.RuleFixer) => Rule.Fix | null {
+    const { parent } = alternative
+    if (parent.alternatives.length === 1) {
+        // We have to remove the string disjunction instead.
+        // We replace it with `[]` to avoid situations like `[&\q{a}&]` -> `[&&]`
+        return context.fixReplaceNode(parent, "[]")
     }
 
     return context.fixReplaceNode(parent, () => {

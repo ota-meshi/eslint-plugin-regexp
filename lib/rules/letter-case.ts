@@ -24,7 +24,6 @@ const DEFAULTS = {
     controlEscape: "uppercase" as const,
 }
 
-/** Parse option */
 function parseOptions(option?: {
     caseInsensitive?: Case
     unicodeEscape?: Case
@@ -89,9 +88,6 @@ export default createRule("letter-case", {
     create(context) {
         const options = parseOptions(context.options[0])
 
-        /**
-         * Report
-         */
         function report(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,
             reportNode: CharacterClassRange | Character,
@@ -112,7 +108,6 @@ export default createRule("letter-case", {
             })
         }
 
-        /** Verify for Character in case insensitive */
         function verifyCharacterInCaseInsensitive(
             regexpContext: RegExpContext,
             cNode: Character,
@@ -135,7 +130,6 @@ export default createRule("letter-case", {
             )
         }
 
-        /** Verify for CharacterClassRange in case insensitive */
         function verifyCharacterClassRangeInCaseInsensitive(
             regexpContext: RegExpContext,
             ccrNode: CharacterClassRange,
@@ -166,7 +160,6 @@ export default createRule("letter-case", {
             )
         }
 
-        /** Verify for Character in unicode escape */
         function verifyCharacterInUnicodeEscape(
             regexpContext: RegExpContext,
             cNode: Character,
@@ -193,7 +186,6 @@ export default createRule("letter-case", {
             )
         }
 
-        /** Verify for Character in hexadecimal escape */
         function verifyCharacterInHexadecimalEscape(
             regexpContext: RegExpContext,
             cNode: Character,
@@ -217,7 +209,6 @@ export default createRule("letter-case", {
             )
         }
 
-        /** Verify for Character in control escape */
         function verifyCharacterInControl(
             regexpContext: RegExpContext,
             cNode: Character,
@@ -239,9 +230,6 @@ export default createRule("letter-case", {
             )
         }
 
-        /**
-         * Create visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

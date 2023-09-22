@@ -24,9 +24,6 @@ export default createRule("confusing-quantifier", {
         type: "problem",
     },
     create(context) {
-        /**
-         * Create visitor
-         */
         function createVisitor({
             node,
             flags,

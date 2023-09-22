@@ -46,9 +46,6 @@ export default createRule("no-unused-capturing-group", {
     create(context) {
         const fixable: boolean = context.options[0]?.fixable ?? false
 
-        /**
-         * Report for unused
-         */
         function reportUnused(
             unused: Set<CapturingGroup>,
             regexpContext: RegExpContext,
@@ -90,9 +87,6 @@ export default createRule("no-unused-capturing-group", {
             }
         }
 
-        /**
-         * Get all capturing group references
-         */
         function getCapturingGroupReferences(regexpContext: RegExpContext) {
             const capturingGroupReferences =
                 regexpContext.getCapturingGroupReferences()
@@ -148,9 +142,6 @@ export default createRule("no-unused-capturing-group", {
             }
         }
 
-        /**
-         * Create RegExp visitor
-         */
         function createVisitor(
             regexpContext: RegExpContext,
         ): RegExpVisitor.Handlers {

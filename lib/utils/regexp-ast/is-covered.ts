@@ -8,8 +8,12 @@ import type {
     LookaroundAssertion,
 } from "@eslint-community/regexpp/ast"
 import { isEqualNodes } from "./is-equals"
-import type { ReadonlyFlags, ToCharSetElement } from "regexp-ast-analysis"
-import { toCharSet } from "regexp-ast-analysis"
+import type {
+    ReadonlyFlags,
+    ToCharSetElement,
+    ToUnicodeSetElement,
+} from "regexp-ast-analysis"
+import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
 
 type Options = {
@@ -54,6 +58,10 @@ class NormalizedCharacter implements NormalizedNodeBase {
         return new NormalizedCharacter(toCharSet(element, options.flags))
     }
 
+    public static fromChars(charSet: CharSet) {
+        return new NormalizedCharacter(charSet)
+    }
+
     private constructor(charSet: CharSet) {
         this.charSet = charSet
     }
@@ -69,7 +77,7 @@ class NormalizedAlternative implements NormalizedNodeBase {
 
     public readonly raw: string
 
-    public readonly elements: NormalizedNode[]
+    public readonly elements: readonly NormalizedNode[]
 
     public static fromAlternative(node: Alternative, options: Options) {
         const normalizeElements = [
@@ -107,7 +115,7 @@ class NormalizedAlternative implements NormalizedNodeBase {
 
     public static fromElements(
         elements: NormalizedNode[],
-        node: Alternative | Quantifier,
+        node: Alternative | Quantifier | ToUnicodeSetElement,
     ) {
         const normalizeElements = [
             ...NormalizedAlternative.normalizedElements(function* () {
@@ -131,7 +139,7 @@ class NormalizedAlternative implements NormalizedNodeBase {
 
     private constructor(
         elements: NormalizedNode[],
-        node: Alternative | Quantifier,
+        node: Alternative | Quantifier | ToUnicodeSetElement,
     ) {
         this.raw = node.raw
         this.elements = elements
@@ -148,11 +156,9 @@ class NormalizedDisjunctions implements NormalizedNodeBase {
 
     public readonly raw: string
 
-    public readonly node: CapturingGroup | Group | Pattern
+    private readonly getAlternatives: () => readonly NormalizedAlternative[]
 
-    private readonly options: Options
-
-    public normalizedAlternatives?: NormalizedAlternative[]
+    private normalizedAlternatives?: readonly NormalizedAlternative[]
 
     public static fromNode(
         node: CapturingGroup | Group | Pattern,
@@ -164,32 +170,35 @@ class NormalizedDisjunctions implements NormalizedNodeBase {
                 options,
             )
         }
-        return new NormalizedDisjunctions(node, options)
+        return new NormalizedDisjunctions(node, () => {
+            return node.alternatives.map((alt) => {
+                const n = normalizeNode(alt, options)
+                if (n.type === "NormalizedAlternative") {
+                    return n
+                }
+                return NormalizedAlternative.fromElements([n], alt)
+            })
+        })
+    }
+
+    public static fromAlternatives(
+        alternatives: readonly NormalizedAlternative[],
+        node: CapturingGroup | Group | Pattern | ToUnicodeSetElement,
+    ) {
+        return new NormalizedDisjunctions(node, () => alternatives)
     }
 
     private constructor(
-        node: CapturingGroup | Group | Pattern,
-        options: Options,
+        node: CapturingGroup | Group | Pattern | ToUnicodeSetElement,
+        getAlternatives: () => readonly NormalizedAlternative[],
     ) {
         this.raw = node.raw
-        this.node = node
-        this.options = options
+        this.getAlternatives = getAlternatives
     }
 
-    public get alternatives() {
-        if (this.normalizedAlternatives) {
-            return this.normalizedAlternatives
-        }
-        this.normalizedAlternatives = []
-        for (const alt of this.node.alternatives) {
-            const node = normalizeNode(alt, this.options)
-            if (node.type === "NormalizedAlternative") {
-                this.normalizedAlternatives.push(node)
-            } else {
-                this.normalizedAlternatives.push(
-                    NormalizedAlternative.fromElements([node], alt),
-                )
-            }
+    public get alternatives(): readonly NormalizedAlternative[] {
+        if (!this.normalizedAlternatives) {
+            this.normalizedAlternatives = this.getAlternatives()
         }
         return this.normalizedAlternatives
     }
@@ -208,7 +217,7 @@ class NormalizedLookaroundAssertion implements NormalizedNodeBase {
 
     private readonly options: Options
 
-    public normalizedAlternatives?: NormalizedAlternative[]
+    private normalizedAlternatives?: NormalizedAlternative[]
 
     public static fromNode(node: LookaroundAssertion, options: Options) {
         return new NormalizedLookaroundAssertion(node, options)
@@ -220,7 +229,7 @@ class NormalizedLookaroundAssertion implements NormalizedNodeBase {
         this.options = options
     }
 
-    public get alternatives() {
+    public get alternatives(): readonly NormalizedAlternative[] {
         if (this.normalizedAlternatives) {
             return this.normalizedAlternatives
         }
@@ -410,7 +419,6 @@ function isCoveredForNormalizedNode(
 
 const cacheNormalizeNode = new WeakMap<Node, NormalizedNode>()
 
-/** Normalize node */
 function normalizeNode(node: Node, options: Options): NormalizedNode {
     let n = cacheNormalizeNode.get(node)
     if (n) {
@@ -422,49 +430,70 @@ function normalizeNode(node: Node, options: Options): NormalizedNode {
     return n
 }
 
-/** Normalize node without cache */
 function normalizeNodeWithoutCache(
     node: Node,
     options: Options,
 ): NormalizedNode {
-    if (
-        node.type === "CharacterSet" ||
-        node.type === "CharacterClass" ||
-        node.type === "Character" ||
-        node.type === "CharacterClassRange"
-    ) {
-        // FIXME: TS Error
-        // @ts-expect-error -- FIXME
-        return NormalizedCharacter.fromElement(node, options)
-    }
-    if (node.type === "Alternative") {
-        return NormalizedAlternative.fromAlternative(node, options)
-    }
-    if (node.type === "Quantifier") {
-        return NormalizedOptional.fromQuantifier(node, options)
-    }
-    if (
-        node.type === "CapturingGroup" ||
-        node.type === "Group" ||
-        node.type === "Pattern"
-    ) {
-        return NormalizedDisjunctions.fromNode(node, options)
-    }
-    if (node.type === "RegExpLiteral") {
-        return normalizeNode(node.pattern, options)
-    }
-    if (node.type === "Assertion") {
-        if (node.kind === "lookahead" || node.kind === "lookbehind") {
-            return NormalizedLookaroundAssertion.fromNode(node, options)
+    switch (node.type) {
+        case "CharacterSet":
+        case "CharacterClass":
+        case "Character":
+        case "CharacterClassRange":
+        case "ExpressionCharacterClass":
+        case "ClassIntersection":
+        case "ClassSubtraction":
+        case "ClassStringDisjunction":
+        case "StringAlternative": {
+            const set = toUnicodeSet(node, options.flags)
+            if (set.accept.isEmpty) {
+                return NormalizedCharacter.fromChars(set.chars)
+            }
+
+            const alternatives = set.wordSets.map((wordSet) => {
+                return NormalizedAlternative.fromElements(
+                    wordSet.map(NormalizedCharacter.fromChars),
+                    node,
+                )
+            })
+            return NormalizedDisjunctions.fromAlternatives(alternatives, node)
         }
-        return NormalizedOther.fromNode(node)
+
+        case "Alternative":
+            return NormalizedAlternative.fromAlternative(node, options)
+
+        case "Quantifier":
+            return NormalizedOptional.fromQuantifier(node, options)
+
+        case "CapturingGroup":
+        case "Group":
+        case "Pattern":
+            return NormalizedDisjunctions.fromNode(node, options)
+
+        case "Assertion":
+            if (node.kind === "lookahead" || node.kind === "lookbehind") {
+                return NormalizedLookaroundAssertion.fromNode(node, options)
+            }
+            return NormalizedOther.fromNode(node)
+
+        case "RegExpLiteral":
+            return normalizeNode(node.pattern, options)
+
+        case "Backreference":
+        case "Flags":
+            return NormalizedOther.fromNode(node)
+
+        default:
+            return assertNever(node)
     }
-    return NormalizedOther.fromNode(node)
+}
+
+function assertNever(value: never): never {
+    throw new Error(`Invalid value: ${value}`)
 }
 
 /** Check whether the right node is covered by the left nodes. */
 function isCoveredAnyNode(
-    left: NormalizedNode[],
+    left: readonly NormalizedNode[],
     right: NormalizedNode,
     options: Options,
 ) {
@@ -478,8 +507,8 @@ function isCoveredAnyNode(
 
 /** Check whether the right nodes is covered by the left nodes. */
 function isCoveredAltNodes(
-    leftNodes: NormalizedNode[],
-    rightNodes: NormalizedNode[],
+    leftNodes: readonly NormalizedNode[],
+    rightNodes: readonly NormalizedNode[],
     options: Options,
 ): boolean {
     const left = options.canOmitRight ? omitEnds(leftNodes) : [...leftNodes]
@@ -563,7 +592,7 @@ function isCoveredAltNodes(
 /**
  * Exclude the end optionals.
  */
-function omitEnds(nodes: NormalizedNode[]): NormalizedNode[] {
+function omitEnds(nodes: readonly NormalizedNode[]): NormalizedNode[] {
     for (let index = nodes.length - 1; index >= 0; index--) {
         const node = nodes[index]
         if (node.type !== "NormalizedOptional") {

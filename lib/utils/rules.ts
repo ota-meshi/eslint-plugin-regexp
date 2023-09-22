@@ -73,6 +73,7 @@ import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-esc
 import preferW from "../rules/prefer-w"
 import requireReduceNegation from "../rules/require-reduce-negation"
 import requireUnicodeRegexp from "../rules/require-unicode-regexp"
+import requireUnicodeSetsRegexp from "../rules/require-unicode-sets-regexp"
 import sortAlternatives from "../rules/sort-alternatives"
 import sortCharacterClassElements from "../rules/sort-character-class-elements"
 import sortFlags from "../rules/sort-flags"
@@ -155,6 +156,7 @@ export const rules = [
     preferW,
     requireReduceNegation,
     requireUnicodeRegexp,
+    requireUnicodeSetsRegexp,
     sortAlternatives,
     sortCharacterClassElements,
     sortFlags,
