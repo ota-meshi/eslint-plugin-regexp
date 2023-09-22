@@ -16,9 +16,10 @@ const ROOT = path.resolve(__dirname, "../docs/rules")
 function pickSince(content: string): string | null | Promise<string> {
     const fileIntro = /^---\n(?<content>.*\n)+---\n*/u.exec(content)
     if (fileIntro) {
-        const since = /since: "?(?<version>v\d+\.\d+\.\d+)"?/u.exec(
-            fileIntro.groups!.content,
-        )
+        const since =
+            /since: "?(?<version>v\d+\.\d+\.\d+(?:[^\d\n"][^\n"]*)?)"?/u.exec(
+                fileIntro.groups!.content,
+            )
         if (since) {
             return since.groups!.version
         }
