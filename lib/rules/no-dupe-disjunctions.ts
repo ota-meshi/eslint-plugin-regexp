@@ -2,6 +2,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
+    CharacterClassElement,
     Group,
     LookaroundAssertion,
     Node,
@@ -15,6 +16,7 @@ import {
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
     assertValidFlags,
+    fixRemoveStringAlternative,
 } from "../utils"
 import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
@@ -221,21 +223,46 @@ function* iterateNestedAlternatives(
 
         if (e.type === "CharacterClass" && !e.negate) {
             const nested: NestedAlternative[] = []
-            for (const charElement of e.elements) {
-                if (charElement.type === "CharacterClassRange") {
-                    const min = charElement.min
-                    const max = charElement.max
-                    if (min.value === max.value) {
-                        nested.push(charElement)
-                    } else if (min.value + 1 === max.value) {
-                        nested.push(min, max)
-                    } else {
-                        nested.push(charElement, min, max)
+
+            // eslint-disable-next-line func-style -- x
+            const addToNested = (charElement: CharacterClassElement) => {
+                switch (charElement.type) {
+                    case "CharacterClassRange": {
+                        const min = charElement.min
+                        const max = charElement.max
+                        if (min.value === max.value) {
+                            nested.push(charElement)
+                        } else if (min.value + 1 === max.value) {
+                            nested.push(min, max)
+                        } else {
+                            nested.push(charElement, min, max)
+                        }
+                        break
                     }
-                } else {
-                    nested.push(charElement)
+                    case "ClassStringDisjunction": {
+                        nested.push(...charElement.alternatives)
+                        break
+                    }
+                    case "CharacterClass": {
+                        if (!charElement.negate) {
+                            charElement.elements.forEach(addToNested)
+                        } else {
+                            nested.push(charElement)
+                        }
+                        break
+                    }
+                    case "Character":
+                    case "CharacterSet":
+                    case "ExpressionCharacterClass": {
+                        nested.push(charElement)
+                        break
+                    }
+                    default:
+                        throw assertNever(charElement)
                 }
             }
+            e.elements.forEach(addToNested)
+
             if (nested.length > 1) yield* nested
         }
     }
@@ -825,7 +852,7 @@ function deduplicateResults(
 }
 
 function mentionNested(nested: NestedAlternative): string {
-    if (nested.type === "Alternative") {
+    if (nested.type === "Alternative" || nested.type === "StringAlternative") {
         return mention(nested)
     }
     return mentionChar(nested)
@@ -842,9 +869,15 @@ function fixRemoveNestedAlternative(
         case "Alternative":
             return fixRemoveAlternative(context, alternative)
 
+        case "StringAlternative":
+            return fixRemoveStringAlternative(context, alternative)
+
         case "Character":
         case "CharacterClassRange":
-        case "CharacterSet": {
+        case "CharacterSet":
+        case "CharacterClass":
+        case "ExpressionCharacterClass":
+        case "ClassStringDisjunction": {
             if (alternative.parent.type !== "CharacterClass") {
                 // This isn't supposed to happen. We can't just remove the only
                 // alternative of its parent
@@ -855,8 +888,6 @@ function fixRemoveNestedAlternative(
         }
 
         default:
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
             throw assertNever(alternative)
     }
 }
