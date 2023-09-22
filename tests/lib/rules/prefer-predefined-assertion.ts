@@ -3,13 +3,13 @@ import rule from "../../../lib/rules/prefer-predefined-assertion"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("prefer-predefined-assertion", rule as any, {
-    valid: [String.raw`/a(?=\W)/`],
+    valid: [String.raw`/a(?=\W)/`, String.raw`/a(?=\W)/v`],
     invalid: [
         {
             code: String.raw`/a(?=\w)/`,
@@ -67,6 +67,11 @@ tester.run("prefer-predefined-assertion", rule as any, {
             errors: [
                 "This lookaround assertion can be replaced with a negated word boundary assertion ('\\B').",
             ],
+        },
+        {
+            code: String.raw`/.(?<!\W)a/v`,
+            output: String.raw`/.\Ba/v`,
+            errors: 1,
         },
 
         {

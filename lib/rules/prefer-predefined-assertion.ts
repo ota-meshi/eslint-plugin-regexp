@@ -2,6 +2,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterSet,
+    ExpressionCharacterClass,
     LookaroundAssertion,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
@@ -11,7 +12,7 @@ import {
     getFirstCharAfter,
     getMatchingDirectionFromAssertionKind,
     invertMatchingDirection,
-    toCharSet,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 
 /**
@@ -20,14 +21,15 @@ import {
  */
 function getCharacters(
     lookaround: LookaroundAssertion,
-): CharacterSet | CharacterClass | null {
+): CharacterSet | CharacterClass | ExpressionCharacterClass | null {
     if (lookaround.alternatives.length === 1) {
         const alt = lookaround.alternatives[0]
         if (alt.elements.length === 1) {
             const first = alt.elements[0]
             if (
                 first.type === "CharacterSet" ||
-                first.type === "CharacterClass"
+                first.type === "CharacterClass" ||
+                first.type === "ExpressionCharacterClass"
             ) {
                 return first
             }
@@ -200,9 +202,12 @@ export default createRule("prefer-predefined-assertion", {
                         }
                     }
 
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    const charSet = toCharSet(chars, flags)
+                    const set = toUnicodeSet(chars, flags)
+                    if (!set.accept.isEmpty) {
+                        // the set contains strings, so it can't be replaced with a predefined assertion
+                        return
+                    }
+                    const charSet = set.chars
                     if (charSet.isAll) {
                         replaceEdgeAssertion(aNode, false)
                     } else if (charSet.equals(word)) {
