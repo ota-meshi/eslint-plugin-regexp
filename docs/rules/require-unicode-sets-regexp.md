@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/require-unicode-sets-regexp"
 description: "enforce the use of the `v` flag"
+since: "v2.0.0-next.7"
 ---
 # regexp/require-unicode-sets-regexp
 
@@ -60,7 +61,7 @@ Nothing.
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.0.0-next.7
 
 ## :mag: Implementation
 

@@ -1,5 +1,21 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.7
+
+### Minor Changes
+
+-   Add support for `v` flag to `regexp/no-dupe-disjunctions` ([#612](https://github.com/ota-meshi/eslint-plugin-regexp/pull/612))
+
+-   Add support for v flag to `regexp/no-dupe-characters-character-class` rule ([#608](https://github.com/ota-meshi/eslint-plugin-regexp/pull/608))
+
+-   Add support for v flag to `regexp/no-useless-character-class` rule ([#593](https://github.com/ota-meshi/eslint-plugin-regexp/pull/593))
+
+-   Improve `regexp/sort-alternatives` rule to add support for string alternatives and v flag ([#587](https://github.com/ota-meshi/eslint-plugin-regexp/pull/587))
+
+-   Add `regexp/require-unicode-sets-regexp` rule ([#598](https://github.com/ota-meshi/eslint-plugin-regexp/pull/598))
+
+-   Add support for `v` flag to `regexp/prefer-predefined-assertion` ([#611](https://github.com/ota-meshi/eslint-plugin-regexp/pull/611))
+
 ## 2.0.0-next.6
 
 ### Minor Changes
