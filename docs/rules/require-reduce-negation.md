@@ -18,14 +18,15 @@ description: "require to reduce negation of character classes"
 
 This rule is aimed at optimizing patterns by reducing the negation (complement) representation of character classes (with `v` flag).
 
+This rule does not report simple nested negations. (e.g. `/[^[^abc]]/v`)\
+If you want to report simple nested negations, use [regexp/negation] rule together.
+
 <eslint-code-block fix>
 
 ```js
 /* eslint regexp/require-reduce-negation: "error" */
 
 /* ✗ BAD */
-var re = /[^[^abc]]/v; // -> /[abc]/v
-var re = /[^\D]/u; // -> /[\d]/u
 var re = /[a&&[^b]]/v; // -> /[a--b]/v
 var re = /[[^b]&&a]/v; // -> /[a--b]/v
 var re = /[a--[^b]]/v; // -> /[a&&b]/v
@@ -33,9 +34,6 @@ var re = /[[^a]&&[^b]]/v; // -> /[^ab]/v
 var re = /[[^a][^b]]/v; // -> /[^a&&b]/v
 
 /* ✓ GOOD */
-var re = /[abc]/v;
-var re = /[\d]/u;
-var re = /[\D]/u;
 var re = /[a--b]/v;
 var re = /[a&&b]/v;
 var re = /[^ab]/v;
@@ -46,14 +44,7 @@ var re = /[^a&&b]/v;
 
 ### How does this rule work?
 
-This rule attempts to reduce complements in several ways:
-
-#### Double negation elimination
-
-This rule look for patterns that can eliminate double negatives, report on them, and auto-fix them.\
-For example, `/[^[^abc]]/v` is equivalent to `/[abc]/v`.
-
-See <https://en.wikipedia.org/wiki/Double_negation#Elimination_and_introduction>.
+This rule attempts to reduce complements in the ways listed below:
 
 #### De Morgan's laws
 

@@ -16,6 +16,7 @@ tester.run("negation", rule as any, {
         String.raw`/[^\P{Ll}]/iu`,
         String.raw`/[\p{Basic_Emoji}]/v`,
         String.raw`/[^\P{Lowercase_Letter}]/iu`,
+        String.raw`/[^[^a][^b]]/v`,
     ],
     invalid: [
         {
@@ -147,6 +148,47 @@ tester.run("negation", rule as any, {
             output: String.raw`/\p{Lowercase_Letter}/iv`,
             errors: [
                 "Unexpected negated character class. Use '\\p{Lowercase_Letter}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^[^abc]]/v`,
+            output: String.raw`/[abc]/v`,
+            errors: [
+                "Unexpected negated character class. Use '[abc]' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^[^\q{a|1|A}&&\w]]/v`,
+            output: String.raw`/[\q{a|1|A}&&\w]/v`,
+            errors: [
+                "Unexpected negated character class. Use '[\\q{a|1|A}&&\\w]' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^[^a]]/iv`,
+            output: String.raw`/[a]/iv`,
+            errors: ["Unexpected negated character class. Use '[a]' instead."],
+        },
+        {
+            code: String.raw`/[^[^\P{Lowercase_Letter}]]/iv`,
+            output: String.raw`/[\P{Lowercase_Letter}]/iv`,
+            errors: [
+                "Unexpected negated character class. Use '[\\P{Lowercase_Letter}]' instead.",
+                "Unexpected negated character class. Use '\\p{Lowercase_Letter}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^[^[\p{Lowercase_Letter}&&[ABC]]]]/iv`,
+            output: String.raw`/[[\p{Lowercase_Letter}&&[ABC]]]/iv`,
+            errors: [
+                "Unexpected negated character class. Use '[[\\p{Lowercase_Letter}&&[ABC]]]' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[^[^[\p{Lowercase_Letter}&&A]--B]]/iv`,
+            output: String.raw`/[[\p{Lowercase_Letter}&&A]--B]/iv`,
+            errors: [
+                "Unexpected negated character class. Use '[[\\p{Lowercase_Letter}&&A]--B]' instead.",
             ],
         },
     ],

@@ -107,9 +107,6 @@ export default createRule("require-reduce-negation", {
                 regexpContext
             return {
                 onCharacterClassEnter(ccNode) {
-                    if (doubleNegationElimination(ccNode)) {
-                        return
-                    }
                     toNegationOfConjunction(ccNode)
                 },
                 onExpressionCharacterClassEnter(eccNode) {
@@ -188,31 +185,6 @@ export default createRule("require-reduce-negation", {
                     right = operand.right
                     operand = operand.left
                 }
-            }
-
-            /**
-             * Checks the given character class and reports if double negation elimination
-             * is possible.
-             * Returns true if reported.
-             *
-             * e.g.
-             * - `[^[^abc]]` -> `[abc]`
-             * - `[^\D]` -> `[\d]`
-             */
-            function doubleNegationElimination(ccNode: CharacterClass) {
-                if (!ccNode.negate && ccNode.elements.length !== 1) {
-                    return false
-                }
-                const element = ccNode.elements[0]
-                if (!isNegate(element)) {
-                    return false
-                }
-                return reportWhenFixedIsCompatible({
-                    reportNode: ccNode,
-                    targetNode: ccNode,
-                    messageId: "doubleNegationElimination",
-                    fix: () => `[${getRawTextToNot(element)}]`,
-                })
             }
 
             /**
