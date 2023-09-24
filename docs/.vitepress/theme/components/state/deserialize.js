@@ -17,7 +17,7 @@ export function deserializeState(serializedString) {
 
     try {
         // For backward compatibility
-        const newCompressed = serializedString.startsWith("eJxd")
+        const newCompressed = serializedString.startsWith("eJ")
         const json = (
             newCompressed
                 ? () => {
