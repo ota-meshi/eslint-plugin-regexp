@@ -16,13 +16,32 @@ export function deserializeState(serializedString) {
     }
 
     try {
-        // For backward compatibility, it can address non-compressed data.
-        const compressed = !serializedString.startsWith("eyJj")
-        const decodedText = window.atob(serializedString)
-        const jsonText = compressed
-            ? pako.inflate(decodedText, { to: "string" })
-            : decodedText
-        const json = JSON.parse(jsonText)
+        // For backward compatibility
+        const newCompressed = serializedString.startsWith("eJxd")
+        const json = (
+            newCompressed
+                ? () => {
+                      const compressedString = window.atob(serializedString)
+                      const uint8Arr = pako.inflate(
+                          Uint8Array.from(compressedString, (c) =>
+                              c.charCodeAt(0),
+                          ),
+                      )
+                      const jsonText = new TextDecoder().decode(uint8Arr)
+                      return JSON.parse(jsonText)
+                  }
+                : () => {
+                      const decodedText = window.atob(serializedString)
+                      try {
+                          const jsonText = pako.inflate(decodedText, {
+                              to: "string",
+                          })
+                          return JSON.parse(jsonText)
+                      } catch {
+                          return JSON.parse(decodedText)
+                      }
+                  }
+        )()
 
         if (typeof json === "object" && json != null) {
             if (typeof json.code === "string") {
