@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.8
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/sort-character-class-elements` rule ([#588](https://github.com/ota-meshi/eslint-plugin-regexp/pull/588))
+
 ## 2.0.0-next.7
 
 ### Minor Changes
