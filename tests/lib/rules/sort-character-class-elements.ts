@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/sort-character-class-elements"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -38,6 +38,9 @@ tester.run("sort-character-class-elements", rule as any, {
             code: String.raw`/[\p{ASCII}a]/u`,
             options: [{ order: [] }],
         },
+        String.raw`/[a\q{a}[a][a--b]]/v`,
+        String.raw`/[\q{a}\q{b}\q{c}]/v`,
+        String.raw`/[\q{aa}\q{ab}\q{ac}]/v`,
     ],
     invalid: [
         {
@@ -228,6 +231,69 @@ tester.run("sort-character-class-elements", rule as any, {
             errors: [
                 "Expected character class elements to be in ascending order. '\\n' should be before ' '.",
                 "Expected character class elements to be in ascending order. '\t' should be before ' '.",
+            ],
+        },
+        {
+            code: String.raw`/[[a--b][a]\q{a}a]/v`,
+            output: String.raw`/[\q{a}[a--b][a]a]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{a}' should be before '[a--b]'.",
+                "Expected character class elements to be in ascending order. 'a' should be before '[a--b]'.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{a}[a--b][a]a]/v`,
+            output: String.raw`/[a\q{a}[a--b][a]]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. 'a' should be before '\\q{a}'.",
+            ],
+        },
+        {
+            code: String.raw`/[[b--c][a]]/v`,
+            output: String.raw`/[[a][b--c]]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '[a]' should be before '[b--c]'.",
+            ],
+        },
+        {
+            code: String.raw`/[[a]\q{a}]/v; /[\q{a}a]/v; /[[b-c]\q{a}]/v; /[[b-c][a]]/v;`,
+            output: String.raw`/[\q{a}[a]]/v; /[a\q{a}]/v; /[\q{a}[b-c]]/v; /[[a][b-c]]/v;`,
+            options: [{ order: [] }],
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{a}' should be before '[a]'.",
+                "Expected character class elements to be in ascending order. 'a' should be before '\\q{a}'.",
+                "Expected character class elements to be in ascending order. '\\q{a}' should be before '[b-c]'.",
+                "Expected character class elements to be in ascending order. '[a]' should be before '[b-c]'.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{c}\q{b}\q{a}]/v`,
+            output: String.raw`/[\q{b}\q{c}\q{a}]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{b}' should be before '\\q{c}'.",
+                "Expected character class elements to be in ascending order. '\\q{a}' should be before '\\q{c}'.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{b}\q{c}\q{a}]/v`,
+            output: String.raw`/[\q{a}\q{b}\q{c}]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{a}' should be before '\\q{b}'.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{ac}\q{ab}\q{aa}]/v`,
+            output: String.raw`/[\q{ab}\q{ac}\q{aa}]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{ab}' should be before '\\q{ac}'.",
+                "Expected character class elements to be in ascending order. '\\q{aa}' should be before '\\q{ac}'.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{ab}\q{ac}\q{aa}]/v`,
+            output: String.raw`/[\q{aa}\q{ab}\q{ac}]/v`,
+            errors: [
+                "Expected character class elements to be in ascending order. '\\q{aa}' should be before '\\q{ab}'.",
             ],
         },
     ],

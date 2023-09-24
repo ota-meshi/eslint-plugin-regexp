@@ -44,12 +44,14 @@ var foo = /[b-fa]/
       "\\d", // \d or \D
       "\\p", // \p{...} or \P{...}
       "*", // Others (A character or range of characters or an element you did not specify.)
+      "\\q", // \q{...}
+      "[]", // Nesting character class, or character class expression
     ]
   }]
 }
 ```
 
-- `"order"` ... An array of your preferred order. The default is `["\\s", "\\w", "\\d", "\\p", "*",]`.
+- `"order"` ... An array of your preferred order. The default is `["\\s", "\\w", "\\d", "\\p", "*", "\\q", "[]"]`.
 
 ## :rocket: Version
 
