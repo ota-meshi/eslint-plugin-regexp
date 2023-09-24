@@ -60,6 +60,7 @@ export const rules = {
     "regexp/prefer-predefined-assertion": "error",
     "regexp/prefer-question-quantifier": "error",
     "regexp/prefer-range": "error",
+    "regexp/prefer-set-operation": "error",
     "regexp/prefer-star-quantifier": "error",
     "regexp/prefer-unicode-codepoint-escapes": "error",
     "regexp/prefer-w": "error",
