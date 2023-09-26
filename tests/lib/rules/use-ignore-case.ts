@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/use-ignore-case"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -16,6 +16,22 @@ tester.run("use-ignore-case", rule as any, {
         String.raw`/[aAb]/`,
         String.raw`/[aaaa]/`,
 
+        String.raw`/regexp/u`,
+        String.raw`/[aA]/iu`,
+        String.raw`/[aA]a/u`,
+        String.raw`/[aAb]/u`,
+        String.raw`/[aaaa]/u`,
+        String.raw`/\b[aA]/u`,
+        String.raw`/[a-zA-Z]/u`,
+
+        String.raw`/regexp/v`,
+        String.raw`/[aA]/iv`,
+        String.raw`/[aA]a/v`,
+        String.raw`/[aAb]/v`,
+        String.raw`/[aaaa]/v`,
+        String.raw`/\b[aA]/v`,
+        String.raw`/[a-zA-Z]/v`,
+
         // partial pattern
         String.raw`/[a-zA-Z]/.source`,
     ],
@@ -25,6 +41,27 @@ tester.run("use-ignore-case", rule as any, {
             output: String.raw`/[a-z]/i`,
             errors: [
                 "The character class(es) '[a-zA-Z]' can be simplified using the `i` flag.",
+            ],
+        },
+        {
+            code: String.raw`/[aA][aA][aA][aA][aA]/`,
+            output: String.raw`/[a][a][a][a][a]/i`,
+            errors: [
+                "The character class(es) '[aA]', '[aA]', '[aA]', '[aA]', '[aA]' can be simplified using the `i` flag.",
+            ],
+        },
+        {
+            code: String.raw`/[aA]/u`,
+            output: String.raw`/[a]/iu`,
+            errors: [
+                "The character class(es) '[aA]' can be simplified using the `i` flag.",
+            ],
+        },
+        {
+            code: String.raw`/[aA]/v`,
+            output: String.raw`/[a]/iv`,
+            errors: [
+                "The character class(es) '[aA]' can be simplified using the `i` flag.",
             ],
         },
         {
@@ -39,6 +76,13 @@ tester.run("use-ignore-case", rule as any, {
             output: String.raw`RegExp("[a-z]", "i")`,
             errors: [
                 "The character class(es) '[a-zA-Z]' can be simplified using the `i` flag.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{a|A}]/v`,
+            output: String.raw`/[\q{a}]/iv`,
+            errors: [
+                "The character class(es) '[\\q{a|A}]' can be simplified using the `i` flag.",
             ],
         },
     ],

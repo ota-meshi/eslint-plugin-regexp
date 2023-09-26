@@ -8,49 +8,37 @@ import {
 } from "regexp-ast-analysis"
 import type {
     Alternative,
-    Character,
+    CharacterClass,
     CharacterClassElement,
-    CharacterClassRange,
     CharacterSet,
     Element,
+    ExpressionCharacterClass,
     Pattern,
+    StringAlternative,
 } from "@eslint-community/regexpp/ast"
-import { assertNever } from "../util"
-
-const ignoreCaseFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()
-const caseSensitiveFlagsCache = new WeakMap<ReadonlyFlags, ReadonlyFlags>()
+import { assertNever, cachedFn } from "../util"
 
 /**
  * Returns flags equivalent to the given flags but with the `i` flag set.
  */
-export function getIgnoreCaseFlags(flags: ReadonlyFlags): ReadonlyFlags {
-    if (flags.ignoreCase) {
-        return flags
-    }
-
-    let cached = ignoreCaseFlagsCache.get(flags)
-    if (cached === undefined) {
-        cached = toCache({ ...flags, ignoreCase: true })
-        ignoreCaseFlagsCache.set(flags, cached)
-    }
-    return cached
-}
+export const getIgnoreCaseFlags = cachedFn(
+    (flags: ReadonlyFlags): ReadonlyFlags => {
+        return flags.ignoreCase
+            ? flags
+            : toCache({ ...flags, ignoreCase: true })
+    },
+)
 
 /**
  * Returns flags equivalent to the given flags but without the `i` flag set.
  */
-export function getCaseSensitiveFlags(flags: ReadonlyFlags): ReadonlyFlags {
-    if (flags.ignoreCase === false) {
-        return flags
-    }
-
-    let cached = caseSensitiveFlagsCache.get(flags)
-    if (cached === undefined) {
-        cached = toCache({ ...flags, ignoreCase: false })
-        caseSensitiveFlagsCache.set(flags, cached)
-    }
-    return cached
-}
+export const getCaseSensitiveFlags = cachedFn(
+    (flags: ReadonlyFlags): ReadonlyFlags => {
+        return flags.ignoreCase === false
+            ? flags
+            : toCache({ ...flags, ignoreCase: false })
+    },
+)
 
 /**
  * Returns whether the given element **will not** behave the same with or
@@ -67,18 +55,28 @@ export function getCaseSensitiveFlags(flags: ReadonlyFlags): ReadonlyFlags {
  * - `wholeCharacterClass: false`: `isCaseVariant(/[a-zA-Z]/) -> true`
  */
 export function isCaseVariant(
-    element: Element | CharacterClassElement | Alternative | Pattern,
+    element:
+        | Element
+        | CharacterClassElement
+        | StringAlternative
+        | Alternative
+        | Pattern,
     flags: ReadonlyFlags,
     wholeCharacterClass = true,
 ): boolean {
-    const { unicode = false } = flags
+    const unicodeLike = Boolean(flags.unicode || flags.unicodeSets)
 
     const iSet = getIgnoreCaseFlags(flags)
     const iUnset = getCaseSensitiveFlags(flags)
 
     /** Whether the given character class element is case variant */
     function ccElementIsCaseVariant(
-        e: Character | CharacterClassRange | CharacterSet,
+        e:
+            | CharacterClassElement
+            | CharacterSet
+            | CharacterClass
+            | StringAlternative
+            | ExpressionCharacterClass["expression"],
     ): boolean {
         switch (e.type) {
             case "Character":
@@ -92,7 +90,7 @@ export function isCaseVariant(
                 switch (e.kind) {
                     case "word":
                         // \w which is case-variant in Unicode mode
-                        return unicode
+                        return unicodeLike
                     case "property":
                         // just check for equality
                         return !toUnicodeSet(e, iSet).equals(
@@ -102,6 +100,30 @@ export function isCaseVariant(
                         // all other character sets are case-invariant
                         return false
                 }
+
+            case "CharacterClass":
+                if (!wholeCharacterClass) {
+                    return e.elements.some(ccElementIsCaseVariant)
+                }
+                // just check for equality
+                return !toUnicodeSet(e, iSet).equals(toUnicodeSet(e, iUnset))
+
+            case "ExpressionCharacterClass":
+                return ccElementIsCaseVariant(e.expression)
+
+            case "ClassIntersection":
+            case "ClassSubtraction":
+                return !toUnicodeSet(e, iSet).equals(toUnicodeSet(e, iUnset))
+
+            case "ClassStringDisjunction":
+                if (!wholeCharacterClass) {
+                    return e.alternatives.some(ccElementIsCaseVariant)
+                }
+                // just check for equality
+                return !toUnicodeSet(e, iSet).equals(toUnicodeSet(e, iUnset))
+
+            case "StringAlternative":
+                return e.elements.some(ccElementIsCaseVariant)
 
             default:
                 return assertNever(e)
@@ -115,7 +137,7 @@ export function isCaseVariant(
                 case "Assertion":
                     // \b and \B are defined in terms of \w which is
                     // case-variant in Unicode mode
-                    return unicode && d.kind === "word"
+                    return unicodeLike && d.kind === "word"
 
                 case "Backreference":
                     // we need to check whether the associated capturing group
@@ -134,18 +156,13 @@ export function isCaseVariant(
                 case "Character":
                 case "CharacterClassRange":
                 case "CharacterSet":
-                    return ccElementIsCaseVariant(d)
-
                 case "CharacterClass":
-                    if (!wholeCharacterClass) {
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        return d.elements.some(ccElementIsCaseVariant)
-                    }
-                    // just check for equality
-                    return !toUnicodeSet(d, iSet).equals(
-                        toUnicodeSet(d, iUnset),
-                    )
+                case "ExpressionCharacterClass":
+                case "ClassIntersection":
+                case "ClassSubtraction":
+                case "ClassStringDisjunction":
+                case "StringAlternative":
+                    return ccElementIsCaseVariant(d)
 
                 default:
                     return false
@@ -154,7 +171,10 @@ export function isCaseVariant(
         (d) => {
             // don't go into character classes and ranges
             return (
-                d.type !== "CharacterClass" && d.type !== "CharacterClassRange"
+                d.type !== "CharacterClass" &&
+                d.type !== "CharacterClassRange" &&
+                d.type !== "ExpressionCharacterClass" &&
+                d.type !== "ClassStringDisjunction"
             )
         },
     )
