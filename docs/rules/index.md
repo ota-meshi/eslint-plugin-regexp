@@ -24,7 +24,7 @@ sidebarDepth: 0
 | [no-empty-character-class](no-empty-character-class.md)                         | disallow character classes that match no characters                                     | ✅  |    |    |    |
 | [no-empty-group](no-empty-group.md)                                             | disallow empty group                                                                    | ✅  |    |    |    |
 | [no-empty-lookarounds-assertion](no-empty-lookarounds-assertion.md)             | disallow empty lookahead assertion or empty lookbehind assertion                        | ✅  |    |    |    |
-| [no-escape-backspace](no-escape-backspace.md)                                   | disallow escape backspace (`[\b]`)                                                      | ✅  |    |    |    |
+| [no-escape-backspace](no-escape-backspace.md)                                   | disallow escape backspace (`[\b]`)                                                      | ✅  |    |    | 💡 |
 | [no-invalid-regexp](no-invalid-regexp.md)                                       | disallow invalid regular expression strings in `RegExp` constructors                    | ✅  |    |    |    |
 | [no-lazy-ends](no-lazy-ends.md)                                                 | disallow lazy quantifiers at the end of an expression                                   |    | ✅  |    |    |
 | [no-misleading-capturing-group](no-misleading-capturing-group.md)               | disallow capturing groups that do not behave as one would expect                        | ✅  |    |    | 💡 |

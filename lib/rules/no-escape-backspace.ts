@@ -10,8 +10,10 @@ export default createRule("no-escape-backspace", {
             recommended: true,
         },
         schema: [],
+        hasSuggestions: true,
         messages: {
             unexpected: "Unexpected '[\\b]'. Use '\\u0008' instead.",
+            suggest: "Use '\\u0008'.",
         },
         type: "suggestion", // "problem",
     },
@@ -19,6 +21,7 @@ export default createRule("no-escape-backspace", {
         function createVisitor({
             node,
             getRegexpLocation,
+            fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onCharacterEnter(cNode) {
@@ -27,6 +30,12 @@ export default createRule("no-escape-backspace", {
                             node,
                             loc: getRegexpLocation(cNode),
                             messageId: "unexpected",
+                            suggest: [
+                                {
+                                    messageId: "suggest",
+                                    fix: fixReplaceNode(cNode, "\\u0008"),
+                                },
+                            ],
                         })
                     }
                 },
