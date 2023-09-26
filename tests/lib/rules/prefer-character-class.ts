@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-character-class"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -133,7 +133,7 @@ tester.run("prefer-character-class", rule as any, {
 
         { code: String.raw`/a|b|c/`, output: String.raw`/[abc]/`, errors: 1 },
         { code: String.raw`/]|a|b/`, output: String.raw`/[\]ab]/`, errors: 1 },
-        { code: String.raw`/-|a|c/`, output: String.raw`/[-ac]/`, errors: 1 },
+        { code: String.raw`/-|a|c/`, output: String.raw`/[\-ac]/`, errors: 1 },
         { code: String.raw`/a|-|c/`, output: String.raw`/[a\-c]/`, errors: 1 },
         {
             code: String.raw`/a|[-]|c/`,
@@ -268,6 +268,22 @@ tester.run("prefer-character-class", rule as any, {
         {
             code: String.raw`/--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&|\|\|?|\?|\*|\/|~|\^|%/`,
             output: String.raw`/--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&|\|\|?|[\?\*\/~\^%]/`,
+            errors: 1,
+        },
+
+        {
+            code: String.raw`/1|2|3|[\w--\d]/v`,
+            output: String.raw`/[123[\w--\d]]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/1|&|&|[\w--\d]/v`,
+            output: String.raw`/[1\&&[\w--\d]]/v`,
+            errors: 1,
+        },
+        {
+            code: String.raw`/1|~|~|[\w--\d]|[\q{abc}]/v`,
+            output: String.raw`/[1\~~[\w--\d]]|[\q{abc}]/v`,
             errors: 1,
         },
 

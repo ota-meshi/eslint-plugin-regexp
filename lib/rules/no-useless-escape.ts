@@ -25,20 +25,8 @@ import {
     CP_PIPE,
     CP_MINUS,
     canUnwrapped,
-    CP_HASH,
-    CP_PERCENT,
-    CP_BAN,
-    CP_AMP,
-    CP_COMMA,
-    CP_COLON,
-    CP_SEMI,
-    CP_LT,
-    CP_EQ,
-    CP_GT,
-    CP_AT,
-    CP_TILDE,
-    CP_BACKTICK,
 } from "../utils"
+import { RESERVED_DOUBLE_PUNCTUATOR_CP } from "../utils/unicode-set"
 
 const REGEX_CHAR_CLASS_ESCAPES = new Set([
     CP_BACK_SLASH, // \\
@@ -79,29 +67,6 @@ const POTENTIAL_ESCAPE_SEQUENCE = new Set("uxkpP")
 const POTENTIAL_ESCAPE_SEQUENCE_FOR_CHAR_CLASS = new Set([
     ...POTENTIAL_ESCAPE_SEQUENCE,
     "q",
-])
-// A single character set of ClassSetReservedDoublePunctuator.
-// && !! ## $$ %% ** ++ ,, .. :: ;; << == >> ?? @@ ^^ `` ~~ are ClassSetReservedDoublePunctuator
-const REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR = new Set([
-    CP_BAN, // !
-    CP_HASH, // #
-    CP_DOLLAR, // $
-    CP_PERCENT, // %
-    CP_AMP, // &
-    CP_STAR, // *
-    CP_PLUS, // +
-    CP_COMMA, // ,
-    CP_DOT, // .
-    CP_COLON, // :
-    CP_SEMI, // ;
-    CP_LT, // <
-    CP_EQ, // =
-    CP_GT, // >
-    CP_QUESTION, // ?
-    CP_AT, // @
-    CP_CARET, // ^
-    CP_BACKTICK, // `
-    CP_TILDE, // ~
 ])
 
 export default createRule("no-useless-escape", {
@@ -186,7 +151,7 @@ export default createRule("no-useless-escape", {
                                 }
                                 if (flags.unicodeSets) {
                                     if (
-                                        REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
+                                        RESERVED_DOUBLE_PUNCTUATOR_CP.has(
                                             cNode.value,
                                         )
                                     ) {

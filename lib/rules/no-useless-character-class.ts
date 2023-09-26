@@ -7,17 +7,13 @@ import type {
     ExpressionCharacterClass,
     UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/unicode-set"
 
 const ESCAPES_OUTSIDE_CHARACTER_CLASS = new Set("$()*+./?[{|")
 const ESCAPES_OUTSIDE_CHARACTER_CLASS_WITH_U = new Set([
     ...ESCAPES_OUTSIDE_CHARACTER_CLASS,
     "}",
 ])
-// A single character set of ClassSetReservedDoublePunctuator.
-// && !! ## $$ %% ** ++ ,, .. :: ;; << == >> ?? @@ ^^ `` ~~ are ClassSetReservedDoublePunctuator
-const REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR = new Set(
-    "!#$%&*+,.:;<=>?@^`~",
-)
 
 export default createRule("no-useless-character-class", {
     meta: {
@@ -217,9 +213,7 @@ export default createRule("no-useless-character-class", {
 
                             // Avoid [A&&[&]] => [A&&&]
                             if (
-                                REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
-                                    char,
-                                ) &&
+                                RESERVED_DOUBLE_PUNCTUATOR_CHARS.has(char) &&
                                 // The previous character is the same
                                 pattern[ccNode.start - 1] === char
                             ) {
@@ -263,9 +257,7 @@ export default createRule("no-useless-character-class", {
 
                             // Avoid [A[&]&B] => [A&&B]
                             return (
-                                REGEX_CLASS_SET_RESERVED_DOUBLE_PUNCTUATOR.has(
-                                    char,
-                                ) &&
+                                RESERVED_DOUBLE_PUNCTUATOR_CHARS.has(char) &&
                                 // The next character is the same
                                 pattern[ccNode.end] === char
                             )

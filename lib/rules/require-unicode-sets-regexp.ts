@@ -3,29 +3,7 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import { toUnicodeSet } from "regexp-ast-analysis"
-
-const CLASS_SET_RESERVED_DOUBLE_PUNCTUATORS = [
-    "&&",
-    "!!",
-    "##",
-    "$$",
-    "%%",
-    "**",
-    "++",
-    ",,",
-    "..",
-    "::",
-    ";;",
-    "<<",
-    "==",
-    ">>",
-    "??",
-    "@@",
-    "^^",
-    "``",
-    "~~",
-    "--",
-]
+import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/unicode-set"
 
 /**
  * Returns whether the regex would keep its behavior if the v flag were to be
@@ -48,11 +26,7 @@ function isCompatible(regexpContext: RegExpContext): boolean {
                 if (!us.equals(vus)) {
                     throw INCOMPATIBLE
                 }
-                if (
-                    CLASS_SET_RESERVED_DOUBLE_PUNCTUATORS.some((punctuator) =>
-                        node.raw.includes(punctuator),
-                    )
-                ) {
+                if (RESERVED_DOUBLE_PUNCTUATOR_PATTERN.test(node.raw)) {
                     throw INCOMPATIBLE
                 }
             },
