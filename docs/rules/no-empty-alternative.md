@@ -19,6 +19,9 @@ While (re-)writing long regular expressions, it can happen that one forgets to
 remove the `|` character of a former alternative. This rule tries to point out
 these potential mistakes by reporting all empty alternatives.
 
+If the empty alternative is supposed to match the empty string, then use a
+quantifier instead. For example, `a|` should be written as `a?`.
+
 <eslint-code-block>
 
 ```js

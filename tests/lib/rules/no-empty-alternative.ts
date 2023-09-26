@@ -15,9 +15,9 @@ tester.run("no-empty-alternative", rule as any, {
             code: `/|||||/`,
             errors: [
                 {
-                    message: "No empty alternatives. Use quantifiers instead.",
-                    line: 1,
+                    messageId: "empty",
                     column: 2,
+                    suggestions: [{ output: `/(?:||||)??/` }],
                 },
             ],
         },
@@ -25,9 +25,9 @@ tester.run("no-empty-alternative", rule as any, {
             code: `/(a+|b+|)/`,
             errors: [
                 {
-                    message: "No empty alternatives. Use quantifiers instead.",
-                    line: 1,
+                    messageId: "empty",
                     column: 8,
+                    suggestions: [{ output: `/((?:a+|b+)?)/` }],
                 },
             ],
         },
@@ -35,9 +35,36 @@ tester.run("no-empty-alternative", rule as any, {
             code: String.raw`/(?:\|\|||\|)/`,
             errors: [
                 {
-                    message: "No empty alternatives. Use quantifiers instead.",
-                    line: 1,
+                    messageId: "empty",
                     column: 10,
+                    suggestions: [],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?<name>a|b|)/`,
+            errors: [
+                {
+                    messageId: "empty",
+                    suggestions: [{ output: String.raw`/(?<name>(?:a|b)?)/` }],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?:a|b|)f/`,
+            errors: [
+                {
+                    messageId: "empty",
+                    suggestions: [{ output: String.raw`/(?:a|b)?f/` }],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?:a|b|)+f/`,
+            errors: [
+                {
+                    messageId: "empty",
+                    suggestions: [{ output: String.raw`/(?:(?:a|b)?)+f/` }],
                 },
             ],
         },
