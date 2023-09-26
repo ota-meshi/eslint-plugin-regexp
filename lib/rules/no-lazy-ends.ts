@@ -1,6 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Alternative, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
+import type { Rule } from "eslint"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 
@@ -57,6 +58,7 @@ export default createRule("no-lazy-ends", {
                 additionalProperties: false,
             },
         ],
+        hasSuggestions: true,
         messages: {
             uselessElement:
                 "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
@@ -64,6 +66,11 @@ export default createRule("no-lazy-ends", {
                 "The quantifier can be removed because the quantifier is lazy and has a minimum of 1.",
             uselessRange:
                 "The quantifier can be replaced with '{{{min}}}' because the quantifier is lazy and has a minimum of {{min}}.",
+
+            suggestMakeGreedy: "Make the quantifier greedy.",
+            suggestRemoveElement: "Remove the quantified element.",
+            suggestRemoveQuantifier: "Remove the quantifier.",
+            suggestRange: "Replace the quantifier with '{{{min}}}'.",
         },
         type: "problem",
     },
@@ -74,6 +81,7 @@ export default createRule("no-lazy-ends", {
             node,
             getRegexpLocation,
             getUsageOfPattern,
+            fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
             if (ignorePartial) {
                 const usageOfPattern = getUsageOfPattern()
@@ -88,17 +96,48 @@ export default createRule("no-lazy-ends", {
                     for (const lazy of extractLazyEndQuantifiers(
                         pNode.alternatives,
                     )) {
+                        const makeGreedy: Rule.SuggestionReportDescriptor = {
+                            messageId: "suggestMakeGreedy",
+                            fix: fixReplaceNode(lazy, lazy.raw.slice(0, -1)),
+                        }
+
                         if (lazy.min === 0) {
+                            // we have to replace the quantifier with (?:) to
+                            // avoid creating invalid patterns. E.g. /a??/ -> /(?:)/
+                            const replacement =
+                                pNode.alternatives.length === 1 &&
+                                pNode.alternatives[0].elements.length === 1 &&
+                                pNode.alternatives[0].elements[0] === lazy
+                                    ? "(?:)"
+                                    : ""
+
                             context.report({
                                 node,
                                 loc: getRegexpLocation(lazy),
                                 messageId: "uselessElement",
+                                suggest: [
+                                    {
+                                        messageId: "suggestRemoveElement",
+                                        fix: fixReplaceNode(lazy, replacement),
+                                    },
+                                    makeGreedy,
+                                ],
                             })
                         } else if (lazy.min === 1) {
                             context.report({
                                 node,
                                 loc: getRegexpLocation(lazy),
                                 messageId: "uselessQuantifier",
+                                suggest: [
+                                    {
+                                        messageId: "suggestRemoveQuantifier",
+                                        fix: fixReplaceNode(
+                                            lazy,
+                                            lazy.element.raw,
+                                        ),
+                                    },
+                                    makeGreedy,
+                                ],
                             })
                         } else {
                             context.report({
@@ -108,6 +147,19 @@ export default createRule("no-lazy-ends", {
                                 data: {
                                     min: String(lazy.min),
                                 },
+                                suggest: [
+                                    {
+                                        messageId: "suggestRange",
+                                        data: {
+                                            min: String(lazy.min),
+                                        },
+                                        fix: fixReplaceNode(
+                                            lazy,
+                                            `${lazy.element.raw}{${lazy.min}}`,
+                                        ),
+                                    },
+                                    makeGreedy,
+                                ],
                             })
                         }
                     }
