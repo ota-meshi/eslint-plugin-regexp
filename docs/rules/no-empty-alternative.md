@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 ⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 <!-- end auto-generated rule header -->
 
 > disallow alternatives without elements
