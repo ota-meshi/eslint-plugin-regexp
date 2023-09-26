@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-misleading-capturing-group"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -66,6 +66,12 @@ tester.run("no-misleading-capturing-group", rule as any, {
             code: String.raw`/(^~~?)[\s\S]+(?=\1$)/m`,
             errors: [
                 "The quantifier '~?' can exchange characters (~) with '[\\s\\S]+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
+            ],
+        },
+        {
+            code: String.raw`/^([a\q{abc}]*).+/v`,
+            errors: [
+                "The quantifier '[a\\q{abc}]*' can exchange characters (a) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
             ],
         },
     ],
