@@ -18,8 +18,8 @@ import type { Ancestor, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     Chars,
     hasSomeDescendant,
-    toCharSet,
     getConsumedChars,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 import { getParser } from "../utils/regexp-ast"
 import type { CharSet } from "refa"
@@ -76,13 +76,13 @@ function getSingleConsumedChar(
         case "Character":
         case "CharacterSet":
         case "CharacterClass":
-        case "ExpressionCharacterClass":
+        case "ExpressionCharacterClass": {
+            const set = toUnicodeSet(element, flags)
             return {
-                // FIXME: TS Error
-                // @ts-expect-error -- FIXME
-                char: toCharSet(element, flags),
-                complete: true,
+                char: set.chars,
+                complete: set.accept.isEmpty,
             }
+        }
 
         case "Group":
         case "CapturingGroup": {
