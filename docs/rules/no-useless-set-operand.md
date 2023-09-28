@@ -14,7 +14,7 @@ description: "disallow unnecessary elements in expression character classes"
 
 ## :book: Rule Details
 
-This rule reports ???.
+The `v` flag added set operations for character classes, e.g. `[\w&&\D]` and `[\w--\d]`, but there are no limitations on what operands can be used. This rule reports any unnecessary operands.
 
 <eslint-code-block fix>
 
@@ -22,9 +22,19 @@ This rule reports ???.
 /* eslint regexp/no-useless-set-operand: "error" */
 
 /* ✓ GOOD */
-
+foo = /[\w--\d]/v
+foo = /[\w--[\d_]]/v
 
 /* ✗ BAD */
+foo = /[\w--[\d$]]/v
+foo = /[\w&&\d]/v
+foo = /[\w&&\s]/v
+foo = /[\w&&[\d\s]]/v
+foo = /[\w&&[^\d\s]]/v
+foo = /[\w--\s]/v
+foo = /[\d--\w]/v
+foo = /[\w--[\d\s]]/v
+foo = /[\w--[^\d\s]]/v
 
 ```
 
