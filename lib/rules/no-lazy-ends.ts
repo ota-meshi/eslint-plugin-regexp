@@ -67,10 +67,14 @@ export default createRule("no-lazy-ends", {
             uselessRange:
                 "The quantifier can be replaced with '{{{min}}}' because the quantifier is lazy and has a minimum of {{min}}.",
 
-            suggestMakeGreedy: "Make the quantifier greedy.",
-            suggestRemoveElement: "Remove the quantified element.",
-            suggestRemoveQuantifier: "Remove the quantifier.",
-            suggestRange: "Replace the quantifier with '{{{min}}}'.",
+            suggestMakeGreedy:
+                "Make the quantifier greedy. (This changes the behavior of the regex.)",
+            suggestRemoveElement:
+                "Remove the quantified element. (This does not changes the behavior of the regex.)",
+            suggestRemoveQuantifier:
+                "Remove the quantifier. (This does not changes the behavior of the regex.)",
+            suggestRange:
+                "Replace the quantifier with '{{{min}}}'. (This does not changes the behavior of the regex.)",
         },
         type: "problem",
     },
