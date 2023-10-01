@@ -1,8 +1,10 @@
-import type { CharSet } from "refa"
-import { Chars, toCharSet } from "regexp-ast-analysis"
+import { CharSet, JS } from "refa"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import type {
     CharacterClass,
     CharacterClassElement,
+    Node,
+    StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
@@ -18,34 +20,29 @@ import type {
 } from "../utils/ast-utils/pattern-source"
 import type { Rule } from "eslint"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
+import { cachedFn } from "../utils/util"
 
-// FIXME: TS Error
-// @ts-expect-error -- FIXME
-const ELEMENT_ORDER: Record<CharacterClassElement["type"], number> = {
+type FlatClassElement = CharacterClassElement | StringAlternative
+
+const ELEMENT_ORDER: Record<FlatClassElement["type"], number> = {
     Character: 1,
     CharacterClassRange: 2,
     CharacterSet: 3,
+    CharacterClass: 4,
+    ExpressionCharacterClass: 5,
+    ClassStringDisjunction: 6,
+    StringAlternative: 7,
 }
 
 /**
  * Finds all character class elements that do not contribute to the whole.
  */
 function findUseless(
-    elements: readonly CharacterClassElement[],
-    getCharSet: (e: CharacterClassElement) => CharSet,
-    other: CharSet,
-): Set<CharacterClassElement> {
-    const cache = new Map<CharacterClassElement, CharSet>()
-
-    /** A cached version of `getCharSet` */
-    function get(e: CharacterClassElement): CharSet {
-        let cached = cache.get(e)
-        if (cached === undefined) {
-            cached = getCharSet(e)
-            cache.set(e, cached)
-        }
-        return cached
-    }
+    elements: readonly FlatClassElement[],
+    getChars: (e: FlatClassElement) => JS.UnicodeSet,
+    other: JS.UnicodeSet,
+): Set<FlatClassElement> {
+    const get = cachedFn(getChars)
 
     // When searching for useless elements, we want to first
     // search for useless characters, then useless ranges, and
@@ -55,7 +52,7 @@ function findUseless(
         .reverse()
         .sort((a, b) => ELEMENT_ORDER[a.type] - ELEMENT_ORDER[b.type])
 
-    const useless = new Set<CharacterClassElement>()
+    const useless = new Set<FlatClassElement>()
 
     for (const e of sortedElements) {
         const cs = get(e)
@@ -88,20 +85,51 @@ function without<T>(iter: Iterable<T>, set: ReadonlySet<T>): T[] {
 }
 
 /**
- * Removes all the given ranges from the given pattern.
- *
- * This assumes that all ranges are disjoint
+ * Removes all the given nodes from the given pattern.
  */
 function removeAll(
     fixer: Rule.RuleFixer,
     patternSource: PatternSource,
-    ranges: readonly PatternRange[],
+    nodes: readonly Node[],
 ) {
-    const sorted = [...ranges].sort((a, b) => b.start - a.start)
-    let pattern = patternSource.value
+    // we abuse CharSet to merge adjacent and overlapping ranges
+    const charSet = CharSet.empty(Number.MAX_SAFE_INTEGER).union(
+        nodes.map((n) => {
+            let min = n.start
+            let max = n.end - 1
 
+            if (n.type === "StringAlternative") {
+                const parent = n.parent
+                if (
+                    parent.alternatives.length === 1 ||
+                    parent.alternatives.every((a) => nodes.includes(a))
+                ) {
+                    // we have to remove the whole disjunction
+                    min = parent.start
+                    max = parent.end - 1
+                } else {
+                    const isFirst = parent.alternatives.at(0) === n
+                    if (isFirst) {
+                        max++
+                    } else {
+                        min--
+                    }
+                }
+            }
+
+            return { min, max }
+        }),
+    )
+    const sorted = charSet.ranges.map(
+        ({ min, max }): PatternRange => ({ start: min, end: max + 1 }),
+    )
+
+    let pattern = patternSource.value
+    let removed = 0
     for (const { start, end } of sorted) {
-        pattern = pattern.slice(0, start) + pattern.slice(end)
+        pattern =
+            pattern.slice(0, start - removed) + pattern.slice(end - removed)
+        removed += end - start
     }
 
     const range = patternSource.getReplaceRange({
@@ -112,6 +140,23 @@ function removeAll(
         return range.replace(fixer, pattern)
     }
     return null
+}
+
+/**
+ * Adds the `i` flag to the given flags string.
+ */
+function getIgnoreCaseFlagsString(flags: string): string {
+    if (flags.includes("i")) {
+        return flags
+    }
+
+    // keep flags sorted
+    for (let i = 0; i < flags.length; i++) {
+        if (flags[i] > "i") {
+            return `${flags.slice(0, i)}i${flags.slice(i)}`
+        }
+    }
+    return `${flags}i`
 }
 
 export default createRule("use-ignore-case", {
@@ -162,27 +207,34 @@ export default createRule("use-ignore-case", {
                 return {}
             }
 
-            const uselessElements: CharacterClassElement[] = []
+            const uselessElements: FlatClassElement[] = []
             const ccs: CharacterClass[] = []
 
             return {
                 onCharacterClassEnter(ccNode) {
-                    const invariantElement = ccNode.elements.filter(
+                    const elements = ccNode.elements.flatMap(
+                        (e: CharacterClassElement): FlatClassElement[] => {
+                            if (e.type === "ClassStringDisjunction") {
+                                return e.alternatives
+                            }
+                            return [e]
+                        },
+                    )
+                    const invariantElement = elements.filter(
                         (e) => !isCaseVariant(e, flags),
                     )
-                    if (invariantElement.length === ccNode.elements.length) {
+                    if (invariantElement.length === elements.length) {
                         // all elements are case invariant
                         return
                     }
 
-                    const invariant = Chars.empty(flags).union(
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        ...invariantElement.map((e) => toCharSet(e, flags)),
+                    const empty = JS.UnicodeSet.empty(Chars.maxChar(flags))
+                    const invariant = empty.union(
+                        ...invariantElement.map((e) => toUnicodeSet(e, flags)),
                     )
 
                     let variantElements = without(
-                        ccNode.elements,
+                        elements,
                         new Set(invariantElement),
                     )
 
@@ -190,9 +242,7 @@ export default createRule("use-ignore-case", {
                     // the i flag
                     const alwaysUseless = findUseless(
                         variantElements,
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        (e) => toCharSet(e, flags),
+                        (e) => toUnicodeSet(e, flags),
                         invariant,
                     )
 
@@ -203,9 +253,7 @@ export default createRule("use-ignore-case", {
                     const iFlags = getIgnoreCaseFlags(flags)
                     const useless = findUseless(
                         variantElements,
-                        // FIXME: TS Error
-                        // @ts-expect-error -- FIXME
-                        (e) => toCharSet(e, iFlags),
+                        (e) => toUnicodeSet(e, iFlags),
                         invariant,
                     )
 
@@ -236,7 +284,7 @@ export default createRule("use-ignore-case", {
                             }
 
                             const flagsFix = fixReplaceFlags(
-                                `${flagsString}i`,
+                                getIgnoreCaseFlagsString(flagsString),
                                 false,
                             )(fixer)
                             if (!flagsFix) {
