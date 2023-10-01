@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -41,6 +41,21 @@ tester.run("no-useless-quantifier", rule as any, {
                     messageId: "empty",
                     suggestions: [
                         { messageId: "remove", output: String.raw`/(?:)/` },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?:[\q{}])+/v`,
+            output: null,
+            errors: [
+                {
+                    messageId: "empty",
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/(?:[\q{}])/v`,
+                        },
                     ],
                 },
             ],

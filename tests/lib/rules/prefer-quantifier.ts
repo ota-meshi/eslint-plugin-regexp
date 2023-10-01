@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -45,6 +45,27 @@ tester.run("prefer-quantifier", rule as any, {
                     column: 2,
                     endColumn: 4,
                 },
+            ],
+        },
+        {
+            code: `/  /v`,
+            output: `/ {2}/v`,
+            errors: [
+                "Unexpected consecutive same characters. Use '{2}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/\p{ASCII}\p{ASCII}/u`,
+            output: String.raw`/\p{ASCII}{2}/u`,
+            errors: [
+                "Unexpected consecutive same character class escapes. Use '{2}' instead.",
+            ],
+        },
+        {
+            code: String.raw`/\p{Basic_Emoji}\p{Basic_Emoji}/v`,
+            output: String.raw`/\p{Basic_Emoji}{2}/v`,
+            errors: [
+                "Unexpected consecutive same character class escapes. Use '{2}' instead.",
             ],
         },
         {

@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-question-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -57,6 +57,11 @@ tester.run("prefer-question-quantifier", rule as any, {
                     endColumn: 10,
                 },
             ],
+        },
+        {
+            code: "/(a){0,1}/v",
+            output: "/(a)?/v",
+            errors: ["Unexpected quantifier '{0,1}'. Use '?' instead."],
         },
         {
             code: "/(a){0,1}?/",

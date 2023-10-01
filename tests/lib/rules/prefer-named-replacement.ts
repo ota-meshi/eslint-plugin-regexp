@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-named-replacement"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -33,6 +33,11 @@ tester.run("prefer-named-replacement", rule as any, {
                     column: 32,
                 },
             ],
+        },
+        {
+            code: `"str".replace(/a(?<foo>b)c/v, "_$1_")`,
+            output: `"str".replace(/a(?<foo>b)c/v, "_$<foo>_")`,
+            errors: ["Unexpected indexed reference in replacement string."],
         },
         {
             code: `"str".replaceAll(/a(?<foo>b)c/, "_$1_")`,

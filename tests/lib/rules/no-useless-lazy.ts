@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-lazy"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -33,6 +33,11 @@ tester.run("no-useless-lazy", rule as any, {
                     endColumn: 7,
                 },
             ],
+        },
+        {
+            code: `/a{1}?/v`,
+            output: `/a{1}/v`,
+            errors: [{ messageId: "constant" }],
         },
         {
             code: `/a{4}?/`,
@@ -70,6 +75,11 @@ tester.run("no-useless-lazy", rule as any, {
         {
             code: `/a+?b+/`,
             output: `/a+b+/`,
+            errors: [{ messageId: "possessive" }],
+        },
+        {
+            code: String.raw`/[\q{aa|ab}]+?b+/v`,
+            output: String.raw`/[\q{aa|ab}]+b+/v`,
             errors: [{ messageId: "possessive" }],
         },
         {

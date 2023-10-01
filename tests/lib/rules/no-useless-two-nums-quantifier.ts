@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-two-nums-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -41,6 +41,11 @@ tester.run("no-useless-two-nums-quantifier", rule as any, {
             code: "/a{100,100}?/",
             output: "/a{100}?/",
             errors: ["Unexpected quantifier '{100,100}'."],
+        },
+        {
+            code: "/a{100,100}?/v",
+            output: "/a{100}?/v",
+            errors: 1,
         },
     ],
 })
