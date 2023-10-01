@@ -6,7 +6,7 @@ import type {
     CharacterClass,
     CharacterClassElement,
     CharacterSet,
-    Element,
+    ExpressionCharacterClass,
     Group,
     LookaroundAssertion,
     Node,
@@ -17,12 +17,13 @@ import { createRule, defineRegexpVisitor } from "../utils"
 import type { CharSet } from "refa"
 import type { FirstConsumedChar, ReadonlyFlags } from "regexp-ast-analysis"
 import {
-    toCharSet,
     getFirstConsumedChar,
     getMatchingDirection,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 import type { Position, SourceLocation } from "estree"
 import { assertNever } from "../utils/util"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/unicode-set"
 
 /**
  * Find the first index of an element that satisfies the given condition.
@@ -59,7 +60,12 @@ type RawAlternative = RawCharAlternative | RawNonCharAlternative
 interface RawCharAlternative {
     readonly isCharacter: true
     readonly alternative: Alternative
-    readonly element: Character | CharacterSet | CharacterClass
+    readonly char: CharSet
+    readonly element:
+        | Character
+        | CharacterSet
+        | CharacterClass
+        | ExpressionCharacterClass
 }
 interface RawNonCharAlternative {
     readonly isCharacter: false
@@ -88,52 +94,54 @@ function elementsToCharacterClass(elements: CharElementArray): string {
     // Its ONLY job is to generate a valid character class from the given elements.
     // Optimizations can be done by another rule.
 
-    let result = "["
+    const parts: string[] = []
 
-    elements.forEach((e, i) => {
+    elements.forEach((e) => {
         switch (e.type) {
             case "Character":
                 if (e.raw === "-") {
-                    if (i === 0 || i === elements.length - 1) {
-                        result += "-"
-                    } else {
-                        result += "\\-"
-                    }
-                } else if (e.raw === "^") {
-                    if (i === 0) {
-                        result += "\\^"
-                    } else {
-                        result += "^"
-                    }
+                    parts.push("\\-")
                 } else if (e.raw === "]") {
-                    result += "\\]"
+                    parts.push("\\]")
                 } else {
-                    result += e.raw
+                    parts.push(e.raw)
                 }
                 break
 
             case "CharacterClassRange":
-                if (e.min.raw === "^" && i === 0) {
-                    result += `\\^-${e.max.raw}`
-                } else {
-                    result += `${e.min.raw}-${e.max.raw}`
-                }
-                break
-
             case "CharacterSet":
-                result += e.raw
+            case "CharacterClass":
+            case "ClassStringDisjunction":
+            case "ExpressionCharacterClass":
+                parts.push(e.raw)
                 break
 
             default:
-                // FIXME: TS Error
-                // @ts-expect-error -- FIXME
                 throw assertNever(e)
         }
     })
 
-    result += "]"
+    if (parts.length > 0 && parts[0].startsWith("^")) {
+        parts[0] = `\\${parts[0]}`
+    }
 
-    return result
+    // escape double punctuators for v flag
+    for (let i = 1; i < parts.length; i++) {
+        const prev = parts[i - 1]
+        const curr = parts[i]
+
+        const pChar = prev.slice(-1)
+        const cChar = curr[0]
+        if (
+            RESERVED_DOUBLE_PUNCTUATOR_CHARS.has(cChar) &&
+            cChar === pChar &&
+            !prev.endsWith(`\\${pChar}`)
+        ) {
+            parts[i - 1] = `${prev.slice(0, -1)}\\${pChar}`
+        }
+    }
+
+    return `[${parts.join("")}]`
 }
 
 /**
@@ -144,21 +152,23 @@ function categorizeRawAlts(
     alternatives: readonly Alternative[],
     flags: ReadonlyFlags,
 ): RawAlternative[] {
-    return alternatives.map<RawAlternative>((alternative) => {
+    return alternatives.map((alternative): RawAlternative => {
         if (alternative.elements.length === 1) {
             const element = alternative.elements[0]
             if (
                 element.type === "Character" ||
                 element.type === "CharacterClass" ||
-                element.type === "CharacterSet"
+                element.type === "CharacterSet" ||
+                element.type === "ExpressionCharacterClass"
             ) {
-                return {
-                    isCharacter: true,
-                    alternative,
-                    element,
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    char: toCharSet(element, flags),
+                const set = toUnicodeSet(element, flags)
+                if (set.accept.isEmpty) {
+                    return {
+                        isCharacter: true,
+                        alternative,
+                        char: set.chars,
+                        element,
+                    }
                 }
             }
         }
@@ -189,23 +199,36 @@ function containsCharacterClass(alts: readonly RawAlternative[]): boolean {
  *
  * The returned array may be empty.
  */
-function toCharacterClassElement(element: Element): CharElementArray | null {
-    if (element.type === "CharacterSet") {
-        // normal dot is not possible (it technically is but it's complicated)
-        if (element.kind === "any") {
-            return null
-        }
-        return [element]
-    } else if (element.type === "CharacterClass") {
-        if (element.negate) {
-            // we can't (easily) combine negated character classes
-            return null
-        }
-        return element.elements
-    } else if (element.type === "Character") {
-        return [element]
+function toCharacterClassElement(
+    element: RawCharAlternative["element"],
+): CharElementArray | null {
+    switch (element.type) {
+        case "Character":
+            return [element]
+
+        case "CharacterSet":
+            if (element.kind === "any") {
+                // normal dot is not possible (it technically is but it's complicated)
+                return null
+            }
+            return [element]
+
+        case "CharacterClass":
+            if (element.negate) {
+                if (element.unicodeSets) {
+                    return [element]
+                }
+                // we can't (easily) combine negated character classes without the v flag
+                return null
+            }
+            return element.elements
+
+        case "ExpressionCharacterClass":
+            return [element]
+
+        default:
+            return assertNever(element)
     }
-    return null
 }
 
 /**
@@ -215,16 +238,14 @@ function parseRawAlts(
     alternatives: readonly RawAlternative[],
     flags: ReadonlyFlags,
 ): ParsedAlternative[] {
-    return alternatives.map<ParsedAlternative>((a) => {
+    return alternatives.map((a): ParsedAlternative => {
         if (a.isCharacter) {
             const elements = toCharacterClassElement(a.element)
             if (elements) {
                 return {
                     isCharacter: true,
                     elements,
-                    // FIXME: TS Error
-                    // @ts-expect-error -- FIXME
-                    char: toCharSet(a.element, flags),
+                    char: a.char,
                     raw: a.alternative.raw,
                 }
             }
@@ -349,21 +370,14 @@ function findNonDisjointAlt(
 /**
  * Returns where the given alternative can accept any character.
  */
-function totalIsAll(
-    alternatives: readonly RawAlternative[],
-    { flags }: RegExpContext,
-): boolean {
+function totalIsAll(alternatives: readonly RawAlternative[]): boolean {
     let total: CharSet | undefined = undefined
     for (const a of alternatives) {
         if (a.isCharacter) {
             if (total === undefined) {
-                // FIXME: TS Error
-                // @ts-expect-error -- FIXME
-                total = toCharSet(a.element, flags)
+                total = a.char
             } else {
-                // FIXME: TS Error
-                // @ts-expect-error -- FIXME
-                total = total.union(toCharSet(a.element, flags))
+                total = total.union(a.char)
             }
         }
     }
@@ -506,10 +520,7 @@ export default createRule("prefer-character-class", {
                     return
                 }
 
-                if (
-                    alts.every((a) => a.isCharacter) &&
-                    totalIsAll(alts, regexpContext)
-                ) {
+                if (alts.every((a) => a.isCharacter) && totalIsAll(alts)) {
                     // This is the special case where:
                     // 1) all alternatives are characters,
                     // 2) there are at least 2 alternatives, and
@@ -538,7 +549,7 @@ export default createRule("prefer-character-class", {
                 if (
                     characterAltsCount >= minCharacterAlternatives ||
                     containsCharacterClass(alts) ||
-                    totalIsAll(alts, regexpContext) ||
+                    totalIsAll(alts) ||
                     findNonDisjointAlt(parsedAlts)
                 ) {
                     optimizeCharacterAlts(parsedAlts)
