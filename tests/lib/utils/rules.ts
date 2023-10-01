@@ -63,9 +63,7 @@ describe("Check if the strict of all rules is correct", () => {
                     it(messageId, () => {
                         const message = rule.meta.messages[messageId]
                         assert.ok(
-                            message.endsWith(".") ||
-                                message.endsWith("?") ||
-                                message.endsWith("}}"),
+                            /(?:[.?]|\}\})\)?$/u.test(message),
                             "Doesn't end with a dot.",
                         )
                     })
