@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/optimal-quantifier-concatenation"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -289,6 +289,27 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
             output: null,
             errors: [
                 "'\\d*' can be removed because it is already included by '\\d+'. This cannot be fixed automatically because it involves a capturing group.",
+            ],
+        },
+        {
+            code: String.raw`/\d+(\d*)/v`,
+            output: null,
+            errors: [
+                "'\\d*' can be removed because it is already included by '\\d+'. This cannot be fixed automatically because it involves a capturing group.",
+            ],
+        },
+        {
+            code: String.raw`/a+[a\q{}]+/v`,
+            output: String.raw`/a+[a\q{}]/v`,
+            errors: [
+                "'[a\\q{}]+' can be replaced with '[a\\q{}]' because of 'a+'.",
+            ],
+        },
+        {
+            code: String.raw`/[ab]*[\q{a|bb}]+/v`,
+            output: String.raw`/[ab]*[\q{a|bb}]/v`,
+            errors: [
+                "'[\\q{a|bb}]+' can be replaced with '[\\q{a|bb}]' because of '[ab]*'.",
             ],
         },
     ],
