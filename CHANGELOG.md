@@ -1,5 +1,29 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.9
+
+### Major Changes
+
+-   Add `regexp/prefer-set-operation` rule ([#616](https://github.com/ota-meshi/eslint-plugin-regexp/pull/616))
+
+### Minor Changes
+
+-   Add support for `v` flag to `regexp/optimal-quantifier-concatenation` ([#618](https://github.com/ota-meshi/eslint-plugin-regexp/pull/618))
+
+-   Add support for `v` flag to `regexp/prefer-character-class` ([#619](https://github.com/ota-meshi/eslint-plugin-regexp/pull/619))
+
+-   Add support for `v` flag to `regexp/use-ignore-case` ([#617](https://github.com/ota-meshi/eslint-plugin-regexp/pull/617))
+
+-   Add support for `v` flag to `regexp/no-misleading-capturing-group` ([#620](https://github.com/ota-meshi/eslint-plugin-regexp/pull/620))
+
+-   Add suggestions for `regexp/no-lazy-ends` ([#624](https://github.com/ota-meshi/eslint-plugin-regexp/pull/624))
+
+-   Add suggestions for `regexp/optimal-lookaround-quantifier` ([#623](https://github.com/ota-meshi/eslint-plugin-regexp/pull/623))
+
+-   Add suggestions for `regexp/no-empty-alternative` ([#621](https://github.com/ota-meshi/eslint-plugin-regexp/pull/621))
+
+-   Added suggestions for `regexp/no-escape-backspace` ([#622](https://github.com/ota-meshi/eslint-plugin-regexp/pull/622))
+
 ## 2.0.0-next.8
 
 ### Minor Changes
