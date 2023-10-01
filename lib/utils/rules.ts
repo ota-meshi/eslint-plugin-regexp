@@ -67,6 +67,7 @@ import preferRange from "../rules/prefer-range"
 import preferRegexpExec from "../rules/prefer-regexp-exec"
 import preferRegexpTest from "../rules/prefer-regexp-test"
 import preferResultArrayGroups from "../rules/prefer-result-array-groups"
+import preferSetOperation from "../rules/prefer-set-operation"
 import preferStarQuantifier from "../rules/prefer-star-quantifier"
 import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
@@ -149,6 +150,7 @@ export const rules = [
     preferRegexpExec,
     preferRegexpTest,
     preferResultArrayGroups,
+    preferSetOperation,
     preferStarQuantifier,
     preferT,
     preferUnicodeCodepointEscapes,
