@@ -62,6 +62,7 @@ sidebarDepth: 0
 | [no-useless-lazy](no-useless-lazy.md)                                             | disallow unnecessarily non-greedy quantifiers                                              | ✅  |    | 🔧 |    |
 | [no-useless-quantifier](no-useless-quantifier.md)                                 | disallow quantifiers that can be removed                                                   | ✅  |    | 🔧 | 💡 |
 | [no-useless-range](no-useless-range.md)                                           | disallow unnecessary character ranges                                                      | ✅  |    | 🔧 |    |
+| [no-useless-set-operand](no-useless-set-operand.md)                               | disallow unnecessary elements in expression character classes                              | ✅  |    | 🔧 |    |
 | [no-useless-two-nums-quantifier](no-useless-two-nums-quantifier.md)               | disallow unnecessary `{n,m}` quantifier                                                    | ✅  |    | 🔧 |    |
 | [no-zero-quantifier](no-zero-quantifier.md)                                       | disallow quantifiers with a maximum of zero                                                | ✅  |    |    | 💡 |
 | [optimal-lookaround-quantifier](optimal-lookaround-quantifier.md)                 | disallow the alternatives of lookarounds that end with a non-constant quantifier           |    | ✅  |    | 💡 |
