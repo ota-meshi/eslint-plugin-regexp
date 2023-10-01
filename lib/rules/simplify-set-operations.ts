@@ -82,8 +82,6 @@ export default createRule("simplify-set-operations", {
         },
         schema: [],
         messages: {
-            doubleNegationElimination:
-                "This character class can be double negation elimination.",
             toNegationOfDisjunction:
                 "This {{target}} can be converted to the negation of a disjunction using De Morgan's laws.",
             toNegationOfConjunction:
@@ -105,6 +103,11 @@ export default createRule("simplify-set-operations", {
         ): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation, fixReplaceNode } =
                 regexpContext
+
+            if (!flags.unicodeSets) {
+                // set operations are exclusive to the v flag.
+                return {}
+            }
             return {
                 onCharacterClassEnter(ccNode) {
                     toNegationOfConjunction(ccNode)
@@ -138,7 +141,6 @@ export default createRule("simplify-set-operations", {
                     | ClassSubtraction
                 targetNode: CharacterClass | ExpressionCharacterClass
                 messageId:
-                    | "doubleNegationElimination"
                     | "toNegationOfDisjunction"
                     | "toNegationOfConjunction"
                     | "toSubtraction"
