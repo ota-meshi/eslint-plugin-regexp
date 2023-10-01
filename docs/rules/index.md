@@ -19,7 +19,7 @@ sidebarDepth: 0
 | [no-contradiction-with-assertion](no-contradiction-with-assertion.md)           | disallow elements that contradict assertions                                            | ✅  |    |    | 💡 |
 | [no-control-character](no-control-character.md)                                 | disallow control characters                                                             |    |    |    | 💡 |
 | [no-dupe-disjunctions](no-dupe-disjunctions.md)                                 | disallow duplicate disjunctions                                                         | ✅  |    |    | 💡 |
-| [no-empty-alternative](no-empty-alternative.md)                                 | disallow alternatives without elements                                                  |    | ✅  |    |    |
+| [no-empty-alternative](no-empty-alternative.md)                                 | disallow alternatives without elements                                                  |    | ✅  |    | 💡 |
 | [no-empty-capturing-group](no-empty-capturing-group.md)                         | disallow capturing group that captures empty.                                           | ✅  |    |    |    |
 | [no-empty-character-class](no-empty-character-class.md)                         | disallow character classes that match no characters                                     | ✅  |    |    |    |
 | [no-empty-group](no-empty-group.md)                                             | disallow empty group                                                                    | ✅  |    |    |    |

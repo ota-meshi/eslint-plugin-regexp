@@ -9,6 +9,8 @@ since: "v0.8.0"
 
 ⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 <!-- end auto-generated rule header -->
 
 > disallow alternatives without elements
@@ -18,6 +20,9 @@ since: "v0.8.0"
 While (re-)writing long regular expressions, it can happen that one forgets to
 remove the `|` character of a former alternative. This rule tries to point out
 these potential mistakes by reporting all empty alternatives.
+
+If the empty alternative is supposed to match the empty string, then use a
+quantifier instead. For example, `a|` should be written as `a?`.
 
 <eslint-code-block>
 
