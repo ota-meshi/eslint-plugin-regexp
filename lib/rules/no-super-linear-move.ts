@@ -146,7 +146,7 @@ export default createRule("no-super-linear-move", {
     create(context) {
         const reportUncertain =
             (context.options[0]?.report ?? "certain") === "potential"
-        const ignoreSticky = context.options[0]?.ignoreSticky ?? false
+        const ignoreSticky = context.options[0]?.ignoreSticky ?? true
         const ignorePartial = context.options[0]?.ignorePartial ?? true
 
         function getScslreReports(
