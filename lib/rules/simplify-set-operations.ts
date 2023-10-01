@@ -73,6 +73,39 @@ function collectIntersectionOperands(
     return operands
 }
 
+/** Gets the parsed result element. */
+function getParsedElement(
+    pattern: string,
+    flags: ReadonlyFlags,
+): ToUnicodeSetElement | null {
+    try {
+        const ast = new RegExpParser().parsePattern(
+            pattern,
+            undefined,
+            undefined,
+            {
+                unicode: flags.unicode,
+                unicodeSets: flags.unicodeSets,
+            },
+        )
+        if (ast.alternatives.length === 1)
+            if (ast.alternatives[0].elements.length === 1) {
+                const element = ast.alternatives[0].elements[0]
+                if (
+                    element.type !== "Assertion" &&
+                    element.type !== "Quantifier" &&
+                    element.type !== "CapturingGroup" &&
+                    element.type !== "Group" &&
+                    element.type !== "Backreference"
+                )
+                    return element
+            }
+    } catch (_error) {
+        // ignore
+    }
+    return null
+}
+
 export default createRule("simplify-set-operations", {
     meta: {
         docs: {
@@ -384,36 +417,3 @@ export default createRule("simplify-set-operations", {
         })
     },
 })
-
-/** Gets the parsed result element. */
-function getParsedElement(
-    pattern: string,
-    flags: ReadonlyFlags,
-): ToUnicodeSetElement | null {
-    try {
-        const ast = new RegExpParser().parsePattern(
-            pattern,
-            undefined,
-            undefined,
-            {
-                unicode: flags.unicode,
-                unicodeSets: flags.unicodeSets,
-            },
-        )
-        if (ast.alternatives.length === 1)
-            if (ast.alternatives[0].elements.length === 1) {
-                const element = ast.alternatives[0].elements[0]
-                if (
-                    element.type !== "Assertion" &&
-                    element.type !== "Quantifier" &&
-                    element.type !== "CapturingGroup" &&
-                    element.type !== "Group" &&
-                    element.type !== "Backreference"
-                )
-                    return element
-            }
-    } catch (_error) {
-        // ignore
-    }
-    return null
-}
