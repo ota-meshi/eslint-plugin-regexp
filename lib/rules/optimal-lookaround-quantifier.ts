@@ -66,10 +66,13 @@ export default createRule("optimal-lookaround-quantifier", {
             default: "warn",
         },
         schema: [],
+        hasSuggestions: true,
         messages: {
             remove: "The quantified expression {{expr}} at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
             replacedWith:
                 "The quantified expression {{expr}} at the {{endOrStart}} of the expression tree should only be matched a constant number of times. The expression can be replaced with {{replacer}} without affecting the lookaround.",
+            suggestRemove: "Remove the expression.",
+            suggestReplace: "Replace the expression with {{replacer}}.",
         },
         type: "problem",
     },
@@ -77,6 +80,7 @@ export default createRule("optimal-lookaround-quantifier", {
         function createVisitor({
             node,
             getRegexpLocation,
+            fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onAssertionEnter(aNode) {
@@ -108,6 +112,25 @@ export default createRule("optimal-lookaround-quantifier", {
                                     endOrStart,
                                     replacer,
                                 },
+                                suggest: [
+                                    {
+                                        messageId:
+                                            q.min === 0
+                                                ? "suggestRemove"
+                                                : "suggestReplace",
+                                        data: {
+                                            replacer,
+                                        },
+                                        fix: fixReplaceNode(q, () => {
+                                            if (q.min === 0) {
+                                                return ""
+                                            } else if (q.min === 1) {
+                                                return q.element.raw
+                                            }
+                                            return `${q.element.raw}{${q.min}}`
+                                        }),
+                                    },
+                                ],
                             })
                         }
                     }

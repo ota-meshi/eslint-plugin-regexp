@@ -64,7 +64,7 @@ sidebarDepth: 0
 | [no-useless-range](no-useless-range.md)                                           | disallow unnecessary character ranges                                                      | ✅  |    | 🔧 |    |
 | [no-useless-two-nums-quantifier](no-useless-two-nums-quantifier.md)               | disallow unnecessary `{n,m}` quantifier                                                    | ✅  |    | 🔧 |    |
 | [no-zero-quantifier](no-zero-quantifier.md)                                       | disallow quantifiers with a maximum of zero                                                | ✅  |    |    | 💡 |
-| [optimal-lookaround-quantifier](optimal-lookaround-quantifier.md)                 | disallow the alternatives of lookarounds that end with a non-constant quantifier           |    | ✅  |    |    |
+| [optimal-lookaround-quantifier](optimal-lookaround-quantifier.md)                 | disallow the alternatives of lookarounds that end with a non-constant quantifier           |    | ✅  |    | 💡 |
 | [optimal-quantifier-concatenation](optimal-quantifier-concatenation.md)           | require optimal quantifiers for concatenated quantifiers                                   | ✅  |    | 🔧 |    |
 | [prefer-escape-replacement-dollar-char](prefer-escape-replacement-dollar-char.md) | enforces escape of replacement `$` character (`$$`).                                       |    |    |    |    |
 | [prefer-predefined-assertion](prefer-predefined-assertion.md)                     | prefer predefined assertion over equivalent lookarounds                                    | ✅  |    | 🔧 |    |
