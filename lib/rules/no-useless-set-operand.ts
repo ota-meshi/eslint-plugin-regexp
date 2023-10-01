@@ -71,9 +71,7 @@ export default createRule("no-useless-set-operand", {
             description:
                 "disallow unnecessary elements in expression character classes",
             category: "Best Practices",
-            // TODO Switch to recommended in the major version.
-            // recommended: true,
-            recommended: false,
+            recommended: true,
         },
         schema: [],
         messages: {
