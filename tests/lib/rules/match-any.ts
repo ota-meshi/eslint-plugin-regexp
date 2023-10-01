@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/match-any"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -41,6 +41,7 @@ tester.run("match-any", rule as any, {
         "/[^\\p{ASCII}\\P{ASCII}]/u",
         "/[^\\P{ASCII}\\p{ASCII}]/u",
         "/[^\\s\\S\\0-\\uFFFF]/",
+        String.raw`/[\S\s\q{abc}]/v`,
     ],
     invalid: [
         {
@@ -53,6 +54,25 @@ tester.run("match-any", rule as any, {
                     column: 2,
                     endColumn: 8,
                 },
+            ],
+        },
+        {
+            code: String.raw`/[\S\s]/v`,
+            output: String.raw`/[\s\S]/v`,
+            errors: ["Unexpected using '[\\S\\s]' to match any character."],
+        },
+        {
+            code: String.raw`/[\S\s\q{a|b|c}]/v`,
+            output: String.raw`/[\s\S]/v`,
+            errors: [
+                "Unexpected using '[\\S\\s\\q{a|b|c}]' to match any character.",
+            ],
+        },
+        {
+            code: String.raw`/[[\S\s\q{abc}]--\q{abc}]/v`,
+            output: String.raw`/[\s\S]/v`,
+            errors: [
+                "Unexpected using '[[\\S\\s\\q{abc}]--\\q{abc}]' to match any character.",
             ],
         },
         {

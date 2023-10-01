@@ -2,12 +2,13 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import type {
     CharacterClass,
-    Node as RegExpNode,
+    ExpressionCharacterClass,
+    Node,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
-import { matchesAllCharacters } from "regexp-ast-analysis"
+import { matchesAllCharacters, hasStrings } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 const OPTION_SS1 = "[\\s\\S]" as const
@@ -72,7 +73,7 @@ export default createRule("match-any", {
         function fix(
             fixer: Rule.RuleFixer,
             { node, flags, patternSource }: RegExpContext,
-            regexpNode: RegExpNode,
+            regexpNode: Node,
         ): null | Rule.Fix | Rule.Fix[] {
             if (!preference) {
                 return null
@@ -134,6 +135,28 @@ export default createRule("match-any", {
         ): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation } = regexpContext
 
+            function onClass(
+                ccNode: CharacterClass | ExpressionCharacterClass,
+            ) {
+                if (
+                    matchesAllCharacters(ccNode, flags) &&
+                    !hasStrings(ccNode, flags) &&
+                    !allows.has(ccNode.raw as never)
+                ) {
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(ccNode),
+                        messageId: "unexpected",
+                        data: {
+                            expr: mention(ccNode),
+                        },
+                        fix(fixer) {
+                            return fix(fixer, regexpContext, ccNode)
+                        },
+                    })
+                }
+            }
+
             return {
                 onCharacterSetEnter(csNode) {
                     if (
@@ -154,24 +177,8 @@ export default createRule("match-any", {
                         })
                     }
                 },
-                onCharacterClassEnter(ccNode: CharacterClass) {
-                    if (
-                        matchesAllCharacters(ccNode, flags) &&
-                        !allows.has(ccNode.raw as never)
-                    ) {
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(ccNode),
-                            messageId: "unexpected",
-                            data: {
-                                expr: mention(ccNode),
-                            },
-                            fix(fixer) {
-                                return fix(fixer, regexpContext, ccNode)
-                            },
-                        })
-                    }
-                },
+                onCharacterClassEnter: onClass,
+                onExpressionCharacterClassEnter: onClass,
             }
         }
 
