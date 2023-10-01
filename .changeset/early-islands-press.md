@@ -1,5 +1,5 @@
 ---
-"eslint-plugin-regexp": minor
+"eslint-plugin-regexp": major
 ---
 
 Add `regexp/simplify-set-operations` rule

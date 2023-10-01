@@ -2,7 +2,7 @@
 pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/simplify-set-operations"
-description: "require the set operations to be simple"
+description: "require simplify set operations"
 ---
 # regexp/simplify-set-operations
 
@@ -12,7 +12,7 @@ description: "require the set operations to be simple"
 
 <!-- end auto-generated rule header -->
 
-> require the set operations to be simple
+> require simplify set operations
 
 ## :book: Rule Details
 
