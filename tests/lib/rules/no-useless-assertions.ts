@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-assertions"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -60,6 +60,15 @@ tester.run("no-useless-assertions", rule as any, {
     invalid: [
         {
             code: String.raw`/a\bb/`,
+            errors: [
+                {
+                    message:
+                        "'\\b' will always reject because it is preceded by a word character and followed by a word character.",
+                },
+            ],
+        },
+        {
+            code: String.raw`/a\b[\q{foo}]/v`,
             errors: [
                 {
                     message:

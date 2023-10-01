@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-zero-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -19,6 +19,15 @@ tester.run("no-zero-quantifier", rule as any, {
                     column: 2,
                     endColumn: 6,
                     suggestions: [{ output: `/(?:)/` }],
+                },
+            ],
+        },
+        {
+            code: `/a{0}/v`,
+            errors: [
+                {
+                    messageId: "unexpected",
+                    suggestions: [{ output: `/(?:)/v` }],
                 },
             ],
         },

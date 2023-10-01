@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-escape-replacement-dollar-char"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -33,6 +33,10 @@ tester.run("prefer-escape-replacement-dollar-char", rule as any, {
                     endColumn: 25,
                 },
             ],
+        },
+        {
+            code: `'€1,234'.replace(/€/v, '$'); // "$1,234"`,
+            errors: 1,
         },
         {
             code: `'€1,234'.replaceAll(/€/, '$'); // "$1,234"`,

@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-lookaround"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -542,6 +542,13 @@ tester.run("prefer-lookaround", rule as any, {
                     column: 27,
                     endColumn: 38,
                 },
+            ],
+        },
+        {
+            code: String.raw`var str = 'Java'.replace(/(?:^|\b|[\q{}])(J)ava/gv, '$1Query')`,
+            output: String.raw`var str = 'Java'.replace(/(?<=(?:^|\b|[\q{}])J)ava/gv, 'Query')`,
+            errors: [
+                "This capturing group can be replaced with a lookbehind assertion ('(?<=(?:^|\\b|[\\q{}])J)').",
             ],
         },
         {

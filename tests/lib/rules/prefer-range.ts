@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-range"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -58,6 +58,8 @@ tester.run("prefer-range", rule as any, {
             code: `/[а-яА-Я][А-Яа-я]/`,
             options: [{ target: ["alphanumeric", "а-я", "А-Я"] }],
         },
+
+        String.raw`/[\q{a|b|c|d|e|f|abcdef}]/v`,
     ],
     invalid: [
         {
@@ -77,6 +79,14 @@ tester.run("prefer-range", rule as any, {
         {
             code: `/[ABCD abcd]/`,
             output: `/[A-D a-d]/`,
+            errors: [
+                "Unexpected multiple adjacent characters. Use 'A-D' instead.",
+                "Unexpected multiple adjacent characters. Use 'a-d' instead.",
+            ],
+        },
+        {
+            code: `/[ABCD abcd]/v`,
+            output: `/[A-D a-d]/v`,
             errors: [
                 "Unexpected multiple adjacent characters. Use 'A-D' instead.",
                 "Unexpected multiple adjacent characters. Use 'a-d' instead.",

@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-range"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -24,6 +24,13 @@ tester.run("no-useless-range", rule as any, {
             ],
         },
         {
+            code: `/[a-a]/v`,
+            output: `/[a]/v`,
+            errors: [
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
+            ],
+        },
+        {
             code: `/[a-b]/`,
             output: `/[ab]/`,
             errors: [
@@ -33,6 +40,13 @@ tester.run("no-useless-range", rule as any, {
                     line: 1,
                     column: 3,
                 },
+            ],
+        },
+        {
+            code: `/[a-b]/v`,
+            output: `/[ab]/v`,
+            errors: [
+                "Unexpected unnecessary character ranges. The hyphen is unnecessary.",
             ],
         },
         {

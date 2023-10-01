@@ -6,7 +6,7 @@ import { rules } from "../../../lib/utils/rules"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -218,6 +218,8 @@ tester.run("no-useless-flag", rule as any, {
         const orig = /\w/i; // eslint-disable-line
         const clone = new RegExp(orig);
         `,
+        String.raw`/a/u`,
+        String.raw`/a/v`,
     ],
     invalid: [
         // i

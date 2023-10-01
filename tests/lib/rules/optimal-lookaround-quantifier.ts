@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/optimal-lookaround-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -19,6 +19,17 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                         "The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 6,
                     suggestions: [{ output: `/(?=b)/` }],
+                },
+            ],
+        },
+        {
+            code: `/(?=ba*)/v`,
+            errors: [
+                {
+                    message:
+                        "The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
+                    column: 6,
+                    suggestions: [{ output: `/(?=b)/v` }],
                 },
             ],
         },

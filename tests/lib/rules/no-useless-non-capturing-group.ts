@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-non-capturing-group"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -81,6 +81,19 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         {
             code: `/(?:abcd)/.test(str)`,
             output: `/abcd/.test(str)`,
+            errors: [
+                {
+                    message: "Unexpected quantifier Non-capturing group.",
+                    line: 1,
+                    column: 2,
+                    endLine: 1,
+                    endColumn: 5,
+                },
+            ],
+        },
+        {
+            code: `/(?:abcd)/v.test(str)`,
+            output: `/abcd/v.test(str)`,
             errors: [
                 {
                     message: "Unexpected quantifier Non-capturing group.",

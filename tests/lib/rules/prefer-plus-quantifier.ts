@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-plus-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -43,6 +43,11 @@ tester.run("prefer-plus-quantifier", rule as any, {
                     endColumn: 9,
                 },
             ],
+        },
+        {
+            code: "/(a){1,}/v",
+            output: "/(a)+/v",
+            errors: ["Unexpected quantifier '{1,}'. Use '+' instead."],
         },
         {
             code: "/(a){1,}?/",

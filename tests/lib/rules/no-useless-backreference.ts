@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-backreference"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -29,6 +29,10 @@ tester.run("no-useless-backreference", rule as any, {
 
         {
             code: "/(\\b)a\\1/",
+            errors: [{ messageId: "empty" }],
+        },
+        {
+            code: "/([\\q{}])a\\1/v",
             errors: [{ messageId: "empty" }],
         },
         {
