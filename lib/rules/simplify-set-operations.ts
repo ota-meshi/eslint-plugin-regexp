@@ -264,7 +264,7 @@ export default createRule("simplify-set-operations", {
              * - `[[^a][^b]]` -> `[^a&&b]`
              */
             function toNegationOfConjunction(ccNode: CharacterClass) {
-                if (ccNode.elements.length <= 1 || !flags.unicodeSets) {
+                if (ccNode.elements.length <= 1) {
                     return false
                 }
                 const elements: CharacterClassElement[] = ccNode.elements

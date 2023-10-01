@@ -16,10 +16,10 @@ description: "require simplify set operations"
 
 ## :book: Rule Details
 
-This rule aims to optimize patterns by simplifying set operations on character classes (with `v` flag).
+This rule aims to optimize patterns by simplifying set operations in character classes (with `v` flag).
 
 This rule does not report simple nested negations. (e.g. `/[^[^abc]]/v`)\
-If you want to report simple nested negations, use [regexp/negation] rule together.
+If you want to report simple nested negations, use the [regexp/negation] rule.
 
 <eslint-code-block fix>
 
@@ -48,8 +48,8 @@ This rule attempts to simplify set operations in the ways listed below:
 
 #### De Morgan's laws
 
-This rule uses De Morgan's laws to look for patterns that can convert multiple negations into a single negation, reports on them, auto-fix them.\
-For example, `/[[^a]&&[^b]]/v` is equivalent to `/[^ab]/v`, `/[[^a][^b]]/v` is equivalent to `/[^a&&b]/v`.
+This rule uses De Morgan's laws to look for patterns that can convert multiple negations into a single negation, reports on them, and auto-fix them.\
+For example, `/[[^a]&&[^b]]/v` is equivalent to `/[^ab]/v`, and `/[[^a][^b]]/v` is equivalent to `/[^a&&b]/v`.
 
 See <https://en.wikipedia.org/wiki/De_Morgan's_laws>.
 
@@ -67,7 +67,7 @@ For example, `/[a--[^b]]/v` is equivalent to `/[a&&b]/v`.
 
 ### Auto Fixes
 
-This rule's auto-fix does not remove unnecessary brackets. For example, `/[[^a]&&[^b]]/v` will be automatically fixed to `/[[a][b]]/v`.\
+This rule's auto-fix does not remove unnecessary brackets. For example, `/[[^a]&&[^b]]/v` will be automatically fixed to `/[^[a][b]]/v`.\
 If you want to remove unnecessary brackets (e.g. auto-fixed to `/[^ab]/v`), use [regexp/no-useless-character-class] rule together.
 
 ## :wrench: Options
