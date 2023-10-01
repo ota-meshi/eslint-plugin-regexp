@@ -1,10 +1,10 @@
 ---
 pageClass: "rule-details"
 sidebarDepth: 0
-title: "regexp/require-reduce-negation"
-description: "require to reduce negation of character classes"
+title: "regexp/simplify-set-operations"
+description: "require the set operations to be simple"
 ---
-# regexp/require-reduce-negation
+# regexp/simplify-set-operations
 
 💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
@@ -12,11 +12,11 @@ description: "require to reduce negation of character classes"
 
 <!-- end auto-generated rule header -->
 
-> require to reduce negation of character classes
+> require the set operations to be simple
 
 ## :book: Rule Details
 
-This rule is aimed at optimizing patterns by reducing the negation (complement) representation of character classes (with `v` flag).
+This rule aims to optimize patterns by simplifying set operations on character classes (with `v` flag).
 
 This rule does not report simple nested negations. (e.g. `/[^[^abc]]/v`)\
 If you want to report simple nested negations, use [regexp/negation] rule together.
@@ -24,7 +24,7 @@ If you want to report simple nested negations, use [regexp/negation] rule togeth
 <eslint-code-block fix>
 
 ```js
-/* eslint regexp/require-reduce-negation: "error" */
+/* eslint regexp/simplify-set-operations: "error" */
 
 /* ✗ BAD */
 var re = /[a&&[^b]]/v; // -> /[a--b]/v
@@ -44,7 +44,7 @@ var re = /[^a&&b]/v;
 
 ### How does this rule work?
 
-This rule attempts to reduce complements in the ways listed below:
+This rule attempts to simplify set operations in the ways listed below:
 
 #### De Morgan's laws
 
@@ -88,5 +88,5 @@ Nothing.
 
 ## :mag: Implementation
 
-- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/require-reduce-negation.ts)
-- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/require-reduce-negation.ts)
+- [Rule source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/lib/rules/simplify-set-operations.ts)
+- [Test source](https://github.com/ota-meshi/eslint-plugin-regexp/blob/master/tests/lib/rules/simplify-set-operations.ts)

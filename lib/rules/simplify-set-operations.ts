@@ -73,10 +73,10 @@ function collectIntersectionOperands(
     return operands
 }
 
-export default createRule("require-reduce-negation", {
+export default createRule("simplify-set-operations", {
     meta: {
         docs: {
-            description: "require to reduce negation of character classes",
+            description: "require simplify set operations",
             category: "Best Practices",
             recommended: true,
         },

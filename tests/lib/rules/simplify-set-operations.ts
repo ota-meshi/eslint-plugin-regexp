@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint"
-import rule from "../../../lib/rules/require-reduce-negation"
+import rule from "../../../lib/rules/simplify-set-operations"
 
 const tester = new RuleTester({
     parserOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
     },
 })
 
-tester.run("require-reduce-negation", rule as any, {
+tester.run("simplify-set-operations", rule as any, {
     valid: [
         String.raw`/[[abc]]/v`,
         String.raw`/[\d]/u`,

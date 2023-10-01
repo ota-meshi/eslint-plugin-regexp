@@ -63,7 +63,7 @@ export const rules = {
     "regexp/prefer-star-quantifier": "error",
     "regexp/prefer-unicode-codepoint-escapes": "error",
     "regexp/prefer-w": "error",
-    "regexp/require-reduce-negation": "error",
+    "regexp/simplify-set-operations": "error",
     "regexp/sort-flags": "error",
     "regexp/strict": "error",
     "regexp/use-ignore-case": "error",

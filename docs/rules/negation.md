@@ -55,9 +55,9 @@ Nothing.
 
 ## :couple: Related rules
 
-- [regexp/require-reduce-negation]
+- [regexp/simplify-set-operations]
 
-[regexp/require-reduce-negation]: ./require-reduce-negation.md
+[regexp/simplify-set-operations]: ./simplify-set-operations.md
 
 ## :rocket: Version
 
