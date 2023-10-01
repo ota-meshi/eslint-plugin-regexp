@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-set-operand"
 description: "disallow unnecessary elements in expression character classes"
+since: "v2.0.0-next.10"
 ---
 # regexp/no-useless-set-operand
 
@@ -48,7 +49,7 @@ Nothing.
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.0.0-next.10
 
 ## :mag: Implementation
 
