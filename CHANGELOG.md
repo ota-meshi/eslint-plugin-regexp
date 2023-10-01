@@ -1,5 +1,21 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.10
+
+### Major Changes
+
+-   Add `regexp/no-useless-set-operand` rule ([#625](https://github.com/ota-meshi/eslint-plugin-regexp/pull/625))
+
+### Minor Changes
+
+-   Add support for `v` flag to `regexp/match-any` ([#628](https://github.com/ota-meshi/eslint-plugin-regexp/pull/628))
+
+### Patch Changes
+
+-   Fixed incorrect default of `ignoreSticky` option in `regexp/no-super-linear-move` ([#630](https://github.com/ota-meshi/eslint-plugin-regexp/pull/630))
+
+-   Add more `v` flag tests ([#627](https://github.com/ota-meshi/eslint-plugin-regexp/pull/627))
+
 ## 2.0.0-next.9
 
 ### Major Changes
