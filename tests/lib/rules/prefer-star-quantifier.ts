@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-star-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -43,6 +43,11 @@ tester.run("prefer-star-quantifier", rule as any, {
                     endColumn: 9,
                 },
             ],
+        },
+        {
+            code: "/(a){0,}/v",
+            output: "/(a)*/v",
+            errors: ["Unexpected quantifier '{0,}'. Use '*' instead."],
         },
         {
             code: "/(a){0,}?/",

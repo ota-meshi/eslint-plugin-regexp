@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/sort-flags"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -14,10 +14,12 @@ tester.run("sort-flags", rule as any, {
         String.raw`/\w/im`,
         String.raw`/\w/gi`,
         String.raw`/\w/gimsuy`,
+        String.raw`/\w/gimsvy`,
         String.raw`new RegExp("\\w", "i")`,
         String.raw`new RegExp("\\w", "gi")`,
         String.raw`new RegExp("\\w", "gimsuy")`,
         String.raw`new RegExp("\\w", "dgimsuy")`,
+        String.raw`new RegExp("\\w", "dgimsvy")`,
 
         // ignore
         String.raw`
@@ -37,6 +39,11 @@ tester.run("sort-flags", rule as any, {
                     column: 5,
                 },
             ],
+        },
+        {
+            code: String.raw`/\w/yvsimg`,
+            output: String.raw`/\w/gimsvy`,
+            errors: ["The flags 'yvsimg' should be in the order 'gimsvy'."],
         },
         {
             code: String.raw`new RegExp("\\w", "yusimg")`,

@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-named-capture-group"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -18,6 +18,12 @@ tester.run("prefer-named-capture-group", rule as any, {
     invalid: [
         {
             code: String.raw`/(foo)/`,
+            errors: [
+                "Capture group '(foo)' should be converted to a named or non-capturing group.",
+            ],
+        },
+        {
+            code: String.raw`/(foo)/v`,
             errors: [
                 "Capture group '(foo)' should be converted to a named or non-capturing group.",
             ],
