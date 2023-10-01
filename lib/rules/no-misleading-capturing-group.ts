@@ -18,8 +18,8 @@ import {
     isEmpty,
     hasSomeDescendant,
     Chars,
-    toCharSet,
     followPaths,
+    toUnicodeSet,
 } from "regexp-ast-analysis"
 import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
@@ -161,10 +161,29 @@ function uncachedGetSingleRepeatedChar(
         case "Character":
         case "CharacterClass":
         case "CharacterSet":
-        case "ExpressionCharacterClass":
-            // FIXME: TS Error
-            // @ts-expect-error -- FIXME
-            return toCharSet(element, flags)
+        case "ExpressionCharacterClass": {
+            const set = toUnicodeSet(element, flags)
+            if (set.accept.isEmpty) {
+                return set.chars
+            }
+
+            // this is pretty much the same as a list of alternatives, so we do the
+            // same thing as for Groups and Alternatives.
+            return set.wordSets
+                .map((wordSet): CharSet => {
+                    let total: CharSet | undefined = undefined
+                    for (const c of wordSet) {
+                        if (total === undefined) {
+                            total = c
+                        } else {
+                            total = total.intersect(c)
+                        }
+                        if (total.isEmpty) return total
+                    }
+                    return total ?? Chars.empty(flags)
+                })
+                .reduce((a, b) => a.union(b))
+        }
 
         case "CapturingGroup":
         case "Group":
