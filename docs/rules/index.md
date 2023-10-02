@@ -47,6 +47,7 @@ sidebarDepth: 0
 | [control-character-escape](control-character-escape.md)                           | enforce consistent escaping of control characters                                          | ✅  |    | 🔧 |    |
 | [negation](negation.md)                                                           | enforce use of escapes on negation                                                         | ✅  |    | 🔧 |    |
 | [no-dupe-characters-character-class](no-dupe-characters-character-class.md)       | disallow duplicate characters in the RegExp character class                                | ✅  |    | 🔧 |    |
+| [no-empty-string-literal](no-empty-string-literal.md)                             | disallow empty string literals in character classes                                        | ✅  |    |    |    |
 | [no-extra-lookaround-assertions](no-extra-lookaround-assertions.md)               | disallow unnecessary nested lookaround assertions                                          | ✅  |    | 🔧 |    |
 | [no-invisible-character](no-invisible-character.md)                               | disallow invisible raw character                                                           | ✅  |    | 🔧 |    |
 | [no-legacy-features](no-legacy-features.md)                                       | disallow legacy RegExp features                                                            | ✅  |    |    |    |
@@ -76,6 +77,7 @@ sidebarDepth: 0
 | [prefer-set-operation](prefer-set-operation.md)                                   | prefer character class set operations instead of lookarounds                               | ✅  |    | 🔧 |    |
 | [require-unicode-regexp](require-unicode-regexp.md)                               | enforce the use of the `u` flag                                                            |    |    | 🔧 |    |
 | [require-unicode-sets-regexp](require-unicode-sets-regexp.md)                     | enforce the use of the `v` flag                                                            |    |    | 🔧 |    |
+| [simplify-set-operations](simplify-set-operations.md)                             | require simplify set operations                                                            | ✅  |    | 🔧 |    |
 | [sort-alternatives](sort-alternatives.md)                                         | sort alternatives if order doesn't matter                                                  |    |    | 🔧 |    |
 | [use-ignore-case](use-ignore-case.md)                                             | use the `i` flag if it simplifies the pattern                                              | ✅  |    | 🔧 |    |
 

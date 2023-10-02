@@ -15,6 +15,7 @@ import noEmptyCapturingGroup from "../rules/no-empty-capturing-group"
 import noEmptyCharacterClass from "../rules/no-empty-character-class"
 import noEmptyGroup from "../rules/no-empty-group"
 import noEmptyLookaroundsAssertion from "../rules/no-empty-lookarounds-assertion"
+import noEmptyStringLiteral from "../rules/no-empty-string-literal"
 import noEscapeBackspace from "../rules/no-escape-backspace"
 import noExtraLookaroundAssertions from "../rules/no-extra-lookaround-assertions"
 import noInvalidRegexp from "../rules/no-invalid-regexp"
@@ -75,6 +76,7 @@ import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-esc
 import preferW from "../rules/prefer-w"
 import requireUnicodeRegexp from "../rules/require-unicode-regexp"
 import requireUnicodeSetsRegexp from "../rules/require-unicode-sets-regexp"
+import simplifySetOperations from "../rules/simplify-set-operations"
 import sortAlternatives from "../rules/sort-alternatives"
 import sortCharacterClassElements from "../rules/sort-character-class-elements"
 import sortFlags from "../rules/sort-flags"
@@ -99,6 +101,7 @@ export const rules = [
     noEmptyCharacterClass,
     noEmptyGroup,
     noEmptyLookaroundsAssertion,
+    noEmptyStringLiteral,
     noEscapeBackspace,
     noExtraLookaroundAssertions,
     noInvalidRegexp,
@@ -159,6 +162,7 @@ export const rules = [
     preferW,
     requireUnicodeRegexp,
     requireUnicodeSetsRegexp,
+    simplifySetOperations,
     sortAlternatives,
     sortCharacterClassElements,
     sortFlags,

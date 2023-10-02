@@ -37,6 +37,7 @@ var foo = /a+|b*/
 var foo = /a+|b+|/
 var foo = /\|\||\|||\|\|\|/
 var foo = /a(?:a|bc|def|h||ij|k)/
+var foo = /[abc\q{def|}]/v
 ```
 
 </eslint-code-block>

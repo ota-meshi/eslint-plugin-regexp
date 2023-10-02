@@ -1,11 +1,33 @@
-import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
+import { toUnicodeSet } from "regexp-ast-analysis"
 import type {
+    CharacterClass,
+    CharacterClassElement,
+    CharacterUnicodePropertyCharacterSet,
     EscapeCharacterSet,
-    UnicodePropertyCharacterSet,
+    ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import { assertNever } from "../utils/util"
+
+type NegatableCharacterClassElement =
+    | CharacterClass
+    | ExpressionCharacterClass
+    | EscapeCharacterSet
+    | CharacterUnicodePropertyCharacterSet
+
+/** Checks whether the given character class is negatable. */
+function isNegatableCharacterClassElement<N extends CharacterClassElement>(
+    node: N,
+): node is N & NegatableCharacterClassElement {
+    return (
+        node.type === "CharacterClass" ||
+        node.type === "ExpressionCharacterClass" ||
+        (node.type === "CharacterSet" &&
+            (node.kind !== "property" || !node.strings))
+    )
+}
 
 export default createRule("negation", {
     meta: {
@@ -36,19 +58,17 @@ export default createRule("negation", {
                     }
 
                     const element = ccNode.elements[0]
-                    if (element.type !== "CharacterSet") {
+                    if (!isNegatableCharacterClassElement(element)) {
                         return
                     }
-                    if (element.kind === "property" && element.strings) {
-                        // Unicode property escape with property of strings.
-                        // Actually the pattern passing through this branch is an invalid pattern,
-                        // but it has to be checked because of the type guards.
+                    if (element.type !== "CharacterSet" && !element.negate) {
                         return
                     }
 
                     if (
                         flags.ignoreCase &&
                         !flags.unicodeSets &&
+                        element.type === "CharacterSet" &&
                         element.kind === "property"
                     ) {
                         // The ignore case canonicalization affects negated
@@ -61,7 +81,7 @@ export default createRule("negation", {
                         // (/./, /\s/, /\d/) or inconsistent (/\w/).
                         const ccSet = toUnicodeSet(ccNode, flags)
 
-                        const negatedElementSet = toCharSet(
+                        const negatedElementSet = toUnicodeSet(
                             {
                                 ...element,
                                 negate: !element.negate,
@@ -96,17 +116,24 @@ export default createRule("negation", {
 /**
  * Gets the text that negation the CharacterSet.
  */
-function getNegationText(
-    node: EscapeCharacterSet | UnicodePropertyCharacterSet,
-) {
-    // they are all of the form: /\\[dswp](?:\{[^{}]+\})?/
-    let kind = node.raw[1]
+function getNegationText(node: NegatableCharacterClassElement) {
+    if (node.type === "CharacterSet") {
+        // they are all of the form: /\\[dswp](?:\{[^{}]+\})?/
+        let kind = node.raw[1]
 
-    if (kind.toLowerCase() === kind) {
-        kind = kind.toUpperCase()
-    } else {
-        kind = kind.toLowerCase()
+        if (kind.toLowerCase() === kind) {
+            kind = kind.toUpperCase()
+        } else {
+            kind = kind.toLowerCase()
+        }
+
+        return `\\${kind}${node.raw.slice(2)}`
     }
-
-    return `\\${kind}${node.raw.slice(2)}`
+    if (node.type === "CharacterClass") {
+        return `[${node.elements.map((e) => e.raw).join("")}]`
+    }
+    if (node.type === "ExpressionCharacterClass") {
+        return `[${node.raw.slice(2, -1)}]`
+    }
+    return assertNever(node)
 }
