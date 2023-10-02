@@ -2,6 +2,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
+    ClassStringDisjunction,
     Group,
     Pattern,
 } from "@eslint-community/regexpp/ast"
@@ -73,8 +74,15 @@ export default createRule("no-empty-alternative", {
             getRegexpLocation,
             fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
-            function verifyAlternatives(
-                regexpNode: CapturingGroup | Group | Pattern,
+            function verifyAlternatives<
+                N extends
+                    | CapturingGroup
+                    | Group
+                    | Pattern
+                    | ClassStringDisjunction,
+            >(
+                regexpNode: N,
+                suggestFixer: (alt: N["alternatives"][number]) => string | null,
             ) {
                 if (regexpNode.alternatives.length >= 2) {
                     // We want to have at least two alternatives because the zero alternatives isn't possible because of
@@ -96,7 +104,7 @@ export default createRule("no-empty-alternative", {
                                       end: index + 1,
                                   })
 
-                            const fixed = getFixedNode(regexpNode, alt)
+                            const fixed = suggestFixer(alt)
 
                             context.report({
                                 node,
@@ -122,9 +130,20 @@ export default createRule("no-empty-alternative", {
             }
 
             return {
-                onGroupEnter: verifyAlternatives,
-                onCapturingGroupEnter: verifyAlternatives,
-                onPatternEnter: verifyAlternatives,
+                onGroupEnter: (gNode) =>
+                    verifyAlternatives(gNode, (alt) =>
+                        getFixedNode(gNode, alt),
+                    ),
+                onCapturingGroupEnter: (cgNode) =>
+                    verifyAlternatives(cgNode, (alt) =>
+                        getFixedNode(cgNode, alt),
+                    ),
+                onPatternEnter: (pNode) =>
+                    verifyAlternatives(pNode, (alt) =>
+                        getFixedNode(pNode, alt),
+                    ),
+                onClassStringDisjunctionEnter: (csdNode) =>
+                    verifyAlternatives(csdNode, () => null),
             }
         }
 
