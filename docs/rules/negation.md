@@ -53,6 +53,12 @@ var foo = /[^\P{ASCII}]/u
 
 Nothing.
 
+## :couple: Related rules
+
+- [regexp/simplify-set-operations]
+
+[regexp/simplify-set-operations]: ./simplify-set-operations.md
+
 ## :rocket: Version
 
 This rule was introduced in eslint-plugin-regexp v0.4.0
