@@ -47,6 +47,7 @@ sidebarDepth: 0
 | [control-character-escape](control-character-escape.md)                           | enforce consistent escaping of control characters                                          | ✅  |    | 🔧 |    |
 | [negation](negation.md)                                                           | enforce use of escapes on negation                                                         | ✅  |    | 🔧 |    |
 | [no-dupe-characters-character-class](no-dupe-characters-character-class.md)       | disallow duplicate characters in the RegExp character class                                | ✅  |    | 🔧 |    |
+| [no-empty-string-literal](no-empty-string-literal.md)                             | disallow empty string literals in character classes                                        | ✅  |    |    |    |
 | [no-extra-lookaround-assertions](no-extra-lookaround-assertions.md)               | disallow unnecessary nested lookaround assertions                                          | ✅  |    | 🔧 |    |
 | [no-invisible-character](no-invisible-character.md)                               | disallow invisible raw character                                                           | ✅  |    | 🔧 |    |
 | [no-legacy-features](no-legacy-features.md)                                       | disallow legacy RegExp features                                                            | ✅  |    |    |    |
