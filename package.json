@@ -103,7 +103,7 @@
     },
     "dependencies": {
         "@eslint-community/eslint-utils": "^4.2.0",
-        "@eslint-community/regexpp": "^4.8.1",
+        "@eslint-community/regexpp": "^4.9.1",
         "comment-parser": "^1.4.0",
         "grapheme-splitter": "^1.0.4",
         "jsdoctypeparser": "^9.0.0",
