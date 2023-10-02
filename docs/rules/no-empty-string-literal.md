@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-empty-string-literal"
 description: "disallow empty string literals in character classes"
+since: "v2.0.0-next.11"
 ---
 # regexp/no-empty-string-literal
 
@@ -51,7 +52,7 @@ Nothing.
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.0.0-next.11
 
 ## :mag: Implementation
 

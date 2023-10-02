@@ -1,5 +1,23 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.11
+
+### Major Changes
+
+-   Add `regexp/simplify-set-operations` rule ([#595](https://github.com/ota-meshi/eslint-plugin-regexp/pull/595))
+
+-   Add `regexp/no-empty-string-literal` rule ([#632](https://github.com/ota-meshi/eslint-plugin-regexp/pull/632))
+
+### Minor Changes
+
+-   Add support for string literal to `regexp/no-empty-alternative` ([#633](https://github.com/ota-meshi/eslint-plugin-regexp/pull/633))
+
+-   Improve `regexp/negation` rule to report nested negation character classes ([#595](https://github.com/ota-meshi/eslint-plugin-regexp/pull/595))
+
+### Patch Changes
+
+-   fix: update regexpp ([#634](https://github.com/ota-meshi/eslint-plugin-regexp/pull/634))
+
 ## 2.0.0-next.10
 
 ### Major Changes
