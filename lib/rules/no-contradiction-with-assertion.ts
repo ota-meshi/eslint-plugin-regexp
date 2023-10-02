@@ -90,7 +90,6 @@ function* getNextElements(
         if (
             parent.type === "CharacterClass" ||
             parent.type === "CharacterClassRange" ||
-            parent.type === "ExpressionCharacterClass" ||
             parent.type === "ClassIntersection" ||
             parent.type === "ClassSubtraction" ||
             parent.type === "StringAlternative"
