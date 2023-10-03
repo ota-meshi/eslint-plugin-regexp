@@ -1,8 +1,16 @@
 import path from "path"
 import fs from "fs"
+import { rules } from "./lib/load-rules"
 
 const readmeFilePath = path.resolve(__dirname, "../README.md")
-const readme = fs.readFileSync(readmeFilePath, "utf8")
+const readme = fs
+    .readFileSync(readmeFilePath, "utf8")
+    .replace(
+        /\d{1,4}plugin rules/u,
+        `${rules.filter((rule) => !rule.meta.deprecated).length} plugin rules`,
+    )
+
+fs.writeFileSync(readmeFilePath, readme)
 
 const docsReadmeFilePath = path.resolve(__dirname, "../docs/index.md")
 

@@ -23,6 +23,7 @@ This ESLint plugin provides linting rules relate to better ways to help you avoi
 - Find the wrong usage of regular expressions, and their hints.
 - Enforces a consistent style of regular expressions.
 - Find hints for writing optimized regular expressions.
+- 80 plugin rules for regular expression syntax and features.
 
 You can check on the [Online DEMO](https://ota-meshi.github.io/eslint-plugin-regexp/playground/).
 
