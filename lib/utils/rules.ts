@@ -49,6 +49,7 @@ import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessQuantifier from "../rules/no-useless-quantifier"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessSetOperand from "../rules/no-useless-set-operand"
+import noUselessStringLiteral from "../rules/no-useless-string-literal"
 import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import noZeroQuantifier from "../rules/no-zero-quantifier"
 import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
@@ -135,6 +136,7 @@ export const rules = [
     noUselessQuantifier,
     noUselessRange,
     noUselessSetOperand,
+    noUselessStringLiteral,
     noUselessTwoNumsQuantifier,
     noZeroQuantifier,
     optimalLookaroundQuantifier,

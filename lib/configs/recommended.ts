@@ -52,6 +52,7 @@ export const rules = {
     "regexp/no-useless-quantifier": "error",
     "regexp/no-useless-range": "error",
     "regexp/no-useless-set-operand": "error",
+    "regexp/no-useless-string-literal": "error",
     "regexp/no-useless-two-nums-quantifier": "error",
     "regexp/no-zero-quantifier": "error",
     "regexp/optimal-lookaround-quantifier": "warn",

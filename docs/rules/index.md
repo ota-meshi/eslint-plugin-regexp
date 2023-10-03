@@ -64,6 +64,7 @@ sidebarDepth: 0
 | [no-useless-quantifier](no-useless-quantifier.md)                                 | disallow quantifiers that can be removed                                                   | ✅  |    | 🔧 | 💡 |
 | [no-useless-range](no-useless-range.md)                                           | disallow unnecessary character ranges                                                      | ✅  |    | 🔧 |    |
 | [no-useless-set-operand](no-useless-set-operand.md)                               | disallow unnecessary elements in expression character classes                              | ✅  |    | 🔧 |    |
+| [no-useless-string-literal](no-useless-string-literal.md)                         | disallow string disjunction of single characters in `\q{...}`                              | ✅  |    | 🔧 |    |
 | [no-useless-two-nums-quantifier](no-useless-two-nums-quantifier.md)               | disallow unnecessary `{n,m}` quantifier                                                    | ✅  |    | 🔧 |    |
 | [no-zero-quantifier](no-zero-quantifier.md)                                       | disallow quantifiers with a maximum of zero                                                | ✅  |    |    | 💡 |
 | [optimal-lookaround-quantifier](optimal-lookaround-quantifier.md)                 | disallow the alternatives of lookarounds that end with a non-constant quantifier           |    | ✅  |    | 💡 |
