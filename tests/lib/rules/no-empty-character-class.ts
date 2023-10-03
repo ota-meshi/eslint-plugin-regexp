@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-empty-character-class"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -21,6 +21,8 @@ tester.run("no-empty-character-class", rule as any, {
         `/[ ]/`,
         String.raw`/[\s\S]/`,
         String.raw`/[\da-zA-Z_\W]/`,
+        String.raw`/a[[[ab]&&b]]/v`,
+        String.raw`/a[[ab]&&b]/v`,
     ],
     invalid: [
         {
@@ -74,6 +76,34 @@ tester.run("no-empty-character-class", rule as any, {
         {
             code: String.raw`/[^\da-zA-Z_\W]/`,
             errors: ["This character class cannot match any characters."],
+        },
+        {
+            code: String.raw`/a[[a&&b]]/v`,
+            errors: [
+                {
+                    message:
+                        "This character class cannot match any characters.",
+                    line: 1,
+                    column: 3,
+                },
+                {
+                    message:
+                        "This character class cannot match any characters.",
+                    line: 1,
+                    column: 4,
+                },
+            ],
+        },
+        {
+            code: String.raw`/a[a&&b]/v`,
+            errors: [
+                {
+                    message:
+                        "This character class cannot match any characters.",
+                    line: 1,
+                    column: 3,
+                },
+            ],
         },
     ],
 })
