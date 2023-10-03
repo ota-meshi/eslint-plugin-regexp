@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/no-useless-string-literal"
 description: "disallow string disjunction of single characters in `\\q{...}`"
+since: "v2.0.0-next.12"
 ---
 # regexp/no-useless-string-literal
 
@@ -49,7 +50,7 @@ Nothing.
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.0.0-next.12
 
 ## :mag: Implementation
 

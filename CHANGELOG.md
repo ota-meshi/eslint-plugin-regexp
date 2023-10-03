@@ -1,5 +1,15 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.12
+
+### Major Changes
+
+-   Add `regexp/no-useless-string-literal` rule ([#639](https://github.com/ota-meshi/eslint-plugin-regexp/pull/639))
+
+### Minor Changes
+
+-   Add support for v flag to `regexp/no-empty-character-class` ([#637](https://github.com/ota-meshi/eslint-plugin-regexp/pull/637))
+
 ## 2.0.0-next.11
 
 ### Major Changes
