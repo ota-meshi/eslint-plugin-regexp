@@ -1,9 +1,9 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
+import {
+    type ITypeClass,
+    type NamedType,
+    type OtherTypeName,
+    type TypeClass,
+    type TypeInfo,
 } from "."
 import { cache, createObject, isEquals, isTypeClass } from "./common"
 import {
@@ -196,6 +196,8 @@ export function buildObjectConstructor(): TypeGlobalFunction {
         getOwnPropertyDescriptors: null,
         // ES2019
         fromEntries: null,
+        // ES2022
+        hasOwn: RETURN_BOOLEAN,
 
         prototype: null,
     })

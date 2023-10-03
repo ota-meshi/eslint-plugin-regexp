@@ -184,6 +184,13 @@ const WELL_KNOWN_ARRAY_METHODS: {
     flat: {},
     // ES2022
     at: { result: "element" },
+    // ES2023
+    findLast: { elementParameters: [0], result: "element" },
+    findLastIndex: { elementParameters: [0] },
+    toReversed: { result: "array" },
+    toSorted: { elementParameters: [0, 1], result: "array" },
+    toSpliced: { result: "array" },
+    with: { result: "array" },
 }
 
 /**
