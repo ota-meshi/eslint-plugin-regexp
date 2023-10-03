@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-regexp-test"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -32,6 +32,11 @@ tester.run("prefer-regexp-test", rule as any, {
         const pattern = /thing/;
         const a = pattern.exec(text)
         const b = text.match(pattern)
+        `,
+        `
+        const text = 'something';
+        const pattern = /thin[[g]]/v;
+        if (pattern.test(text)) {}
         `,
     ],
     invalid: [
@@ -184,6 +189,38 @@ tester.run("prefer-regexp-test", rule as any, {
             `,
             errors: [
                 "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
+            ],
+        },
+        {
+            code: `
+            const text = 'something';
+            const pattern = /thin[[g]]/v;
+            if (pattern.exec(text)) {}
+            if (text.match(pattern)) {}
+            `,
+            output: `
+            const text = 'something';
+            const pattern = /thin[[g]]/v;
+            if (pattern.test(text)) {}
+            if (pattern.test(text)) {}
+            `,
+            errors: [
+                {
+                    message:
+                        "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
+                    line: 4,
+                    column: 25,
+                    endLine: 4,
+                    endColumn: 29,
+                },
+                {
+                    message:
+                        "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
+                    line: 5,
+                    column: 17,
+                    endLine: 5,
+                    endColumn: 36,
+                },
             ],
         },
     ],

@@ -4,7 +4,7 @@ import rule from "../../../lib/rules/prefer-result-array-groups"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -48,6 +48,14 @@ tester.run("prefer-result-array-groups", rule as any, {
         let match
         while (match = regex.exec(foo)) {
             const p1 = match.unknown
+            // ...
+        }
+        `,
+        `
+        const regex = /reg[[exp]]/v
+        let match
+        while (match = regex.exec(foo)) {
+            const match = match[0]
             // ...
         }
         `,
@@ -226,6 +234,32 @@ tester.run("prefer-result-array-groups", rule as any, {
                 {
                     message:
                         "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
+                    line: 5,
+                    column: 28,
+                },
+            ],
+        },
+        {
+            code: `
+            const regex = /a(?<foo>[[b]])c/v
+            let match
+            while (match = regex.exec(foo)) {
+                const p1 = match[1]
+                // ...
+            }
+            `,
+            output: `
+            const regex = /a(?<foo>[[b]])c/v
+            let match
+            while (match = regex.exec(foo)) {
+                const p1 = match.groups.foo
+                // ...
+            }
+            `,
+            errors: [
+                {
+                    message:
+                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
                     line: 5,
                     column: 28,
                 },

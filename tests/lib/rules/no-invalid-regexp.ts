@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-invalid-regexp"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -60,6 +60,16 @@ tester.run("no-invalid-regexp", rule as any, {
                 {
                     message: "Regex 'u' and 'v' flags cannot be used together.",
                     column: 22,
+                },
+            ],
+        },
+        {
+            code: "new RegExp('[A&&&]', 'v');",
+            errors: [
+                {
+                    message:
+                        "Invalid regular expression: /[A&&&]/v: Invalid character in character class",
+                    column: 16,
                 },
             ],
         },

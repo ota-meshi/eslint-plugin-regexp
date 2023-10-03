@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/prefer-regexp-exec"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -18,6 +18,9 @@ tester.run("prefer-regexp-exec", rule as any, {
         const text = 'something';
         const search = /thing/;
         search.exec(text);
+        `,
+        `
+        /thin[[g]]/v.exec('something');
         `,
     ],
     invalid: [
@@ -68,6 +71,18 @@ tester.run("prefer-regexp-exec", rule as any, {
                 {
                     message: "Use the `RegExp#exec()` method instead.",
                     line: 3,
+                    column: 13,
+                },
+            ],
+        },
+        {
+            code: `
+            'something'.match(/thin[[g]]/v);
+            `,
+            errors: [
+                {
+                    message: "Use the `RegExp#exec()` method instead.",
+                    line: 2,
                     column: 13,
                 },
             ],

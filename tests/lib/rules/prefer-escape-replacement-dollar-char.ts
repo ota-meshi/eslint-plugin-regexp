@@ -19,6 +19,7 @@ tester.run("prefer-escape-replacement-dollar-char", rule as any, {
         `'abc'.replace(/./, "$\`$'");`,
         `'abc'.replace(/(.)/, '$1');`,
         `'abc'.replace(/(?<foo>.)/, '$<foo>');`,
+        String.raw`'€1,234'.replace(/[\q{€}]/v, '$$'); // "$1,234"`,
     ],
     invalid: [
         {
@@ -63,6 +64,12 @@ tester.run("prefer-escape-replacement-dollar-char", rule as any, {
         },
         {
             code: `'abc'.replace(/(?<foo>.)/, '$<foo');`,
+            errors: [
+                "Unexpected replacement `$` character without escaping. Use `$$` instead.",
+            ],
+        },
+        {
+            code: String.raw`'€1,234'.replace(/[\q{€}]/v, '$'); // "$1,234"`,
             errors: [
                 "Unexpected replacement `$` character without escaping. Use `$$` instead.",
             ],

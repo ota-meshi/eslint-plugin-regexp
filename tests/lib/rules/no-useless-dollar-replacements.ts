@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-useless-dollar-replacements"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -91,6 +91,10 @@ tester.run("no-useless-dollar-replacements", rule as any, {
         regexp = 'a'
         "abc".replaceAll(regexp, 'foo');
         `,
+        String.raw`
+        const str = 'John Smith';
+        var newStr = str.replace(/(\w+)\s(\w+)/v, '$2, $1');
+        `,
     ],
     invalid: [
         {
@@ -169,6 +173,20 @@ tester.run("no-useless-dollar-replacements", rule as any, {
             `,
             errors: [
                 "'$<a>' replacement will insert '$<a>' because named capturing group does not found. Use '$$' if you want to escape '$'.",
+            ],
+        },
+        {
+            code: String.raw`
+            const str = 'John Smith';
+            var newStr = str.replace(/([[\w]]+)[\s](\w+)/v, '$3, $1 $2');
+            `,
+            errors: [
+                {
+                    message:
+                        "'$3' replacement will insert '$3' because there are less than 3 capturing groups. Use '$$' if you want to escape '$'.",
+                    line: 3,
+                    column: 62,
+                },
             ],
         },
     ],

@@ -3,13 +3,13 @@ import rule from "../../../lib/rules/no-empty-capturing-group"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("no-empty-capturing-group", rule as any, {
-    valid: ["/(a)/", "/a(\\bb)/", "/a(\\b|b)/"],
+    valid: ["/(a)/", "/a(\\bb)/", "/a(\\b|b)/", String.raw`/a([\q{a}])/v`],
     invalid: [
         {
             code: "/a(\\b)/",
@@ -54,6 +54,15 @@ tester.run("no-empty-capturing-group", rule as any, {
         {
             code: "/(\\b\\b|(?:\\B|$))a/",
             errors: ["Unexpected capture empty."],
+        },
+        {
+            code: String.raw`/a([\q{}])/v`,
+            errors: [
+                {
+                    message: "Unexpected capture empty.",
+                    line: 1,
+                },
+            ],
         },
     ],
 })
