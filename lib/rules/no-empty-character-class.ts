@@ -35,6 +35,15 @@ export default createRule("no-empty-character-class", {
                         })
                     }
                 },
+                onExpressionCharacterClassEnter(ccNode) {
+                    if (matchesNoCharacters(ccNode, flags)) {
+                        context.report({
+                            node,
+                            loc: getRegexpLocation(ccNode),
+                            messageId: "cannotMatchAny",
+                        })
+                    }
+                },
             }
         }
 
