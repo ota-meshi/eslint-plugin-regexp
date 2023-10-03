@@ -85,7 +85,7 @@ function getGraphemeProblems(
     cc: CharacterClass,
     flags: ReadonlyFlags,
 ): GraphemeProblem[] {
-    let offset = cc.negate ? 2 : 1
+    const offset = cc.negate ? 2 : 1
 
     const ignoreElements = cc.elements.filter(
         (element) =>
@@ -96,10 +96,12 @@ function getGraphemeProblems(
 
     const problems: GraphemeProblem[] = []
 
-    for (const { segment } of segmenter.segment(cc.raw.slice(offset, -1))) {
+    for (const { segment, index } of segmenter.segment(
+        cc.raw.slice(offset, -1),
+    )) {
         const problem = getProblem(segment, flags)
         if (problem !== null) {
-            const start = offset + cc.start
+            const start = offset + index + cc.start
             const end = start + segment.length
 
             if (
@@ -120,7 +122,6 @@ function getGraphemeProblems(
                 ),
             })
         }
-        offset += segment.length
     }
 
     return problems
