@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/confusing-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -15,6 +15,7 @@ tester.run("confusing-quantifier", rule as any, {
         String.raw`/(a|b?)*/`,
         String.raw`/(a?){0,3}/`,
         String.raw`/(a|\b)+/`,
+        String.raw`/[\q{a|b}]+/v`,
     ],
     invalid: [
         {
@@ -36,6 +37,17 @@ tester.run("confusing-quantifier", rule as any, {
                         "This quantifier is confusing because its minimum is 4 but it can match the empty string. Maybe replace it with `{0,4}` to reflect that it can match the empty string?",
                     line: 1,
                     column: 13,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\q{a|}]+/v`,
+            errors: [
+                {
+                    message:
+                        "This quantifier is confusing because its minimum is 1 but it can match the empty string. Maybe replace it with `*` to reflect that it can match the empty string?",
+                    line: 1,
+                    column: 10,
                 },
             ],
         },

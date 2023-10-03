@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-empty-lookarounds-assertion"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -20,6 +20,7 @@ tester.run("no-empty-lookarounds-assertion", rule as any, {
         "/(?=$|a)/",
         "/(?=\\ba*\\b)/",
         '/b?r(#*)"(?:[^"]|"(?!\\1))*"\\1/',
+        String.raw`/x(?=[\q{a}])/v`,
     ],
     invalid: [
         {
@@ -167,6 +168,15 @@ tester.run("no-empty-lookarounds-assertion", rule as any, {
         },
         {
             code: "/(?=a|b*)/",
+            errors: [
+                {
+                    message:
+                        "Unexpected empty lookahead. It will trivially accept all inputs.",
+                },
+            ],
+        },
+        {
+            code: String.raw`/x(?=[\q{}])/v`,
             errors: [
                 {
                     message:

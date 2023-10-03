@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/control-character-escape"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -16,6 +16,7 @@ tester.run("control-character-escape", rule as any, {
         String.raw`RegExp("\\0\\t\\n\\v\\f\\r", "i")`,
         "/\\t/",
         "new RegExp('\t')",
+        String.raw`/[\q{\0\t\n\v\f\r}]/v`,
     ],
     invalid: [
         {
@@ -113,6 +114,13 @@ tester.run("control-character-escape", rule as any, {
             output: String.raw`RegExp("\t\r\n\0" + /\t/.source)`,
             errors: [
                 "Unexpected control character escape '\t' (U+0009). Use '\\t' instead.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{\x00}]/v`,
+            output: String.raw`/[\q{\0}]/v`,
+            errors: [
+                "Unexpected control character escape '\\x00' (U+0000). Use '\\0' instead.",
             ],
         },
     ],

@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/hexadecimal-escape"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -29,6 +29,14 @@ tester.run("hexadecimal-escape", rule as any, {
             options: ["never"],
         },
         String.raw`/\cA \cB \cM/`,
+        {
+            code: String.raw`/[\q{\x0a}]/v`,
+            options: ["always"],
+        },
+        {
+            code: String.raw`/[\q{\u000a}]/v`,
+            options: ["never"],
+        },
     ],
     invalid: [
         {
@@ -96,6 +104,24 @@ tester.run("hexadecimal-escape", rule as any, {
                     message: "Unexpected hexadecimal escape ('\\x41').",
                     column: 12,
                 },
+            ],
+        },
+        {
+            code: String.raw`/[\q{\u000a \u{00000a}}]/v`,
+            output: String.raw`/[\q{\x0a \x0a}]/v`,
+            options: ["always"],
+            errors: [
+                "Expected hexadecimal escape ('\\x0a'), but unicode escape ('\\u000a') is used.",
+                "Expected hexadecimal escape ('\\x0a'), but unicode code point escape ('\\u{00000a}') is used.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{\x0f \xff}]/v`,
+            output: String.raw`/[\q{\u000f \u00ff}]/v`,
+            options: ["never"],
+            errors: [
+                "Unexpected hexadecimal escape ('\\x0f').",
+                "Unexpected hexadecimal escape ('\\xff').",
             ],
         },
     ],
