@@ -1,9 +1,9 @@
-import {
-    type ITypeClass,
-    type NamedType,
-    type OtherTypeName,
-    type TypeClass,
-    type TypeInfo,
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
 } from "."
 import { cache, createObject, isEquals, isTypeClass } from "./common"
 import {
