@@ -87,6 +87,7 @@
         "eslint-plugin-regexp": "~1.15.0",
         "eslint-plugin-vue": "^9.0.0",
         "eslint-plugin-yml": "^1.0.0",
+        "intl-segmenter-polyfill": "^0.4.4",
         "markdownlint-cli": "^0.37.0",
         "mocha": "^10.0.0",
         "mocha-chai-jest-snapshot": "^1.1.3",
