@@ -3,13 +3,13 @@ import rule from "../../../lib/rules/no-octal"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("no-octal", rule as any, {
-    valid: ["/\\0/", "/[\\7]/", "/[\\1-\\4]/"],
+    valid: ["/\\0/", "/[\\7]/", "/[\\1-\\4]/", String.raw`/[\q{\0}]/v`],
     invalid: [
         {
             code: "/\\07/",

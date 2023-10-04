@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-potentially-useless-backreference"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -14,6 +14,7 @@ tester.run("no-potentially-useless-backreference", rule as any, {
         String.raw`/(a*)(?:a|\1)/`,
         String.raw`/(a)+\1/`,
         String.raw`/(?=(a))\1/`,
+        String.raw`/([\q{a}])\1/v`,
 
         // done by regexp/no-useless-backreference
         String.raw`/(a+)b|\1/`,
@@ -81,6 +82,17 @@ tester.run("no-potentially-useless-backreference", rule as any, {
                         "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
                     line: 1,
                     column: 12,
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?:([\q{a}])|b)\1/v`,
+            errors: [
+                {
+                    message:
+                        "Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.",
+                    line: 1,
+                    column: 17,
                 },
             ],
         },

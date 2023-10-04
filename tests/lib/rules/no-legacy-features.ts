@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-legacy-features"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })

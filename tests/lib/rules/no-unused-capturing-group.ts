@@ -5,7 +5,7 @@ import rule from "../../../lib/rules/no-unused-capturing-group"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -147,6 +147,10 @@ tester.run("no-unused-capturing-group", rule as any, {
         String.raw`
         const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.b === m.groups.c);
         console.log(element.groups.a);
+        `,
+        String.raw`
+        const text = 'Lorem ipsum dolor sit amet'
+        const replaced = text.replace(/([\q{Lorem|ipsum}])/vg, '**$1**')
         `,
     ],
     invalid: [
@@ -529,6 +533,18 @@ tester.run("no-unused-capturing-group", rule as any, {
             output: null,
             options: [{ fixable: true }],
             errors: ["Capturing group 'b' is defined but never used."],
+        },
+        {
+            code: String.raw`
+            const text = 'Lorem ipsum dolor sit amet'
+            const replaced = text.replace(/([\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+            `,
+            output: String.raw`
+            const text = 'Lorem ipsum dolor sit amet'
+            const replaced = text.replace(/(?:[\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+            `,
+            options: [{ fixable: true }],
+            errors: ["Capturing group number 1 is defined but never used."],
         },
     ],
 })

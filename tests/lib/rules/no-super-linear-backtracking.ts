@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-super-linear-backtracking"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -13,6 +13,7 @@ tester.run("no-super-linear-backtracking", rule as any, {
         String.raw`/regexp/`,
         String.raw`/a+b+a+b+/`,
         String.raw`/\w+\b[\w-]+/`,
+        String.raw`/[\q{ab}]*[\q{ab}]*$/v`, // Limitation of scslre
     ],
     invalid: [
         // self
@@ -51,6 +52,13 @@ tester.run("no-super-linear-backtracking", rule as any, {
             output: null,
             errors: [
                 "The quantifier '\\w+' can exchange characters with '\\w+'. Using any string accepted by /b+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{a}]*b?[\q{a}]+$/v`,
+            output: String.raw`/(?:[\q{a}]+(?:b[\q{a}]+)?|b[\q{a}]+)$/v`,
+            errors: [
+                "The quantifier '[\\q{a}]*' can exchange characters with '[\\q{a}]+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.",
             ],
         },
     ],
