@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-extra-lookaround-assertions"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -12,6 +12,7 @@ tester.run("no-extra-lookaround-assertions", rule as any, {
     valid: [
         `console.log('JavaScript'.replace(/Java(?=Script)/u, 'Type'))`,
         `console.log('JavaScript'.replace(/(?<=Java)Script/u, ''))`,
+        String.raw`console.log('JavaScript'.replace(/(?<=[\q{Java}])Script/v, ''))`,
     ],
     invalid: [
         {
@@ -122,6 +123,17 @@ tester.run("no-extra-lookaround-assertions", rule as any, {
                     message:
                         "This lookbehind assertion is useless and can be inlined.",
                     column: 57,
+                },
+            ],
+        },
+        {
+            code: String.raw`console.log('JavaScript'.replace(/Java(?=Scrip(?=[\q{t}]))/v, 'Type'))`,
+            output: String.raw`console.log('JavaScript'.replace(/Java(?=Scrip[\q{t}])/v, 'Type'))`,
+            errors: [
+                {
+                    message:
+                        "This lookahead assertion is useless and can be inlined.",
+                    column: 47,
                 },
             ],
         },
