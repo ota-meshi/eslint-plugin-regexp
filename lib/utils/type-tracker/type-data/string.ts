@@ -97,7 +97,7 @@ const getPrototypes: () => {
         trim: RETURN_STRING,
         substr: RETURN_STRING,
         valueOf: RETURN_STRING,
-        // ES2051
+        // ES2015
         codePointAt: RETURN_NUMBER,
         includes: RETURN_BOOLEAN,
         endsWith: RETURN_BOOLEAN,
@@ -130,6 +130,8 @@ const getPrototypes: () => {
         matchAll: null, // IterableIterator<RegExpMatchArray>
         // ES2022
         at: RETURN_STRING,
+        // ES2021
+        replaceAll: RETURN_STRING,
 
         length: NUMBER,
         0: STRING, // string

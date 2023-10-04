@@ -255,6 +255,13 @@ const getPrototypes = cache(() => {
         flat: RETURN_UNKNOWN_ARRAY,
         // ES2022
         at: RETURN_ARRAY_ELEMENT, // element
+        // ES2023
+        findLast: RETURN_ARRAY_ELEMENT, // element
+        findLastIndex: RETURN_NUMBER,
+        toReversed: RETURN_SELF,
+        toSorted: RETURN_SELF,
+        toSpliced: RETURN_SELF,
+        with: RETURN_SELF,
 
         length: NUMBER,
         0: null, // element
