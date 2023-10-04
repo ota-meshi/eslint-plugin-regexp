@@ -43,7 +43,11 @@ export default createRule("no-useless-string-literal", {
                                     .join("|")
                                 if (!alternativesText.length) {
                                     const escape =
-                                        isNeedEscapedInCharacterClass(
+                                        isNeedEscapeForAdjacentPreviousCharacter(
+                                            csdNode,
+                                            saNode,
+                                        ) ||
+                                        isNeedEscapeForAdjacentNextCharacter(
                                             csdNode,
                                             saNode,
                                         )
@@ -60,12 +64,13 @@ export default createRule("no-useless-string-literal", {
                                         saNode.raw === "^" ? "\\" : ""
                                     return String.raw`[${escape}${saNode.raw}\q{${alternativesText}}]`
                                 }
-                                const escape = isNeedEscapedInCharacterClass(
-                                    csdNode,
-                                    saNode,
-                                )
-                                    ? "\\"
-                                    : ""
+                                const escape =
+                                    isNeedEscapeForAdjacentPreviousCharacter(
+                                        csdNode,
+                                        saNode,
+                                    )
+                                        ? "\\"
+                                        : ""
                                 return String.raw`${escape}${saNode.raw}\q{${alternativesText}}`
                             }),
                         })
@@ -74,9 +79,10 @@ export default createRule("no-useless-string-literal", {
             }
 
             /**
-             * Checks whether an escape is required if the given character when placed before a \q{...}
+             * Checks whether the given character requires escaping
+             * when adjacent to the previous character.
              */
-            function isNeedEscapedInCharacterClass(
+            function isNeedEscapeForAdjacentPreviousCharacter(
                 disjunction: ClassStringDisjunction,
                 character: StringAlternative,
             ) {
@@ -95,6 +101,23 @@ export default createRule("no-useless-string-literal", {
                     char === "^" &&
                     disjunction.parent.type === "CharacterClass" &&
                     disjunction.parent.start === disjunction.start - 1
+                )
+            }
+
+            /**
+             * Checks whether the given character requires escaping
+             * when adjacent to the next character.
+             */
+            function isNeedEscapeForAdjacentNextCharacter(
+                disjunction: ClassStringDisjunction,
+                character: StringAlternative,
+            ) {
+                const char = character.raw
+                // Avoid [\q{&}&&A] => [&&&A]
+                return (
+                    RESERVED_DOUBLE_PUNCTUATOR_CHARS.has(char) &&
+                    // The next character is the same
+                    pattern[disjunction.end] === char
                 )
             }
         }
