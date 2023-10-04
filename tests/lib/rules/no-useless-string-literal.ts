@@ -80,6 +80,11 @@ tester.run("no-useless-string-literal", rule as any, {
             errors: ["Unexpected string disjunction of single character."],
         },
         {
+            code: String.raw`/[\q{&}&&A]/v`,
+            output: String.raw`/[\&&&A]/v`,
+            errors: ["Unexpected string disjunction of single character."],
+        },
+        {
             code: String.raw`/[A&&\q{^|ab}]/v`,
             output: String.raw`/[A&&[\^\q{ab}]]/v`,
             errors: ["Unexpected string disjunction of single character."],
