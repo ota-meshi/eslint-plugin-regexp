@@ -3,13 +3,13 @@ import rule from "../../../lib/rules/no-standalone-backslash"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("no-standalone-backslash", rule as any, {
-    valid: [String.raw`/\cX/`],
+    valid: [String.raw`/\cX/`, String.raw`/[[\cA-\cZ]--\cX]/v`],
     invalid: [
         {
             code: String.raw`/\c/`,

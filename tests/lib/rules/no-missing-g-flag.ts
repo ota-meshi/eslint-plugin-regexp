@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-missing-g-flag"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -51,6 +51,11 @@ tester.run("no-missing-g-flag", rule as any, {
         `
         const s = 'foo'
         const ret = s.replaceAll(new RegExp('foo', unknown), 'bar')
+        `,
+        // ES2024
+        String.raw`
+        const s = 'foo'
+        const ret = s.replaceAll(/[\q{foo}]/gv, 'bar')
         `,
     ],
     invalid: [
@@ -229,6 +234,26 @@ tester.run("no-missing-g-flag", rule as any, {
                     message:
                         "The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.",
                     line: 2,
+                    column: 38,
+                },
+            ],
+        },
+        {
+            // ES2024
+            code: String.raw`
+            const s = 'foo'
+            const ret = s.replaceAll(/[\q{foo}]/v, 'bar')
+            `,
+            output: String.raw`
+            const s = 'foo'
+            const ret = s.replaceAll(/[\q{foo}]/vg, 'bar')
+            `,
+            options: [{ strictTypes: false }],
+            errors: [
+                {
+                    message:
+                        "The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.",
+                    line: 3,
                     column: 38,
                 },
             ],

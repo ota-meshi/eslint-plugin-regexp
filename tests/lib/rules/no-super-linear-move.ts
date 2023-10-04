@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-super-linear-move"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -26,6 +26,7 @@ tester.run("no-super-linear-move", rule as any, {
         },
         { code: String.raw`/a*b/.source`, options: [{ ignorePartial: true }] },
         { code: String.raw`/a*b/y`, options: [{ ignoreSticky: true }] },
+        String.raw`/[\q{abc}]+/v`,
     ],
     invalid: [
         {
@@ -78,6 +79,12 @@ tester.run("no-super-linear-move", rule as any, {
             options: [{ ignoreSticky: false }],
             errors: [
                 "Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
+            ],
+        },
+        {
+            code: String.raw`/[\q{abc}]+a/v`,
+            errors: [
+                "Any attack string /(?:abc)+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.",
             ],
         },
     ],

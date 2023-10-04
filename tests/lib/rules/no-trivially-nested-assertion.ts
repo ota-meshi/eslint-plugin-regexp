@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-trivially-nested-assertion"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -22,6 +22,9 @@ tester.run("no-trivially-nested-assertion", rule as any, {
         // guaranteed to be reset, so we can't transform them into one
         // non-negated lookaround
         `/(?!(?!(a)))/`,
+
+        // ES2024
+        String.raw`/(?=[\q{$}])/v`,
     ],
     invalid: [
         {

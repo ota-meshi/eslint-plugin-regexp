@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-optional-assertion"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -15,6 +15,7 @@ tester.run("no-optional-assertion", rule as any, {
         String.raw`/(?:a|(?:\b|a)+)?/`,
         String.raw`/fo(?:o\b)/`,
         String.raw`/fo(?:o\b){1}/`,
+        String.raw`/(?:(?=[\q{a}]))/v`,
     ],
     invalid: [
         {
@@ -86,6 +87,17 @@ tester.run("no-optional-assertion", rule as any, {
                         "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '{0,}'.",
                     line: 1,
                     column: 4,
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?:(?=[\q{a}]))?/v`,
+            errors: [
+                {
+                    message:
+                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
+                    line: 1,
+                    column: 5,
                 },
             ],
         },
