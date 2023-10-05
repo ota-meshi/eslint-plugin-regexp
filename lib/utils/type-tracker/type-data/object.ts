@@ -196,6 +196,8 @@ export function buildObjectConstructor(): TypeGlobalFunction {
         getOwnPropertyDescriptors: null,
         // ES2019
         fromEntries: null,
+        // ES2022
+        hasOwn: RETURN_BOOLEAN,
 
         prototype: null,
     })

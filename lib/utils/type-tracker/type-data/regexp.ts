@@ -103,6 +103,8 @@ const getPrototypes: () => {
         unicode: BOOLEAN, // prop
         // ES2018
         dotAll: BOOLEAN, // prop
+        // ES2022
+        hasIndices: BOOLEAN, // prop
 
         [Symbol.match]: null,
         [Symbol.replace]: null,

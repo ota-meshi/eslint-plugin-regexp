@@ -3,7 +3,7 @@
         "target": "es2015",
         "module": "Node16",
         "moduleResolution": "Node16",
-        "lib": ["es2020"],
+        "lib": ["es2023"],
         "allowJs": true,
         "checkJs": true,
         "outDir": "./dist",

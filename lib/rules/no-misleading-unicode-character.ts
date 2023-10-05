@@ -1,7 +1,6 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { isEscapeSequence, createRule, defineRegexpVisitor } from "../utils"
-import GraphemeSplitter from "grapheme-splitter"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { mention, mentionChar } from "../utils/mention"
 import type {
@@ -12,7 +11,7 @@ import type {
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
 import type { Rule } from "eslint"
 
-const splitter = new GraphemeSplitter()
+const segmenter = new Intl.Segmenter()
 
 /** Returns whether the given string starts with a valid surrogate pair. */
 function startsWithSurrogate(s: string): boolean {
@@ -66,10 +65,10 @@ function getGraphemeBeforeQuant(quant: Quantifier): string {
         quant.element.end - alt.start,
     )
 
-    const graphemes = splitter.splitGraphemes(before)
-    const grapheme = graphemes[graphemes.length - 1]
+    const segments = [...segmenter.segment(before)]
+    const segment = segments[segments.length - 1]
 
-    return grapheme
+    return segment.segment
 }
 
 interface GraphemeProblem {
@@ -86,7 +85,7 @@ function getGraphemeProblems(
     cc: CharacterClass,
     flags: ReadonlyFlags,
 ): GraphemeProblem[] {
-    let offset = cc.negate ? 2 : 1
+    const offset = cc.negate ? 2 : 1
 
     const ignoreElements = cc.elements.filter(
         (element) =>
@@ -95,14 +94,15 @@ function getGraphemeProblems(
             element.type === "ClassStringDisjunction",
     )
 
-    const graphemes = splitter.splitGraphemes(cc.raw.slice(offset, -1))
     const problems: GraphemeProblem[] = []
 
-    for (const grapheme of graphemes) {
-        const problem = getProblem(grapheme, flags)
+    for (const { segment, index } of segmenter.segment(
+        cc.raw.slice(offset, -1),
+    )) {
+        const problem = getProblem(segment, flags)
         if (problem !== null) {
-            const start = offset + cc.start
-            const end = start + grapheme.length
+            const start = offset + index + cc.start
+            const end = start + segment.length
 
             if (
                 ignoreElements.some(
@@ -113,7 +113,7 @@ function getGraphemeProblems(
             }
 
             problems.push({
-                grapheme,
+                grapheme: segment,
                 problem,
                 start,
                 end,
@@ -122,7 +122,6 @@ function getGraphemeProblems(
                 ),
             })
         }
-        offset += grapheme.length
     }
 
     return problems
