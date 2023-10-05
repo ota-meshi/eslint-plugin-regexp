@@ -132,8 +132,6 @@ const getPrototypes: () => {
         replaceAll: RETURN_STRING,
         // ES2022
         at: RETURN_STRING,
-        // ES2021
-        replaceAll: RETURN_STRING,
 
         length: NUMBER,
         0: STRING, // string
