@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-control-character"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -101,6 +101,10 @@ tester.run("no-control-character", rule as any, {
                     suggestions: [{ output: String.raw`RegExp('\\n')` }],
                 },
             ],
+        },
+        {
+            code: String.raw`/[\q{\x1f}]/v`,
+            errors: [{ messageId: "unexpected", suggestions: [] }],
         },
     ],
 })

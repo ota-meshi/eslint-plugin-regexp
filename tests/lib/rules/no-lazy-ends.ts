@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-lazy-ends"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -28,6 +28,8 @@ tester.run("no-lazy-ends", rule as any, {
                 sourceType: "script",
             },
         },
+
+        String.raw`/[\q{ab}]?/v.test(str)`,
     ],
     invalid: [
         {
@@ -197,6 +199,17 @@ tester.run("no-lazy-ends", rule as any, {
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 6,
                     column: 26,
+                },
+            ],
+        },
+        {
+            code: String.raw`/[\q{ab|}]??/v.test(str)`,
+            errors: [
+                {
+                    message:
+                        "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
+                    line: 1,
+                    column: 2,
                 },
             ],
         },

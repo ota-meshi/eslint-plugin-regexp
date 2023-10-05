@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-obscure-range"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -23,6 +23,7 @@ tester.run("no-obscure-range", rule as any, {
                 },
             },
         },
+        "/[[0-9]--[6-8]]/v",
     ],
     invalid: [
         {
@@ -122,6 +123,17 @@ tester.run("no-obscure-range", rule as any, {
                 {
                     message:
                         "Unexpected obscure character range. The characters of '+-/' (U+002b - U+002f) are not obvious.",
+                },
+            ],
+        },
+        {
+            code: String.raw`/[[ -\/]--+]/v`,
+            errors: [
+                {
+                    message:
+                        "Unexpected obscure character range. The characters of ' -\\/' (U+0020 - U+002f) are not obvious.",
+                    line: 1,
+                    column: 4,
                 },
             ],
         },

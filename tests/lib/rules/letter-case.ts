@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/letter-case"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -47,6 +47,19 @@ tester.run("letter-case", rule as any, {
         },
         {
             code: `/[A-z]/i`,
+            options: [{ caseInsensitive: "ignore" }],
+        },
+        String.raw`/[\q{ab}]/iv`,
+        {
+            code: String.raw`/[\q{ab}]/iv`,
+            options: [{ caseInsensitive: "lowercase" }],
+        },
+        {
+            code: String.raw`/[\q{AB}]/iv`,
+            options: [{ caseInsensitive: "uppercase" }],
+        },
+        {
+            code: String.raw`/[\q{Ab}]/iv`,
             options: [{ caseInsensitive: "ignore" }],
         },
         String.raw`/\u000a/`,
@@ -265,6 +278,23 @@ tester.run("letter-case", rule as any, {
             output: null,
             options: [{ unicodeEscape: "lowercase" }],
             errors: [String.raw`'\u000A' is not in lowercase`],
+        },
+        {
+            code: String.raw`/[\q{Ab}]/iv`,
+            output: String.raw`/[\q{ab}]/iv`,
+            errors: ["'A' is not in lowercase"],
+        },
+        {
+            code: String.raw`/[\q{Ab}]/iv`,
+            output: String.raw`/[\q{ab}]/iv`,
+            options: [{ caseInsensitive: "lowercase" }],
+            errors: ["'A' is not in lowercase"],
+        },
+        {
+            code: String.raw`/[\q{Ab}]/iv`,
+            output: String.raw`/[\q{AB}]/iv`,
+            options: [{ caseInsensitive: "uppercase" }],
+            errors: ["'b' is not in uppercase"],
         },
     ],
 })

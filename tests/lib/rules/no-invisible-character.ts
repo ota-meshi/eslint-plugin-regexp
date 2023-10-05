@@ -3,7 +3,7 @@ import rule from "../../../lib/rules/no-invisible-character"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
@@ -22,6 +22,7 @@ tester.run("no-invisible-character", rule as any, {
         "new RegExp(' ')",
         "new RegExp('a')",
         "new RegExp('[ ]')",
+        String.raw`/[\q{\t}]/v`,
     ],
     invalid: [
         {
@@ -103,6 +104,11 @@ tester.run("no-invisible-character", rule as any, {
                 "Unexpected invisible character. Use '\\x85' instead.",
                 "Unexpected invisible character. Use '\\u200b' instead.",
             ],
+        },
+        {
+            code: `/[\\q{\t}]/v`,
+            output: String.raw`/[\q{\t}]/v`,
+            errors: ["Unexpected invisible character. Use '\\t' instead."],
         },
     ],
 })

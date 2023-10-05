@@ -3,13 +3,19 @@ import rule from "../../../lib/rules/no-trivially-nested-quantifier"
 
 const tester = new RuleTester({
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: "latest",
         sourceType: "module",
     },
 })
 
 tester.run("no-trivially-nested-quantifier", rule as any, {
-    valid: [`/(a?)+/`, `/(?:a{2})+/`, `/(?:a{3,4})+/`, `/(?:a+?)+/`],
+    valid: [
+        `/(a?)+/`,
+        `/(?:a{2})+/`,
+        `/(?:a{3,4})+/`,
+        `/(?:a+?)+/`,
+        String.raw`/(?:[\q{a}])+/v`,
+    ],
     invalid: [
         {
             code: String.raw`/(?:a?)+/`,
@@ -108,6 +114,13 @@ tester.run("no-trivially-nested-quantifier", rule as any, {
             output: String.raw`/(?:a??|b)+?/`,
             errors: [
                 { message: "This nested quantifier can be simplified to '?'." },
+            ],
+        },
+        {
+            code: String.raw`/(?:[\q{a}]+)+/v`,
+            output: String.raw`/[\q{a}]+/v`,
+            errors: [
+                "These two quantifiers are trivially nested and can be replaced with '+'.",
             ],
         },
     ],

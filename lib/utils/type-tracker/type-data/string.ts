@@ -128,6 +128,8 @@ const getPrototypes: () => {
         trimEnd: RETURN_STRING,
         // ES2020
         matchAll: null, // IterableIterator<RegExpMatchArray>
+        // ES2021
+        replaceAll: RETURN_STRING,
         // ES2022
         at: RETURN_STRING,
         // ES2021
