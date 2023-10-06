@@ -1,6 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import type { StringAlternative } from "@eslint-community/regexpp/ast"
 
 const segmenter = new Intl.Segmenter()
 
@@ -8,12 +9,13 @@ export default createRule("grapheme-string-literal", {
     meta: {
         docs: {
             description: "enforce single grapheme in string literal",
-            category: "Best Practices",
+            category: "Stylistic Issues",
             recommended: false,
         },
         schema: [],
         messages: {
-            useSingleGrapheme: "Use single grapheme in string literal.",
+            onlySingleCharacters:
+                "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `{{alternatives}}`) for strings instead.",
         },
         type: "suggestion",
     },
@@ -23,21 +25,35 @@ export default createRule("grapheme-string-literal", {
         ): RegExpVisitor.Handlers {
             const { node, getRegexpLocation } = regexpContext
 
+            function isMultipleGraphemes(saNode: StringAlternative) {
+                if (saNode.elements.length <= 1) return false
+                const string = String.fromCodePoint(
+                    ...saNode.elements.map((element) => element.value),
+                )
+
+                const segments = [...segmenter.segment(string)]
+                return segments.length > 1
+            }
+
+            function buildAlternativeExample(saNode: StringAlternative) {
+                const alternativeRaws = saNode.parent.alternatives
+                    .filter(isMultipleGraphemes)
+                    .map((alt) => alt.raw)
+                return `(?:${alternativeRaws.join("|")}|[...])`
+            }
+
             return {
                 onStringAlternativeEnter(saNode) {
-                    if (saNode.elements.length <= 1) return
-                    const string = String.fromCodePoint(
-                        ...saNode.elements.map((element) => element.value),
-                    )
+                    if (!isMultipleGraphemes(saNode)) return
 
-                    const segments = [...segmenter.segment(string)]
-                    if (segments.length > 1) {
-                        context.report({
-                            node,
-                            loc: getRegexpLocation(saNode),
-                            messageId: "useSingleGrapheme",
-                        })
-                    }
+                    context.report({
+                        node,
+                        loc: getRegexpLocation(saNode),
+                        messageId: "onlySingleCharacters",
+                        data: {
+                            alternatives: buildAlternativeExample(saNode),
+                        },
+                    })
                 },
             }
         }

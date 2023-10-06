@@ -45,7 +45,6 @@ sidebarDepth: 0
 | :-------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- | :- | :- | :- | :- |
 | [confusing-quantifier](confusing-quantifier.md)                                   | disallow confusing quantifiers                                                             |    | ✅  |    |    |
 | [control-character-escape](control-character-escape.md)                           | enforce consistent escaping of control characters                                          | ✅  |    | 🔧 |    |
-| [grapheme-string-literal](grapheme-string-literal.md)                             | enforce single grapheme in string literal                                                  |    |    |    |    |
 | [negation](negation.md)                                                           | enforce use of escapes on negation                                                         | ✅  |    | 🔧 |    |
 | [no-dupe-characters-character-class](no-dupe-characters-character-class.md)       | disallow duplicate characters in the RegExp character class                                | ✅  |    | 🔧 |    |
 | [no-empty-string-literal](no-empty-string-literal.md)                             | disallow empty string literals in character classes                                        | ✅  |    |    |    |
@@ -87,6 +86,7 @@ sidebarDepth: 0
 
 | Name                                                                    | Description                                                            | 💼 | ⚠️ | 🔧 | 💡 |
 | :---------------------------------------------------------------------- | :--------------------------------------------------------------------- | :- | :- | :- | :- |
+| [grapheme-string-literal](grapheme-string-literal.md)                   | enforce single grapheme in string literal                              |    |    |    |    |
 | [hexadecimal-escape](hexadecimal-escape.md)                             | enforce consistent usage of hexadecimal escape                         |    |    | 🔧 |    |
 | [letter-case](letter-case.md)                                           | enforce into your favorite case                                        |    |    | 🔧 |    |
 | [match-any](match-any.md)                                               | enforce match any character style                                      | ✅  |    | 🔧 |    |

@@ -179,7 +179,8 @@ tester.run("grapheme-string-literal", rule as any, {
             code: String.raw`/[\q{abc}]/v`,
             errors: [
                 {
-                    message: "Use single grapheme in string literal.",
+                    message:
+                        "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|[...])`) for strings instead.",
                     line: 1,
                     column: 6,
                 },
@@ -189,7 +190,8 @@ tester.run("grapheme-string-literal", rule as any, {
             code: String.raw`/[\q{a|bc|}]/v`,
             errors: [
                 {
-                    message: "Use single grapheme in string literal.",
+                    message:
+                        "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:bc|[...])`) for strings instead.",
                     line: 1,
                     column: 8,
                 },
@@ -199,10 +201,20 @@ tester.run("grapheme-string-literal", rule as any, {
             code: String.raw`/[\q{🇦🇨🇦🇩}]/v`,
             errors: [
                 {
-                    message: "Use single grapheme in string literal.",
+                    message:
+                        "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:🇦🇨🇦🇩|[...])`) for strings instead.",
                     line: 1,
                     column: 6,
                 },
+            ],
+        },
+        {
+            code: String.raw`/[\q{abc|def|ghi|j|k|lm|n}]/v`,
+            errors: [
+                "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.",
+                "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.",
+                "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.",
+                "Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.",
             ],
         },
     ],
