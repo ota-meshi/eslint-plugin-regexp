@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/grapheme-string-literal"
 description: "enforce single grapheme in string literal"
+since: "v2.0.0-next.13"
 ---
 # regexp/grapheme-string-literal
 
@@ -47,7 +48,7 @@ Nothing.
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.0.0-next.13
 
 ## :mag: Implementation
 
