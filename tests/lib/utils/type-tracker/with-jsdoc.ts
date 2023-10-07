@@ -251,6 +251,62 @@ const TESTCASES: TestCase[] = [
         `,
         type: "Number",
     },
+    {
+        code: `
+        /** @type {['str', 42]} */
+        let a
+        a[0]
+        `,
+        type: ["Number", "String"],
+    },
+    {
+        code: `
+        /** @type {[a: string, b: number]} */
+        let a
+        a[0]
+        `,
+        type: ["Number", "String"],
+    },
+    {
+        code: `
+        /** @type {() => number} */
+        let a
+        a()
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        /** @type { { a?: string, b: number } } */
+        let o
+        o.a
+        `,
+        type: ["String"],
+    },
+    {
+        code: `
+        /** @type { { a?: string, b: number } } */
+        let o
+        o.b
+        `,
+        type: ["Number"],
+    },
+    {
+        code: `
+        /** @type {typeof RegExp} */
+        let o
+        o
+        `,
+        type: ["Function"],
+    },
+    {
+        code: `
+        /** @type {typeof RegExp} */
+        let o
+        new o()
+        `,
+        type: ["RegExp"],
+    },
 ]
 describe("type track with jsdoc", () => {
     for (const testCase of TESTCASES) {

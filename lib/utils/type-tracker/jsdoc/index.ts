@@ -3,9 +3,8 @@ import type * as ES from "estree"
 import { isCommentToken } from "@eslint-community/eslint-utils"
 import * as commentParser from "comment-parser"
 import type { Spec } from "comment-parser"
-// @ts-expect-error -- no type
-import * as jsdocTypeParser from "jsdoctypeparser"
-import type { JSDocTypeNode } from "./jsdoctypeparser-ast"
+import * as jsdocTypeParser from "jsdoc-type-pratt-parser"
+import type { RootResult } from "jsdoc-type-pratt-parser"
 
 type ParsedComment = ReturnType<typeof commentParser.parse>[number]
 
@@ -182,10 +181,10 @@ function findJSDocComment(node: ES.Node, sourceCode: SourceCode) {
 /**
  * Parse JSDoc type text
  */
-export function parseTypeText(text: string): JSDocTypeNode | null {
+export function parseTypeText(text: string): RootResult | null {
     try {
-        const ast: JSDocTypeNode = jsdocTypeParser.parse(text)
-        return ast
+        const result = jsdocTypeParser.tryParse(text)
+        return result
     } catch {
         return null
     }
