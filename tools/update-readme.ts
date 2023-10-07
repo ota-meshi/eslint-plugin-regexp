@@ -1,6 +1,7 @@
 import path from "path"
 import fs from "fs"
 import { rules } from "./lib/load-rules"
+import { getRemovedTable } from "./meta/removed-rules"
 
 const readmeFilePath = path.resolve(__dirname, "../README.md")
 const readme = fs
@@ -9,8 +10,30 @@ const readme = fs
         /\d{1,4}plugin rules/u,
         `${rules.filter((rule) => !rule.meta.deprecated).length} plugin rules`,
     )
+    .replace(
+        /<!--REMOVED_RULES_START-->[\s\S]*<!--REMOVED_RULES_END-->/u,
+        () =>
+            `<!--REMOVED_RULES_START-->
+
+${getRemovedTable({ headerLevel: 3 })}
+
+<!--REMOVED_RULES_END-->`,
+    )
 
 fs.writeFileSync(readmeFilePath, readme)
+
+const rulesIndexFilePath = path.resolve(__dirname, "../docs/rules/index.md")
+fs.writeFileSync(
+    rulesIndexFilePath,
+    fs.readFileSync(rulesIndexFilePath, "utf8").replace(
+        /<!--REMOVED_RULES_START-->[\s\S]*<!--REMOVED_RULES_END-->/u,
+        () => `<!--REMOVED_RULES_START-->
+
+${getRemovedTable({ headerLevel: 2 })}
+
+<!--REMOVED_RULES_END-->`,
+    ),
+)
 
 const docsReadmeFilePath = path.resolve(__dirname, "../docs/index.md")
 
@@ -45,6 +68,10 @@ fs.writeFileSync(
                 result += ")"
                 return result
             },
+        )
+        .replace(
+            /<!--REMOVED_RULES_START-->[\s\S]*<!--REMOVED_RULES_END-->/u,
+            "",
         )
         .replace(
             "[LICENSE](LICENSE)",

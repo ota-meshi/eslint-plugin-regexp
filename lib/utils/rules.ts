@@ -6,7 +6,6 @@ import hexadecimalEscape from "../rules/hexadecimal-escape"
 import letterCase from "../rules/letter-case"
 import matchAny from "../rules/match-any"
 import negation from "../rules/negation"
-import noAssertionCapturingGroup from "../rules/no-assertion-capturing-group"
 import noContradictionWithAssertion from "../rules/no-contradiction-with-assertion"
 import noControlCharacter from "../rules/no-control-character"
 import noDupeCharactersCharacterClass from "../rules/no-dupe-characters-character-class"
@@ -42,11 +41,9 @@ import noUselessBackreference from "../rules/no-useless-backreference"
 import noUselessCharacterClass from "../rules/no-useless-character-class"
 import noUselessDollarReplacements from "../rules/no-useless-dollar-replacements"
 import noUselessEscape from "../rules/no-useless-escape"
-import noUselessExactlyQuantifier from "../rules/no-useless-exactly-quantifier"
 import noUselessFlag from "../rules/no-useless-flag"
 import noUselessLazy from "../rules/no-useless-lazy"
 import noUselessNonCapturingGroup from "../rules/no-useless-non-capturing-group"
-import noUselessNonGreedy from "../rules/no-useless-non-greedy"
 import noUselessQuantifier from "../rules/no-useless-quantifier"
 import noUselessRange from "../rules/no-useless-range"
 import noUselessSetOperand from "../rules/no-useless-set-operand"
@@ -55,7 +52,6 @@ import noUselessTwoNumsQuantifier from "../rules/no-useless-two-nums-quantifier"
 import noZeroQuantifier from "../rules/no-zero-quantifier"
 import optimalLookaroundQuantifier from "../rules/optimal-lookaround-quantifier"
 import optimalQuantifierConcatenation from "../rules/optimal-quantifier-concatenation"
-import orderInCharacterClass from "../rules/order-in-character-class"
 import preferCharacterClass from "../rules/prefer-character-class"
 import preferD from "../rules/prefer-d"
 import preferEscapeReplacementDollarChar from "../rules/prefer-escape-replacement-dollar-char"
@@ -73,7 +69,6 @@ import preferRegexpTest from "../rules/prefer-regexp-test"
 import preferResultArrayGroups from "../rules/prefer-result-array-groups"
 import preferSetOperation from "../rules/prefer-set-operation"
 import preferStarQuantifier from "../rules/prefer-star-quantifier"
-import preferT from "../rules/prefer-t"
 import preferUnicodeCodepointEscapes from "../rules/prefer-unicode-codepoint-escapes"
 import preferW from "../rules/prefer-w"
 import requireUnicodeRegexp from "../rules/require-unicode-regexp"
@@ -94,7 +89,6 @@ export const rules = [
     letterCase,
     matchAny,
     negation,
-    noAssertionCapturingGroup,
     noContradictionWithAssertion,
     noControlCharacter,
     noDupeCharactersCharacterClass,
@@ -130,11 +124,9 @@ export const rules = [
     noUselessCharacterClass,
     noUselessDollarReplacements,
     noUselessEscape,
-    noUselessExactlyQuantifier,
     noUselessFlag,
     noUselessLazy,
     noUselessNonCapturingGroup,
-    noUselessNonGreedy,
     noUselessQuantifier,
     noUselessRange,
     noUselessSetOperand,
@@ -143,7 +135,6 @@ export const rules = [
     noZeroQuantifier,
     optimalLookaroundQuantifier,
     optimalQuantifierConcatenation,
-    orderInCharacterClass,
     preferCharacterClass,
     preferD,
     preferEscapeReplacementDollarChar,
@@ -161,7 +152,6 @@ export const rules = [
     preferResultArrayGroups,
     preferSetOperation,
     preferStarQuantifier,
-    preferT,
     preferUnicodeCodepointEscapes,
     preferW,
     requireUnicodeRegexp,
