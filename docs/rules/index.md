@@ -86,6 +86,7 @@ sidebarDepth: 0
 
 | Name                                                                    | Description                                                            | 💼 | ⚠️ | 🔧 | 💡 |
 | :---------------------------------------------------------------------- | :--------------------------------------------------------------------- | :- | :- | :- | :- |
+| [grapheme-string-literal](grapheme-string-literal.md)                   | enforce single grapheme in string literal                              |    |    |    |    |
 | [hexadecimal-escape](hexadecimal-escape.md)                             | enforce consistent usage of hexadecimal escape                         |    |    | 🔧 |    |
 | [letter-case](letter-case.md)                                           | enforce into your favorite case                                        |    |    | 🔧 |    |
 | [match-any](match-any.md)                                               | enforce match any character style                                      | ✅  |    | 🔧 |    |

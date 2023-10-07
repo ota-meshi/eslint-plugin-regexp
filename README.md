@@ -180,6 +180,7 @@ The `plugin:regexp/all` config enables all rules. It's meant for testing, not fo
 
 | Name                                                                                                                             | Description                                                            | 💼 | ⚠️ | 🔧 | 💡 |
 | :------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------- | :- | :- | :- | :- |
+| [grapheme-string-literal](https://ota-meshi.github.io/eslint-plugin-regexp/rules/grapheme-string-literal.html)                   | enforce single grapheme in string literal                              |    |    |    |    |
 | [hexadecimal-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/hexadecimal-escape.html)                             | enforce consistent usage of hexadecimal escape                         |    |    | 🔧 |    |
 | [letter-case](https://ota-meshi.github.io/eslint-plugin-regexp/rules/letter-case.html)                                           | enforce into your favorite case                                        |    |    | 🔧 |    |
 | [match-any](https://ota-meshi.github.io/eslint-plugin-regexp/rules/match-any.html)                                               | enforce match any character style                                      | ✅  |    | 🔧 |    |
