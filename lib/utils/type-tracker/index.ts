@@ -27,7 +27,10 @@ import {
     hasType,
 } from "./type-data"
 import { getJSDoc, parseTypeText } from "./jsdoc"
-import type { JSDocTypeNode } from "./jsdoc/jsdoctypeparser-ast"
+import type {
+    RootResult as JSDocTypeRootResult,
+    KeyValueResult,
+} from "jsdoc-type-pratt-parser"
 import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
 import { getParent } from "../ast-utils"
 import {
@@ -46,6 +49,7 @@ import {
     isUnionOrIntersection,
     isUnknown,
 } from "../ts-utils"
+import { assertNever } from "../util"
 
 const ts = getTypeScript()!
 
@@ -596,94 +600,152 @@ function typeTextToTypeInfo(typeText?: string): TypeInfo | null {
     return jsDocTypeNodeToTypeInfo(parseTypeText(typeText))
 }
 
-/** Get type from JSDocTypeNode */
-function jsDocTypeNodeToTypeInfo(node: JSDocTypeNode | null): TypeInfo | null {
+/** Get type from jsdoc-type-pratt-parser's RootResult */
+function jsDocTypeNodeToTypeInfo(
+    node: JSDocTypeRootResult | null,
+): TypeInfo | null {
     if (node == null) {
         return null
     }
-    if (node.type === "NAME") {
-        return typeNameToTypeInfo(node.name)
+    if (node.type === "JsdocTypeName") {
+        return typeNameToTypeInfo(node.value)
     }
-    if (node.type === "STRING_VALUE") {
+    if (node.type === "JsdocTypeStringValue") {
         return STRING
     }
-    if (node.type === "NUMBER_VALUE") {
+    if (node.type === "JsdocTypeNumber") {
         return NUMBER
     }
     if (
-        node.type === "OPTIONAL" ||
-        node.type === "NULLABLE" ||
-        node.type === "NOT_NULLABLE" ||
-        node.type === "PARENTHESIS"
+        node.type === "JsdocTypeOptional" ||
+        node.type === "JsdocTypeNullable" ||
+        node.type === "JsdocTypeNotNullable" ||
+        node.type === "JsdocTypeParenthesis"
     ) {
-        return jsDocTypeNodeToTypeInfo(node.value)
+        return jsDocTypeNodeToTypeInfo(node.element)
     }
-    if (node.type === "VARIADIC") {
+    if (node.type === "JsdocTypeVariadic") {
         return new TypeArray(function* () {
-            if (node.value) {
-                yield jsDocTypeNodeToTypeInfo(node.value)
+            if (node.element) {
+                yield jsDocTypeNodeToTypeInfo(node.element)
             } else {
                 yield null
             }
         })
     }
-    if (node.type === "UNION" || node.type === "INTERSECTION") {
+    if (
+        node.type === "JsdocTypeUnion" ||
+        node.type === "JsdocTypeIntersection"
+    ) {
         return TypeUnionOrIntersection.buildType(function* () {
-            const left = jsDocTypeNodeToTypeInfo(node.left)
-            if (left) {
-                yield left
-            }
-            const right = jsDocTypeNodeToTypeInfo(node.right)
-            if (right) {
-                yield right
+            for (const e of node.elements) {
+                yield jsDocTypeNodeToTypeInfo(e)
             }
         })
     }
-    if (node.type === "GENERIC") {
-        const subject = jsDocTypeNodeToTypeInfo(node.subject)
+    if (node.type === "JsdocTypeGeneric") {
+        const subject = jsDocTypeNodeToTypeInfo(node.left)
         if (hasType(subject, "Array")) {
             return new TypeArray(function* () {
-                yield jsDocTypeNodeToTypeInfo(node.objects[0])
+                yield jsDocTypeNodeToTypeInfo(node.elements[0])
             })
         }
         if (hasType(subject, "Map")) {
             return new TypeMap(
-                () => jsDocTypeNodeToTypeInfo(node.objects[0]),
-                () => jsDocTypeNodeToTypeInfo(node.objects[1]),
+                () => jsDocTypeNodeToTypeInfo(node.elements[0]),
+                () => jsDocTypeNodeToTypeInfo(node.elements[1]),
             )
         }
         if (hasType(subject, "Set")) {
-            return new TypeSet(() => jsDocTypeNodeToTypeInfo(node.objects[0]))
+            return new TypeSet(() => jsDocTypeNodeToTypeInfo(node.elements[0]))
         }
         if (subject === UNKNOWN_ITERABLE) {
             return new TypeIterable(() =>
-                jsDocTypeNodeToTypeInfo(node.objects[0]),
+                jsDocTypeNodeToTypeInfo(node.elements[0]),
             )
         }
         return subject
     }
-    if (node.type === "RECORD") {
+    if (node.type === "JsdocTypeObject") {
         return new TypeObject(function* () {
-            for (const entry of node.entries) {
-                yield [entry.key, () => jsDocTypeNodeToTypeInfo(entry.value)]
+            for (const element of node.elements) {
+                if (element.type === "JsdocTypeObjectField") {
+                    if (typeof element.key !== "string") {
+                        // unknown key
+                        continue
+                    }
+                    yield [
+                        element.key,
+                        () =>
+                            element.right
+                                ? jsDocTypeNodeToTypeInfo(element.right)
+                                : null,
+                    ]
+                } else if (element.type === "JsdocTypeJsdocObjectField") {
+                    if (
+                        element.left.type === "JsdocTypeNullable" &&
+                        element.left.element.type === "JsdocTypeName"
+                    ) {
+                        yield [
+                            element.left.element.value,
+                            () =>
+                                element.right
+                                    ? jsDocTypeNodeToTypeInfo(element.right)
+                                    : null,
+                        ]
+                    }
+                }
             }
         })
     }
-    if (node.type === "ANY" || node.type === "UNKNOWN") {
+    if (node.type === "JsdocTypeTuple") {
+        if (node.elements[0].type === "JsdocTypeKeyValue") {
+            const elements = node.elements as KeyValueResult[]
+            return new TypeArray(function* () {
+                for (const element of elements) {
+                    if (element.right) {
+                        yield jsDocTypeNodeToTypeInfo(element.right)
+                    }
+                }
+            })
+        }
+        const elements = node.elements as JSDocTypeRootResult[]
+        return new TypeArray(function* () {
+            for (const element of elements) {
+                yield jsDocTypeNodeToTypeInfo(element)
+            }
+        })
+    }
+    if (node.type === "JsdocTypeFunction") {
+        if (node.returnType) {
+            const returnType = node.returnType
+            return new TypeFunction(() => jsDocTypeNodeToTypeInfo(returnType))
+        }
+        return UNKNOWN_FUNCTION
+    }
+    if (node.type === "JsdocTypeTypeof") {
+        return new TypeFunction(() => jsDocTypeNodeToTypeInfo(node.element))
+    }
+    if (
+        node.type === "JsdocTypeAny" ||
+        node.type === "JsdocTypeUnknown" ||
+        node.type === "JsdocTypeNull" ||
+        node.type === "JsdocTypeUndefined"
+    ) {
         return null
     }
     if (
-        node.type === "MEMBER" ||
-        node.type === "INNER_MEMBER" ||
-        node.type === "INSTANCE_MEMBER" ||
-        node.type === "EXTERNAL" ||
-        node.type === "FILE_PATH" ||
-        node.type === "MODULE"
+        node.type === "JsdocTypeImport" ||
+        node.type === "JsdocTypeKeyof" ||
+        node.type === "JsdocTypeNamePath" ||
+        node.type === "JsdocTypePredicate" ||
+        node.type === "JsdocTypeSpecialNamePath" ||
+        node.type === "JsdocTypeSymbol"
     ) {
         return null
     }
 
-    return null
+    throw assertNever(node)
 }
 
 /** Get type from type name */
