@@ -1,5 +1,17 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.13
+
+### Minor Changes
+
+-   Add `regexp/grapheme-string-literal` rule ([#646](https://github.com/ota-meshi/eslint-plugin-regexp/pull/646))
+
+-   Use Intl.Segmenter instead of grapheme-splitter ([#642](https://github.com/ota-meshi/eslint-plugin-regexp/pull/642))
+
+### Patch Changes
+
+-   fix: autofix for incorrect no-escaping in `regexp/no-useless-string-literal` ([#645](https://github.com/ota-meshi/eslint-plugin-regexp/pull/645))
+
 ## 2.0.0-next.12
 
 ### Major Changes
