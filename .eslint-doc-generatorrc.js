@@ -37,10 +37,14 @@ const config = {
           ([, rule]) => rule.meta.docs.category === 'Stylistic Issues' && !rule.meta.deprecated
         ),
       },
-      {
-        title: 'Deprecated',
-        rules: rules.filter(([, rule]) => rule.meta.deprecated),
-      },
+      ...rules.some(([, rule]) => rule.meta.deprecated)
+        ? [
+          {
+            title: 'Deprecated',
+            rules: rules.filter(([, rule]) => rule.meta.deprecated),
+          }
+        ]
+        : [],
     ];
   },
   urlRuleDoc(name, page) {

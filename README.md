@@ -202,17 +202,23 @@ The `plugin:regexp/all` config enables all rules. It's meant for testing, not fo
 | [sort-flags](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-flags.html)                                             | require regex flags to be sorted                                       | ✅  |    | 🔧 |    |
 | [unicode-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/unicode-escape.html)                                     | enforce consistent usage of unicode escape or unicode codepoint escape |    |    | 🔧 |    |
 
-### Deprecated
-
-| Name                                                                                                                       | Description                                   | 💼 | ⚠️ | 🔧 | 💡 |
-| :------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------- | :- | :- | :- | :- |
-| [no-assertion-capturing-group](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-assertion-capturing-group.html)   | disallow capturing group that captures empty. |    |    |    |    |
-| [no-useless-exactly-quantifier](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-exactly-quantifier.html) | disallow unnecessary exactly quantifier       |    |    |    |    |
-| [no-useless-non-greedy](https://ota-meshi.github.io/eslint-plugin-regexp/rules/no-useless-non-greedy.html)                 | disallow unnecessarily non-greedy quantifiers |    |    | 🔧 |    |
-| [order-in-character-class](https://ota-meshi.github.io/eslint-plugin-regexp/rules/order-in-character-class.html)           | enforces elements order in character class    |    |    | 🔧 |    |
-| [prefer-t](https://ota-meshi.github.io/eslint-plugin-regexp/rules/prefer-t.html)                                           | enforce using `\t`                            |    |    | 🔧 |    |
-
 <!-- end auto-generated rules list -->
+
+<!--REMOVED_RULES_START-->
+
+### Removed
+
+- :no_entry: These rules have been removed in a previous major release, after they have been deprecated for a while.
+
+| Rule ID | Replaced by | Removed in version |
+|:--------|:------------|:-------------------|
+| [no-assertion-capturing-group](https://github.com/ota-meshi/eslint-plugin-regexp/blob/v1.15.0/docs/rules/no-assertion-capturing-group.md) | [regexp/no-empty-capturing-group](./no-empty-capturing-group.md) | v2.0.0 |
+| [no-useless-exactly-quantifier](https://github.com/ota-meshi/eslint-plugin-regexp/blob/v1.15.0/docs/rules/no-useless-exactly-quantifier.md) | [regexp/no-useless-quantifier](./no-useless-quantifier.md), [regexp/no-zero-quantifier](./no-zero-quantifier.md) | v2.0.0 |
+| [no-useless-non-greedy](https://github.com/ota-meshi/eslint-plugin-regexp/blob/v1.15.0/docs/rules/no-useless-non-greedy.md) | [regexp/no-useless-lazy](./no-useless-lazy.md) | v2.0.0 |
+| [order-in-character-class](https://github.com/ota-meshi/eslint-plugin-regexp/blob/v1.15.0/docs/rules/order-in-character-class.md) | [regexp/sort-character-class-elements](./sort-character-class-elements.md) | v2.0.0 |
+| [prefer-t](https://github.com/ota-meshi/eslint-plugin-regexp/blob/v1.15.0/docs/rules/prefer-t.md) | [regexp/control-character-escape](./control-character-escape.md) | v2.0.0 |
+
+<!--REMOVED_RULES_END-->
 
 ## :gear: Settings
 
