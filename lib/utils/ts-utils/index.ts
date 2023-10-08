@@ -12,16 +12,17 @@ export function getTypeScriptTools(context: Rule.RuleContext): {
     usedTS: boolean
     hasFullTypeInformation: boolean
 } {
+    const sourceCode = context.sourceCode
     const ts = getTypeScript()
     const tsNodeMap: ReadonlyMap<unknown, TS.Node> | undefined =
-        context.parserServices.esTreeNodeToTSNodeMap
+        sourceCode.parserServices.esTreeNodeToTSNodeMap
     const usedTS = Boolean(ts && tsNodeMap)
     const hasFullTypeInformation =
-        usedTS && context.parserServices.hasFullTypeInformation !== false
+        usedTS && sourceCode.parserServices.hasFullTypeInformation !== false
     const checker: TS.TypeChecker | null =
         (hasFullTypeInformation &&
-            context.parserServices.program &&
-            context.parserServices.program.getTypeChecker()) ||
+            sourceCode.parserServices.program &&
+            sourceCode.parserServices.program.getTypeChecker()) ||
         null
 
     return {

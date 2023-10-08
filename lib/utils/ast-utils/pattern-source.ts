@@ -258,7 +258,7 @@ export class PatternSource {
             return PatternSource.fromRegExpLiteral(context, expression)
         }
 
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         const flat = flattenPlus(context, expression)
 
@@ -306,7 +306,7 @@ export class PatternSource {
         source: string,
         flags: string,
     ): PatternSource {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         return new PatternSource(
             sourceCode,
@@ -325,7 +325,7 @@ export class PatternSource {
         context: Rule.RuleContext,
         expression: RegExpLiteral,
     ): PatternSource {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         return new PatternSource(
             sourceCode,

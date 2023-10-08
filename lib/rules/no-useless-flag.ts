@@ -713,7 +713,7 @@ function createRegExpReferenceExtractVisitor(
  * Create visitor for verify unnecessary flags of owned RegExp literals
  */
 function createOwnedRegExpFlagsVisitor(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.sourceCode
 
     /** Remove the flags of the given literal */
     function removeFlags(node: RegExpLiteral): void {

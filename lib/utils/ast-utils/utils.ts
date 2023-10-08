@@ -160,7 +160,7 @@ export function getScope(
     currentNode: Node,
 ): Scope.Scope {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
-    const scopeManager: Scope.ScopeManager = (context.getSourceCode() as any)
+    const scopeManager: Scope.ScopeManager = (context.sourceCode as any)
         .scopeManager
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
@@ -285,7 +285,7 @@ export function parseReplacements(
     context: Rule.RuleContext,
     node: Literal,
 ): ReplacementElement[] {
-    const stringLiteral = parseStringLiteral(context.getSourceCode().text, {
+    const stringLiteral = parseStringLiteral(context.sourceCode.text, {
         start: node.range![0],
         end: node.range![1],
     })

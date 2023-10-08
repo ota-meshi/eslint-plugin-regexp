@@ -29,7 +29,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
     const linter = new Linter()
     linter.defineRule("test", {
         create(context) {
-            const sourceCode = context.getSourceCode()
+            const sourceCode = context.sourceCode
             let lastExpr: Expression | null = null
             let target: Expression | null = null
             return {

@@ -91,8 +91,8 @@ export default createRule("no-legacy-features", {
         return {
             ...(staticProperties.length
                 ? {
-                      Program() {
-                          const scope = context.getScope()
+                      Program(program) {
+                          const scope = context.sourceCode.getScope(program)
                           const tracker = new ReferenceTracker(scope)
 
                           const regexpTraceMap: TYPES.TraceMap = {}

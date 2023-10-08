@@ -112,7 +112,7 @@ export function getJSDoc(
     node: ES.Expression | ES.VariableDeclarator | ES.FunctionDeclaration,
     context: Rule.RuleContext,
 ): JSDoc | null {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.sourceCode
     const jsdoc = findJSDocComment(node, sourceCode)
     if (jsdoc) {
         try {

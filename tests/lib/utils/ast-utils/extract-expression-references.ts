@@ -118,8 +118,8 @@ describe("extractExpressionReferences", () => {
             linter.defineRule("test", {
                 create(context) {
                     return {
-                        Program() {
-                            const scope = context.getScope()
+                        Program(program) {
+                            const scope = context.sourceCode.getScope(program)
                             const tracker = new ReferenceTracker(scope)
 
                             for (const {
@@ -199,7 +199,7 @@ function toResult(
         if (key === "type") continue
 
         const o = (ref as any)[key]
-        result[key] = o.range ? context.getSourceCode().getText(o) : o
+        result[key] = o.range ? context.sourceCode.getText(o) : o
     }
 
     return result

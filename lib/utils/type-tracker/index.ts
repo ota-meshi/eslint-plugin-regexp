@@ -66,7 +66,7 @@ const cacheTypeTracker = new WeakMap<ES.Program, TypeTracker>()
  * Create Type tracker
  */
 export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
-    const programNode = context.getSourceCode().ast
+    const programNode = context.sourceCode.ast
     const cache = cacheTypeTracker.get(programNode)
     if (cache) {
         return cache

@@ -57,7 +57,7 @@ export default createRule("match-any", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
         const allowList: Allowed[] = context.options[0]?.allows ?? [
             OPTION_SS1,
             OPTION_DOTALL,

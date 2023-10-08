@@ -263,7 +263,7 @@ export function defineRegexpVisitor(
     context: Rule.RuleContext,
     rule: DefineRegexpVisitorRule,
 ): RuleListener {
-    const programNode = context.getSourceCode().ast
+    const programNode = context.sourceCode.ast
 
     let visitor: RuleListener
     let rules = regexpRules.get(programNode)
@@ -410,8 +410,10 @@ function buildRegexpVisitor(
                 },
             )
         },
-        Program() {
-            const tracker = new ReferenceTracker(context.getScope())
+        Program(program) {
+            const tracker = new ReferenceTracker(
+                context.sourceCode.getScope(program),
+            )
 
             // Iterate calls of RegExp.
             // E.g., `new RegExp()`, `RegExp()`, `new window.RegExp()`,
@@ -631,7 +633,7 @@ function buildRegExpContextBase({
     flags: ReadonlyFlags
     parsedPattern: Pattern
 }): RegExpContextBase {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.sourceCode
 
     let cacheUsageOfPattern: UsageOfPattern | null = null
     const cacheCapturingGroupReferenceMap = new Map<
@@ -734,7 +736,7 @@ function buildUnparsableRegExpContextBase({
     flagsNode: ESTree.Expression | null
     ownsFlags: boolean
 }): UnparsableRegExpContextBase {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.sourceCode
     const flags = toCache(originalFlags)
 
     return {

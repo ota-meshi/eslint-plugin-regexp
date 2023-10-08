@@ -24,7 +24,7 @@ export default createRule("no-invisible-character", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         function createLiteralVisitor({
             node,

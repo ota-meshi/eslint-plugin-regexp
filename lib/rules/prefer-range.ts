@@ -41,7 +41,7 @@ export default createRule("prefer-range", {
             context.options[0]?.target,
             context,
         )
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         type CharacterGroup = {
             min: Character
