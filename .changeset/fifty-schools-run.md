@@ -1,5 +1,5 @@
 ---
-"eslint-plugin-regexp": mmajor
+"eslint-plugin-regexp": major
 ---
 
 Remove deprecated rules
