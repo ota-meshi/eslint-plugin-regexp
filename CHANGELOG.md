@@ -1,5 +1,13 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.14
+
+### Major Changes
+
+-   Remove deprecated rules ([#652](https://github.com/ota-meshi/eslint-plugin-regexp/pull/652))
+
+-   Use jsdoc-type-pratt-parser instead of jsdoctypeparser ([#651](https://github.com/ota-meshi/eslint-plugin-regexp/pull/651))
+
 ## 2.0.0-next.13
 
 ### Minor Changes
