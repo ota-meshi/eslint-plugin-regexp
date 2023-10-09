@@ -258,8 +258,8 @@ describe("extractPropertyReferences", () => {
             linter.defineRule("test", {
                 create(context) {
                     return {
-                        Program() {
-                            const scope = context.getScope()
+                        Program(program) {
+                            const scope = context.sourceCode.getScope(program)
                             const tracker = new ReferenceTracker(scope)
 
                             for (const {

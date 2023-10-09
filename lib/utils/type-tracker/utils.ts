@@ -29,5 +29,5 @@ export function isParenthesized(
     context: Rule.RuleContext,
     node: ES.Node,
 ): boolean {
-    return eslintUtils.isParenthesized(node, context.getSourceCode())
+    return eslintUtils.isParenthesized(node, context.sourceCode)
 }

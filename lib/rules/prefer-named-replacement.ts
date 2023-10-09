@@ -26,7 +26,7 @@ export default createRule("prefer-named-replacement", {
     },
     create(context) {
         const strictTypes = context.options[0]?.strictTypes ?? true
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         function createVisitor(
             regexpContext: RegExpContext,

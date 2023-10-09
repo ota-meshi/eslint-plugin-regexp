@@ -43,6 +43,35 @@ module.exports = {
                 ],
             },
         ],
+        // See https://eslint.org/blog/2023/09/preparing-custom-rules-eslint-v9/
+        "no-restricted-properties": [
+            "error",
+            {
+                object: "context",
+                property: "getSourceCode",
+                message: "Please use `context.sourceCode` instead.",
+            },
+            {
+                object: "context",
+                property: "getFilename",
+                message: "Please use `context.filename` instead.",
+            },
+            {
+                object: "context",
+                property: "getCwd",
+                message: "Please use `context.cwd` instead.",
+            },
+            {
+                object: "context",
+                property: "getScope",
+                message: "Please use `sourceCode.getScope(node)` instead.",
+            },
+            {
+                object: "context",
+                property: "parserServices",
+                message: "Please use `sourceCode.parserServices` instead.",
+            },
+        ],
 
         // regexp next recommended
         "regexp/no-contradiction-with-assertion": "error",

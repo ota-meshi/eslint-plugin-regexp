@@ -66,7 +66,7 @@ export default createRule("no-control-character", {
                 // We are only interested in control escapes in RegExp literals
                 const range = patternSource.getReplaceRange(char)?.range
                 const sourceRaw = range
-                    ? context.getSourceCode().text.slice(...range)
+                    ? context.sourceCode.text.slice(...range)
                     : char.raw
 
                 if (

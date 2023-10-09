@@ -19,7 +19,7 @@ export default createRule("prefer-escape-replacement-dollar-char", {
     },
     create(context) {
         const typeTracer = createTypeTracker(context)
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         function verify(replacement: Literal) {
             for (const element of parseReplacements(context, replacement)) {

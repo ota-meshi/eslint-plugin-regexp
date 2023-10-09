@@ -65,7 +65,7 @@
         "@ota-meshi/site-kit-eslint-editor-vue": "^0.1.0",
         "@svitejs/changesets-changelog-github-compact": "^1.1.0",
         "@types/chai": "^4.2.22",
-        "@types/eslint": "^8.0.0",
+        "@types/eslint": "^8.44.0",
         "@types/eslint-scope": "^3.7.1",
         "@types/estree": "^1.0.0",
         "@types/mocha": "^10.0.0",

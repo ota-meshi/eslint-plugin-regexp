@@ -29,7 +29,7 @@ export default createRule("prefer-regexp-test", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
         const typeTracer = createTypeTracker(context)
 
         return {
