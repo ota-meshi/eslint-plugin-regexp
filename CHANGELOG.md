@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.0.0-next.15
+
+### Patch Changes
+
+-   Use new ESLint API ([#654](https://github.com/ota-meshi/eslint-plugin-regexp/pull/654))
+
 ## 2.0.0-next.14
 
 ### Major Changes
