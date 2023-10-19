@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "@changesets/cli": "^2.26.2",
-        "@ota-meshi/eslint-plugin": "^0.15.0",
+        "@ota-meshi/eslint-plugin": "^0.15.1",
         "@ota-meshi/site-kit-eslint-editor-vue": "^0.1.0",
         "@svitejs/changesets-changelog-github-compact": "^1.1.0",
         "@types/chai": "^4.2.22",
@@ -84,7 +84,7 @@
         "eslint-plugin-jsonc": "^2.0.0",
         "eslint-plugin-n": "^16.0.0",
         "eslint-plugin-prettier": "^5.0.0",
-        "eslint-plugin-regexp": "~1.15.0",
+        "eslint-plugin-regexp": "~2.0.0",
         "eslint-plugin-vue": "^9.0.0",
         "eslint-plugin-yml": "^1.0.0",
         "intl-segmenter-polyfill": "^0.4.4",
