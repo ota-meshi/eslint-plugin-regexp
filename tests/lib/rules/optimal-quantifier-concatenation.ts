@@ -25,6 +25,7 @@ tester.run("optimal-quantifier-concatenation", rule as any, {
         },
         String.raw`/^(?:\[\[\[?.+?\]?\]\]|<<.+?>>)$/`,
         String.raw`/a\s*?(?=\r?\n|\r)/`,
+        String.raw`/(?:a|b)?c/v`,
     ],
     invalid: [
         {
