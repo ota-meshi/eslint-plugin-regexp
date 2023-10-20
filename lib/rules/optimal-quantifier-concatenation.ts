@@ -68,9 +68,7 @@ function getSingleConsumedChar(
     element: Element | Alternative,
     flags: ReadonlyFlags,
 ): SingleConsumedChar {
-    const empty = flags.unicodeSets
-        ? EMPTY_UNICODE_SETS
-        : flags.unicode
+    const empty = flags.unicode || flags.unicodeSets
         ? EMPTY_UNICODE
         : EMPTY_UTF16
 
