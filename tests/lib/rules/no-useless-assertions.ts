@@ -433,5 +433,26 @@ tester.run("no-useless-assertions", rule as any, {
                 "'\\B' will always accept because it is preceded by a non-word character and followed by a non-word character.",
             ],
         },
+
+        {
+            code: String.raw`/(?!$)$/`,
+            errors: ["The negative lookahead '(?!$)' will always reject."],
+        },
+        {
+            code: String.raw`/(?=a|$)a/`,
+            errors: ["The lookahead '(?=a|$)' will always accept."],
+        },
+        {
+            code: String.raw`/(?=(?=[a-f])(?=a|A)[\w%])a/`,
+            errors: [
+                "The lookahead '(?=(?=[a-f])(?=a|A)[\\w%])' will always accept.",
+            ],
+        },
+        {
+            code: String.raw`/(?=(?=[a-f])(?=[aA])\w(?<=[aA])(?<=[a-f]))a/`,
+            errors: [
+                "The lookahead '(?=(?=[a-f])(?=[aA])\\w(?<=[aA])(?<=[a-f]))' will always accept.",
+            ],
+        },
     ],
 })

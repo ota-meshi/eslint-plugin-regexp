@@ -4,6 +4,7 @@ import type {
     EdgeAssertion,
     Element,
     LookaroundAssertion,
+    Node,
     WordBoundaryAssertion,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
@@ -23,9 +24,105 @@ import {
     isPotentiallyEmpty,
     isZeroLength,
     FirstConsumedChars,
+    invertMatchingDirection,
 } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 import { assertNever } from "../utils/util"
+
+function containsAssertion(n: Node): boolean {
+    return hasSomeDescendant(n, (d) => d.type === "Assertion")
+}
+
+/**
+ * Returns whether the given lookaround asserts exactly one character in the given direction.
+ */
+function isSingleCharacterAssertion(
+    assertion: Assertion,
+    direction: MatchingDirection,
+    flags: ReadonlyFlags,
+): boolean {
+    switch (assertion.kind) {
+        case "word":
+            // \b and \B assert one character in BOTH directions
+            return false
+
+        case "start":
+            return direction === "rtl"
+        case "end":
+            return direction === "ltr"
+
+        default:
+            break
+    }
+
+    if (getMatchingDirectionFromAssertionKind(assertion.kind) !== direction) {
+        return false
+    }
+
+    return assertion.alternatives.every((alt) => {
+        if (!containsAssertion(alt)) {
+            // if we don't contains assertions, then we can only need to check
+            // the length range of the consumed characters
+            const range = getLengthRange(alt, flags)
+            return range.min === 1 && range.max === 1
+        }
+
+        // now it gets tricky
+        // e.g. (?=(?=[a-z])\w(?<=[a-g])) is a single character assertion
+
+        let consumed = false
+        let asserted = false
+        const elements =
+            direction === "ltr" ? alt.elements : [...alt.elements].reverse()
+        for (const e of elements) {
+            if (!consumed) {
+                // before we consumed our first (and only) character, we can
+                // have single character assertions
+
+                if (
+                    e.type === "Assertion" &&
+                    isSingleCharacterAssertion(e, direction, flags)
+                ) {
+                    asserted = true
+                    continue
+                }
+
+                if (containsAssertion(e)) {
+                    // too complex to reason about, so we just give up
+                    return false
+                }
+
+                const range = getLengthRange(e, flags)
+                if (range.max === 0) {
+                    // we haven't consumed anything, so onto the next one
+                    continue
+                } else if (range.min === 1 && range.max === 1) {
+                    // finally, a character
+                    consumed = true
+                } else {
+                    // it's not exactly a single character
+                    return false
+                }
+            } else {
+                // since we already consumed our first (and only) character, we
+                // can at most have assertions in the direction of the
+                // first character
+
+                const otherDir = invertMatchingDirection(direction)
+                if (
+                    e.type === "Assertion" &&
+                    isSingleCharacterAssertion(e, otherDir, flags)
+                ) {
+                    continue
+                }
+
+                return false
+            }
+        }
+
+        return consumed || asserted
+    })
+}
 
 /**
  * Combines 2 look chars such that the result is equivalent to 2 adjacent
@@ -356,40 +453,31 @@ export default createRule("no-useless-assertions", {
                     )
                 }
 
-                if (after.edge) {
-                    return
-                }
-
-                // accept is harder because that can't generally be decided by the first character
-
-                // if this contains another assertion then that might reject. It's out of our control
+                // We can only decide the accept case for exact single-character assertions.
+                // We want the character after the assertion to be a subset of the asserted characters. For this to be
+                // correct, the set of assertion characters needs to be exact. We also have to consider edges. Edges
+                // can be thought of as a special character, so the same subset requirement applies.
+                const edgeSubset = firstOf.edge || !after.edge
                 if (
-                    !hasSomeDescendant(
+                    firstOf.exact &&
+                    edgeSubset &&
+                    after.char.isSubsetOf(firstOf.char) &&
+                    isSingleCharacterAssertion(
                         assertion,
-                        (d) => d !== assertion && d.type === "Assertion",
+                        getMatchingDirectionFromAssertionKind(assertion.kind),
+                        flags,
                     )
                 ) {
-                    const range = getLengthRange(assertion.alternatives, flags)
-                    // we only check the first character, so it's only correct if the assertion requires only one
-                    // character
-                    if (range.max === 1) {
-                        // require exactness
-                        if (
-                            firstOf.exact &&
-                            after.char.isSubsetOf(firstOf.char)
-                        ) {
-                            report(
-                                assertion,
-                                assertion.negate
-                                    ? "alwaysForNegativeLookaround"
-                                    : "alwaysForLookaround",
-                                {
-                                    kind: assertion.kind,
-                                    acceptOrReject: accept,
-                                },
-                            )
-                        }
-                    }
+                    report(
+                        assertion,
+                        assertion.negate
+                            ? "alwaysForNegativeLookaround"
+                            : "alwaysForLookaround",
+                        {
+                            kind: assertion.kind,
+                            acceptOrReject: accept,
+                        },
+                    )
                 }
             }
 
