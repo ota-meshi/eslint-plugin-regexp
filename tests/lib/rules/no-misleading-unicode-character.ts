@@ -293,6 +293,14 @@ tester.run("no-misleading-unicode-character", rule as any, {
             errors: [{ messageId: "characterClass" }],
         },
         {
+            code: String.raw`/[👶🏻👨‍👩‍👦]/v`,
+            output: String.raw`/[\q{👶🏻|👨‍👩‍👦}]/v`,
+            options: [{ fixable: true }],
+            errors: [
+                "The character(s) '👶🏻', '👨‍👩‍👦' are all represented using multiple code points.",
+            ],
+        },
+        {
             code: String.raw`/[👶🏻&👨‍👩‍👦]/v`,
             output: String.raw`/[\q{👶🏻|👨‍👩‍👦}&]/v`,
             options: [{ fixable: true }],

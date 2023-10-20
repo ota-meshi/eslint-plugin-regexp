@@ -276,7 +276,10 @@ export default createRule("no-misleading-unicode-character", {
                         messageId: "characterClass",
                         data: {
                             graphemes,
-                            unit: flags.unicode ? "code points" : "char codes",
+                            unit:
+                                flags.unicode || flags.unicodeSets
+                                    ? "code points"
+                                    : "char codes",
                             uFlag: uFlag ? " Use the `u` flag." : "",
                         },
                         ...makeFix(
