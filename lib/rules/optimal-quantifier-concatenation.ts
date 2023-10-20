@@ -55,6 +55,10 @@ const EMPTY_UNICODE: SingleConsumedChar = {
     char: Chars.empty({ unicode: true }),
     complete: false,
 }
+const EMPTY_UNICODE_SETS: SingleConsumedChar = {
+    char: Chars.empty({ unicodeSets: true }),
+    complete: false,
+}
 
 /**
  * If the given element is guaranteed to only consume a single character set,
@@ -64,7 +68,11 @@ function getSingleConsumedChar(
     element: Element | Alternative,
     flags: ReadonlyFlags,
 ): SingleConsumedChar {
-    const empty = flags.unicode ? EMPTY_UNICODE : EMPTY_UTF16
+    const empty = flags.unicodeSets
+        ? EMPTY_UNICODE_SETS
+        : flags.unicode
+        ? EMPTY_UNICODE
+        : EMPTY_UTF16
 
     switch (element.type) {
         case "Alternative":
