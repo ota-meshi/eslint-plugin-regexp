@@ -64,6 +64,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always reject because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -73,6 +79,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always reject because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/v`,
+                        },
+                    ],
                 },
             ],
         },
@@ -82,6 +94,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always reject because it is preceded by a non-word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -91,6 +109,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/,b/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -100,6 +124,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a,/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -110,6 +140,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\B' will always accept because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/ab/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -119,6 +155,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\B' will always accept because it is preceded by a non-word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/,,/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -128,6 +170,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\B' will always reject because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -137,6 +185,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\B' will always reject because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -147,6 +201,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'^' will always reject because it is preceded by a non-line-terminator character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/m`,
+                        },
+                    ],
                 },
             ],
         },
@@ -156,6 +216,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'^' will always accept because it is preceded by a line-terminator character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\nfoo/m`,
+                        },
+                    ],
                 },
             ],
         },
@@ -165,6 +231,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'^' will always reject because it is preceded by a character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -174,6 +246,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'^' will always reject because it is preceded by a character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -184,6 +262,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'$' will always reject because it is followed by a non-line-terminator character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/m`,
+                        },
+                    ],
                 },
             ],
         },
@@ -202,6 +286,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'$' will always reject because it is followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -211,6 +301,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'$' will always reject because it is followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -452,6 +548,106 @@ tester.run("no-useless-assertions", rule as any, {
             code: String.raw`/(?=(?=[a-f])(?=[aA])\w(?<=[aA])(?<=[a-f]))a/`,
             errors: [
                 "The lookahead '(?=(?=[a-f])(?=[aA])\\w(?<=[aA])(?<=[a-f]))' will always accept.",
+            ],
+        },
+
+        {
+            code: String.raw`/foo(?:\.(?!$)|$)$/`,
+            errors: [
+                {
+                    message:
+                        "The negative lookahead '(?!$)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/foo(?:$)$/`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'$' will always accept because it is never followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/foo(?:\.(?!$)|)$/`,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?=a)+a/`,
+            errors: [
+                {
+                    message: "The lookahead '(?=a)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a/`,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/(?!a)*a/`,
+            errors: [
+                {
+                    message:
+                        "The negative lookahead '(?!a)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/a/`,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/a(\B)b/`,
+            errors: [
+                {
+                    message:
+                        "'\\B' will always accept because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a()b/`,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/a(\b)b/`,
+            errors: [
+                {
+                    message:
+                        "'\\b' will always reject because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/a([])b/`,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            code: String.raw`/foo|b(?:a(?:\br)|oo)|baz/`,
+            errors: [
+                {
+                    message:
+                        "'\\b' will always reject because it is preceded by a word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/foo|b(?:oo)|baz/`,
+                        },
+                    ],
+                },
             ],
         },
     ],

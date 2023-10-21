@@ -9,13 +9,15 @@ since: "v0.9.0"
 
 💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 <!-- end auto-generated rule header -->
 
 > disallow assertions that are known to always accept (or reject)
 
 ## :book: Rule Details
 
-Some assertion are unnecessary because the rest of the pattern forces them to
+Some assertions are unnecessary because the rest of the pattern forces them to
 always be accept (or reject).
 
 <eslint-code-block>

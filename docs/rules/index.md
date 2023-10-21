@@ -34,7 +34,7 @@ sidebarDepth: 0
 | [no-potentially-useless-backreference](no-potentially-useless-backreference.md) | disallow backreferences that reference a group that might not be matched                |    | ✅  |    |    |
 | [no-super-linear-backtracking](no-super-linear-backtracking.md)                 | disallow exponential and polynomial backtracking                                        | ✅  |    | 🔧 |    |
 | [no-super-linear-move](no-super-linear-move.md)                                 | disallow quantifiers that cause quadratic moves                                         |    |    |    |    |
-| [no-useless-assertions](no-useless-assertions.md)                               | disallow assertions that are known to always accept (or reject)                         | ✅  |    |    |    |
+| [no-useless-assertions](no-useless-assertions.md)                               | disallow assertions that are known to always accept (or reject)                         | ✅  |    |    | 💡 |
 | [no-useless-backreference](no-useless-backreference.md)                         | disallow useless backreferences in regular expressions                                  | ✅  |    |    |    |
 | [no-useless-dollar-replacements](no-useless-dollar-replacements.md)             | disallow useless `$` replacements in replacement string                                 | ✅  |    |    |    |
 | [strict](strict.md)                                                             | disallow not strictly valid regular expressions                                         | ✅  |    | 🔧 | 💡 |
