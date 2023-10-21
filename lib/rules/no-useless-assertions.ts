@@ -1,10 +1,12 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
+    Alternative,
     Assertion,
     EdgeAssertion,
     Element,
     LookaroundAssertion,
     Node,
+    Pattern,
     WordBoundaryAssertion,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
@@ -203,6 +205,73 @@ function createReorderingGetFirstCharAfter(
     }
 }
 
+function removeAlternative(
+    alternative: Alternative,
+): [Element | Pattern, string] {
+    const parent = alternative.parent
+    if (parent.alternatives.length > 1) {
+        // we can just remove the alternative
+        let { start, end } = alternative
+        if (parent.alternatives[0] === alternative) {
+            end++
+        } else {
+            start--
+        }
+        const before = parent.raw.slice(0, start - parent.start)
+        const after = parent.raw.slice(end - parent.start)
+        return [parent, before + after]
+    }
+
+    // we have to remove the parent as well
+
+    switch (parent.type) {
+        case "Pattern":
+            return [parent, "[]"]
+
+        case "Assertion": {
+            // the inner part of the assertion always rejects
+            const assertionParent = parent.parent
+            if (parent.negate) {
+                // the assertion always accepts
+                return [
+                    assertionParent.type === "Quantifier"
+                        ? assertionParent
+                        : parent,
+                    "",
+                ]
+            }
+            if (assertionParent.type === "Quantifier") {
+                if (assertionParent.min === 0) {
+                    return [assertionParent, ""]
+                }
+                return removeAlternative(assertionParent.parent)
+            }
+            return removeAlternative(assertionParent)
+        }
+
+        case "CapturingGroup": {
+            // we don't remove capturing groups
+            const before = parent.raw.slice(0, alternative.start - parent.start)
+            const after = parent.raw.slice(alternative.end - parent.start)
+            return [parent, `${before}[]${after}`]
+        }
+
+        case "Group": {
+            const groupParent = parent.parent
+            if (groupParent.type === "Quantifier") {
+                if (groupParent.min === 0) {
+                    return [groupParent, ""]
+                }
+                return removeAlternative(groupParent.parent)
+            }
+            return removeAlternative(groupParent)
+        }
+
+        default:
+            return assertNever(parent)
+    }
+}
+
 const messages = {
     alwaysRejectByChar:
         "{{assertion}} will always reject because it is {{followedOrPreceded}} by a character.",
@@ -226,6 +295,10 @@ const messages = {
         "The {{kind}} {{assertion}} will always {{acceptOrReject}}.",
     alwaysForNegativeLookaround:
         "The negative {{kind}} {{assertion}} will always {{acceptOrReject}}.",
+
+    acceptSuggestion: "Remove the assertion. (Replace with empty string.)",
+    rejectSuggestion:
+        "Remove branch of the assertion. (Replace with empty set.)",
 }
 
 export default createRule("no-useless-assertions", {
@@ -236,6 +309,7 @@ export default createRule("no-useless-assertions", {
             category: "Possible Errors",
             recommended: true,
         },
+        hasSuggestions: true,
         schema: [],
         messages,
         type: "problem",
@@ -245,15 +319,44 @@ export default createRule("no-useless-assertions", {
             node,
             flags,
             getRegexpLocation,
+            fixReplaceNode,
         }: RegExpContext): RegExpVisitor.Handlers {
             const reported = new Set<Assertion>()
+
+            function replaceWithEmptyString(assertion: Assertion) {
+                if (assertion.parent.type === "Quantifier") {
+                    // the assertion always accepts does not consume characters, we can remove the quantifier as well.
+                    return fixReplaceNode(assertion.parent, "")
+                }
+                return fixReplaceNode(assertion, "")
+            }
+
+            function replaceWithEmptySet(assertion: Assertion) {
+                if (assertion.parent.type === "Quantifier") {
+                    if (assertion.parent.min === 0) {
+                        // the assertion always rejects does not consume characters, we can remove the quantifier as well.
+                        return fixReplaceNode(assertion.parent, "")
+                    }
+                    const [element, replacement] = removeAlternative(
+                        assertion.parent.parent,
+                    )
+                    return fixReplaceNode(element, replacement)
+                }
+                const [element, replacement] = removeAlternative(
+                    assertion.parent,
+                )
+                return fixReplaceNode(element, replacement)
+            }
 
             function report(
                 assertion: Assertion,
                 messageId: keyof typeof messages,
-                data: Record<string, string>,
+                data: Record<string, string> & {
+                    acceptOrReject: "accept" | "reject"
+                },
             ) {
                 reported.add(assertion)
+                const { acceptOrReject } = data
 
                 context.report({
                     node,
@@ -263,6 +366,15 @@ export default createRule("no-useless-assertions", {
                         assertion: mention(assertion),
                         ...data,
                     },
+                    suggest: [
+                        {
+                            messageId: `${acceptOrReject}Suggestion`,
+                            fix:
+                                acceptOrReject === "accept"
+                                    ? replaceWithEmptyString(assertion)
+                                    : replaceWithEmptySet(assertion),
+                        },
+                    ],
                 })
             }
 
@@ -295,6 +407,7 @@ export default createRule("no-useless-assertions", {
                         if (next.char.isEmpty) {
                             report(assertion, "alwaysAcceptByChar", {
                                 followedOrPreceded,
+                                acceptOrReject: "accept",
                             })
                         }
                     } else {
@@ -306,6 +419,7 @@ export default createRule("no-useless-assertions", {
                                 {
                                     followedOrPreceded,
                                     startOrEnd: assertion.kind,
+                                    acceptOrReject: "accept",
                                 },
                             )
                         }
@@ -317,6 +431,7 @@ export default createRule("no-useless-assertions", {
                         // since the m flag isn't present any character will result in trivial rejection
                         report(assertion, "alwaysRejectByChar", {
                             followedOrPreceded,
+                            acceptOrReject: "reject",
                         })
                     } else {
                         // only if the character is a sub set of /./, will the assertion trivially reject
@@ -325,11 +440,15 @@ export default createRule("no-useless-assertions", {
                             report(
                                 assertion,
                                 "alwaysRejectByNonLineTerminator",
-                                { followedOrPreceded },
+                                {
+                                    followedOrPreceded,
+                                    acceptOrReject: "reject",
+                                },
                             )
                         } else if (next.char.isSubsetOf(lineTerminator)) {
                             report(assertion, "alwaysAcceptByLineTerminator", {
                                 followedOrPreceded,
+                                acceptOrReject: "accept",
                             })
                         }
                     }
