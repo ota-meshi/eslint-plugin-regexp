@@ -1,5 +1,19 @@
 # eslint-plugin-regexp
 
+## 2.1.0
+
+### Minor Changes
+
+-   Improve detection of useless assertions for `regexp/no-useless-assertion` ([#663](https://github.com/ota-meshi/eslint-plugin-regexp/pull/663))
+
+-   Add suggestions for `regexp/no-useless-assertion` ([#666](https://github.com/ota-meshi/eslint-plugin-regexp/pull/666))
+
+### Patch Changes
+
+-   Fixed crash for v flag in `regexp/optimal-quantifier-concatenation` ([#660](https://github.com/ota-meshi/eslint-plugin-regexp/pull/660))
+
+-   Fixed minor mistake in message of `no-misleading-unicode-character` ([#664](https://github.com/ota-meshi/eslint-plugin-regexp/pull/664))
+
 ## 2.0.0
 
 ### Major Changes
