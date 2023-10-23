@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.1.1
+
+### Patch Changes
+
+-   Improved error message and docs for `regexp/no-useless-non-capturing-group` ([#668](https://github.com/ota-meshi/eslint-plugin-regexp/pull/668))
+
 ## 2.1.0
 
 ### Minor Changes
