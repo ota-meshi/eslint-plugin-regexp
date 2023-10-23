@@ -49,7 +49,8 @@ export default createRule("no-useless-non-capturing-group", {
             },
         ],
         messages: {
-            unexpected: "Unexpected quantifier Non-capturing group.",
+            unexpected:
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
         },
         type: "suggestion", // "problem",
     },

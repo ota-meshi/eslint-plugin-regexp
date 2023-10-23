@@ -83,7 +83,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             output: `/abcd/.test(str)`,
             errors: [
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -96,7 +97,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             output: `/abcd/v.test(str)`,
             errors: [
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -109,7 +111,8 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             output: `/[abcd]/.test(str)`,
             errors: [
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 2,
                     endLine: 1,
@@ -120,19 +123,24 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         {
             code: `/(?:ab|cd)/.test(str)`,
             output: `/ab|cd/.test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: `/a(?:ab|(?:.|a|b))/`,
             output: `/a(?:ab|.|a|b)/`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: `/(?:[abcd]+?)/.test(str)`,
             output: `/[abcd]+?/.test(str)`,
             errors: [
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 2,
                 },
@@ -143,12 +151,14 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             output: String.raw`/0/.test(str); /\1(?:0)/.test(str); /1/.test(str); /\1(?:1)/.test(str)`,
             errors: [
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 2,
                 },
                 {
-                    message: "Unexpected quantifier Non-capturing group.",
+                    message:
+                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
                     line: 1,
                     column: 42,
                 },
@@ -157,7 +167,9 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         {
             code: String.raw`/(?:a\n)/.test(str)`,
             output: String.raw`/a\n/.test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String.raw`
@@ -166,61 +178,83 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             output: String.raw`
             const s = "a\\n"
             ;(new RegExp(s)).test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String.raw`
             const s = "(?:a"+"\\n)"
             ;(new RegExp(s)).test(str)`,
             output: null,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
 
         {
             code: `/(?:a)/.test(str)`,
             output: `/a/.test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/(?:a)+/),
             output: String(/a+/),
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String.raw`/(?:\w)/.test(str)`,
             output: String.raw`/\w/.test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/(?:[abc])*/),
             output: String(/[abc]*/),
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/foo(?:[abc]*)bar/),
             output: String(/foo[abc]*bar/),
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/foo(?:bar)/),
             output: String(/foobar/),
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: `/(?:a|b)/.test(str)`,
             output: `/a|b/.test(str)`,
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/a|(?:b|c)/),
             output: String(/a|b|c/),
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: String(/a|(?:b|c)/),
             output: String(/a|b|c/),
             options: [{ allowTop: "always" }],
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: `
@@ -238,7 +272,9 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             // { allowTop: "partial" }
             `,
             options: [{ allowTop: "partial" }],
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
         {
             code: `
@@ -250,7 +286,9 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             `,
             output: null,
             options: [{ allowTop: "never" }],
-            errors: ["Unexpected quantifier Non-capturing group."],
+            errors: [
+                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
+            ],
         },
     ],
 })
