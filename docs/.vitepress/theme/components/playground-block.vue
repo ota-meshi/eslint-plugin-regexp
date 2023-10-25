@@ -76,13 +76,9 @@ export default {
     name: "PlaygroundBlock",
     components: { PgEditor, RulesSettings, SnsBar },
     data() {
-        const serializedString =
-            (typeof window !== "undefined" && window.location.hash.slice(1)) ||
-            ""
-        const state = deserializeState(serializedString)
         return {
-            code: state.code || DEFAULT_CODE,
-            rules: state.rules || Object.assign({}, DEFAULT_RULES_CONFIG),
+            code: DEFAULT_CODE,
+            rules: Object.assign({}, DEFAULT_RULES_CONFIG),
             messages: [],
         }
     },
@@ -103,19 +99,34 @@ export default {
     },
     watch: {
         serializedString(serializedString) {
-            if (typeof window !== "undefined") {
+            if (
+                typeof window !== "undefined" &&
+                serializedString !== window.location.hash.slice(1) &&
+                !this._initializing
+            ) {
                 window.location.replace(`#${serializedString}`)
             }
         },
     },
     mounted() {
         if (typeof window !== "undefined") {
-            window.addEventListener("hashchange", this.onUrlHashChange)
+            window.addEventListener("hashchange", this.processUrlHashChange)
+        }
+        const serializedString =
+            (typeof window !== "undefined" && window.location.hash.slice(1)) ||
+            ""
+        if (serializedString) {
+            this._initializing = true
+            this.rules = {}
+            this.$nextTick().then(() => {
+                this._initializing = false
+                this.processUrlHashChange()
+            })
         }
     },
-    beforeDestroey() {
+    beforeUnmount() {
         if (typeof window !== "undefined") {
-            window.removeEventListener("hashchange", this.onUrlHashChange)
+            window.removeEventListener("hashchange", this.processUrlHashChange)
         }
     },
     methods: {
@@ -125,7 +136,7 @@ export default {
         getRule(ruleId) {
             return getRule(ruleId)
         },
-        onUrlHashChange() {
+        processUrlHashChange() {
             const serializedString =
                 (typeof window !== "undefined" &&
                     window.location.hash.slice(1)) ||
@@ -135,8 +146,9 @@ export default {
                 this.code = state.code || DEFAULT_CODE
                 this.rules =
                     state.rules || Object.assign({}, DEFAULT_RULES_CONFIG)
-                this.script = state.script
+                return true
             }
+            return false
         },
     },
 }
