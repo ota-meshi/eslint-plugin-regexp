@@ -85,8 +85,8 @@ export default createRule("no-super-linear-backtracking", {
                 const exp = report.exponential
                     ? " This is going to cause exponential backtracking resulting in exponential worst-case runtime behavior."
                     : getUsageOfPattern() !== UsageOfPattern.whole
-                    ? " This might cause exponential backtracking."
-                    : ""
+                      ? " This might cause exponential backtracking."
+                      : ""
 
                 const attack = `/${report.character.literal.source}+/${
                     flags.ignoreCase ? "i" : ""
