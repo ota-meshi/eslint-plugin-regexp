@@ -203,8 +203,8 @@ export default createRule("no-useless-character-class", {
                             element.type === "Character"
                                 ? element.raw
                                 : element.type === "CharacterClassRange"
-                                ? element.min.raw
-                                : null
+                                  ? element.min.raw
+                                  : null
                         if (char == null) {
                             return false
                         }
@@ -247,8 +247,8 @@ export default createRule("no-useless-character-class", {
                             element.type === "Character"
                                 ? element.raw
                                 : element.type === "CharacterClassRange"
-                                ? element.max.raw
-                                : null
+                                  ? element.max.raw
+                                  : null
                         if (char == null) {
                             return false
                         }
@@ -290,8 +290,8 @@ export default createRule("no-useless-character-class", {
                                 lastElement.type === "Character"
                                     ? lastElement.raw
                                     : lastElement.type === "CharacterClassRange"
-                                    ? lastElement.max.raw
-                                    : "" // never
+                                      ? lastElement.max.raw
+                                      : "" // never
                             const prefix = lastElement.raw.slice(
                                 0,
                                 -lastRaw.length,

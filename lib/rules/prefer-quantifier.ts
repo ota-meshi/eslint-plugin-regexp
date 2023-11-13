@@ -159,8 +159,8 @@ export default createRule("prefer-quantifier", {
                                     buffer.target.type === "Character"
                                         ? "characters"
                                         : buffer.target.kind === "any"
-                                        ? "any characters"
-                                        : "character class escapes",
+                                          ? "any characters"
+                                          : "character class escapes",
                                 quantifier: buffer.getQuantifier(),
                             },
                             fix(fixer) {

@@ -42,10 +42,10 @@ function getCharacterClassElementKind(
         return node.kind === "word"
             ? "\\w"
             : node.kind === "digit"
-            ? "\\d"
-            : node.kind === "space"
-            ? "\\s"
-            : "\\p"
+              ? "\\d"
+              : node.kind === "space"
+                ? "\\s"
+                : "\\p"
     }
     if (node.type === "ClassStringDisjunction") {
         return "\\q"

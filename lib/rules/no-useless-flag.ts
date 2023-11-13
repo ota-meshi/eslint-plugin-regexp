@@ -319,12 +319,12 @@ function createUselessGlobalFlagVisitor(
                 data.kind === ReportKind.usedOnlyInSplit
                     ? "uselessGlobalFlagForSplit"
                     : data.kind === ReportKind.usedOnlyInSearch
-                    ? "uselessGlobalFlagForSearch"
-                    : data.kind === ReportKind.usedOnlyOnceInTest
-                    ? "uselessGlobalFlagForTest"
-                    : data.kind === ReportKind.usedOnlyOnceInExec
-                    ? "uselessGlobalFlagForExec"
-                    : "uselessGlobalFlag",
+                      ? "uselessGlobalFlagForSearch"
+                      : data.kind === ReportKind.usedOnlyOnceInTest
+                        ? "uselessGlobalFlagForTest"
+                        : data.kind === ReportKind.usedOnlyOnceInExec
+                          ? "uselessGlobalFlagForExec"
+                          : "uselessGlobalFlag",
             fix: data.fixable
                 ? fixRemoveFlag(regExpReference.regExpContext, "g")
                 : null,

@@ -59,8 +59,8 @@ export default createRule("no-useless-non-capturing-group", {
             context.options[0]?.allowTop === true
                 ? "always"
                 : context.options[0]?.allowTop === false
-                ? "never"
-                : context.options[0]?.allowTop ?? "partial"
+                  ? "never"
+                  : context.options[0]?.allowTop ?? "partial"
 
         function createVisitor({
             node,

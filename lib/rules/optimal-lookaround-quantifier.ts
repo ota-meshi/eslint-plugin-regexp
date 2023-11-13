@@ -99,8 +99,8 @@ export default createRule("optimal-lookaround-quantifier", {
                                 q.min === 0
                                     ? ""
                                     : q.min === 1
-                                    ? `'${q.element.raw}' (no quantifier)`
-                                    : `'${q.element.raw}{${q.min}}'`
+                                      ? `'${q.element.raw}' (no quantifier)`
+                                      : `'${q.element.raw}{${q.min}}'`
 
                             context.report({
                                 node,
