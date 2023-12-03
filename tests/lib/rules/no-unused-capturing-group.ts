@@ -159,6 +159,9 @@ tester.run("no-unused-capturing-group", rule as any, {
         String.raw`const re = /(?<f>foo)/d
         console.log(re.exec('foo').indices.groups.f)
         `,
+        String.raw`const re = /(foo)/d
+        console.log(re.exec('foo').indices[unknown])
+        `,
     ],
     invalid: [
         {
