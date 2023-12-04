@@ -152,6 +152,16 @@ tester.run("no-unused-capturing-group", rule as any, {
         const text = 'Lorem ipsum dolor sit amet'
         const replaced = text.replace(/([\q{Lorem|ipsum}])/vg, '**$1**')
         `,
+        // hasIndices
+        String.raw`const re = /(foo)/d
+        console.log(re.exec('foo').indices[1])
+        `,
+        String.raw`const re = /(?<f>foo)/d
+        console.log(re.exec('foo').indices.groups.f)
+        `,
+        String.raw`const re = /(foo)/d
+        console.log(re.exec('foo').indices[unknown])
+        `,
     ],
     invalid: [
         {
@@ -545,6 +555,27 @@ tester.run("no-unused-capturing-group", rule as any, {
             `,
             options: [{ fixable: true }],
             errors: ["Capturing group number 1 is defined but never used."],
+        },
+        // hasIndices
+        {
+            code: String.raw`const re = /(foo)/d
+            console.log(re.exec('foo').indices[2])
+            `,
+            output: String.raw`const re = /(?:foo)/d
+            console.log(re.exec('foo').indices[2])
+            `,
+            options: [{ fixable: true }],
+            errors: ["Capturing group number 1 is defined but never used."],
+        },
+        {
+            code: String.raw`const re = /(?<f>foo)/d
+            console.log(re.exec('foo').indices.groups.x)
+            `,
+            output: String.raw`const re = /(?:foo)/d
+            console.log(re.exec('foo').indices.groups.x)
+            `,
+            options: [{ fixable: true }],
+            errors: ["Capturing group 'f' is defined but never used."],
         },
     ],
 })

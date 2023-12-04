@@ -641,14 +641,35 @@ function* iterateForRegExpMatchArrayReference(
             for (const namedRef of ref.extractPropertyReferences()) {
                 yield getNamedArrayRef(namedRef)
             }
+        } else if (ref.name === "indices") {
+            for (const indicesRef of ref.extractPropertyReferences()) {
+                yield* iterateForRegExpIndicesArrayReference(indicesRef)
+            }
         } else {
-            if (
-                ref.name === "input" ||
-                ref.name === "index" ||
-                ref.name === "indices"
-            ) {
+            if (ref.name === "input" || ref.name === "index") {
                 return
             }
+            yield getIndexArrayRef(ref)
+        }
+    } else {
+        yield {
+            type: "UnknownRef",
+            kind: "array",
+            prop: ref,
+        }
+    }
+}
+
+/** Iterate the capturing group references for RegExpIndicesArray reference. */
+function* iterateForRegExpIndicesArrayReference(
+    ref: PropertyReference,
+): Iterable<CapturingGroupReference> {
+    if (hasNameRef(ref)) {
+        if (ref.name === "groups") {
+            for (const namedRef of ref.extractPropertyReferences()) {
+                yield getNamedArrayRef(namedRef)
+            }
+        } else {
             yield getIndexArrayRef(ref)
         }
     } else {
