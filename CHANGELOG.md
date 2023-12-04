@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.1.2
+
+### Patch Changes
+
+-   Fixed false positives for hasIndices in `regexp/no-unused-capturing-group` ([#676](https://github.com/ota-meshi/eslint-plugin-regexp/pull/676))
+
 ## 2.1.1
 
 ### Patch Changes
