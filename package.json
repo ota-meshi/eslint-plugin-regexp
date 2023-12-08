@@ -95,7 +95,7 @@
         "nyc": "^15.1.0",
         "pako": "^2.1.0",
         "prettier": "~3.1.0",
-        "stylelint": "^15.0.0",
+        "stylelint": "^16.0.0",
         "stylelint-config-standard-vue": "^1.0.0",
         "ts-node": "^10.2.1",
         "typescript": "~5.3.0",
