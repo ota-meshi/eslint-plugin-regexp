@@ -39,7 +39,7 @@ RegExp('=' + space + '+(\\w+)', 'u')
 
 ### Differences to ESLint's `no-invalid-regexp` rule
 
-This rule is almost functionally equivalent to ESLint's [no-invalid-regexp] rule. The only difference is that this rule doesn't valid flags (see [no-non-standard-flag](./no-non-standard-flag.html)).
+This rule is almost functionally equivalent to ESLint's [no-invalid-regexp] rule. The only difference is that this rule doesn't validate flags (see [no-non-standard-flag](./no-non-standard-flag.html)).
 
 There are two reasons we provide this rule:
 
