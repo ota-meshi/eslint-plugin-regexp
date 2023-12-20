@@ -36,7 +36,7 @@ jobs:
             - name: Setup Pages
               uses: actions/configure-pages@v4
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v2
+              uses: actions/upload-pages-artifact@v3
               with:
                   path: ./docs/.vitepress/dist/eslint-plugin-regexp
             - name: Deploy to GitHub Pages
