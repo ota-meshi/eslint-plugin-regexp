@@ -19,10 +19,10 @@ since: "v1.2.0"
 
 This rule reports misleading Unicode characters.
 
-Some Unicode characters like '❇️', '🏳️‍🌈', and '👨‍👩‍👦' consist of multiple code points. This causes problems in character classes and around quantifiers. E.g.
+Some Unicode characters like '❇️', '🏴‍☠️', and '👨‍👩‍👦' consist of multiple code points. This causes problems in character classes and around quantifiers. E.g.
 
 ```js
-> /^[❇️🏳️‍🌈]$/.test("🏳️‍🌈")
+> /^[❇️🏴‍☠️]$/.test("🏴‍☠️")
 false
 > /^👨‍👩‍👦{2,4}$/.test("👨‍👩‍👦👨‍👩‍👦")
 false
@@ -41,7 +41,7 @@ var foo = /👨‍👩‍👦/;
 
 /* ✗ BAD */
 var foo = /👍+/;
-var foo = /[❇️🏳️‍🌈👨‍👩‍👦]❤️/;
+var foo = /[❇️🏴‍☠️👨‍👩‍👦]❤️/;
 ```
 
 </eslint-code-block>
