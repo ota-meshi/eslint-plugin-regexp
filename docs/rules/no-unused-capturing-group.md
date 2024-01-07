@@ -78,7 +78,8 @@ Using capturing groups only if the captured text is used makes their usage unamb
 ```json
 {
   "regexp/no-unused-capturing-group": ["error", {
-    "fixable": false
+    "fixable": false,
+    "allowNamed": false
   }]
 }
 ```
@@ -88,6 +89,12 @@ Using capturing groups only if the captured text is used makes their usage unamb
   This option controls whether the rule is fixable. Defaults to `false`.
 
   This rule is not fixable by default. Unused capturing groups can indicate a mistake in the code that uses the regex, so changing the regex might not be the right fix. When enabling this option, be sure to carefully check its changes.
+
+- `allowNamed: true | false`
+
+  Whether unused **named** capturing groups are allowed. Defaults to `false`.
+
+  Sometimes named capturing groups can be used to document a regex. In such cases, it can be acceptable to have unused named capturing groups. This option is disabled by default to prevent mistakes.
 
 ## :couple: Related rules
 

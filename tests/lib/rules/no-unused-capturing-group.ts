@@ -162,6 +162,11 @@ tester.run("no-unused-capturing-group", rule as any, {
         String.raw`const re = /(foo)/d
         console.log(re.exec('foo').indices[unknown])
         `,
+
+        {
+            code: String.raw`const REGEX_SEMANTIC_VERSION = /(?<majorVersion>\d+)\.(?<minorVersion>\d+)\.(?<patchVersion>\d+)(?:-(?<suffix>.+))?/;`,
+            options: [{ allowNamed: true }],
+        },
     ],
     invalid: [
         {
