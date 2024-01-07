@@ -92,7 +92,7 @@ Using capturing groups only if the captured text is used makes their usage unamb
 
 - `allowNamed: true | false`
 
-  Whether unused **named** capturing groups are allowed. Defaults to `false`.
+  Whether unused named capturing groups are allowed. Defaults to `false`.
 
   Sometimes named capturing groups can be used to document a regex. In such cases, it can be acceptable to have unused named capturing groups. This option is disabled by default to prevent mistakes.
 
