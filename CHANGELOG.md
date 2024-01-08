@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.2.0
+
+### Minor Changes
+
+-   Add `allowNamed` option to `no-unused-capturing-group` rule to allow for unused named capturing groups. ([#689](https://github.com/ota-meshi/eslint-plugin-regexp/pull/689))
+
 ## 2.1.2
 
 ### Patch Changes
