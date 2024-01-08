@@ -29,6 +29,7 @@ export default createRule("no-unused-capturing-group", {
                 type: "object",
                 properties: {
                     fixable: { type: "boolean" },
+                    allowNamed: { type: "boolean" },
                 },
                 additionalProperties: false,
             },
@@ -45,6 +46,7 @@ export default createRule("no-unused-capturing-group", {
     },
     create(context) {
         const fixable: boolean = context.options[0]?.fixable ?? false
+        const allowNamed: boolean = context.options[0]?.allowNamed ?? false
 
         function reportUnused(
             unused: Set<CapturingGroup>,
@@ -56,6 +58,14 @@ export default createRule("no-unused-capturing-group", {
                 fixReplaceNode,
                 getAllCapturingGroups,
             } = regexpContext
+
+            if (allowNamed) {
+                for (const cgNode of unused) {
+                    if (cgNode.name) {
+                        unused.delete(cgNode)
+                    }
+                }
+            }
 
             const fixableGroups = new Set<CapturingGroup>()
             for (const group of [...getAllCapturingGroups()].reverse()) {
