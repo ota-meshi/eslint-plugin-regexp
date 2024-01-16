@@ -119,6 +119,7 @@ describe("extractExpressionReferences", () => {
                 testCase.code,
                 {
                     plugins: {
+                        // @ts-expect-error -- ignore type error for eslint v9
                         test: {
                             rules: {
                                 test: {
@@ -198,7 +199,7 @@ describe("extractExpressionReferences", () => {
                     rules: {
                         "test/test": "error",
                     },
-                } as any as Linter.Config,
+                },
                 "test.js",
             )
             if (result.length) {

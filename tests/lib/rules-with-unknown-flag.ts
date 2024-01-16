@@ -70,6 +70,7 @@ describe("Don't crash even if with unknown flag.", () => {
             const linter = new Linter({ configType: "flat" })
             const config: Linter.Config = {
                 plugins: {
+                    // @ts-expect-error -- ignore type error for eslint v9
                     regexp: {
                         rules: { ...pluginRules, test: TEST_RULE },
                     },
@@ -85,7 +86,7 @@ describe("Don't crash even if with unknown flag.", () => {
                         ? { "regexp/require-unicode-regexp": "error" }
                         : {}),
                 },
-            } as any
+            }
 
             const resultVue = linter.verifyAndFix(code, config, "test.js")
 

@@ -925,6 +925,7 @@ describe("Don't conflict even if using the rules together.", () => {
                     sourceType: "module",
                 },
                 plugins: {
+                    // @ts-expect-error -- ignore type error for eslint v9
                     regexp: {
                         rules: rules.reduce(
                             (p, r) => {
@@ -939,7 +940,7 @@ describe("Don't conflict even if using the rules together.", () => {
                     ...configAllRules,
                     ...rulesConfig,
                 },
-            } as any
+            }
 
             const result = linter.verify(code, config, "test.js")
             assert.deepStrictEqual(
