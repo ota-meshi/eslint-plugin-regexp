@@ -107,11 +107,9 @@ tester.run("no-unused-capturing-group", rule as any, {
             const regexp = /(\d{4})-(\d{2})-(\d{2})/
             const replaced = '2000-12-31'.replace(regexp, 'Date') // "Date"
             `,
-            ...{
-                languageOptions: {
-                    ecmaVersion: 2020,
-                    sourceType: "script",
-                },
+            languageOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
             },
         },
         // Unused names.

@@ -197,11 +197,9 @@ tester.run("no-useless-flag", rule as any, {
 
             'str'.split(regex)
             `,
-            ...{
-                languageOptions: {
-                    ecmaVersion: 2020,
-                    sourceType: "script",
-                },
+            languageOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
             },
         },
         `

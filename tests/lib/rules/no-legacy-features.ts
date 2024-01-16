@@ -45,11 +45,9 @@ tester.run("no-legacy-features", rule as any, {
             export as namespace log;
             export = log;
             `,
-            ...{
-                files: ["**/*.*"],
-                languageOptions: {
-                    parser: tsParser,
-                },
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
             },
         },
     ],

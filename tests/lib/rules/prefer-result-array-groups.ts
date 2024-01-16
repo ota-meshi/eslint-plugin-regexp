@@ -376,13 +376,11 @@ tester.run("prefer-result-array-groups", rule as any, {
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
-            ...{
-                files: ["**/*.*"],
-                languageOptions: {
-                    parser: tsParser,
-                    parserOptions: {
-                        project: require.resolve("../../../tsconfig.json"),
-                    },
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
                 },
             },
         },
@@ -400,10 +398,8 @@ tester.run("prefer-result-array-groups", rule as any, {
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
-            ...{
-                languageOptions: {
-                    parser: tsParser,
-                },
+            languageOptions: {
+                parser: tsParser,
             },
         },
         {
@@ -421,13 +417,11 @@ tester.run("prefer-result-array-groups", rule as any, {
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
-            ...{
-                files: ["**/*.*"],
-                languageOptions: {
-                    parser: tsParser,
-                    parserOptions: {
-                        project: require.resolve("../../../tsconfig.json"),
-                    },
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
                 },
             },
         },
@@ -453,13 +447,11 @@ tester.run("prefer-result-array-groups", rule as any, {
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
-            ...{
-                files: ["**/*.*"],
-                languageOptions: {
-                    parser: tsParser,
-                    parserOptions: {
-                        project: require.resolve("../../../tsconfig.json"),
-                    },
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
                 },
             },
         },
@@ -494,13 +486,11 @@ tester.run("prefer-result-array-groups", rule as any, {
                 "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
             ],
-            ...{
-                files: ["**/*.*"],
-                languageOptions: {
-                    parser: tsParser,
-                    parserOptions: {
-                        project: require.resolve("../../../tsconfig.json"),
-                    },
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
                 },
             },
         },

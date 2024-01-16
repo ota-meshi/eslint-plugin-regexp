@@ -23,11 +23,9 @@ tester.run("no-lazy-ends", rule as any, {
             /* exported a */
             const a = /a??/
             a.test(str)`,
-            ...{
-                languageOptions: {
-                    ecmaVersion: 2020,
-                    sourceType: "script",
-                },
+            languageOptions: {
+                ecmaVersion: 2020,
+                sourceType: "script",
             },
         },
 
