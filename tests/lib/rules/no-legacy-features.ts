@@ -1,8 +1,9 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-legacy-features"
+import * as tsParser from "@typescript-eslint/parser"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },
@@ -44,7 +45,12 @@ tester.run("no-legacy-features", rule as any, {
             export as namespace log;
             export = log;
             `,
-            parser: require.resolve("@typescript-eslint/parser"),
+            ...{
+                files: ["**/*.*"],
+                languageOptions: {
+                    parser: tsParser,
+                },
+            },
         },
     ],
     invalid: [

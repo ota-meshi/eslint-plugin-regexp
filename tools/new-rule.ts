@@ -55,11 +55,11 @@ export default createRule("${ruleId}", {
     )
     fs.writeFileSync(
         testFile,
-        `import { RuleTester } from "eslint"
+        `import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/${ruleId}"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },

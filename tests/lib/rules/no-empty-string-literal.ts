@@ -1,8 +1,8 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-empty-string-literal"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },

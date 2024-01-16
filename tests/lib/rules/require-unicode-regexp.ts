@@ -1,10 +1,13 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/require-unicode-regexp"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
+        globals: {
+            globalThis: "off",
+        },
     },
 })
 

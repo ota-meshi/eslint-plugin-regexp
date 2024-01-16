@@ -12,8 +12,6 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
-              with:
-                  node-version: 18
             - name: Install Packages
               run: npm ci
             - name: Build
@@ -24,15 +22,18 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [18.x, 20.x]
+                node: [18.x, 20.x]
+                eslint: [8, ^9.0.0-0]
         steps:
             - uses: actions/checkout@v4
-            - name: Use Node.js ${{ matrix.node-version }}
+            - name: Use Node.js ${{ matrix.node }}
               uses: actions/setup-node@v4
               with:
-                  node-version: ${{ matrix.node-version }}
+                  node-version: ${{ matrix.node }}
+            - name: Install ESLint ${{ matrix.eslint }}
+              run: npm i -D eslint@${{ matrix.eslint }} --legacy-peer-deps
             - name: Install Packages
-              run: npm ci
+              run: npm ci -f
             - name: Test
               run: npm test
     test-and-coverage:
@@ -45,7 +46,7 @@ jobs:
             - name: Test
               run: npm run test:nyc
             - name: Coveralls GitHub Action
-              uses: coverallsapp/github-action@3dfc5567390f6fa9267c0ee9c251e4c8c3f18949 # v2.2.3
+              uses: coverallsapp/github-action@v2
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
     update:
@@ -53,8 +54,6 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
-              with:
-                  node-version: 18
             - name: Install Packages
               run: npm ci
             - name: Build

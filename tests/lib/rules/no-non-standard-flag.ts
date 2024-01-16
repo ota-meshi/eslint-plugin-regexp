@@ -1,12 +1,13 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-non-standard-flag"
+import * as tsParser from "@typescript-eslint/parser"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
+        parser: tsParser,
         ecmaVersion: "latest",
         sourceType: "module",
     },
-    parser: require.resolve("@typescript-eslint/parser"),
 })
 
 tester.run("no-non-standard-flag", rule as any, {
