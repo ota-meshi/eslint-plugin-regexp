@@ -31,9 +31,12 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
             - name: Install ESLint ${{ matrix.eslint }}
+              # We use --legacy-peer-deps because we get a lot of dependency warnings when installing eslint v9-alpha.
               run: npm i -D eslint@${{ matrix.eslint }} --legacy-peer-deps
             - name: Install Packages
-              run: npm ci -f
+              # run: npm ci
+              # We use `npm i` because there is an error regarding dependencies when installing eslint v9-alpha.
+              run: npm i -f
             - name: Test
               run: npm test
     test-and-coverage:
