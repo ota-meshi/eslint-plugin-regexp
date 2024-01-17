@@ -114,6 +114,47 @@ describe("extractExpressionReferences", () => {
                 | ESTree.NewExpression
                 | ESTree.CallExpression
             )[] = []
+
+            function create(context: Rule.RuleContext) {
+                return {
+                    Program(program: ESTree.Program) {
+                        const scope = context.sourceCode.getScope(program)
+                        const tracker = new ReferenceTracker(scope)
+
+                        for (const { node } of tracker.iterateGlobalReferences({
+                            RegExp: {
+                                [CALL]: true,
+                                [CONSTRUCT]: true,
+                            },
+                        })) {
+                            const newOrCall = node as
+                                | ESTree.NewExpression
+                                | ESTree.CallExpression
+                            regexps.push(newOrCall)
+                        }
+                    },
+                    Literal(node: ESTree.Literal) {
+                        if (isRegexpLiteral(node)) {
+                            testNodes.push(node)
+                        }
+                    },
+                    "NewExpression,CallExpression"(
+                        node: ESTree.NewExpression | ESTree.CallExpression,
+                    ) {
+                        if (regexps.includes(node)) {
+                            testNodes.push(node)
+                        }
+                    },
+                    "Program:exit"() {
+                        results = testNodes.map((node) =>
+                            [...extractExpressionReferences(node, context)].map(
+                                (r) => toResult(r, context),
+                            ),
+                        )
+                    },
+                }
+            }
+
             const linter = new Linter({ configType: "flat" })
             const result = linter.verify(
                 testCase.code,
@@ -122,66 +163,7 @@ describe("extractExpressionReferences", () => {
                         // @ts-expect-error -- ignore type error for eslint v9
                         test: {
                             rules: {
-                                test: {
-                                    create(context: Rule.RuleContext) {
-                                        return {
-                                            Program(program: ESTree.Program) {
-                                                const scope =
-                                                    context.sourceCode.getScope(
-                                                        program,
-                                                    )
-                                                const tracker =
-                                                    new ReferenceTracker(scope)
-
-                                                for (const {
-                                                    node,
-                                                } of tracker.iterateGlobalReferences(
-                                                    {
-                                                        RegExp: {
-                                                            [CALL]: true,
-                                                            [CONSTRUCT]: true,
-                                                        },
-                                                    },
-                                                )) {
-                                                    const newOrCall = node as
-                                                        | ESTree.NewExpression
-                                                        | ESTree.CallExpression
-                                                    regexps.push(newOrCall)
-                                                }
-                                            },
-                                            Literal(node: ESTree.Literal) {
-                                                if (isRegexpLiteral(node)) {
-                                                    testNodes.push(node)
-                                                }
-                                            },
-                                            "NewExpression,CallExpression"(
-                                                node:
-                                                    | ESTree.NewExpression
-                                                    | ESTree.CallExpression,
-                                            ) {
-                                                if (regexps.includes(node)) {
-                                                    testNodes.push(node)
-                                                }
-                                            },
-                                            "Program:exit"() {
-                                                results = testNodes.map(
-                                                    (node) =>
-                                                        [
-                                                            ...extractExpressionReferences(
-                                                                node,
-                                                                context,
-                                                            ),
-                                                        ].map((r) =>
-                                                            toResult(
-                                                                r,
-                                                                context,
-                                                            ),
-                                                        ),
-                                                )
-                                            },
-                                        }
-                                    },
-                                },
+                                test: { create },
                             },
                         },
                     },
