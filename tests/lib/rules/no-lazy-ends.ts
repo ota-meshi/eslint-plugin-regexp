@@ -1,8 +1,8 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-lazy-ends"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },
@@ -23,7 +23,7 @@ tester.run("no-lazy-ends", rule as any, {
             /* exported a */
             const a = /a??/
             a.test(str)`,
-            parserOptions: {
+            languageOptions: {
                 ecmaVersion: 2020,
                 sourceType: "script",
             },

@@ -1,9 +1,10 @@
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import path from "path"
 import rule from "../../../lib/rules/prefer-result-array-groups"
+import * as tsParser from "@typescript-eslint/parser"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },
@@ -372,13 +373,16 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            parser: require.resolve("@typescript-eslint/parser"),
-            parserOptions: {
-                project: require.resolve("../../../tsconfig.json"),
-            },
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                },
+            },
         },
         {
             // If don't give type information.
@@ -391,10 +395,12 @@ tester.run("prefer-result-array-groups", rule as any, {
             }
             `,
             output: null,
-            parser: require.resolve("@typescript-eslint/parser"),
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
+            languageOptions: {
+                parser: tsParser,
+            },
         },
         {
             // Not using RegExpExecArray
@@ -408,13 +414,16 @@ tester.run("prefer-result-array-groups", rule as any, {
             }
             `,
             output: null,
-            parser: require.resolve("@typescript-eslint/parser"),
-            parserOptions: {
-                project: require.resolve("../../../tsconfig.json"),
-            },
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                },
+            },
         },
         {
             // Using `any` type.
@@ -435,13 +444,16 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            parser: require.resolve("@typescript-eslint/parser"),
-            parserOptions: {
-                project: require.resolve("../../../tsconfig.json"),
-            },
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
             ],
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                },
+            },
         },
         {
             // https://github.com/ota-meshi/eslint-plugin-regexp/issues/355
@@ -468,16 +480,19 @@ tester.run("prefer-result-array-groups", rule as any, {
             const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
             match3.groups!.qux // <-
             `,
-            parser: require.resolve("@typescript-eslint/parser"),
-            parserOptions: {
-                project: require.resolve("../../../tsconfig.json"),
-            },
             errors: [
                 "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
                 "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
             ],
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                },
+            },
         },
         {
             code: `

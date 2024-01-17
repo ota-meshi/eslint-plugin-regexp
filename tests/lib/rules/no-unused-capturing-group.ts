@@ -1,10 +1,10 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair -- x
 /* eslint-disable eslint-plugin/consistent-output -- x */
-import { RuleTester } from "eslint"
+import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-unused-capturing-group"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },
@@ -107,7 +107,7 @@ tester.run("no-unused-capturing-group", rule as any, {
             const regexp = /(\d{4})-(\d{2})-(\d{2})/
             const replaced = '2000-12-31'.replace(regexp, 'Date') // "Date"
             `,
-            parserOptions: {
+            languageOptions: {
                 ecmaVersion: 2020,
                 sourceType: "script",
             },

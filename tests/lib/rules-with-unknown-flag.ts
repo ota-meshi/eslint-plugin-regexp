@@ -60,17 +60,23 @@ describe("Don't crash even if with unknown flag.", () => {
     }
 
     const pluginRules = Object.fromEntries(
-        Object.values(rules).map((rule) => [rule.meta.docs.ruleId, rule]),
+        Object.values(rules).map((rule) => [rule.meta.docs.ruleName, rule]),
     )
 
     for (const rule of Object.values(rules)) {
         const ruleId = rule.meta.docs.ruleId
 
         it(ruleId, () => {
-            const linter = new Linter()
+            const linter = new Linter({ configType: "flat" })
             const config: Linter.Config = {
-                parser: "@typescript-eslint/parser",
-                parserOptions: {
+                plugins: {
+                    // @ts-expect-error -- ignore type error for eslint v9
+                    regexp: {
+                        rules: { ...pluginRules, test: TEST_RULE },
+                    },
+                },
+                languageOptions: {
+                    parser,
                     ecmaVersion: 2020,
                 },
                 rules: {
@@ -81,11 +87,7 @@ describe("Don't crash even if with unknown flag.", () => {
                         : {}),
                 },
             }
-            // @ts-expect-error -- ignore
-            linter.defineParser("@typescript-eslint/parser", parser)
-            linter.defineRules(pluginRules)
 
-            linter.defineRule("regexp/test", TEST_RULE)
             const resultVue = linter.verifyAndFix(code, config, "test.js")
 
             assert.deepStrictEqual(

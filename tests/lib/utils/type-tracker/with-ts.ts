@@ -1,5 +1,6 @@
 import type { TestCase } from "./test-utils"
 import { testTypeTrackerWithLinter } from "./test-utils"
+import * as tsParser from "@typescript-eslint/parser"
 
 const TESTCASES: TestCase[] = [
     {
@@ -8,7 +9,9 @@ const TESTCASES: TestCase[] = [
         s
         `,
         type: ["Boolean", "String"],
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -16,7 +19,9 @@ const TESTCASES: TestCase[] = [
         const a = r.foo; a
         `,
         type: "String",
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -24,7 +29,9 @@ const TESTCASES: TestCase[] = [
         r
         `,
         type: "Object",
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -33,7 +40,9 @@ const TESTCASES: TestCase[] = [
         r
         `,
         type: ["BigInt", "Number", "String"],
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -43,7 +52,9 @@ const TESTCASES: TestCase[] = [
         b;
         `,
         type: [],
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -52,7 +63,9 @@ const TESTCASES: TestCase[] = [
         c
         `,
         type: "Array",
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -61,7 +74,9 @@ const TESTCASES: TestCase[] = [
         c
         `,
         type: "Array",
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
     {
         code: `
@@ -70,7 +85,9 @@ const TESTCASES: TestCase[] = [
         c
         `,
         type: "Array",
-        parser: "@typescript-eslint/parser",
+        languageOptions: {
+            parser: tsParser,
+        },
     },
 ]
 describe("type track with typescript", () => {

@@ -1,3 +1,4 @@
+import type { Rule } from "eslint"
 import { Linter } from "eslint"
 import assert from "assert"
 import type * as ESTree from "estree"
@@ -262,61 +263,70 @@ describe("getUsageOfPattern", () => {
                 | ESTree.NewExpression
                 | ESTree.CallExpression
             )[] = []
-            const linter = new Linter()
-            linter.defineRule("test", {
-                create(context) {
-                    return {
-                        Program(program) {
-                            const scope = context.sourceCode.getScope(program)
-                            const tracker = new ReferenceTracker(scope)
 
-                            for (const {
-                                node,
-                            } of tracker.iterateGlobalReferences({
-                                RegExp: { [CALL]: true, [CONSTRUCT]: true },
-                            })) {
-                                const newOrCall = node as
-                                    | ESTree.NewExpression
-                                    | ESTree.CallExpression
-                                regexps.push(newOrCall)
-                            }
-                        },
-                        Literal(node: ESTree.Literal) {
-                            if (isRegexpLiteral(node)) {
-                                testNodes.push(node)
-                            }
-                        },
-                        "NewExpression,CallExpression"(
-                            node: ESTree.NewExpression | ESTree.CallExpression,
-                        ) {
-                            if (regexps.includes(node)) {
-                                testNodes.push(node)
-                            }
-                        },
-                        "Program:exit"() {
-                            results = testNodes.map((node) =>
-                                getUsageOfPattern(node, context),
-                            )
-                        },
-                    }
-                },
-            })
+            function create(context: Rule.RuleContext) {
+                return {
+                    Program(program: ESTree.Program) {
+                        const scope = context.sourceCode.getScope(program)
+                        const tracker = new ReferenceTracker(scope)
+
+                        for (const { node } of tracker.iterateGlobalReferences({
+                            RegExp: {
+                                [CALL]: true,
+                                [CONSTRUCT]: true,
+                            },
+                        })) {
+                            const newOrCall = node as
+                                | ESTree.NewExpression
+                                | ESTree.CallExpression
+                            regexps.push(newOrCall)
+                        }
+                    },
+                    Literal(node: ESTree.Literal) {
+                        if (isRegexpLiteral(node)) {
+                            testNodes.push(node)
+                        }
+                    },
+                    "NewExpression,CallExpression"(
+                        node: ESTree.NewExpression | ESTree.CallExpression,
+                    ) {
+                        if (regexps.includes(node)) {
+                            testNodes.push(node)
+                        }
+                    },
+                    "Program:exit"() {
+                        results = testNodes.map((node) =>
+                            getUsageOfPattern(node, context),
+                        )
+                    },
+                }
+            }
+
+            const linter = new Linter({ configType: "flat" })
             const r = linter.verify(
                 testCase.code,
                 {
-                    globals: {
-                        Set: "readonly",
-                        Map: "readonly",
-                        BigInt: "readonly",
-                        window: "readonly",
-                        globalThis: "readonly",
+                    plugins: {
+                        // @ts-expect-error -- ignore type error for eslint v9
+                        test: {
+                            rules: {
+                                test: { create },
+                            },
+                        },
                     },
-                    parserOptions: {
+                    languageOptions: {
                         ecmaVersion: 2020,
-                        sourceType: testCase.sourceType,
+                        sourceType: testCase.sourceType || "module",
+                        globals: {
+                            Set: "readonly",
+                            Map: "readonly",
+                            BigInt: "readonly",
+                            window: "readonly",
+                            globalThis: "readonly",
+                        },
                     },
                     rules: {
-                        test: "error",
+                        "test/test": "error",
                     },
                 },
                 "test.js",

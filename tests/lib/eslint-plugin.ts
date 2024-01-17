@@ -2,6 +2,7 @@ import path from "path"
 import assert from "assert"
 import { ESLint } from "eslint"
 import * as plugin from "../../lib/index"
+import semver from "semver"
 
 // -----------------------------------------------------------------------------
 // Tests
@@ -10,6 +11,10 @@ import * as plugin from "../../lib/index"
 const TEST_CWD = path.join(__dirname, "../fixtures/integrations/eslint-plugin")
 
 describe("Integration with eslint-plugin-regexp", () => {
+    if (semver.gte(ESLint.version, "9.0.0-0")) {
+        // TODO: We don't support flat-config yet so we can't test it.
+        return
+    }
     it("should lint without errors", async () => {
         let results: ESLint.LintResult[]
         if (ESLint) {

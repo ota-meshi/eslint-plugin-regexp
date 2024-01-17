@@ -1,11 +1,12 @@
 import type { Rule } from "eslint"
-import { RuleTester, Linter } from "eslint"
+import { Linter } from "eslint"
+import { RuleTester } from "../rule-tester"
 import assert from "assert"
 import rule from "../../../lib/rules/no-useless-flag"
 import { rules } from "../../../lib/utils/rules"
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
     },
@@ -196,7 +197,7 @@ tester.run("no-useless-flag", rule as any, {
 
             'str'.split(regex)
             `,
-            parserOptions: {
+            languageOptions: {
                 ecmaVersion: 2020,
                 sourceType: "script",
             },
@@ -902,22 +903,13 @@ describe("Don't conflict even if using the rules together.", () => {
         },
     ]
 
-    const linter = new Linter()
+    const linter = new Linter({ configType: "flat" })
     const configAllRules = rules.reduce(
         (p, r) => {
             p[r.meta.docs.ruleId] = "error"
             return p
         },
         {} as Exclude<Linter.Config["rules"], undefined>,
-    )
-    linter.defineRules(
-        rules.reduce(
-            (p, r) => {
-                p[r.meta.docs.ruleId] = r
-                return p
-            },
-            {} as { [name: string]: Rule.RuleModule },
-        ),
     )
     for (const {
         code,
@@ -928,9 +920,21 @@ describe("Don't conflict even if using the rules together.", () => {
     } of testCases) {
         it(code, () => {
             const config: Linter.Config = {
-                parserOptions: {
+                languageOptions: {
                     ecmaVersion: 2020,
                     sourceType: "module",
+                },
+                plugins: {
+                    // @ts-expect-error -- ignore type error for eslint v9
+                    regexp: {
+                        rules: rules.reduce(
+                            (p, r) => {
+                                p[r.meta.docs.ruleName] = r
+                                return p
+                            },
+                            {} as { [name: string]: Rule.RuleModule },
+                        ),
+                    },
                 },
                 rules: {
                     ...configAllRules,
