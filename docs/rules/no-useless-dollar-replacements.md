@@ -7,7 +7,7 @@ since: "v0.6.0"
 ---
 # regexp/no-useless-dollar-replacements
 
-💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
+💼 This rule is enabled in the following configs: 🟢 `flat/recommended`, 🔵 `recommended`.
 
 <!-- end auto-generated rule header -->
 

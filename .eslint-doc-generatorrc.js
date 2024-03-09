@@ -1,7 +1,10 @@
 /** @type {import('eslint-doc-generator').GenerateOptions} */
-const config = {
-  configFormat: 'plugin-colon-prefix-name',
-  ignoreConfig: ['all'],
+const config = {  
+  ignoreConfig: ['all', 'flat/all'],
+  configEmoji: [
+      ["recommended", "🔵"],
+      ["flat/recommended", "🟢"],
+  ],
   pathRuleList: ['README.md', 'docs/rules/index.md'],
   ruleDocSectionInclude: ['Rule Details', 'Version', 'Implementation'],
   ruleDocSectionOptions: false,
