@@ -1,3 +1,3 @@
-// eslint-disable-next-line n/no-missing-import -- ignore
-import * as plugin from "../../../../lib/index"
+// eslint-disable-next-line n/file-extension-in-import -- test
+import * as plugin from "../../../../lib/index.ts"
 export default [plugin.configs["flat/recommended"]]

@@ -133,6 +133,7 @@ module.exports = {
             rules: {
                 "require-jsdoc": "off",
                 "no-console": "off",
+                "n/file-extension-in-import": "off",
             },
         },
         {
