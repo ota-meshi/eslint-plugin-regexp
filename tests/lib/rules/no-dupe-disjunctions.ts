@@ -60,6 +60,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 4,
                     endLine: 1,
                     endColumn: 5,
+                    suggestions: [{ messageId: "remove", output: `/a/` }],
                 },
             ],
         },
@@ -73,6 +74,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 5,
                     endLine: 1,
                     endColumn: 6,
+                    suggestions: [{ messageId: "remove", output: `/(a)/` }],
                 },
             ],
         },
@@ -86,6 +88,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 7,
                     endLine: 1,
                     endColumn: 8,
+                    suggestions: [{ messageId: "remove", output: `/(?:a)/` }],
                 },
             ],
         },
@@ -97,6 +100,9 @@ tester.run("no-dupe-disjunctions", rule as any, {
                         "Unexpected useless alternative. This alternative is a strict subset of '(?=[a-c])' and can be removed.",
                     column: 12,
                     endColumn: 17,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?=[a-c])/` },
+                    ],
                 },
             ],
         },
@@ -110,6 +116,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 7,
                     endLine: 1,
                     endColumn: 8,
+                    suggestions: [{ messageId: "remove", output: `/(?=a)/` }],
                 },
             ],
         },
@@ -123,43 +130,89 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 8,
                     endLine: 1,
                     endColumn: 9,
+                    suggestions: [{ messageId: "remove", output: `/(?<=a)/` }],
                 },
             ],
         },
         {
             code: `/(?:[ab]|[ab])/`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 10,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:[ab])/` },
+                    ],
+                },
             ],
         },
         {
             code: `/(?:[ab]|[ba])/`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 10,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:[ab])/` },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?:[\da-z]|[a-z\d])/`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 13,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/(?:[\da-z])/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: `/((?:ab|ba)|(?:ab|ba))/`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 13,
+                    suggestions: [
+                        { messageId: "remove", output: `/((?:ab|ba))/` },
+                    ],
+                },
             ],
         },
         {
             code: `/((?:ab|ba)|(?:ab|ba))/v`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 13,
+                    suggestions: [
+                        { messageId: "remove", output: `/((?:ab|ba))/v` },
+                    ],
+                },
             ],
         },
         {
             code: `/((?:ab|ba)|(?:ba|ab))/`,
             errors: [
-                "Unexpected duplicate alternative. This alternative can be removed.",
+                {
+                    message:
+                        "Unexpected duplicate alternative. This alternative can be removed.",
+                    column: 13,
+                    suggestions: [
+                        { messageId: "remove", output: `/((?:ab|ba))/` },
+                    ],
+                },
             ],
         },
         {
@@ -171,7 +224,12 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             code: `/(?:a|ab)/`,
             errors: [
-                "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                    column: 7,
+                    suggestions: [{ messageId: "remove", output: `/(?:a)/` }],
+                },
             ],
         },
         {
@@ -184,6 +242,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 7,
                     endLine: 1,
                     endColumn: 8,
+                    suggestions: [{ messageId: "remove", output: `/(?:.|b)/` }],
                 },
                 {
                     message:
@@ -192,19 +251,30 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     column: 9,
                     endLine: 1,
                     endColumn: 10,
+                    suggestions: [{ messageId: "remove", output: `/(?:.|a)/` }],
                 },
             ],
         },
         {
             code: `/.|abc/`,
             errors: [
-                "Unexpected useless alternative. This alternative is already covered by '.' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by '.' and can be removed.",
+                    column: 4,
+                    suggestions: [{ messageId: "remove", output: `/./` }],
+                },
             ],
         },
         {
             code: `/a|abc/`,
             errors: [
-                "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
+                    column: 4,
+                    suggestions: [{ messageId: "remove", output: `/a/` }],
+                },
             ],
         },
         {
@@ -214,21 +284,45 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by '\\w' and can be removed.",
                     column: 5,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\w|123|_|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by '\\w' and can be removed.",
                     column: 9,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\w|abc|_|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\w' and can be removed.",
                     column: 13,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\w|abc|123|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\w' and can be removed.",
                     column: 15,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\w|abc|123|_|\$| /`,
+                        },
+                    ],
                 },
             ],
         },
@@ -239,11 +333,23 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\W' and can be removed.",
                     column: 21,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\W|abc|123|_|[A-Z]| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\W' and can be removed.",
                     column: 24,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\W|abc|123|_|[A-Z]|\$/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -254,6 +360,12 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\s' and can be removed.",
                     column: 24,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\s|abc|123|_|[A-Z]|\$/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -264,26 +376,56 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by '\\S' and can be removed.",
                     column: 5,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\S|123|_|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by '\\S' and can be removed.",
                     column: 9,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\S|abc|_|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\S' and can be removed.",
                     column: 13,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\S|abc|123|[A-Z]|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\S' and can be removed.",
                     column: 15,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\S|abc|123|_|\$| /`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\S' and can be removed.",
                     column: 21,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\S|abc|123|_|[A-Z]| /`,
+                        },
+                    ],
                 },
             ],
         },
@@ -294,37 +436,78 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '[^\\S]' and can be removed.",
                     column: 27,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/[^\S]|abc|123|_|[A-Z]|\$/`,
+                        },
+                    ],
                 },
             ],
         },
         {
             code: String.raw`/[^\r]|./`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of '[^\\r]' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '[^\\r]' and can be removed.",
+                    column: 8,
+                    suggestions: [
+                        { messageId: "remove", output: String.raw`/[^\r]/` },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/\s|\S|./`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of '\\s|\\S' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '\\s|\\S' and can be removed.",
+                    column: 8,
+                    suggestions: [
+                        { messageId: "remove", output: String.raw`/\s|\S/` },
+                    ],
+                },
             ],
         },
         {
             code: `/(?:ya?ml|yml)$/`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                    column: 11,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:ya?ml)$/` },
+                    ],
+                },
             ],
         },
         {
             code: `/(?:yml|ya?ml)$/`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                    column: 5,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:ya?ml)$/` },
+                    ],
+                },
             ],
         },
         {
             code: `/(?:yml|ya?ml)/`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.",
+                    column: 5,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:ya?ml)/` },
+                    ],
+                },
             ],
         },
         {
@@ -337,7 +520,17 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             code: String.raw`/(?:\p{Lu}\p{L}*|[A-Z]\w*)/u`,
             errors: [
-                "Unexpected useless alternative. This alternative is already covered by '\\p{Lu}\\p{L}*' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by '\\p{Lu}\\p{L}*' and can be removed.",
+                    column: 18,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/(?:\p{Lu}\p{L}*)/u`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -350,19 +543,41 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             code: String(/FOO|foo(?:bar)?/i),
             errors: [
-                "Unexpected useless alternative. This alternative is already covered by 'FOO' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is already covered by 'FOO' and can be removed.",
+                    column: 6,
+                    suggestions: [{ messageId: "remove", output: `/FOO/i` }],
+                },
             ],
         },
         {
             code: String(/foo(?:bar)?|foo/),
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'foo(?:bar)?' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'foo(?:bar)?' and can be removed.",
+                    column: 14,
+                    suggestions: [
+                        { messageId: "remove", output: `/foo(?:bar)?/` },
+                    ],
+                },
             ],
         },
         {
             code: String(/(?=[\t ]+[\S]{1,}|[\t ]+['"][\S]|[\t ]+$|$)/),
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of '[\\t ]+[\\S]{1,}' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '[\\t ]+[\\S]{1,}' and can be removed.",
+                    column: 20,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/(?=[\t ]+[\S]{1,}|[\t ]+$|$)/`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -378,11 +593,23 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\w+' and can be removed.",
                     column: 7,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\b(?:foo|\w+)\b/`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of '\\w+' and can be removed.",
                     column: 10,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\b(?:\d|\w+)\b/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -396,7 +623,17 @@ tester.run("no-dupe-disjunctions", rule as any, {
         {
             code: String(/\d|[a-z]|_|\w/i),
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '\\d|[a-z]|_' and can be removed.",
+                    column: 13,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/\d|[a-z]|_/i`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -406,7 +643,9 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(?:ba|ac)' that go through 'ba' are a strict subset of '(?:ab|ba)'. This element can be removed.",
                     column: 16,
-                    suggestions: [{ output: String(/((?:ab|ba)|(?:ac))/) }],
+                    suggestions: [
+                        { messageId: "remove", output: `/((?:ab|ba)|(?:ac))/` },
+                    ],
                 },
             ],
         },
@@ -417,7 +656,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.",
                     column: 5,
-                    suggestions: [{ output: String(/a+|b|c/) }],
+                    suggestions: [{ messageId: "remove", output: `/a+|b|c/` }],
                 },
             ],
         },
@@ -428,7 +667,9 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(?:a|b|c)' that go through 'a' are a strict subset of 'a+'. This element can be removed.",
                     column: 8,
-                    suggestions: [{ output: String(/a+|(?:b|c)/) }],
+                    suggestions: [
+                        { messageId: "remove", output: `/a+|(?:b|c)/` },
+                    ],
                 },
             ],
         },
@@ -439,7 +680,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[abc]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
-                    suggestions: [{ output: String(/a+|[bc]/) }],
+                    suggestions: [{ messageId: "remove", output: `/a+|[bc]/` }],
                 },
             ],
         },
@@ -450,7 +691,9 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[a-c]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.",
                     column: 6,
-                    suggestions: [{ output: String(/a+|[b-c]/) }],
+                    suggestions: [
+                        { messageId: "replaceRange", output: `/a+|[b-c]/` },
+                    ],
                 },
             ],
         },
@@ -461,7 +704,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
                     column: 4,
-                    suggestions: [{ output: String(/a|ba/) }],
+                    suggestions: [{ messageId: "remove", output: `/a|ba/` }],
                 },
             ],
         },
@@ -472,7 +715,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '(a|b)a' that go through 'a' are already covered by 'a'. This element can be removed.",
                     column: 5,
-                    suggestions: [{ output: String(/a|(b)a/) }],
+                    suggestions: [{ messageId: "remove", output: `/a|(b)a/` }],
                 },
             ],
         },
@@ -494,7 +737,7 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.",
                     column: 5,
-                    suggestions: [{ output: String(/a|[b]a/) }],
+                    suggestions: [{ messageId: "remove", output: `/a|[b]a/` }],
                 },
             ],
         },
@@ -506,25 +749,48 @@ tester.run("no-dupe-disjunctions", rule as any, {
                         "Unexpected useless alternative. This alternative is a strict subset of 'jso?n?' and can be removed.",
                     column: 5,
                     endColumn: 7,
+                    suggestions: [
+                        { messageId: "remove", output: `/(?:jso?n?)$/` },
+                    ],
                 },
             ],
         },
         {
             code: String.raw`/A+_|A*_/`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'A*_' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'A*_' and can be removed.",
+                    line: 1,
+                    suggestions: [{ messageId: "remove", output: `/A*_/` }],
+                },
             ],
         },
         {
             code: String.raw`/(?:A+|A*)_/`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of 'A*' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of 'A*' and can be removed.",
+                    line: 1,
+                    suggestions: [{ messageId: "remove", output: `/(?:A*)_/` }],
+                },
             ],
         },
         {
             code: String.raw`/[\q{a|bb}]|bb/v`,
             errors: [
-                "Unexpected useless alternative. This alternative is a strict subset of '[\\q{a|bb}]' and can be removed.",
+                {
+                    message:
+                        "Unexpected useless alternative. This alternative is a strict subset of '[\\q{a|bb}]' and can be removed.",
+                    line: 1,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: String.raw`/[\q{a|bb}]/v`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -710,6 +976,15 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.",
                     line: 2,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: `
+            const a = /a/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+                        },
+                    ],
                 },
             ],
         },
@@ -725,11 +1000,21 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected duplicate alternative. This alternative can be removed. This ambiguity might cause exponential backtracking.",
                     line: 2,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: `
+            const a = /a/.source;
+            const b = RegExp(\`\\b(\${a})\\b\`);
+            `,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected duplicate alternative. This alternative can be removed.",
                     line: 3,
+                    suggestions: [],
                 },
             ],
         },
@@ -750,18 +1035,27 @@ tester.run("no-dupe-disjunctions", rule as any, {
                     message:
                         "Unexpected useless alternative. This alternative is already covered by 'a?' and can be removed.",
                     line: 2,
-                    column: 33,
+                    suggestions: [
+                        {
+                            messageId: "remove",
+                            output: `
+            const partial = /a?/.source;
+            const whole = RegExp(\`^(?:\${partial})+$\`);
+            `,
+                        },
+                    ],
                 },
                 {
                     message:
                         "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.",
                     line: 2,
-                    column: 33,
+                    suggestions: [],
                 },
                 {
                     message:
                         "Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.",
                     line: 3,
+                    suggestions: [],
                 },
             ],
         },

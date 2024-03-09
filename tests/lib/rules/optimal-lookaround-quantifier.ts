@@ -18,7 +18,9 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 6,
-                    suggestions: [{ output: `/(?=b)/` }],
+                    suggestions: [
+                        { messageId: "suggestRemove", output: `/(?=b)/` },
+                    ],
                 },
             ],
         },
@@ -29,7 +31,9 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 6,
-                    suggestions: [{ output: `/(?=b)/v` }],
+                    suggestions: [
+                        { messageId: "suggestRemove", output: `/(?=b)/v` },
+                    ],
                 },
             ],
         },
@@ -40,7 +44,12 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression 'c*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 14,
-                    suggestions: [{ output: `/(?=(?:a|b|ab))/` }],
+                    suggestions: [
+                        {
+                            messageId: "suggestRemove",
+                            output: `/(?=(?:a|b|ab))/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -51,7 +60,12 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression 'c+' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c' (no quantifier) without affecting the lookaround.",
                     column: 14,
-                    suggestions: [{ output: `/(?=(?:a|b|abc))/` }],
+                    suggestions: [
+                        {
+                            messageId: "suggestReplace",
+                            output: `/(?=(?:a|b|abc))/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -62,7 +76,12 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression 'c{4,9}' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c{4}' without affecting the lookaround.",
                     column: 14,
-                    suggestions: [{ output: `/(?=(?:a|b|abc{4}))/` }],
+                    suggestions: [
+                        {
+                            messageId: "suggestReplace",
+                            output: `/(?=(?:a|b|abc{4}))/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -73,7 +92,9 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression '[a-c]*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 6,
-                    suggestions: [{ output: `/(?<=)/` }],
+                    suggestions: [
+                        { messageId: "suggestRemove", output: `/(?<=)/` },
+                    ],
                 },
             ],
         },
@@ -84,7 +105,9 @@ tester.run("optimal-lookaround-quantifier", rule as any, {
                     message:
                         "The quantified expression '(?:d|c)*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.",
                     column: 6,
-                    suggestions: [{ output: `/(?<=ab)/` }],
+                    suggestions: [
+                        { messageId: "suggestRemove", output: `/(?<=ab)/` },
+                    ],
                 },
             ],
         },
