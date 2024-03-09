@@ -1,3 +1,2 @@
-// eslint-disable-next-line n/file-extension-in-import -- test
-import * as plugin from "../../../../lib/index.ts"
+import * as plugin from "../../../../dist/index.js"
 export default [plugin.configs["flat/recommended"]]
