@@ -17,7 +17,9 @@ tester.run("no-empty-alternative", rule as any, {
                 {
                     messageId: "empty",
                     column: 2,
-                    suggestions: [{ output: `/(?:||||)??/` }],
+                    suggestions: [
+                        { messageId: "suggest", output: `/(?:||||)??/` },
+                    ],
                 },
             ],
         },
@@ -27,7 +29,9 @@ tester.run("no-empty-alternative", rule as any, {
                 {
                     messageId: "empty",
                     column: 8,
-                    suggestions: [{ output: `/((?:a+|b+)?)/` }],
+                    suggestions: [
+                        { messageId: "suggest", output: `/((?:a+|b+)?)/` },
+                    ],
                 },
             ],
         },
@@ -46,7 +50,10 @@ tester.run("no-empty-alternative", rule as any, {
             errors: [
                 {
                     messageId: "empty",
-                    suggestions: [{ output: String.raw`/(?<name>(?:a|b)?)/` }],
+                    column: 13,
+                    suggestions: [
+                        { messageId: "suggest", output: `/(?<name>(?:a|b)?)/` },
+                    ],
                 },
             ],
         },
@@ -55,7 +62,10 @@ tester.run("no-empty-alternative", rule as any, {
             errors: [
                 {
                     messageId: "empty",
-                    suggestions: [{ output: String.raw`/(?:a|b)?f/` }],
+                    column: 8,
+                    suggestions: [
+                        { messageId: "suggest", output: `/(?:a|b)?f/` },
+                    ],
                 },
             ],
         },
@@ -64,7 +74,10 @@ tester.run("no-empty-alternative", rule as any, {
             errors: [
                 {
                     messageId: "empty",
-                    suggestions: [{ output: String.raw`/(?:(?:a|b)?)+f/` }],
+                    column: 8,
+                    suggestions: [
+                        { messageId: "suggest", output: `/(?:(?:a|b)?)+f/` },
+                    ],
                 },
             ],
         },

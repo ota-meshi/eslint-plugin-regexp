@@ -277,6 +277,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'$' will always accept because it is followed by a line-terminator character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/foo\n/m`,
+                        },
+                    ],
                 },
             ],
         },
@@ -314,25 +320,57 @@ tester.run("no-useless-assertions", rule as any, {
         {
             code: String.raw`/(?=\w)hello/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always accept." },
+                {
+                    message: "The lookahead '(?=\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/hello/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?=\w)\d/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always accept." },
+                {
+                    message: "The lookahead '(?=\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\d/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?=\w)\w/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always accept." },
+                {
+                    message: "The lookahead '(?=\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\w/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?=\w)(?:a+|b*c?|\d)d/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always accept." },
+                {
+                    message: "The lookahead '(?=\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/(?:a+|b*c?|\d)d/`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -341,6 +379,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -350,6 +394,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -359,6 +409,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -368,6 +424,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -375,12 +437,30 @@ tester.run("no-useless-assertions", rule as any, {
         {
             code: String.raw`/(?=\w),/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always reject." },
+                {
+                    message: "The lookahead '(?=\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?=a)(,|b|c|(da)+)a/`,
-            errors: [{ message: "The lookahead '(?=a)' will always reject." }],
+            errors: [
+                {
+                    message: "The lookahead '(?=a)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`/(?!\w),/`,
@@ -388,6 +468,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/,/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -397,6 +483,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!a)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/(,|b|c|(da)+)a/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -404,7 +496,15 @@ tester.run("no-useless-assertions", rule as any, {
         {
             code: String.raw`/(\d)(?=\w)\1/`,
             errors: [
-                { message: "The lookahead '(?=\\w)' will always accept." },
+                {
+                    message: "The lookahead '(?=\\w)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/(\d)\1/`,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -413,6 +513,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\w)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -423,6 +529,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*(?=\s*;)/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -432,6 +544,12 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\\\)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*(?=\s*;)/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -441,10 +559,22 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "The negative lookahead '(?!\\\\)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*\b(?=\s*;)/`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*(?!\\)(?=\s*;)/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -454,100 +584,308 @@ tester.run("no-useless-assertions", rule as any, {
                 {
                     message:
                         "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*(?!\\)(?=\s*;)/`,
+                        },
+                    ],
                 },
                 {
                     message:
                         "The negative lookahead '(?!\\\\)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/[a-z_]\w*\b(?=\s*;)/`,
+                        },
+                    ],
                 },
             ],
         },
         {
             code: String.raw`/(?=a|$)b/u`,
-            errors: ["The lookahead '(?=a|$)' will always reject."],
+            errors: [
+                {
+                    message: "The lookahead '(?=a|$)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/u`,
+                        },
+                    ],
+                },
+            ],
         },
 
         {
             code: String.raw`/^^a$$/`,
             errors: [
-                "'^' will always accept because it is never preceded by a character.",
-                "'$' will always accept because it is never followed by a character.",
+                {
+                    message:
+                        "'^' will always accept because it is never preceded by a character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^a$$/`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'$' will always accept because it is never followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^^a$/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/^^a$$/m`,
             errors: [
-                "'^' will always accept because it is preceded by a line-terminator character or the start of the input string.",
-                "'$' will always accept because it is followed by a line-terminator character or the end of the input string.",
+                {
+                    message:
+                        "'^' will always accept because it is preceded by a line-terminator character or the start of the input string.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^a$$/m`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'$' will always accept because it is followed by a line-terminator character or the end of the input string.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^^a$/m`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/\b^a\b$/u`,
             errors: [
-                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
-                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^a\b$/u`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\b^a$/u`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/^\ba$\b/`,
             errors: [
-                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
-                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^a$\b/`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^\ba$/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/\b\ba\b\b/u`,
             errors: [
-                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
-                "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\ba\b\b/u`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/\b\ba\b/u`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/Java(?=Script)$/`,
-            errors: ["The lookahead '(?=Script)' will always reject."],
+            errors: [
+                {
+                    message: "The lookahead '(?=Script)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`/Java$(?=Script)/`,
             errors: [
-                "'$' will always reject because it is followed by a character.",
+                {
+                    message:
+                        "'$' will always reject because it is followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/a$(?!.)/s`,
             errors: [
-                "'$' will always accept because it is never followed by a character.",
+                {
+                    message:
+                        "'$' will always accept because it is never followed by a character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a(?!.)/s`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/a(?!.)$/s`,
-            errors: ["The negative lookahead '(?!.)' will always accept."],
+            errors: [
+                {
+                    message:
+                        "The negative lookahead '(?!.)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a$/s`,
+                        },
+                    ],
+                },
+            ],
         },
 
         {
             code: String.raw`/^(\b|\B-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/`,
             errors: [
-                "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
-                "'\\B' will always accept because it is preceded by a non-word character and followed by a non-word character.",
+                {
+                    message:
+                        "'\\b' will always accept because it is preceded by a non-word character and followed by a word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^(|\B-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "'\\B' will always accept because it is preceded by a non-word character and followed by a non-word character.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/^(\b|-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/`,
+                        },
+                    ],
+                },
             ],
         },
 
         {
             code: String.raw`/(?!$)$/`,
-            errors: ["The negative lookahead '(?!$)' will always reject."],
+            errors: [
+                {
+                    message:
+                        "The negative lookahead '(?!$)' will always reject.",
+                    suggestions: [
+                        {
+                            messageId: "rejectSuggestion",
+                            output: String.raw`/[]/`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`/(?=a|$)a/`,
-            errors: ["The lookahead '(?=a|$)' will always accept."],
+            errors: [
+                {
+                    message: "The lookahead '(?=a|$)' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a/`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`/(?=(?=[a-f])(?=a|A)[\w%])a/`,
             errors: [
-                "The lookahead '(?=(?=[a-f])(?=a|A)[\\w%])' will always accept.",
+                {
+                    message:
+                        "The lookahead '(?=(?=[a-f])(?=a|A)[\\w%])' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?=(?=[a-f])(?=[aA])\w(?<=[aA])(?<=[a-f]))a/`,
             errors: [
-                "The lookahead '(?=(?=[a-f])(?=[aA])\\w(?<=[aA])(?<=[a-f]))' will always accept.",
+                {
+                    message:
+                        "The lookahead '(?=(?=[a-f])(?=[aA])\\w(?<=[aA])(?<=[a-f]))' will always accept.",
+                    suggestions: [
+                        {
+                            messageId: "acceptSuggestion",
+                            output: String.raw`/a/`,
+                        },
+                    ],
+                },
             ],
         },
 
