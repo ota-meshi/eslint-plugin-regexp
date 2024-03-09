@@ -24,7 +24,12 @@ tester.run("no-escape-backspace", rule as any, {
                     message: "Unexpected '[\\b]'. Use '\\u0008' instead.",
                     column: 3,
                     endColumn: 5,
-                    suggestions: [{ output: "/[\\u0008]/" }],
+                    suggestions: [
+                        {
+                            messageId: "suggest",
+                            output: String.raw`/[\u0008]/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -35,7 +40,12 @@ tester.run("no-escape-backspace", rule as any, {
                     message: "Unexpected '[\\b]'. Use '\\u0008' instead.",
                     column: 6,
                     endColumn: 8,
-                    suggestions: [{ output: String.raw`/[\q{\u0008}]/v` }],
+                    suggestions: [
+                        {
+                            messageId: "suggest",
+                            output: String.raw`/[\q{\u0008}]/v`,
+                        },
+                    ],
                 },
             ],
         },

@@ -28,7 +28,12 @@ tester.run("no-contradiction-with-assertion", rule as any, {
             errors: [
                 {
                     messageId: "alwaysEnterQuantifier",
-                    suggestions: [{ output: String.raw`/a\b-{1}a/` }],
+                    suggestions: [
+                        {
+                            messageId: "changeQuantifier",
+                            output: String.raw`/a\b-{1}a/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -46,7 +51,12 @@ tester.run("no-contradiction-with-assertion", rule as any, {
             errors: [
                 {
                     messageId: "cannotEnterQuantifier",
-                    suggestions: [{ output: String.raw`/a\b-/` }],
+                    suggestions: [
+                        {
+                            messageId: "removeQuantifier",
+                            output: String.raw`/a\b-/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -55,7 +65,12 @@ tester.run("no-contradiction-with-assertion", rule as any, {
             errors: [
                 {
                     messageId: "cannotEnterQuantifier",
-                    suggestions: [{ output: String.raw`/a\b-/v` }],
+                    suggestions: [
+                        {
+                            messageId: "removeQuantifier",
+                            output: String.raw`/a\b-/v`,
+                        },
+                    ],
                 },
             ],
         },
@@ -67,6 +82,7 @@ tester.run("no-contradiction-with-assertion", rule as any, {
                     messageId: "alwaysEnterQuantifier",
                     suggestions: [
                         {
+                            messageId: "changeQuantifier",
                             output: String.raw`/(^[\t ]*)#(?:comments-start|cs)[\s\S]+?^[ \t]*#(?:comments-end|ce)/m`,
                         },
                     ],

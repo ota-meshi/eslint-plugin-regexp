@@ -174,50 +174,190 @@ tester.run("no-unused-capturing-group", rule as any, {
             output: String.raw`'2000-12-31'.replace(/(?:\d{4})-(?:\d{2})-(?:\d{2})/, 'Date') `,
             options: [{ fixable: true }],
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.replace(/(?:\d{4})-(\d{2})-(\d{2})/, 'Date') `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.replace(/(\d{4})-(?:\d{2})-(\d{2})/, 'Date') `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, 'Date') `,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`'2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2') // "2000/12"`,
             output: String.raw`'2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$1/$2') // "2000/12"`,
             options: [{ fixable: true }],
-            errors: ["Capturing group number 3 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$1/$2') // "2000/12"`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<y>/$<m>') // "2000/12"`,
             output: String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<y>/$<m>') // "2000/12"`,
             options: [{ fixable: true }],
-            errors: ["Capturing group 'd' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<y>/$<m>') // "2000/12"`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`/(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true`,
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`/(?:\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`/(\d{4})-(?:\d{2})-(\d{2})/.test('2000-12-31') // true`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`/(\d{4})-(\d{2})-(?:\d{2})/.test('2000-12-31') // true`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`'2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]`,
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31 2001-01-01'.match(/(?:\d{4})-(\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31 2001-01-01'.match(/(\d{4})-(?:\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(?:\d{2})/g) // ["2000-12-31", "2001-01-01"]`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`'2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0`,
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.search(/(?:\d{4})-(\d{2})-(\d{2})/) // 0`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.search(/(\d{4})-(?:\d{2})-(\d{2})/) // 0`,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'2000-12-31'.search(/(\d{4})-(\d{2})-(?:\d{2})/) // 0`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: "var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(\\d{2})/, (_, y, m) => `${y}/${m}`)",
-            errors: ["Capturing group number 3 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: `var replaced = '2000-12-31'.replace(/(\\d{4})-(\\d{2})-(?:\\d{2})/, (_, y, m) => \`\${y}/\${m}\`)`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -225,12 +365,81 @@ tester.run("no-unused-capturing-group", rule as any, {
             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
             `,
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
-                "Capturing group 'y' is defined but never used.",
-                "Capturing group 'm' is defined but never used.",
-                "Capturing group 'd' is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(?:\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(\d{4})-(?:\d{2})-(\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message: "Capturing group 'y' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?:\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message: "Capturing group 'm' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?:\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+            var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<yy>/$<mm>/$<dd>')
+            `,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -238,9 +447,42 @@ tester.run("no-unused-capturing-group", rule as any, {
             var replaced = '2000-12-31'.replaceAll(/(\d{4})-(\d{2})-(\d{2})/g, 'foo')
             `,
             errors: [
-                "Capturing group number 1 is defined but never used.",
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replaceAll(/(?:\d{4})-(\d{2})-(\d{2})/g, 'foo')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replaceAll(/(\d{4})-(?:\d{2})-(\d{2})/g, 'foo')
+            `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var replaced = '2000-12-31'.replaceAll(/(\d{4})-(\d{2})-(?:\d{2})/g, 'foo')
+            `,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -253,6 +495,12 @@ tester.run("no-unused-capturing-group", rule as any, {
                     column: 61,
                     endLine: 1,
                     endColumn: 68,
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`var index = '2000-12-31 2000-12-31'.search(/(\d{4})-(\d{2})-(?:\d{2}) \1-\2-\2/)`,
+                        },
+                    ],
                 },
             ],
         },
@@ -267,7 +515,23 @@ tester.run("no-unused-capturing-group", rule as any, {
             var m = matches[2] // "12"
             // var d = matches[3] // "31"
             `,
-            errors: ["Capturing group number 3 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            var matches = '2000-12-31'.match(/(\d{4})-(\d{2})-(?:\d{2})/)
+            var y = matches[1] // "2000"
+            var m = matches[2] // "12"
+            // var d = matches[3] // "31"
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -295,7 +559,19 @@ tester.run("no-unused-capturing-group", rule as any, {
             code: String.raw`
             const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)["groups"]
             `,
-            errors: ["Capturing group 'd' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/)["groups"]
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -319,8 +595,40 @@ tester.run("no-unused-capturing-group", rule as any, {
 
             `,
             errors: [
-                "Capturing group number 2 is defined but never used.",
-                "Capturing group number 3 is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(?:\d{2})-(\d{2})/g)) {
+                var y = matches[1] // "2000"
+                // var m = matches[2] // "12"
+                // var d = matches[3] // "31"
+            }
+
+            `,
+                        },
+                    ],
+                },
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(?:\d{2})/g)) {
+                var y = matches[1] // "2000"
+                // var m = matches[2] // "12"
+                // var d = matches[3] // "31"
+            }
+
+            `,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -332,7 +640,24 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: ["Capturing group 'd' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -344,7 +669,25 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: ["Capturing group 'd' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            let re
+            re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -357,7 +700,27 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: ["Capturing group number 3 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            let re
+            re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+            for (const matches of re) {
+                var y = matches[1] // "2000"
+                const {...groups} = matches.groups
+                var m = groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -368,7 +731,25 @@ tester.run("no-unused-capturing-group", rule as any, {
                 // var d = matches[3] // "31"
             }
             `,
-            errors: ["Capturing group number 3 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const result = [...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)]
+            for (const matches of result) {
+                var y = matches[1] // "2000"
+                var m = matches.groups.m // "12"
+                // var d = matches[3] // "31"
+            }
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -384,8 +765,47 @@ tester.run("no-unused-capturing-group", rule as any, {
             }
             `,
             errors: [
-                "Capturing group number 3 is defined but never used.",
-                "Capturing group 'd' is defined but never used.",
+                {
+                    message:
+                        "Capturing group number 3 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const result = [
+                { 1: 2000, groups: { m: 12 } },
+                ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g),
+                ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?<d>\d{2})/g),
+            ]
+            for (const matches of result) {
+                var y = matches[1]
+                var m = matches.groups.m
+                // var d = matches[3]
+            }
+            `,
+                        },
+                    ],
+                },
+                {
+                    message: "Capturing group 'd' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const result = [
+                { 1: 2000, groups: { m: 12 } },
+                ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g),
+                ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?:\d{2})/g),
+            ]
+            for (const matches of result) {
+                var y = matches[1]
+                var m = matches.groups.m
+                // var d = matches[3]
+            }
+            `,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -500,7 +920,17 @@ tester.run("no-unused-capturing-group", rule as any, {
         },
         {
             code: `'str'.replace(/(?<foo>\\w+)/, () => {});`,
-            errors: ["Capturing group 'foo' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'foo' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`'str'.replace(/(?:\w+)/, () => {});`,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -510,7 +940,20 @@ tester.run("no-unused-capturing-group", rule as any, {
             const bs = [...'abc_abc'.matchAll(/a(?:b)/g)].map(m => m[0])
             `,
             options: [{ fixable: true }],
-            errors: ["Capturing group number 1 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const bs = [...'abc_abc'.matchAll(/a(?:b)/g)].map(m => m[0])
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -520,7 +963,20 @@ tester.run("no-unused-capturing-group", rule as any, {
             ;[...'abc_abc'.matchAll(/a(b)(?:c)/g)].forEach(m => console.log(m[1]))
             `,
             options: [{ fixable: true }],
-            errors: ["Capturing group number 2 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 2 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            ;[...'abc_abc'.matchAll(/a(b)(?:c)/g)].forEach(m => console.log(m[1]))
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`
@@ -559,7 +1015,21 @@ tester.run("no-unused-capturing-group", rule as any, {
             const replaced = text.replace(/(?:[\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
             `,
             options: [{ fixable: true }],
-            errors: ["Capturing group number 1 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`
+            const text = 'Lorem ipsum dolor sit amet'
+            const replaced = text.replace(/(?:[\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         // hasIndices
         {
@@ -570,7 +1040,20 @@ tester.run("no-unused-capturing-group", rule as any, {
             console.log(re.exec('foo').indices[2])
             `,
             options: [{ fixable: true }],
-            errors: ["Capturing group number 1 is defined but never used."],
+            errors: [
+                {
+                    message:
+                        "Capturing group number 1 is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`const re = /(?:foo)/d
+            console.log(re.exec('foo').indices[2])
+            `,
+                        },
+                    ],
+                },
+            ],
         },
         {
             code: String.raw`const re = /(?<f>foo)/d
@@ -580,7 +1063,19 @@ tester.run("no-unused-capturing-group", rule as any, {
             console.log(re.exec('foo').indices.groups.x)
             `,
             options: [{ fixable: true }],
-            errors: ["Capturing group 'f' is defined but never used."],
+            errors: [
+                {
+                    message: "Capturing group 'f' is defined but never used.",
+                    suggestions: [
+                        {
+                            messageId: "makeNonCapturing",
+                            output: String.raw`const re = /(?:foo)/d
+            console.log(re.exec('foo').indices.groups.x)
+            `,
+                        },
+                    ],
+                },
+            ],
         },
     ],
 })

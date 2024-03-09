@@ -51,7 +51,10 @@ tester.run("no-control-character", rule as any, {
                 {
                     messageId: "unexpected",
                     suggestions: [
-                        { output: String.raw`new RegExp('\x1fFOO\\0')` },
+                        {
+                            messageId: "escape",
+                            output: String.raw`new RegExp('\x1fFOO\\0')`,
+                        },
                     ],
                 },
             ],
@@ -80,7 +83,12 @@ tester.run("no-control-character", rule as any, {
             errors: [
                 {
                     messageId: "unexpected",
-                    suggestions: [{ output: String.raw`RegExp('\\n')` }],
+                    suggestions: [
+                        {
+                            messageId: "escape",
+                            output: String.raw`RegExp('\\n')`,
+                        },
+                    ],
                 },
             ],
         },
@@ -89,7 +97,12 @@ tester.run("no-control-character", rule as any, {
             errors: [
                 {
                     messageId: "unexpected",
-                    suggestions: [{ output: String.raw`RegExp('\\n')` }],
+                    suggestions: [
+                        {
+                            messageId: "escape",
+                            output: String.raw`RegExp('\\n')`,
+                        },
+                    ],
                 },
             ],
         },
@@ -98,7 +111,12 @@ tester.run("no-control-character", rule as any, {
             errors: [
                 {
                     messageId: "unexpected",
-                    suggestions: [{ output: String.raw`RegExp('\\n')` }],
+                    suggestions: [
+                        {
+                            messageId: "escape",
+                            output: String.raw`RegExp('\\n')`,
+                        },
+                    ],
                 },
             ],
         },

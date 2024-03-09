@@ -12,8 +12,8 @@ tester.run("no-misleading-unicode-character", rule as any, {
     valid: [
         `/[👍]/u`,
         `/👍+/u`,
-        `/[\uD83D\uDC4D]/u`,
-        `/[\u{1F44D}]/u`,
+        String.raw`/[\uD83D\uDC4D]/u`,
+        String.raw`/[\u{1F44D}]/u`,
         `/❇️/`,
         `/Á/`,
         `/[❇]/`,
@@ -73,7 +73,12 @@ tester.run("no-misleading-unicode-character", rule as any, {
             errors: [
                 {
                     messageId: "characterClass",
-                    suggestions: [{ output: `/👍foo/` }],
+                    suggestions: [
+                        {
+                            messageId: "fixCharacterClass",
+                            output: String.raw`/👍foo/`,
+                        },
+                    ],
                 },
             ],
         },
@@ -120,24 +125,6 @@ tester.run("no-misleading-unicode-character", rule as any, {
         {
             code: `/[Á]/u`,
             output: `/Á/u`,
-            options: [{ fixable: true }],
-            errors: [{ messageId: "characterClass" }],
-        },
-        {
-            code: `/[\u0041\u0301]/`,
-            output: `/\u0041\u0301/`,
-            options: [{ fixable: true }],
-            errors: [{ messageId: "characterClass" }],
-        },
-        {
-            code: `/[\u0041\u0301]/u`,
-            output: `/\u0041\u0301/u`,
-            options: [{ fixable: true }],
-            errors: [{ messageId: "characterClass" }],
-        },
-        {
-            code: `/[\u{41}\u{301}]/u`,
-            output: `/\u{41}\u{301}/u`,
             options: [{ fixable: true }],
             errors: [{ messageId: "characterClass" }],
         },

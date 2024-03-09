@@ -41,8 +41,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 2,
                     suggestions: [
-                        { output: "/(?:)/.test(str)" },
-                        { output: "/a?/.test(str)" },
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `/(?:)/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a?/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -56,8 +62,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 2,
                     suggestions: [
-                        { output: "/(?:)/.test(str)" },
-                        { output: "/a*/.test(str)" },
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `/(?:)/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a*/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -71,8 +83,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 2,
                     suggestions: [
-                        { output: "/a/.test(str)" },
-                        { output: "/a+/.test(str)" },
+                        {
+                            messageId: "suggestRemoveQuantifier",
+                            output: `/a/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a+/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -86,8 +104,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 2,
                     suggestions: [
-                        { output: "/a{3}/.test(str)" },
-                        { output: "/a{3,7}/.test(str)" },
+                        {
+                            messageId: "suggestRange",
+                            output: `/a{3}/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a{3,7}/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -101,8 +125,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 2,
                     suggestions: [
-                        { output: "/a{3}/.test(str)" },
-                        { output: "/a{3,}/.test(str)" },
+                        {
+                            messageId: "suggestRange",
+                            output: `/a{3}/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a{3,}/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -117,8 +147,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 9,
                     suggestions: [
-                        { output: `/(?:a|b(c))/.test(str)` },
-                        { output: `/(?:a|b(c+))/.test(str)` },
+                        {
+                            messageId: "suggestRemoveQuantifier",
+                            output: `/(?:a|b(c))/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/(?:a|b(c+))/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -132,8 +168,14 @@ tester.run("no-lazy-ends", rule as any, {
                     line: 1,
                     column: 9,
                     suggestions: [
-                        { output: `/a(?:c|ab)?/.test(str)` },
-                        { output: `/a(?:c|ab+)?/.test(str)` },
+                        {
+                            messageId: "suggestRemoveQuantifier",
+                            output: `/a(?:c|ab)?/.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `/a(?:c|ab+)?/.test(str)`,
+                        },
                     ],
                 },
             ],
@@ -154,6 +196,32 @@ tester.run("no-lazy-ends", rule as any, {
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 7,
                     column: 26,
+                    suggestions: [
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /(?:)/
+            foo.exec(str)
+            `,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /[\\s\\S]*/
+            foo.exec(str)
+            `,
+                        },
+                    ],
                 },
             ],
         },
@@ -174,6 +242,32 @@ tester.run("no-lazy-ends", rule as any, {
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 7,
                     column: 26,
+                    suggestions: [
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /(?:)/
+            foo.exec(str)
+            `,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `
+            /* ✓ GOOD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            /* ✗ BAD */
+            const foo = /[\\s\\S]*/
+            foo.exec(str)
+            `,
+                        },
+                    ],
                 },
             ],
         },
@@ -193,12 +287,60 @@ tester.run("no-lazy-ends", rule as any, {
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 3,
                     column: 26,
+                    suggestions: [
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `
+            /* ✗ BAD */
+            const any = /(?:)/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            const foo = /[\\s\\S]*?/
+            foo.exec(str)
+            `,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `
+            /* ✗ BAD */
+            const any = /[\\s\\S]*/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            const foo = /[\\s\\S]*?/
+            foo.exec(str)
+            `,
+                        },
+                    ],
                 },
                 {
                     message:
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 6,
                     column: 26,
+                    suggestions: [
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `
+            /* ✗ BAD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            const foo = /(?:)/
+            foo.exec(str)
+            `,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: `
+            /* ✗ BAD */
+            const any = /[\\s\\S]*?/.source;
+            const pattern = RegExp(\`<script(\\\\s\${any})?>(\${any})<\\/script>\`, "g");
+
+            const foo = /[\\s\\S]*/
+            foo.exec(str)
+            `,
+                        },
+                    ],
                 },
             ],
         },
@@ -210,6 +352,16 @@ tester.run("no-lazy-ends", rule as any, {
                         "The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.",
                     line: 1,
                     column: 2,
+                    suggestions: [
+                        {
+                            messageId: "suggestRemoveElement",
+                            output: `/(?:)/v.test(str)`,
+                        },
+                        {
+                            messageId: "suggestMakeGreedy",
+                            output: String.raw`/[\q{ab|}]?/v.test(str)`,
+                        },
+                    ],
                 },
             ],
         },

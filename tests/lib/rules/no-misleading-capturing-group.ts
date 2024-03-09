@@ -27,13 +27,31 @@ tester.run("no-misleading-capturing-group", rule as any, {
         {
             code: String.raw`/\d+(\d*)/`,
             errors: [
-                "'\\d*' can be removed because it is already included by '\\d+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
+                {
+                    message:
+                        "'\\d*' can be removed because it is already included by '\\d+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
+                    suggestions: [
+                        {
+                            messageId: "suggestionRemove",
+                            output: String.raw`/\d+()/`,
+                        },
+                    ],
+                },
             ],
         },
         {
             code: String.raw`/(?:!\d+|%\w+)(\d*)/`,
             errors: [
-                "'\\d*' can be removed because it is already included by '\\d+' and '\\w+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
+                {
+                    message:
+                        "'\\d*' can be removed because it is already included by '\\d+' and '\\w+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
+                    suggestions: [
+                        {
+                            messageId: "suggestionRemove",
+                            output: String.raw`/(?:!\d+|%\w+)()/`,
+                        },
+                    ],
+                },
             ],
         },
 
