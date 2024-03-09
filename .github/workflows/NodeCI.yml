@@ -37,6 +37,8 @@ jobs:
               # run: npm ci
               # We use `npm i` because there is an error regarding dependencies when installing eslint v9-alpha.
               run: npm i -f
+            - name: Build
+              run: npm run build
             - name: Test
               run: npm test
     test-and-coverage:
@@ -46,6 +48,8 @@ jobs:
             - uses: actions/setup-node@v4
             - name: Install Packages
               run: npm ci
+            - name: Build
+              run: npm run build
             - name: Test
               run: npm run test:nyc
             - name: Coveralls GitHub Action

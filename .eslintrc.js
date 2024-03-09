@@ -102,6 +102,12 @@ module.exports = {
     },
     overrides: [
         {
+            files: ["*.mjs"],
+            parserOptions: {
+                sourceType: "module",
+            },
+        },
+        {
             files: ["*.ts"],
             parser: "@typescript-eslint/parser",
             parserOptions: {
@@ -127,6 +133,7 @@ module.exports = {
             rules: {
                 "require-jsdoc": "off",
                 "no-console": "off",
+                "n/file-extension-in-import": "off",
             },
         },
         {

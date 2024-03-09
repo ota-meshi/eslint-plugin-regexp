@@ -10,3 +10,4 @@
 !/.vscode
 !/.github
 /tests/fixtures/integrations/eslint-plugin/test.js
+/tests/fixtures/integrations/eslint-plugin-legacy-config/test.js

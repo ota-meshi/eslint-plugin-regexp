@@ -14,8 +14,7 @@ const coreRules = [
     // "require-unicode-regexp", // modern
 ]
 
-const content = `export const plugins = ["regexp"]
-export const rules = {
+const content = `export const rules = {
     // ESLint core rules
     ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n    ")},
     // The ESLint rule will report fewer cases than our rule
@@ -34,7 +33,7 @@ export const rules = {
 }
 `
 
-const filePath = path.resolve(__dirname, "../lib/configs/recommended.ts")
+const filePath = path.resolve(__dirname, "../lib/configs/rules/recommended.ts")
 
 // Update file.
 fs.writeFileSync(filePath, content)

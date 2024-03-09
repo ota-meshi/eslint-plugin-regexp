@@ -7,7 +7,7 @@ since: "v0.3.0"
 ---
 # regexp/no-useless-character-class
 
-💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
+💼 This rule is enabled in the following configs: 🟢 `flat/recommended`, 🔵 `recommended`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

@@ -7,7 +7,7 @@ since: "v0.9.0"
 ---
 # regexp/no-useless-flag
 
-⚠️ This rule _warns_ in the ✅ `plugin:regexp/recommended` config.
+⚠️ This rule _warns_ in the following configs: 🟢 `flat/recommended`, 🔵 `recommended`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

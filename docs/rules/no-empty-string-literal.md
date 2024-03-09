@@ -7,7 +7,7 @@ since: "v2.0.0-next.11"
 ---
 # regexp/no-empty-string-literal
 
-💼 This rule is enabled in the ✅ `plugin:regexp/recommended` config.
+💼 This rule is enabled in the following configs: 🟢 `flat/recommended`, 🔵 `recommended`.
 
 <!-- end auto-generated rule header -->
 
