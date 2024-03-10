@@ -8,6 +8,9 @@
         "jsonc",
         "yaml"
     ],
+    "eslint.options": {
+        "overrideConfigFile": "./.eslintrc-editor-only.js"
+    },
     "typescript.validate.enable": true,
     "javascript.validate.enable": false,
     "vetur.validation.script": false,
