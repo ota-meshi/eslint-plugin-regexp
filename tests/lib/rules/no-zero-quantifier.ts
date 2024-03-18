@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-zero-quantifier"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -10,59 +10,5 @@ const tester = new RuleTester({
 
 tester.run("no-zero-quantifier", rule as any, {
     valid: [`/a{0,1}/`, `/a{0,}/`],
-    invalid: [
-        {
-            code: `/a{0}/`,
-            errors: [
-                {
-                    messageId: "unexpected",
-                    column: 2,
-                    endColumn: 6,
-                    suggestions: [{ messageId: "remove", output: `/(?:)/` }],
-                },
-            ],
-        },
-        {
-            code: `/a{0}/v`,
-            errors: [
-                {
-                    messageId: "unexpected",
-                    suggestions: [{ messageId: "remove", output: `/(?:)/v` }],
-                },
-            ],
-        },
-        {
-            code: `/a{0,0}/`,
-            errors: [
-                {
-                    messageId: "unexpected",
-                    column: 2,
-                    endColumn: 8,
-                    suggestions: [{ messageId: "remove", output: `/(?:)/` }],
-                },
-            ],
-        },
-        {
-            code: `/a{0,0}?b/`,
-            errors: [
-                {
-                    messageId: "unexpected",
-                    column: 2,
-                    endColumn: 9,
-                    suggestions: [{ messageId: "remove", output: `/b/` }],
-                },
-            ],
-        },
-        {
-            code: `/(a){0}/`,
-            errors: [
-                {
-                    messageId: "withCapturingGroup",
-                    column: 2,
-                    endColumn: 8,
-                    suggestions: [],
-                },
-            ],
-        },
-    ],
+    invalid: [`/a{0}/`, `/a{0}/v`, `/a{0,0}/`, `/a{0,0}?b/`, `/(a){0}/`],
 })

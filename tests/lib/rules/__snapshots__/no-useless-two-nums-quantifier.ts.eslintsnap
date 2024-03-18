@@ -1,0 +1,73 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{1,1}/
+    |   ^~~~~ [1]
+
+Output:
+  1 | /a{1}/
+
+[1] Unexpected quantifier '{1,1}'.
+---
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{42,42}/
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /a{42}/
+
+[1] Unexpected quantifier '{42,42}'.
+---
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{042,42}/
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /a{42}/
+
+[1] Unexpected quantifier '{042,42}'.
+---
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{042,042}/
+    |   ^~~~~~~~~ [1]
+
+Output:
+  1 | /a{42}/
+
+[1] Unexpected quantifier '{042,042}'.
+---
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{100,100}?/
+    |   ^~~~~~~~~ [1]
+
+Output:
+  1 | /a{100}?/
+
+[1] Unexpected quantifier '{100,100}'.
+---
+
+
+Test: no-useless-two-nums-quantifier >> invalid
+Code:
+  1 | /a{100,100}?/v
+    |   ^~~~~~~~~ [1]
+
+Output:
+  1 | /a{100}?/v
+
+[1] Unexpected quantifier '{100,100}'.
+---

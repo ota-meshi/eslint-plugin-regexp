@@ -1,0 +1,55 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /a(\b)/
+    |   ^~~~ [1]
+
+[1] Unexpected capture empty.
+---
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /a($)/
+    |   ^~~ [1]
+
+[1] Unexpected capture empty.
+---
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /(^)a/
+    |  ^~~ [1]
+
+[1] Unexpected capture empty.
+---
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /()a/
+    |  ^~ [1]
+
+[1] Unexpected capture empty.
+---
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /(\b\b|(?:\B|$))a/
+    |  ^~~~~~~~~~~~~~~ [1]
+
+[1] Unexpected capture empty.
+---
+
+
+Test: no-empty-capturing-group >> invalid
+Code:
+  1 | /a([\q{}])/v
+    |   ^~~~~~~~ [1]
+
+[1] Unexpected capture empty.
+---

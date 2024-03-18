@@ -1,0 +1,101 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: hexadecimal-escape >> invalid
+Code:
+  1 | /\u000a \u{00000a}/u
+    |  ^~~~~~ ^~~~~~~~~~
+    |  [1]    [2]
+
+Output:
+  1 | /\x0a \x0a/u
+
+[1] Expected hexadecimal escape ('\x0a'), but unicode escape ('\u000a') is used.
+[2] Expected hexadecimal escape ('\x0a'), but unicode code point escape ('\u{00000a}') is used.
+---
+
+
+Test: hexadecimal-escape >> invalid >>> /\u000a \u{00000a}/u 2
+Options:
+  - always
+
+Code:
+  1 | /\u000a \u{00000a}/u
+    |  ^~~~~~ ^~~~~~~~~~
+    |  [1]    [2]
+
+Output:
+  1 | /\x0a \x0a/u
+
+[1] Expected hexadecimal escape ('\x0a'), but unicode escape ('\u000a') is used.
+[2] Expected hexadecimal escape ('\x0a'), but unicode code point escape ('\u{00000a}') is used.
+---
+
+
+Test: hexadecimal-escape >> invalid
+Options:
+  - never
+
+Code:
+  1 | /\x0f \xff/u
+    |  ^~~~ ^~~~
+    |  [1]  [2]
+
+Output:
+  1 | /\u000f \u00ff/u
+
+[1] Unexpected hexadecimal escape ('\x0f').
+[2] Unexpected hexadecimal escape ('\xff').
+---
+
+
+Test: hexadecimal-escape >> invalid
+Options:
+  - never
+
+Code:
+  1 | /\x0a \x0b \x41/u
+    |  ^~~~ ^~~~ ^~~~
+    |  [1]  [2]  [3]
+
+Output:
+  1 | /\u000a \u000b \u0041/u
+
+[1] Unexpected hexadecimal escape ('\x0a').
+[2] Unexpected hexadecimal escape ('\x0b').
+[3] Unexpected hexadecimal escape ('\x41').
+---
+
+
+Test: hexadecimal-escape >> invalid
+Options:
+  - always
+
+Code:
+  1 | /[\q{\u000a \u{00000a}}]/v
+    |      ^~~~~~ ^~~~~~~~~~
+    |      [1]    [2]
+
+Output:
+  1 | /[\q{\x0a \x0a}]/v
+
+[1] Expected hexadecimal escape ('\x0a'), but unicode escape ('\u000a') is used.
+[2] Expected hexadecimal escape ('\x0a'), but unicode code point escape ('\u{00000a}') is used.
+---
+
+
+Test: hexadecimal-escape >> invalid
+Options:
+  - never
+
+Code:
+  1 | /[\q{\x0f \xff}]/v
+    |      ^~~~ ^~~~
+    |      [1]  [2]
+
+Output:
+  1 | /[\q{\u000f \u00ff}]/v
+
+[1] Unexpected hexadecimal escape ('\x0f').
+[2] Unexpected hexadecimal escape ('\xff').
+---

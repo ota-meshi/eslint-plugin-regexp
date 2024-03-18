@@ -1,0 +1,149 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | /\x1f/
+    |  ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | /\\\x1f\\x1e/
+    |    ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | /\\\x1fFOO\\x00/
+    |    ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | /FOO\\\x1fFOO\\x1f/
+    |       ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | new RegExp('\x1f\x1e')
+    |             ^~~~ [1]
+    |                 ^~~~ [2]
+
+[1] Unexpected control character '\x1f' (U+001f).
+[2] Unexpected control character '\x1e' (U+001e).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | new RegExp('\x1fFOO\x00')
+    |             ^~~~   ^~~~
+    |             [1]    [2]
+
+[1] Unexpected control character '\x1f' (U+001f).
+[2] Unexpected control character '\x00' (U+0000).
+    Suggestions:
+      - Use '\0' instead.
+        Output:
+          1 | new RegExp('\x1fFOO\\0')
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | new RegExp('FOO\x1fFOO\x1f')
+    |                ^~~~   ^~~~
+    |                [1]    [2]
+
+[1] Unexpected control character '\x1f' (U+001f).
+[2] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\x1f')
+    |         ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\\x1f')
+    |         ^~~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\\\x1f')
+    |         ^~~~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\x0a')
+    |         ^~~~ [1]
+
+[1] Unexpected control character '\n' (U+000a).
+    Suggestions:
+      - Use '\n' instead.
+        Output:
+          1 | RegExp('\\n')
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\\x0a')
+    |         ^~~~~ [1]
+
+[1] Unexpected control character '\x0a' (U+000a).
+    Suggestions:
+      - Use '\n' instead.
+        Output:
+          1 | RegExp('\\n')
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | RegExp('\\\x0a')
+    |         ^~~~~~ [1]
+
+[1] Unexpected control character '\n' (U+000a).
+    Suggestions:
+      - Use '\n' instead.
+        Output:
+          1 | RegExp('\\n')
+---
+
+
+Test: no-control-character >> invalid
+Code:
+  1 | /[\q{\x1f}]/v
+    |      ^~~~ [1]
+
+[1] Unexpected control character '\x1f' (U+001f).
+---

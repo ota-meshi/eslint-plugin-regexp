@@ -1,0 +1,289 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a&&[^b]]/v
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /[a--[b]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a&&b&&[^c]]/v
+    |   ^~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a&&b]--[c]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a&&[^b]&&c]/v
+    |   ^~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a&&c]--[b]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a&&b&&[^c]&&d]/v
+    |   ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a&&b&&d]--[c]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a]&&b&&c]/v
+    |   ^~~~~~~~~~ [1]
+
+Output:
+  1 | /[[b&&c]--[a]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^b]&&a]/v
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /[a--[b]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[abc]&&[^def]]/v
+    |   ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[abc]--[def]]/v
+
+[1] This expression can be converted to the subtraction.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a--[^b]]/v
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /[a&&[b]]/v
+
+[1] This expression can be converted to the intersection.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a--[^b]--c]/v
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /[[a&&[b]]--c]/v
+
+[1] This expression can be converted to the intersection.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a--b--[^c]]/v
+    |   ^~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a--b]&&[c]]/v
+
+[1] This expression can be converted to the intersection.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[abc]--[^def]]/v
+    |   ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[abc]&&[def]]/v
+
+[1] This expression can be converted to the intersection.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a]&&[^b]]/v
+    |  ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[^[a][b]]/v
+
+[1] This character class can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[^[^a]&&[^b]]/v
+    |  ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a][b]]/v
+
+[1] This character class can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a]&&[^b]&&\D]/v
+    |  ^~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[^[a][b]\d]/v
+
+[1] This character class can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[^[^a]&&[^b]&&\D]/v
+    |  ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a][b]\d]/v
+
+[1] This character class can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a]&&\D&&b]/v
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /[b--[[a]\d]]/v
+
+[1] This expression can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^abc]&&[^def]&&\D]/v
+    |  ^~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[^[abc][def]\d]/v
+
+[1] This character class can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a]&&[b]&&[^c]]/v
+    |   ^~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[b]--[[a][c]]]/v
+
+[1] This expression can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^a][^b]]/v
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /[^[a]&&[b]]/v
+
+[1] This character class can be converted to the negation of a conjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^abc][^def]]/v
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[^[abc]&&[def]]/v
+
+[1] This character class can be converted to the negation of a conjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[^[^a][^b]]/v
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a]&&[b]]/v
+
+[1] This character class can be converted to the negation of a conjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[^\S\P{ASCII}]/v
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s&&\p{ASCII}]/v
+
+[1] This character class can be converted to the negation of a conjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[a&&[^b]&&[^c]&&d]/v
+    |   ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a&&d]--[[b][c]]]/v
+
+[1] This expression can be converted to the negation of a disjunction using De Morgan's laws.
+---
+
+
+Test: simplify-set-operations >> invalid
+Code:
+  1 | /[[^bc]&&a&&d]/v
+    |   ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /[[a&&d]--[bc]]/v
+
+[1] This expression can be converted to the subtraction.
+---

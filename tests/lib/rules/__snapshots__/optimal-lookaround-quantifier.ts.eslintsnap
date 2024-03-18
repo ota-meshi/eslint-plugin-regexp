@@ -1,0 +1,92 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?=ba*)/
+    |      ^~ [1]
+
+[1] The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.
+    Suggestions:
+      - Remove the expression.
+        Output:
+          1 | /(?=b)/
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?=ba*)/v
+    |      ^~ [1]
+
+[1] The quantified expression 'a*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.
+    Suggestions:
+      - Remove the expression.
+        Output:
+          1 | /(?=b)/v
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?=(?:a|b|abc*))/
+    |              ^~ [1]
+
+[1] The quantified expression 'c*' at the end of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.
+    Suggestions:
+      - Remove the expression.
+        Output:
+          1 | /(?=(?:a|b|ab))/
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?=(?:a|b|abc+))/
+    |              ^~ [1]
+
+[1] The quantified expression 'c+' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c' (no quantifier) without affecting the lookaround.
+    Suggestions:
+      - Replace the expression with 'c' (no quantifier).
+        Output:
+          1 | /(?=(?:a|b|abc))/
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?=(?:a|b|abc{4,9}))/
+    |              ^~~~~~ [1]
+
+[1] The quantified expression 'c{4,9}' at the end of the expression tree should only be matched a constant number of times. The expression can be replaced with 'c{4}' without affecting the lookaround.
+    Suggestions:
+      - Replace the expression with 'c{4}'.
+        Output:
+          1 | /(?=(?:a|b|abc{4}))/
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?<=[a-c]*)/
+    |      ^~~~~~ [1]
+
+[1] The quantified expression '[a-c]*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.
+    Suggestions:
+      - Remove the expression.
+        Output:
+          1 | /(?<=)/
+---
+
+
+Test: optimal-lookaround-quantifier >> invalid
+Code:
+  1 | /(?<=(?:d|c)*ab)/
+    |      ^~~~~~~~ [1]
+
+[1] The quantified expression '(?:d|c)*' at the start of the expression tree should only be matched a constant number of times. The expression can be removed without affecting the lookaround.
+    Suggestions:
+      - Remove the expression.
+        Output:
+          1 | /(?<=ab)/
+---

@@ -1,0 +1,573 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /\w \W \s \S \d \D . \b/i
+    |                         ^ [1]
+
+Output:
+  1 | /\w \W \s \S \d \D . \b/
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /K/i
+    |    ^ [1]
+
+Output:
+  1 | /K/
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /\w/m
+    |     ^ [1]
+
+Output:
+  1 | /\w/
+
+[1] The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /\w/s
+    |     ^ [1]
+
+Output:
+  1 | /\w/
+
+[1] The 's' flag is unnecessary because the pattern does not contain dots (.).
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /\w/ims
+    |     ^ [1]
+    |      ^ [2]
+    |       ^ [3]
+
+Output:
+  1 | /\w/
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+[2] The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.
+[3] The 's' flag is unnecessary because the pattern does not contain dots (.).
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | /\w/ms
+    |     ^ [1]
+    |      ^ [2]
+
+Output:
+  1 | /\w/
+
+[1] The 'm' flag is unnecessary because the pattern does not contain start (^) or end ($) assertions.
+[2] The 's' flag is unnecessary because the pattern does not contain dots (.).
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const regex1 = /foo/g;
+  4 |             const str = 'table football, foosball';
+  5 |             while ((array = regex1.exec(str)) !== null) {
+  6 |               //
+  7 |             }
+  8 |
+  9 |             const regex2 = /foo/g;
+ 10 |             regex2.test(string);
+ 11 |             regex2.test(string);
+ 12 |
+ 13 |             str.replace(/foo/g, 'bar');
+ 14 |             str.replaceAll(/foo/g, 'bar');
+ 15 |
+ 16 |             /* ✗ BAD */
+ 17 |             /foo/g.test(string);
+    |                  ^ [1]
+ 18 |             const regex3 = /foo/g;
+    |                                 ^ [2]
+ 19 |             regex3.test(string); // You have used it only once.
+ 20 |
+ 21 |             /foo/g.exec(string);
+    |                  ^ [3]
+ 22 |             const regex4 = /foo/g;
+    |                                 ^ [4]
+ 23 |             regex4.exec(string); // You have used it only once.
+ 24 |
+ 25 |             new RegExp('foo', 'g').test(string);
+    |                                ^ [5]
+ 26 |
+ 27 |             str.search(/foo/g);
+    |                             ^ [6]
+ 28 |             
+
+Output:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const regex1 = /foo/g;
+  4 |             const str = 'table football, foosball';
+  5 |             while ((array = regex1.exec(str)) !== null) {
+  6 |               //
+  7 |             }
+  8 |
+  9 |             const regex2 = /foo/g;
+ 10 |             regex2.test(string);
+ 11 |             regex2.test(string);
+ 12 |
+ 13 |             str.replace(/foo/g, 'bar');
+ 14 |             str.replaceAll(/foo/g, 'bar');
+ 15 |
+ 16 |             /* ✗ BAD */
+ 17 |             /foo/.test(string);
+ 18 |             const regex3 = /foo/g;
+ 19 |             regex3.test(string); // You have used it only once.
+ 20 |
+ 21 |             /foo/.exec(string);
+ 22 |             const regex4 = /foo/g;
+ 23 |             regex4.exec(string); // You have used it only once.
+ 24 |
+ 25 |             new RegExp('foo', '').test(string);
+ 26 |
+ 27 |             str.search(/foo/);
+ 28 |             
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+[2] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+[3] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.
+[4] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.
+[5] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+[6] The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             /foo/g.test(bar);
+    |                  ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             /foo/.test(bar);
+  3 |             
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             /foo/g.exec(bar);
+    |                  ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             /foo/.exec(bar);
+  3 |             
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.exec'.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             new RegExp('foo', 'g').test(bar);
+    |                                ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             new RegExp('foo', '').test(bar);
+  3 |             
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             "foo foo".search(/foo/g);
+    |                                   ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             "foo foo".search(/foo/);
+  3 |             
+
+[1] The 'g' flag is unnecessary because 'String.prototype.search' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const regex = /foo/g;
+    |                                ^ [1]
+  3 |             regex.test(bar);
+  4 |             
+
+Output: unchanged
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             function fn () {
+  3 |                 const regex = /foo/g;
+    |                                    ^ [1]
+  4 |                 return regex.test(bar);
+  5 |             }
+  6 |             
+
+Output: unchanged
+
+[1] The 'g' flag is unnecessary because the regex is used only once in 'RegExp.prototype.test'.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const a = /foo/g;
+    |                            ^ [1]
+  3 |             const b = a;
+  4 |             const regex = b;
+  5 |
+  6 |             regex.test(bar);
+  7 |
+  8 |             'str'.split(b)
+  9 |             
+
+Output: unchanged
+
+[1] The 'g' flag is unnecessary because the regex does not use global search.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const a = /foo/g;
+    |                            ^ [1]
+  3 |             'str'.split(a)
+  4 |             
+
+Output: unchanged
+
+[1] The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const a = /foo/g;
+    |                            ^ [1]
+  3 |             'str'.split(a)
+  4 |             'str'.split(a)
+  5 |             
+
+Output: unchanged
+
+[1] The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const notStr = {}
+  3 |             notStr.split(/foo/g);
+  4 |
+  5 |             maybeStr.split(/foo/g);
+    |                                 ^ [1]
+  6 |             
+
+Output:
+  1 |
+  2 |             const notStr = {}
+  3 |             notStr.split(/foo/g);
+  4 |
+  5 |             maybeStr.split(/foo/);
+  6 |             
+
+[1] The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             /** @param {object} obj */
+  3 |             function fn1 (obj) {
+  4 |                 obj.search(/foo/g);
+  5 |             }
+  6 |             function fn2 (maybeStr) {
+  7 |                 maybeStr.split(/foo/g);
+    |                                     ^ [1]
+  8 |             }
+  9 |             
+
+Output:
+  1 |
+  2 |             /** @param {object} obj */
+  3 |             function fn1 (obj) {
+  4 |                 obj.search(/foo/g);
+  5 |             }
+  6 |             function fn2 (maybeStr) {
+  7 |                 maybeStr.split(/foo/);
+  8 |             }
+  9 |             
+
+[1] The 'g' flag is unnecessary because 'String.prototype.split' ignores the 'g' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const regex1 = /foo/y;
+  4 |             const str = 'table football, foosball';
+  5 |             regex1.lastIndex = 6
+  6 |             var array = regex1.exec(str)
+  7 |
+  8 |             const regex2 = /foo/y;
+  9 |             regex2.test(string);
+ 10 |             regex2.test(string);
+ 11 |
+ 12 |             str.replace(/foo/y, 'bar');
+ 13 |             str.replaceAll(/foo/gy, 'bar');
+ 14 |
+ 15 |             const regexp3 = /foo/y
+ 16 |             str.search(regexp3)
+ 17 |
+ 18 |             /* ✗ BAD */
+ 19 |             str.split(/foo/y);
+    |                            ^ [1]
+ 20 |             
+
+Output:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const regex1 = /foo/y;
+  4 |             const str = 'table football, foosball';
+  5 |             regex1.lastIndex = 6
+  6 |             var array = regex1.exec(str)
+  7 |
+  8 |             const regex2 = /foo/y;
+  9 |             regex2.test(string);
+ 10 |             regex2.test(string);
+ 11 |
+ 12 |             str.replace(/foo/y, 'bar');
+ 13 |             str.replaceAll(/foo/gy, 'bar');
+ 14 |
+ 15 |             const regexp3 = /foo/y
+ 16 |             str.search(regexp3)
+ 17 |
+ 18 |             /* ✗ BAD */
+ 19 |             str.split(/foo/);
+ 20 |             
+
+[1] The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             "str".split(/foo/y)
+    |                              ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             "str".split(/foo/)
+  3 |             
+
+[1] The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             "str".split(new RegExp('foo', 'y'));
+    |                                            ^ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             "str".split(new RegExp('foo', ''));
+  3 |             
+
+[1] The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const a = /foo/y;
+    |                            ^ [1]
+  3 |             const b = a;
+  4 |             const regex = b;
+  5 |
+  6 |             'str'.split(regex)
+  7 |             
+
+Output: unchanged
+
+[1] The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const notStr = {}
+  3 |             notStr.split(/foo/y);
+  4 |
+  5 |             maybeStr.split(/foo/y);
+    |                                 ^ [1]
+  6 |             
+
+Output:
+  1 |
+  2 |             const notStr = {}
+  3 |             notStr.split(/foo/y);
+  4 |
+  5 |             maybeStr.split(/foo/);
+  6 |             
+
+[1] The 'y' flag is unnecessary because 'String.prototype.split' ignores the 'y' flag.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const orig = /\w/i; // eslint-disable-line
+  3 |             const clone = new RegExp(orig, 'i');
+    |                                             ^ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const orig = /\w/i; // eslint-disable-line
+  3 |             const clone = new RegExp(orig, '');
+  4 |             
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const orig = /\w/iy;
+    |                              ^~ [1]
+  3 |             const clone = new RegExp(orig, '');
+  4 |             
+
+Output:
+  1 |
+  2 |             const orig = /\w/;
+  3 |             const clone = new RegExp(orig, '');
+  4 |             
+
+[1] The flags of this RegExp literal are useless because only the source of the regex is used.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const orig = /\w/i;
+    |                              ^ [1]
+  3 |             const clone = new RegExp(orig);
+  4 |             
+
+Output:
+  1 |
+  2 |             const orig = /\w/;
+  3 |             const clone = new RegExp(orig);
+  4 |             
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | RegExp(/\w/i);
+    |            ^ [1]
+
+Output:
+  1 | RegExp(/\w/);
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 |
+  2 |             const orig = /\w/;
+  3 |             const clone = new RegExp(orig, 'i');
+    |                                             ^ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const orig = /\w/;
+  3 |             const clone = new RegExp(orig, '');
+  4 |             
+
+[1] The 'i' flag is unnecessary because the pattern only contains case-invariant characters.
+---
+
+
+Test: no-useless-flag >> invalid
+Code:
+  1 | RegExp(/\w/imu.source);
+    |            ^~~ [1]
+
+Output:
+  1 | RegExp(/\w/u.source);
+
+[1] The flags of this RegExp literal are useless because only the source of the regex is used.
+---

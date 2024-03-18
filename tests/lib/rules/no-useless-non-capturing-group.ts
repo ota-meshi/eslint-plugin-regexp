@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
 import rule from "../../../lib/rules/no-useless-non-capturing-group"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -78,183 +78,31 @@ tester.run("no-useless-non-capturing-group", rule as any, {
         `/(?:a|b)c/.test(str)`,
     ],
     invalid: [
-        {
-            code: `/(?:abcd)/.test(str)`,
-            output: `/abcd/.test(str)`,
-            errors: [
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 2,
-                    endLine: 1,
-                    endColumn: 5,
-                },
-            ],
-        },
-        {
-            code: `/(?:abcd)/v.test(str)`,
-            output: `/abcd/v.test(str)`,
-            errors: [
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 2,
-                    endLine: 1,
-                    endColumn: 5,
-                },
-            ],
-        },
-        {
-            code: `/(?:[abcd])/.test(str)`,
-            output: `/[abcd]/.test(str)`,
-            errors: [
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 2,
-                    endLine: 1,
-                    endColumn: 5,
-                },
-            ],
-        },
-        {
-            code: `/(?:ab|cd)/.test(str)`,
-            output: `/ab|cd/.test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: `/a(?:ab|(?:.|a|b))/`,
-            output: `/a(?:ab|.|a|b)/`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: `/(?:[abcd]+?)/.test(str)`,
-            output: `/[abcd]+?/.test(str)`,
-            errors: [
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:0)/.test(str); /\1(?:0)/.test(str); /(?:1)/.test(str); /\1(?:1)/.test(str)`,
-            output: String.raw`/0/.test(str); /\1(?:0)/.test(str); /1/.test(str); /\1(?:1)/.test(str)`,
-            errors: [
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 2,
-                },
-                {
-                    message:
-                        "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-                    line: 1,
-                    column: 42,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:a\n)/.test(str)`,
-            output: String.raw`/a\n/.test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String.raw`
+        `/(?:abcd)/.test(str)`,
+        `/(?:abcd)/v.test(str)`,
+        `/(?:[abcd])/.test(str)`,
+        `/(?:ab|cd)/.test(str)`,
+        `/a(?:ab|(?:.|a|b))/`,
+        `/(?:[abcd]+?)/.test(str)`,
+        String.raw`/(?:0)/.test(str); /\1(?:0)/.test(str); /(?:1)/.test(str); /\1(?:1)/.test(str)`,
+        String.raw`/(?:a\n)/.test(str)`,
+        String.raw`
             const s = "(?:a\\n)"
             ;(new RegExp(s)).test(str)`,
-            output: String.raw`
-            const s = "a\\n"
-            ;(new RegExp(s)).test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             const s = "(?:a"+"\\n)"
             ;(new RegExp(s)).test(str)`,
-            output: null,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-
-        {
-            code: `/(?:a)/.test(str)`,
-            output: `/a/.test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String(/(?:a)+/),
-            output: String(/a+/),
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String.raw`/(?:\w)/.test(str)`,
-            output: String.raw`/\w/.test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String(/(?:[abc])*/),
-            output: String(/[abc]*/),
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String(/foo(?:[abc]*)bar/),
-            output: String(/foo[abc]*bar/),
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String(/foo(?:bar)/),
-            output: String(/foobar/),
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: `/(?:a|b)/.test(str)`,
-            output: `/a|b/.test(str)`,
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
+        `/(?:a)/.test(str)`,
+        String(/(?:a)+/),
+        String.raw`/(?:\w)/.test(str)`,
+        String(/(?:[abc])*/),
+        String(/foo(?:[abc]*)bar/),
+        String(/foo(?:bar)/),
+        `/(?:a|b)/.test(str)`,
+        String(/a|(?:b|c)/),
         {
             code: String(/a|(?:b|c)/),
-            output: String(/a|b|c/),
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
-        },
-        {
-            code: String(/a|(?:b|c)/),
-            output: String(/a|b|c/),
             options: [{ allowTop: "always" }],
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
         },
         {
             code: `
@@ -264,17 +112,7 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             bar.exec(str)
             // { allowTop: "partial" }
             `,
-            output: `
-            const foo = /a|b/
-            const bar = new RegExp('(?:a|b)' + 'c')
-            foo.exec(str)
-            bar.exec(str)
-            // { allowTop: "partial" }
-            `,
             options: [{ allowTop: "partial" }],
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
         },
         {
             code: `
@@ -284,11 +122,7 @@ tester.run("no-useless-non-capturing-group", rule as any, {
             bar.exec(str)
             // { allowTop: "never" }
             `,
-            output: null,
             options: [{ allowTop: "never" }],
-            errors: [
-                "Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.",
-            ],
         },
     ],
 })

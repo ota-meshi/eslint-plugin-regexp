@@ -1,0 +1,173 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a{1}?/
+    |      ^ [1]
+
+Output:
+  1 | /a{1}/
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a{1}?/v
+    |      ^ [1]
+
+Output:
+  1 | /a{1}/v
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a{4}?/
+    |      ^ [1]
+
+Output:
+  1 | /a{4}/
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a{2,2}?/
+    |        ^ [1]
+
+Output:
+  1 | /a{2,2}/
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | const s = "\\d{1}?"
+    |                  ^ [1]
+  2 |             new RegExp(s)
+
+Output:
+  1 | const s = "\\d{1}"
+  2 |             new RegExp(s)
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | const s = "\\d"+"{1}?"
+    |                     ^ [1]
+  2 |             new RegExp(s)
+
+Output:
+  1 | const s = "\\d"+"{1}"
+  2 |             new RegExp(s)
+
+[1] Unexpected non-greedy constant quantifier.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a+?b+/
+    |    ^ [1]
+
+Output:
+  1 | /a+b+/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /[\q{aa|ab}]+?b+/v
+    |              ^ [1]
+
+Output:
+  1 | /[\q{aa|ab}]+b+/v
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /a*?b+/
+    |    ^ [1]
+
+Output:
+  1 | /a*b+/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /(?:a|cd)+?(?:b+|zzz)/
+    |           ^ [1]
+
+Output:
+  1 | /(?:a|cd)+(?:b+|zzz)/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /\b\w+?(?=\W)/
+    |       ^ [1]
+
+Output:
+  1 | /\b\w+(?=\W)/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /\b\w+?(?!\w)/
+    |       ^ [1]
+
+Output:
+  1 | /\b\w+(?!\w)/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /\b\w+?\b/
+    |       ^ [1]
+
+Output:
+  1 | /\b\w+\b/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---
+
+
+Test: no-useless-lazy >> invalid
+Code:
+  1 | /\b\w+?$/
+    |       ^ [1]
+
+Output:
+  1 | /\b\w+$/
+
+[1] Unexpected non-greedy constant quantifier. The quantifier is effectively possessive, so it doesn't matter whether it is greedy or not.
+---

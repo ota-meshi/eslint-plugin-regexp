@@ -1,0 +1,19 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-empty-string-literal >> invalid
+Code:
+  1 | /[\q{}]/v
+    |   ^~~~ [1]
+
+[1] Unexpected empty string literal.
+---
+
+
+Test: no-empty-string-literal >> invalid
+Code:
+  1 | /[\q{|}]/v
+    |   ^~~~~ [1]
+
+[1] Unexpected empty string literal.
+---

@@ -1,0 +1,121 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{a}]/v
+    |      ^ [1]
+
+Output:
+  1 | /[a]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{a|bc}]/v
+    |      ^ [1]
+
+Output:
+  1 | /[a\q{bc}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{ab|c}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[c\q{ab}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{ab|c|de}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[c\q{ab|de}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[a\q{ab|\-}]/v
+    |          ^~ [1]
+
+Output:
+  1 | /[a\-\q{ab}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{ab|^}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[\^\q{ab}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{ab|c}&&\q{ab}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[[c\q{ab}]&&\q{ab}]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[A&&\q{&}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[A&&\&]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[\q{&}&&A]/v
+    |      ^ [1]
+
+Output:
+  1 | /[\&&&A]/v
+
+[1] Unexpected string disjunction of single character.
+---
+
+
+Test: no-useless-string-literal >> invalid
+Code:
+  1 | /[A&&\q{^|ab}]/v
+    |         ^ [1]
+
+Output:
+  1 | /[A&&[\^\q{ab}]]/v
+
+[1] Unexpected string disjunction of single character.
+---

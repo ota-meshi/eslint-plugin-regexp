@@ -1,0 +1,300 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /a/
+    |   ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /a/u
+    |    ^ [1]
+
+Output:
+  1 | /a/v
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[\p{ASCII}]/iu
+    |              ^~ [1]
+
+Output:
+  1 | /[\p{ASCII}]/iv
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[[]/u
+    |      ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[^\P{Lowercase_Letter}]/giu
+    |                          ^~~ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[^\P{ASCII}]/iu
+    |               ^~ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[\P{ASCII}]/iu
+    |              ^~ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a&&b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a!!b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a##b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a$$b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a%%b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a**b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a++b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a,,b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a..b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a::b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a;;b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a<<b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a==b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a>>b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a??b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a@@b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a^^b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a``b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[a~~b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---
+
+
+Test: require-unicode-sets-regexp >> invalid
+Code:
+  1 | /[+--b]/u
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'v' flag.
+---

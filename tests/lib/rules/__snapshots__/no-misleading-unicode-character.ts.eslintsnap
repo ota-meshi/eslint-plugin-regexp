@@ -1,0 +1,572 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👍]/
+    |   ^~ [1]
+
+Output:
+  1 | /👍/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👍]foo/
+    |   ^~ [1]
+
+Output:
+  1 | /👍foo/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid >>> /[👍]foo/ 2
+Code:
+  1 | /[👍]foo/
+    |   ^~ [1]
+
+Output: unchanged
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+    Suggestions:
+      - Move the character(s) '👍' outside the character class.
+        Output:
+          1 | /👍foo/
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👍]|foo/
+    |   ^~ [1]
+
+Output:
+  1 | /👍|foo/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👍a]foo/
+    |   ^~ [1]
+
+Output:
+  1 | /(?:👍|[a])foo/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👍a]|foo/
+    |   ^~ [1]
+
+Output:
+  1 | /👍|[a]|foo/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[fooo👍bar]baz/
+    |       ^~ [1]
+
+Output:
+  1 | /(?:👍|[fooobar])baz/
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /👍+/
+    |   ^~ [1]
+
+Output:
+  1 | /(?:👍)+/
+
+"[1] The character '👍' is represented using a surrogate pair. The quantifier only applies to the tailing surrogate '\udc4d' (U+dc4d) and not to the whole character."
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[Á]/
+    |   ^~ [1]
+
+Output:
+  1 | /Á/
+
+[1] The character(s) 'Á' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[Á]/u
+    |   ^~ [1]
+
+Output:
+  1 | /Á/u
+
+[1] The character(s) 'Á' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[❇️]/
+    |   ^~ [1]
+
+Output:
+  1 | /❇️/
+
+[1] The character(s) '❇️' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[❇️]/u
+    |   ^~ [1]
+
+Output:
+  1 | /❇️/u
+
+[1] The character(s) '❇️' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /❇️+/u
+    |   ^~ [1]
+
+Output:
+  1 | /(?:❇️)+/u
+
+[1] The character '❇️' is represented using multiple Unicode code points. The quantifier only applies to the last code point '️' (U+fe0f) and not to the whole character.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[🇯🇵]/
+    |   ^~~~ [1]
+
+Output:
+  1 | /🇯🇵/
+
+[1] The character(s) '🇯🇵' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[🇯🇵]/u
+    |   ^~~~ [1]
+
+Output:
+  1 | /🇯🇵/u
+
+[1] The character(s) '🇯🇵' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👨‍👩‍👦]/
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /👨‍👩‍👦/
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👨‍👩‍👦]/u
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /👨‍👩‍👦/u
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /👨‍👩‍👦+/
+    |         ^~ [1]
+
+Output:
+  1 | /(?:👨‍👩‍👦)+/
+
+"[1] The character '👨‍👩‍👦' is represented using multiple Unicode code points. The quantifier only applies to the last code point '\udc66' (U+dc66) and not to the whole character."
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /👨‍👩‍👦+/u
+    |        ^~~ [1]
+
+Output:
+  1 | /(?:👨‍👩‍👦)+/u
+
+[1] The character '👨‍👩‍👦' is represented using multiple Unicode code points. The quantifier only applies to the last code point '👦' (U+1f466) and not to the whole character.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[竈門禰󠄀豆子]|[煉󠄁獄杏寿郎]/
+    |     ^~~ [1] ^~~ [2]
+
+Output:
+  1 | /禰󠄀|[竈門豆子]|煉󠄁|[獄杏寿郎]/
+
+[1] The character(s) '禰󠄀' are all represented using multiple char codes.
+[2] The character(s) '煉󠄁' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[👍]", "")
+    |              ^~ [1]
+
+Output:
+  1 | new RegExp("👍", "")
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[\uD83D\uDC4D]", "")
+    |              ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | new RegExp("👍", "")
+
+[1] The character(s) '👍' are all represented using multiple char codes. Use the `u` flag.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[Á]", "")
+    |              ^~ [1]
+
+Output:
+  1 | new RegExp("Á", "")
+
+[1] The character(s) 'Á' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[Á]", "u")
+    |              ^~ [1]
+
+Output:
+  1 | new RegExp("Á", "u")
+
+[1] The character(s) 'Á' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[❇️]", "")
+    |              ^~ [1]
+
+Output:
+  1 | new RegExp("❇️", "")
+
+[1] The character(s) '❇️' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[❇️]", "u")
+    |              ^~ [1]
+
+Output:
+  1 | new RegExp("❇️", "u")
+
+[1] The character(s) '❇️' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[🇯🇵]", "")
+    |              ^~~~ [1]
+
+Output:
+  1 | new RegExp("🇯🇵", "")
+
+[1] The character(s) '🇯🇵' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[🇯🇵]", "u")
+    |              ^~~~ [1]
+
+Output:
+  1 | new RegExp("🇯🇵", "u")
+
+[1] The character(s) '🇯🇵' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[👨‍👩‍👦]", "")
+    |              ^~~~~~~~ [1]
+
+Output:
+  1 | new RegExp("👨‍👩‍👦", "")
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple char codes.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[👨‍👩‍👦]", "u")
+    |              ^~~~~~~~ [1]
+
+Output:
+  1 | new RegExp("👨‍👩‍👦", "u")
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[[👶🏻]]/v
+    |    ^~~~ [1]
+
+Output:
+  1 | /[[\q{👶🏻}]]/v
+
+[1] The character(s) '👶🏻' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👶🏻[👨‍👩‍👦]]/v
+    |   ^~~~ ^~~~~~~~
+    |   [1]  [2]
+
+Output:
+  1 | /[\q{👶🏻}[\q{👨‍👩‍👦}]]/v
+
+[1] The character(s) '👶🏻' are all represented using multiple code points.
+[2] The character(s) '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👶🏻👨‍👩‍👦]/v
+    |   ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\q{👶🏻|👨‍👩‍👦}]/v
+
+[1] The character(s) '👶🏻', '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[👶🏻&👨‍👩‍👦]/v
+    |   ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\q{👶🏻|👨‍👩‍👦}&]/v
+
+[1] The character(s) '👶🏻', '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[^👶🏻&👨‍👩‍👦]/v
+    |    ^~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] The character(s) '👶🏻', '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /[^👨‍👩‍👦]/v
+    |    ^~~~~~~~ [1]
+
+Output: unchanged
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | new RegExp("[👨‍👩‍👦]", "v")
+    |              ^~~~~~~~ [1]
+
+Output:
+  1 | new RegExp("[\\q{👨‍👩‍👦}]", "v")
+
+[1] The character(s) '👨‍👩‍👦' are all represented using multiple code points.
+---
+
+
+Test: no-misleading-unicode-character >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | /👨‍👩‍👦+/v
+    |        ^~~ [1]
+
+Output:
+  1 | /(?:👨‍👩‍👦)+/v
+
+[1] The character '👨‍👩‍👦' is represented using multiple Unicode code points. The quantifier only applies to the last code point '👦' (U+1f466) and not to the whole character.
+---

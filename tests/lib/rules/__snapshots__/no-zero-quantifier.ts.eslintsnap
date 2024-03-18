@@ -1,0 +1,62 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-zero-quantifier >> invalid
+Code:
+  1 | /a{0}/
+    |  ^~~~ [1]
+
+[1] Unexpected zero quantifier. The quantifier and its quantified element can be removed without affecting the pattern.
+    Suggestions:
+      - Remove this zero quantifier.
+        Output:
+          1 | /(?:)/
+---
+
+
+Test: no-zero-quantifier >> invalid
+Code:
+  1 | /a{0}/v
+    |  ^~~~ [1]
+
+[1] Unexpected zero quantifier. The quantifier and its quantified element can be removed without affecting the pattern.
+    Suggestions:
+      - Remove this zero quantifier.
+        Output:
+          1 | /(?:)/v
+---
+
+
+Test: no-zero-quantifier >> invalid
+Code:
+  1 | /a{0,0}/
+    |  ^~~~~~ [1]
+
+[1] Unexpected zero quantifier. The quantifier and its quantified element can be removed without affecting the pattern.
+    Suggestions:
+      - Remove this zero quantifier.
+        Output:
+          1 | /(?:)/
+---
+
+
+Test: no-zero-quantifier >> invalid
+Code:
+  1 | /a{0,0}?b/
+    |  ^~~~~~~ [1]
+
+[1] Unexpected zero quantifier. The quantifier and its quantified element can be removed without affecting the pattern.
+    Suggestions:
+      - Remove this zero quantifier.
+        Output:
+          1 | /b/
+---
+
+
+Test: no-zero-quantifier >> invalid
+Code:
+  1 | /(a){0}/
+    |  ^~~~~~ [1]
+
+[1] Unexpected zero quantifier. The quantifier and its quantified element do not affecting the pattern. Try to remove the elements but be careful because it contains at least one capturing group.
+---

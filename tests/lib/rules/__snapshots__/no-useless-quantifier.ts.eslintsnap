@@ -1,0 +1,175 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /a{1}/
+    |  ^~~~ [1]
+
+Output:
+  1 | /a/
+
+[1] Unexpected useless quantifier.
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /a{1,1}?/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /a/
+
+[1] Unexpected useless quantifier.
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:)+/
+    |  ^~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume or assert characters.
+    Suggestions:
+      - Remove the '+' quantifier.
+        Output:
+          1 | /(?:)/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:[\q{}])+/v
+    |  ^~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume or assert characters.
+    Suggestions:
+      - Remove the '+' quantifier.
+        Output:
+          1 | /(?:[\q{}])/v
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:|(?:)){5,9}/
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume or assert characters.
+    Suggestions:
+      - Remove the '{5,9}' quantifier.
+        Output:
+          1 | /(?:|(?:))/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:|()()())*/
+    |  ^~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume or assert characters.
+    Suggestions:
+      - Remove the '*' quantifier.
+        Output:
+          1 | /(?:|()()())/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:a+b*|c*)?/
+    |  ^~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element can already accept the empty string, so this quantifier is redundant.
+    Suggestions:
+      - Remove the '?' quantifier.
+        Output:
+          1 | /(?:a+b*|c*)/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:a|b?c?d?e?f?)?/
+    |  ^~~~~~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element can already accept the empty string, so this quantifier is redundant.
+    Suggestions:
+      - Remove the '?' quantifier.
+        Output:
+          1 | /(?:a|b?c?d?e?f?)/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:\b)+/
+    |  ^~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume characters.
+    Suggestions:
+      - Remove the '+' quantifier.
+        Output:
+          1 | /(?:\b)/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:\b){5,100}/
+    |  ^~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume characters.
+    Suggestions:
+      - Remove the '{5,100}' quantifier.
+        Output:
+          1 | /(?:\b)/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:\b|(?!a))+/
+    |  ^~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume characters.
+    Suggestions:
+      - Remove the '+' quantifier.
+        Output:
+          1 | /(?:\b|(?!a))/
+---
+
+
+Test: no-useless-quantifier >> invalid
+Code:
+  1 | /(?:\b|(?!)){6}/
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected useless quantifier. The quantified element doesn't consume characters.
+    Suggestions:
+      - Remove the '{6}' quantifier.
+        Output:
+          1 | /(?:\b|(?!))/
+---

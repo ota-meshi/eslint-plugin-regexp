@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/confusing-quantifier"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -18,38 +18,8 @@ tester.run("confusing-quantifier", rule as any, {
         String.raw`/[\q{a|b}]+/v`,
     ],
     invalid: [
-        {
-            code: String.raw`/(a?){5}/`,
-            errors: [
-                {
-                    message:
-                        "This quantifier is confusing because its minimum is 5 but it can match the empty string. Maybe replace it with `{0,5}` to reflect that it can match the empty string?",
-                    line: 1,
-                    column: 6,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:a?b*|c+){4}/`,
-            errors: [
-                {
-                    message:
-                        "This quantifier is confusing because its minimum is 4 but it can match the empty string. Maybe replace it with `{0,4}` to reflect that it can match the empty string?",
-                    line: 1,
-                    column: 13,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\q{a|}]+/v`,
-            errors: [
-                {
-                    message:
-                        "This quantifier is confusing because its minimum is 1 but it can match the empty string. Maybe replace it with `*` to reflect that it can match the empty string?",
-                    line: 1,
-                    column: 10,
-                },
-            ],
-        },
+        String.raw`/(a?){5}/`,
+        String.raw`/(?:a?b*|c+){4}/`,
+        String.raw`/[\q{a|}]+/v`,
     ],
 })

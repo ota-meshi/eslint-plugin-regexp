@@ -1,0 +1,546 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|b|c|\d/
+    |  ^~~~~~~~ [1]
+
+Output:
+  1 | /[abc\d]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(a|b|c|\d)/
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /([abc\d])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|b|c|\d)/
+    |     ^~~~~~~~ [1]
+
+Output:
+  1 | /(?:[abc\d])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?=a|b|c|\d)/
+    |     ^~~~~~~~ [1]
+
+Output:
+  1 | /(?=[abc\d])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<=a|b|c|\d)/
+    |      ^~~~~~~~ [1]
+
+Output:
+  1 | /(?<=[abc\d])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|b|c|\d|[d-f]/
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[abc\dd-f]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|-|c|\d|c|[-d-f]/
+    |  ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[a\-c\dc\-d-f]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|[.]|c|\d|c|[-d-f]/
+    |  ^~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[a.c\dc\-d-f]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | const s = "a|b|\\d|c"
+    |            ^~~~~~~~~ [1]
+  2 |             new RegExp(s)
+
+Output:
+  1 | const s = "[ab\\dc]"
+  2 |             new RegExp(s)
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | const s = "a|b|"+"c"
+    |            ^~~~~~~~ [1]
+  2 |             new RegExp(s)
+
+Output: unchanged
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|b|c/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[abc]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /]|a|b/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[\]ab]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /-|a|c/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[\-ac]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|-|c/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[a\-c]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /a|[-]|c/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /[a\-c]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|b|c)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?:[abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(a|b|c)/
+    |   ^~~~~ [1]
+
+Output:
+  1 | /([abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<name>a|b|c)/
+    |          ^~~~~ [1]
+
+Output:
+  1 | /(?<name>[abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|b|c|d\b)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?:[abc]|d\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|b\b|[c]|d)/
+    |     ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?:[acd]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|\w|\s|["'])/
+    |     ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?:[a\w\s"'])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\w|-|\+|\*|\/)+/
+    |     ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?:[\w\-\+\*\/])+/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?=a|b|c)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?=[abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?!a|b|c)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?![abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<=a|b|c)/
+    |      ^~~~~ [1]
+
+Output:
+  1 | /(?<=[abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<!a|b|c)/
+    |      ^~~~~ [1]
+
+Output:
+  1 | /(?<![abc])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?=a|b|c|dd|e)/
+    |     ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?=[abce]|dd)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?!a|b|c|dd|e)/
+    |     ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?![abce]|dd)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<=a|b|c|dd|e)/
+    |      ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<=[abce]|dd)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?<!a|b|c|dd|e)/
+    |      ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<![abce]|dd)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /[abc]|d/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /[abcd]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /[abc]|d|ee/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /[abcd]|ee/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:a|\w|b\b)/
+    |     ^~~~ [1]
+
+Output:
+  1 | /(?:[a\w]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\w|a|b\b)/
+    |     ^~~~ [1]
+
+Output:
+  1 | /(?:[\wa]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\w|b\b|a)/
+    |     ^~~~~~~~ [1]
+
+Output:
+  1 | /(?:[\wa]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\s|\S|b\b)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?:[\s\S]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\w|\D|b\b)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?:[\w\D]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /(?:\w|\W|b\b)/
+    |     ^~~~~ [1]
+
+Output:
+  1 | /(?:[\w\W]|b\b)/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /--?|-=|\+\+?|\+=|!=?|~|\*\*?|\*=|\/=?|%=?|<<=?|>>=?|<=?|>=?|==?|&&?|&=|\^=?|\|\|?|\|=|\?|:/
+    |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /--?|-=|\+\+?|\+=|!=?|[~\?:]|\*\*?|\*=|\/=?|%=?|<<=?|>>=?|<=?|>=?|==?|&&?|&=|\^=?|\|\|?|\|=/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&|\|\|?|\?|\*|\/|~|\^|%/
+    |                                         ^~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&|\|\|?|[\?\*\/~\^%]/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /1|2|3|[\w--\d]/v
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[123[\w--\d]]/v
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /1|&|&|[\w--\d]/v
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[1\&&[\w--\d]]/v
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /1|~|~|[\w--\d]|[\q{abc}]/v
+    |  ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[1\~~[\w--\d]]|[\q{abc}]/v
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Code:
+  1 | /foo|bar|a|b|c|baz/
+    |          ^~~~~ [1]
+
+Output:
+  1 | /foo|bar|[abc]|baz/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---
+
+
+Test: prefer-character-class >> invalid
+Options:
+  - minAlternatives: 2
+
+Code:
+  1 | /(?:a|b)/
+    |     ^~~ [1]
+
+Output:
+  1 | /(?:[ab])/
+
+[1] Unexpected the disjunction of single element alternatives. Use character class '[...]' instead.
+---

@@ -1,0 +1,71 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /b(?:a+)+b/
+    |      ^~ [1]
+
+Output:
+  1 | /ba+b/
+
+[1] This quantifier can reach itself via the loop '(?:a+)+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This is going to cause exponential backtracking resulting in exponential worst-case runtime behavior.
+---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /(?:ba+|a+b){2}/
+    |      ^~~~~ [1]
+
+Output: unchanged
+
+[1] The quantifier 'a+' can exchange characters with 'a+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /\ba+a+$/
+    |    ^~~~ [1]
+
+Output:
+  1 | /\ba{2,}$/
+
+[1] The quantifier 'a+' can exchange characters with 'a+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /\b\w+a\w+$/
+    |    ^~~~~~~ [1]
+
+Output:
+  1 | /\b\w[\dA-Z_b-z]*a\w+$/
+
+[1] The quantifier '\w+' can exchange characters with '\w+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /\b\w+a?b{4}\w+$/
+    |    ^~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] The quantifier '\w+' can exchange characters with '\w+'. Using any string accepted by /b+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /[\q{a}]*b?[\q{a}]+$/v
+    |  ^~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?:[\q{a}]+(?:b[\q{a}]+)?|b[\q{a}]+)$/v
+
+[1] The quantifier '[\q{a}]*' can exchange characters with '[\q{a}]+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---

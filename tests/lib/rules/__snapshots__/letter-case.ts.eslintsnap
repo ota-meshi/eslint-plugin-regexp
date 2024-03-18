@@ -1,0 +1,339 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /Regexp/i
+    |  ^ [1]
+
+Output:
+  1 | /regexp/i
+
+[1] 'R' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /Regexp/i 2
+Options:
+  - caseInsensitive: lowercase
+
+Code:
+  1 | /Regexp/i
+    |  ^ [1]
+
+Output:
+  1 | /regexp/i
+
+[1] 'R' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - caseInsensitive: uppercase
+
+Code:
+  1 | /ReGeXp/i
+    |   ^ [1]
+    |     ^ [2]
+    |       ^ [3]
+
+Output:
+  1 | /REGEXP/i
+
+[1] 'e' is not in uppercase
+[2] 'e' is not in uppercase
+[3] 'p' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /[A-Z]/i
+    |   ^~~ [1]
+
+Output:
+  1 | /[a-z]/i
+
+[1] 'A-Z' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /[\u0041-Z]/i
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /[a-z]/i
+
+[1] '\u0041-Z' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /[\u004A-Z]/i
+    |   ^~~~~~~~ [1]
+    |   ^~~~~~ [2]
+
+Output:
+  1 | /[j-z]/i
+
+[1] '\u004A-Z' is not in lowercase
+[2] '\u004A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /[\u004a-Z]/i
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /[j-z]/i
+
+[1] '\u004a-Z' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /\u000A/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\u000a/
+
+[1] '\u000A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /\u000A/ 2
+Options:
+  - unicodeEscape: lowercase
+
+Code:
+  1 | /\u000A/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\u000a/
+
+[1] '\u000A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - unicodeEscape: uppercase
+
+Code:
+  1 | /\u000a/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\u000A/
+
+[1] '\u000a' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /\u{A}/u
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\u{a}/u
+
+[1] '\u{A}' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /\u{A}/u 2
+Options:
+  - unicodeEscape: lowercase
+
+Code:
+  1 | /\u{A}/u
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\u{a}/u
+
+[1] '\u{A}' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - unicodeEscape: uppercase
+
+Code:
+  1 | /\u{a}/u
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\u{A}/u
+
+[1] '\u{a}' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /\x0A/
+    |  ^~~~ [1]
+
+Output:
+  1 | /\x0a/
+
+[1] '\x0A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /\x0A/ 2
+Options:
+  - hexadecimalEscape: lowercase
+
+Code:
+  1 | /\x0A/
+    |  ^~~~ [1]
+
+Output:
+  1 | /\x0a/
+
+[1] '\x0A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - hexadecimalEscape: uppercase
+
+Code:
+  1 | /\x0a/
+    |  ^~~~ [1]
+
+Output:
+  1 | /\x0A/
+
+[1] '\x0a' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /\ca/u
+    |  ^~~ [1]
+
+Output:
+  1 | /\cA/u
+
+[1] '\ca' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - controlEscape: lowercase
+
+Code:
+  1 | /\cA/u
+    |  ^~~ [1]
+
+Output:
+  1 | /\ca/u
+
+[1] '\cA' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /\ca/u 2
+Options:
+  - controlEscape: uppercase
+
+Code:
+  1 | /\ca/u
+    |  ^~~ [1]
+
+Output:
+  1 | /\cA/u
+
+[1] '\ca' is not in uppercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - unicodeEscape: lowercase
+
+Code:
+  1 | const s = "\\u000A";
+    |            ^~~~~~~ [1]
+  2 |             new RegExp(s)
+
+Output:
+  1 | const s = "\\u000a";
+  2 |             new RegExp(s)
+
+[1] '\u000A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Options:
+  - unicodeEscape: lowercase
+
+Code:
+  1 | const s = "\\u"+"000A";
+    |           ^~~~~~~~~~~~ [1]
+  2 |             new RegExp(s)
+
+Output: unchanged
+
+[1] '\u000A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid
+Code:
+  1 | /[\q{Ab}]/iv
+    |      ^ [1]
+
+Output:
+  1 | /[\q{ab}]/iv
+
+[1] 'A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /[\q{Ab}]/iv 2
+Options:
+  - caseInsensitive: lowercase
+
+Code:
+  1 | /[\q{Ab}]/iv
+    |      ^ [1]
+
+Output:
+  1 | /[\q{ab}]/iv
+
+[1] 'A' is not in lowercase
+---
+
+
+Test: letter-case >> invalid >>> /[\q{Ab}]/iv 3
+Options:
+  - caseInsensitive: uppercase
+
+Code:
+  1 | /[\q{Ab}]/iv
+    |       ^ [1]
+
+Output:
+  1 | /[\q{AB}]/iv
+
+[1] 'b' is not in uppercase
+---

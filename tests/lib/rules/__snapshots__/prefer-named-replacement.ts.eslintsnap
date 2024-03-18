@@ -1,0 +1,79 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-named-replacement >> invalid
+Code:
+  1 | "str".replace(/a(?<foo>b)c/, "_$1_")
+    |                                ^~ [1]
+
+Output:
+  1 | "str".replace(/a(?<foo>b)c/, "_$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---
+
+
+Test: prefer-named-replacement >> invalid
+Code:
+  1 | "str".replace(/a(?<foo>b)c/v, "_$1_")
+    |                                 ^~ [1]
+
+Output:
+  1 | "str".replace(/a(?<foo>b)c/v, "_$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---
+
+
+Test: prefer-named-replacement >> invalid
+Code:
+  1 | "str".replaceAll(/a(?<foo>b)c/, "_$1_")
+    |                                   ^~ [1]
+
+Output:
+  1 | "str".replaceAll(/a(?<foo>b)c/, "_$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---
+
+
+Test: prefer-named-replacement >> invalid
+Code:
+  1 | "str".replace(/(a)(?<foo>b)c/, "_$1$2_")
+    |                                    ^~ [1]
+
+Output:
+  1 | "str".replace(/(a)(?<foo>b)c/, "_$1$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---
+
+
+Test: prefer-named-replacement >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 | unknown.replace(/a(?<foo>b)c/, "_$1_")
+    |                                  ^~ [1]
+
+Output:
+  1 | unknown.replace(/a(?<foo>b)c/, "_$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---
+
+
+Test: prefer-named-replacement >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 | unknown.replaceAll(/a(?<foo>b)c/, "_$1_")
+    |                                     ^~ [1]
+
+Output:
+  1 | unknown.replaceAll(/a(?<foo>b)c/, "_$<foo>_")
+
+[1] Unexpected indexed reference in replacement string.
+---

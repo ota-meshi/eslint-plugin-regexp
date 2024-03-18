@@ -1,0 +1,883 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, 'Date') 
+    |                       ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |                       [1]     [2]     [3]
+
+Output:
+  1 | '2000-12-31'.replace(/(?:\d{4})-(?:\d{2})-(?:\d{2})/, 'Date') 
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.replace(/(?:\d{4})-(\d{2})-(\d{2})/, 'Date') 
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.replace(/(\d{4})-(?:\d{2})-(\d{2})/, 'Date') 
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, 'Date') 
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2') // "2000/12"
+    |                                       ^~~~~~~ [1]
+
+Output:
+  1 | '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$1/$2') // "2000/12"
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$1/$2') // "2000/12"
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<y>/$<m>') // "2000/12"
+    |                                               ^~~~~~~~~~~ [1]
+
+Output:
+  1 | '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<y>/$<m>') // "2000/12"
+
+[1] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<y>/$<m>') // "2000/12"
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | /(\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true
+    |  ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |  [1]     [2]     [3]
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | /(?:\d{4})-(\d{2})-(\d{2})/.test('2000-12-31') // true
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | /(\d{4})-(?:\d{2})-(\d{2})/.test('2000-12-31') // true
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | /(\d{4})-(\d{2})-(?:\d{2})/.test('2000-12-31') // true
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | '2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]
+    |                                ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |                                [1]     [2]     [3]
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31 2001-01-01'.match(/(?:\d{4})-(\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31 2001-01-01'.match(/(\d{4})-(?:\d{2})-(\d{2})/g) // ["2000-12-31", "2001-01-01"]
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31 2001-01-01'.match(/(\d{4})-(\d{2})-(?:\d{2})/g) // ["2000-12-31", "2001-01-01"]
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | '2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2})/) // 0
+    |                      ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |                      [1]     [2]     [3]
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.search(/(?:\d{4})-(\d{2})-(\d{2})/) // 0
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.search(/(\d{4})-(?:\d{2})-(\d{2})/) // 0
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | '2000-12-31'.search(/(\d{4})-(\d{2})-(?:\d{2})/) // 0
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, y, m) => `${y}/${m}`)
+    |                                                      ^~~~~~~ [1]
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, (_, y, m) => `${y}/${m}`)
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+    |                                                  ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |                                                  [1]     [2]     [3]
+  3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+    |                                                  ^~~~~~~~~~~ ^~~~~~~~~~~ ^~~~~~~~~~~
+    |                                                  [4]         [5]         [6]
+  4 |             
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(?:\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(?:\d{2})-(\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(?:\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+[4] Capturing group 'y' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?:\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+[5] Capturing group 'm' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?:\d{2})-(?<d>\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+[6] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$4/$5/$6')
+          3 |             var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/u, '$<yy>/$<mm>/$<dd>')
+          4 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             var replaced = '2000-12-31'.replaceAll(/(\d{4})-(\d{2})-(\d{2})/g, 'foo')
+    |                                                     ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |                                                     [1]     [2]     [3]
+  3 |             
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replaceAll(/(?:\d{4})-(\d{2})-(\d{2})/g, 'foo')
+          3 |             
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replaceAll(/(\d{4})-(?:\d{2})-(\d{2})/g, 'foo')
+          3 |             
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var replaced = '2000-12-31'.replaceAll(/(\d{4})-(\d{2})-(?:\d{2})/g, 'foo')
+          3 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | var index = '2000-12-31 2000-12-31'.search(/(\d{4})-(\d{2})-(\d{2}) \1-\2-\2/)
+    |                                                             ^~~~~~~ [1]
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | var index = '2000-12-31 2000-12-31'.search(/(\d{4})-(\d{2})-(?:\d{2}) \1-\2-\2/)
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | var index = '2000-12-31 2000-12-31'.search(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2}) \k<y>-\k<d>-\k<d>/)
+    |                                                         ^~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Capturing group 'm' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             var matches = '2000-12-31'.match(/(\d{4})-(\d{2})-(\d{2})/)
+    |                                                               ^~~~~~~ [1]
+  3 |             var y = matches[1] // "2000"
+  4 |             var m = matches[2] // "12"
+  5 |             // var d = matches[3] // "31"
+  6 |             
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             var matches = '2000-12-31'.match(/(\d{4})-(\d{2})-(?:\d{2})/)
+          3 |             var y = matches[1] // "2000"
+          4 |             var m = matches[2] // "12"
+          5 |             // var d = matches[3] // "31"
+          6 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const groups = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/).groups
+    |                                                            ^~~~~~~~~~~ [1]
+  3 |             const y = groups.y // "2000"
+  4 |             const d = groups.d // "31"
+  5 |             
+
+Output: unchanged
+
+[1] Capturing group 'm' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const { groups } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+    |                                                                ^~~~~~~~~~~ [1]
+  3 |             const y = groups.y // "2000"
+  4 |             const d = groups.d // "31"
+  5 |             
+
+Output: unchanged
+
+[1] Capturing group 'm' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const { groups: {y,d} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+    |                                                                       ^~~~~~~~~~~ [1]
+  3 |             
+
+Output: unchanged
+
+[1] Capturing group 'm' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)["groups"]
+    |                                                                       ^~~~~~~~~~~ [1]
+  3 |             
+
+Output: unchanged
+
+[1] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const {y,m} = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/)["groups"]
+          3 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const { groups: {m, d} = {} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+    |                                                                 ^~~~~~~~~~~ [1]
+  3 |             
+
+Output: unchanged
+
+[1] Capturing group 'y' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const { ["groups"]: {m, d} = {} } = '2000-12-31'.match(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/)
+    |                                                                     ^~~~~~~~~~~ [1]
+  3 |             
+
+Output: unchanged
+
+[1] Capturing group 'y' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g)) {
+    |                                                                             ^~~~~~~ ^~~~~~~
+    |                                                                             [1]     [2]
+  3 |                 var y = matches[1] // "2000"
+  4 |                 // var m = matches[2] // "12"
+  5 |                 // var d = matches[3] // "31"
+  6 |             }
+  7 |
+  8 |             
+
+Output: unchanged
+
+[1] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(?:\d{2})-(\d{2})/g)) {
+          3 |                 var y = matches[1] // "2000"
+          4 |                 // var m = matches[2] // "12"
+          5 |                 // var d = matches[3] // "31"
+          6 |             }
+          7 |
+          8 |             
+[2] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             for (const matches of '2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(?:\d{2})/g)) {
+          3 |                 var y = matches[1] // "2000"
+          4 |                 // var m = matches[2] // "12"
+          5 |                 // var d = matches[3] // "31"
+          6 |             }
+          7 |
+          8 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g)
+    |                                                                                  ^~~~~~~~~~~ [1]
+  3 |             for (const matches of re) {
+  4 |                 var y = matches[1] // "2000"
+  5 |                 var m = matches.groups.m // "12"
+  6 |                 // var d = matches[3] // "31"
+  7 |             }
+  8 |             
+
+Output: unchanged
+
+[1] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+          3 |             for (const matches of re) {
+          4 |                 var y = matches[1] // "2000"
+          5 |                 var m = matches.groups.m // "12"
+          6 |                 // var d = matches[3] // "31"
+          7 |             }
+          8 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             let re
+  3 |             re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/g)
+    |                                                                            ^~~~~~~~~~~ [1]
+  4 |             for (const matches of re) {
+  5 |                 var y = matches[1] // "2000"
+  6 |                 var m = matches.groups.m // "12"
+  7 |                 // var d = matches[3] // "31"
+  8 |             }
+  9 |             
+
+Output: unchanged
+
+[1] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             let re
+          3 |             re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+          4 |             for (const matches of re) {
+          5 |                 var y = matches[1] // "2000"
+          6 |                 var m = matches.groups.m // "12"
+          7 |                 // var d = matches[3] // "31"
+          8 |             }
+          9 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             let re
+  3 |             re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g)
+    |                                                                            ^~~~~~~ [1]
+  4 |             for (const matches of re) {
+  5 |                 var y = matches[1] // "2000"
+  6 |                 const {...groups} = matches.groups
+  7 |                 var m = groups.m // "12"
+  8 |                 // var d = matches[3] // "31"
+  9 |             }
+ 10 |             
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             let re
+          3 |             re = '2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)
+          4 |             for (const matches of re) {
+          5 |                 var y = matches[1] // "2000"
+          6 |                 const {...groups} = matches.groups
+          7 |                 var m = groups.m // "12"
+          8 |                 // var d = matches[3] // "31"
+          9 |             }
+         10 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const result = [...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g)]
+    |                                                                                          ^~~~~~~ [1]
+  3 |             for (const matches of result) {
+  4 |                 var y = matches[1] // "2000"
+  5 |                 var m = matches.groups.m // "12"
+  6 |                 // var d = matches[3] // "31"
+  7 |             }
+  8 |             
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const result = [...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g)]
+          3 |             for (const matches of result) {
+          4 |                 var y = matches[1] // "2000"
+          5 |                 var m = matches.groups.m // "12"
+          6 |                 // var d = matches[3] // "31"
+          7 |             }
+          8 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const result = [
+  3 |                 { 1: 2000, groups: { m: 12 } },
+  4 |                 ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g),
+    |                                                                              ^~~~~~~ [1]
+  5 |                 ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?<d>\d{2})/g),
+    |                                                                                ^~~~~~~~~~~ [2]
+  6 |             ]
+  7 |             for (const matches of result) {
+  8 |                 var y = matches[1]
+  9 |                 var m = matches.groups.m
+ 10 |                 // var d = matches[3]
+ 11 |             }
+ 12 |             
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const result = [
+          3 |                 { 1: 2000, groups: { m: 12 } },
+          4 |                 ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(?:\d{2})/g),
+          5 |                 ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?<d>\d{2})/g),
+          6 |             ]
+          7 |             for (const matches of result) {
+          8 |                 var y = matches[1]
+          9 |                 var m = matches.groups.m
+         10 |                 // var d = matches[3]
+         11 |             }
+         12 |             
+[2] Capturing group 'd' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const result = [
+          3 |                 { 1: 2000, groups: { m: 12 } },
+          4 |                 ...'2000-12-31 2000-12-31'.matchAll(/(?<y>\d{4})-(?<m>\d{2})-(\d{2})/g),
+          5 |                 ...'2000/12/31 2000/12/31'.matchAll(/(?<y>\d{4})\/(?<m>\d{2})\/(?:\d{2})/g),
+          6 |             ]
+          7 |             for (const matches of result) {
+          8 |                 var y = matches[1]
+          9 |                 var m = matches.groups.m
+         10 |                 // var d = matches[3]
+         11 |             }
+         12 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | var isDate = /(\d{4})-(\d{2})-(\d{2})/.test(foo)
+    |               ^~~~~~~ ^~~~~~~ ^~~~~~~
+    |               [1]     [2]     [3]
+
+Output: unchanged
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | var isDate = /(?:\d{4})-(\d{2})-(\d{2})/.test(foo)
+[2] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | var isDate = /(\d{4})-(?:\d{2})-(\d{2})/.test(foo)
+[3] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | var isDate = /(\d{4})-(\d{2})-(?:\d{2})/.test(foo)
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const regexp = /(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/
+    |                                         ^~~~~~~~~~~ [1]
+  3 |             let re
+  4 |             while(re = regexp.exec(foo)) {
+  5 |                 const y = re.groups.y
+  6 |                 // const m = re.groups.m
+  7 |                 const d = re.groups.d
+  8 |             }
+  9 |             
+
+Output: unchanged
+
+[1] Capturing group 'm' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const regexp = /(\d{4})-(\d{2})-(\d{2})/
+    |                                             ^~~~~~~ [1]
+  3 |             let re
+  4 |             while(re = regexp.exec(foo)) {
+  5 |                 const [,y,m] = re
+  6 |             }
+  7 |             
+
+Output: unchanged
+
+[1] Capturing group number 3 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const regexp = /(\d{4})-(\d{2})-(?:\d{2})/
+          3 |             let re
+          4 |             while(re = regexp.exec(foo)) {
+          5 |                 const [,y,m] = re
+          6 |             }
+          7 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Code:
+  1 | 'str'.replace(/(?<foo>\w+)/, () => {});
+    |                ^~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Capturing group 'foo' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | 'str'.replace(/(?:\w+)/, () => {});
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
+    |                                                 ^~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const bs = [...'abc_abc'.matchAll(/a(?:b)/g)].map(m => m[0])
+  3 |             
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const bs = [...'abc_abc'.matchAll(/a(?:b)/g)].map(m => m[0])
+          3 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1]))
+    |                                          ^~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             ;[...'abc_abc'.matchAll(/a(b)(?:c)/g)].forEach(m => console.log(m[1]))
+  3 |             
+
+[1] Capturing group number 2 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             ;[...'abc_abc'.matchAll(/a(b)(?:c)/g)].forEach(m => console.log(m[1]))
+          3 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.b === m.groups.c);
+    |                                                              ^~~~~~~ [1]
+  3 |             console.log(filtered[0].groups.b);
+  4 |             
+
+Output: unchanged
+
+[1] Capturing group 'a' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.a === m.groups.c);
+    |                                                                     ^~~~~~~ [1]
+  3 |             console.log(filtered[0].groups.a);
+  4 |             
+
+Output: unchanged
+
+[1] Capturing group 'b' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.a === m.groups.c);
+    |                                                                    ^~~~~~~ [1]
+  3 |             console.log(element.groups.a);
+  4 |             
+
+Output: unchanged
+
+[1] Capturing group 'b' is defined but never used.
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 |
+  2 |             const text = 'Lorem ipsum dolor sit amet'
+  3 |             const replaced = text.replace(/([\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+    |                                            ^~~~~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const text = 'Lorem ipsum dolor sit amet'
+  3 |             const replaced = text.replace(/(?:[\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+  4 |             
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 |
+          2 |             const text = 'Lorem ipsum dolor sit amet'
+          3 |             const replaced = text.replace(/(?:[\q{Lorem|ipsum}])/gv, '**Lorem ipsum**')
+          4 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | const re = /(foo)/d
+    |             ^~~~~ [1]
+  2 |             console.log(re.exec('foo').indices[2])
+  3 |             
+
+Output:
+  1 | const re = /(?:foo)/d
+  2 |             console.log(re.exec('foo').indices[2])
+  3 |             
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | const re = /(?:foo)/d
+          2 |             console.log(re.exec('foo').indices[2])
+          3 |             
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
+  1 | const re = /(?<f>foo)/d
+    |             ^~~~~~~~~ [1]
+  2 |             console.log(re.exec('foo').indices.groups.x)
+  3 |             
+
+Output:
+  1 | const re = /(?:foo)/d
+  2 |             console.log(re.exec('foo').indices.groups.x)
+  3 |             
+
+[1] Capturing group 'f' is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | const re = /(?:foo)/d
+          2 |             console.log(re.exec('foo').indices.groups.x)
+          3 |             
+---

@@ -1,0 +1,62 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-contradiction-with-assertion >> invalid
+Code:
+  1 | /a\b-?a/
+    |     ^~ [1]
+
+[1] The quantifier '-?' is always entered despite having a minimum of 0. This is because the assertion '\b' contradicts with the element(s) after the quantifier. Either set the minimum to 1 ({1}) or change the assertion.
+    Suggestions:
+      - Change the quantifier to {1}.
+        Output:
+          1 | /a\b-{1}a/
+---
+
+
+Test: no-contradiction-with-assertion >> invalid
+Code:
+  1 | /a\b(a|-)/
+    |      ^ [1]
+
+[1] The alternative 'a' can never be entered because it contradicts with the assertion '\b'. Either change the alternative or assertion to resolve the contradiction.
+---
+
+
+Test: no-contradiction-with-assertion >> invalid
+Code:
+  1 | /a\ba*-/
+    |     ^~ [1]
+
+[1] The quantifier 'a*' can never be entered because its element contradicts with the assertion '\b'. Change or remove the quantifier or change the assertion to resolve the contradiction.
+    Suggestions:
+      - Remove the quantifier.
+        Output:
+          1 | /a\b-/
+---
+
+
+Test: no-contradiction-with-assertion >> invalid
+Code:
+  1 | /a\b[a\q{foo|bar}]*-/v
+    |     ^~~~~~~~~~~~~~~ [1]
+
+[1] The quantifier '[a\q{foo|bar}]*' can never be entered because its element contradicts with the assertion '\b'. Change or remove the quantifier or change the assertion to resolve the contradiction.
+    Suggestions:
+      - Remove the quantifier.
+        Output:
+          1 | /a\b-/v
+---
+
+
+Test: no-contradiction-with-assertion >> invalid
+Code:
+  1 | /(^[\t ]*)#(?:comments-start|cs)[\s\S]*?^[ \t]*#(?:comments-end|ce)/m
+    |                                 ^~~~~~~~ [1]
+
+[1] The quantifier '[\s\S]*?' is always entered despite having a minimum of 0. This is because the assertion '^' contradicts with the element(s) after the quantifier. Either set the minimum to 1 (+?) or change the assertion.
+    Suggestions:
+      - Change the quantifier to +?.
+        Output:
+          1 | /(^[\t ]*)#(?:comments-start|cs)[\s\S]+?^[ \t]*#(?:comments-end|ce)/m
+---

@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-useless-character-class"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -50,222 +50,73 @@ tester.run("no-useless-character-class", rule as any, {
         String.raw`/[\q{abc}]/v`,
     ],
     invalid: [
-        {
-            code: `/[a]/`,
-            output: `/a/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected character class with one character. Can remove brackets.",
-                    line: 1,
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: `/[a-a]/`,
-            output: `/a/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected character class with one character class range. Can remove brackets and range.",
-                    line: 1,
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\d]/`,
-            output: String.raw`/\d/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected character class with one character class escape. Can remove brackets.",
-                    line: 1,
-                    column: 2,
-                },
-            ],
-        },
+        `/[a]/`,
+        `/[a-a]/`,
+        String.raw`/[\d]/`,
         {
             code: `/[=]/`,
-            output: `/=/`,
             options: [{ ignores: [] }],
-            errors: [
-                "Unexpected character class with one character. Can remove brackets.",
-            ],
         },
         {
             code: String.raw`/[\D]/`,
-            output: String.raw`/\D/`,
             options: [{ ignores: ["\\d"] }],
-            errors: [
-                "Unexpected character class with one character class escape. Can remove brackets.",
-            ],
         },
-        {
-            code: String.raw`/(,)[\0]/`,
-            output: String.raw`/(,)\0/`,
-            errors: [
-                "Unexpected character class with one character. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/(,)[\01]/`,
-            output: String.raw`/(,)\01/`,
-            errors: [
-                "Unexpected character class with one character. Can remove brackets.",
-            ],
-        },
+        String.raw`/(,)[\0]/`,
+        String.raw`/(,)[\01]/`,
         {
             code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\]] [/] [\\]/`,
-            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ } \( \) \| \[ \] \/ \\/`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
         {
             code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\]] [/] [\\]/u`,
-            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/u`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
         {
             code: String.raw`/[.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\]/v`,
-            output: String.raw`/\. \* \+ \? \^ = ! : \$ \{ \} \( \) \| \[ \] \/ \\/v`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
         {
             code: String.raw`/[.-.]/u`,
-            output: String.raw`/\./u`,
             options: [{ ignores: [] }],
-            errors: 1,
         },
         {
             code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:] [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]", "u")`,
-            output: String.raw`new RegExp("\\. \\* \\+ \\? \\^ = ! : \\$ \\{ \\} \\( \\) \\| \\[ \\] \\/ \\\\", "u")`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
         {
             code: String.raw`new RegExp("[.] [*] [+] [?] [\\^] [=] [!] [:]" + " [$] [{] [}] [(] [)] [|] [[] [\\]] [/] [\\\\]")`,
-            output: String.raw`new RegExp("\\. \\* \\+ \\? \\^ = ! :" + " \\$ \\{ } \\( \\) \\| \\[ \\] \\/ \\\\")`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
         {
             code: String.raw`RegExp("[\"]" + '[\']')`,
-            output: String.raw`RegExp("\"" + '\'')`,
             options: [{ ignores: [] }],
-            errors: 2,
         },
         {
             code: String.raw`/[ [.] [*] [+] [?] [\^] [=] [!] [:] [$] [\{] [\}] [\(] [\)] [\|] [\[] [\]] [\/] [\\] ]/v`,
-            output: String.raw`/[ . * + ? \^ = ! : $ \{ \} \( \) \| \[ \] \/ \\ ]/v`,
             options: [{ ignores: [] }],
-            errors: 18,
         },
-        {
-            code: String.raw`/[[\^]A]/v`,
-            output: String.raw`/[\^A]/v`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[[A]--[B]]/v`,
-            output: String.raw`/[A--B]/v`,
-            errors: 2,
-        },
-        {
-            code: String.raw`/[A[&]&B]/v; /[A&&[&]]/v`,
-            output: String.raw`/[A\&&B]/v; /[A&&\&]/v`,
-            errors: 2,
-        },
-        {
-            code: String.raw`/[A[&-&]&B]/v`,
-            output: String.raw`/[A\&&B]/v`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[[&]&&[&]]/v`,
-            output: String.raw`/[\&&&\&]/v`,
-            errors: 2,
-        },
-        {
-            code: String.raw`/[[abc]]/v`,
-            output: String.raw`/[abc]/v`,
-            errors: [
-                "Unexpected character class with one character class. Can remove brackets.",
-                "Unexpected unnecessary nesting character class. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/[[A&&B]]/v`,
-            output: String.raw`/[A&&B]/v`,
-            errors: [
-                "Unexpected character class with one character class. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/[[\q{abc}]]/v`,
-            output: String.raw`/[\q{abc}]/v`,
-            errors: [
-                "Unexpected character class with one character class. Can remove brackets.",
-                "Unexpected character class with one string literal. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/[[^\w&&\d]]/v`,
-            output: String.raw`/[^\w&&\d]/v`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[^[abc]]/v`,
-            output: String.raw`/[^abc]/v`,
-            errors: [
-                "Unexpected unnecessary nesting character class. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/[^[abc]d]/v`,
-            output: String.raw`/[^abcd]/v`,
-            errors: [
-                "Unexpected unnecessary nesting character class. Can remove brackets.",
-            ],
-        },
-        {
-            code: String.raw`/[[abc][def]ghi]/v`,
-            output: String.raw`/[abc[def]ghi]/v`,
-            errors: 2,
-        },
-        {
-            code: String.raw`/[abc[def]ghi]/v`,
-            output: String.raw`/[abcdefghi]/v`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[[abc&]&[&bd]]/v`,
-            output: String.raw`/[abc\&&\&bd]/v`,
-            errors: 2,
-        },
-        {
-            code: String.raw`/[[abc!-&]&[&-1bd]]/v`,
-            output: String.raw`/[abc!-\&&\&-1bd]/v`,
-            errors: 2,
-        },
+        String.raw`/[[\^]A]/v`,
+        String.raw`/[[A]--[B]]/v`,
+        String.raw`/[A[&]&B]/v; /[A&&[&]]/v`,
+        String.raw`/[A[&-&]&B]/v`,
+        String.raw`/[[&]&&[&]]/v`,
+        String.raw`/[[abc]]/v`,
+        String.raw`/[[A&&B]]/v`,
+        String.raw`/[[\q{abc}]]/v`,
+        String.raw`/[[^\w&&\d]]/v`,
+        String.raw`/[^[abc]]/v`,
+        String.raw`/[^[abc]d]/v`,
+        String.raw`/[[abc][def]ghi]/v`,
+        String.raw`/[abc[def]ghi]/v`,
+        String.raw`/[[abc&]&[&bd]]/v`,
+        String.raw`/[[abc!-&]&[&-1bd]]/v`,
         // We don't need to do anything with auto-fix escaping because the original pattern will cause a parsing error.
         // {
         //     code: String.raw`/[a[-b]]/v`,
         //     output: String.raw`/[a\-b]/v`,
         //     errors: 1,
         // },
-        {
-            code: String.raw`/[[]^]/v`,
-            output: String.raw`/[\^]/v`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[&[]&]/v`,
-            output: String.raw`/[&\&]/v`,
-            errors: 1,
-        },
+        String.raw`/[[]^]/v`,
+        String.raw`/[&[]&]/v`,
     ],
 })

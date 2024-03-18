@@ -1,0 +1,783 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a\bb/
+    |   ^~ [1]
+
+[1] '\b' will always reject because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a\b[\q{foo}]/v
+    |   ^~ [1]
+
+[1] '\b' will always reject because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/v
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /,\b,/
+    |   ^~ [1]
+
+[1] '\b' will always reject because it is preceded by a non-word character and followed by a non-word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /,\bb/
+    |   ^~ [1]
+
+[1] '\b' will always accept because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /,b/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a\b,/
+    |   ^~ [1]
+
+[1] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a,/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a\Bb/
+    |   ^~ [1]
+
+[1] '\B' will always accept because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /ab/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /,\B,/
+    |   ^~ [1]
+
+[1] '\B' will always accept because it is preceded by a non-word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /,,/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /,\Bb/
+    |   ^~ [1]
+
+[1] '\B' will always reject because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a\B,/
+    |   ^~ [1]
+
+[1] '\B' will always reject because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\w^foo/m
+    |    ^ [1]
+
+[1] '^' will always reject because it is preceded by a non-line-terminator character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/m
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\n^foo/m
+    |    ^ [1]
+
+[1] '^' will always accept because it is preceded by a line-terminator character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\nfoo/m
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\w^foo/
+    |    ^ [1]
+
+[1] '^' will always reject because it is preceded by a character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\n^foo/
+    |    ^ [1]
+
+[1] '^' will always reject because it is preceded by a character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo$\w/m
+    |     ^ [1]
+
+[1] '$' will always reject because it is followed by a non-line-terminator character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/m
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo$\n/m
+    |     ^ [1]
+
+[1] '$' will always accept because it is followed by a line-terminator character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /foo\n/m
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo$\w/
+    |     ^ [1]
+
+[1] '$' will always reject because it is followed by a character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo$\n/
+    |     ^ [1]
+
+[1] '$' will always reject because it is followed by a character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=\w)hello/
+    |  ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /hello/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=\w)\d/
+    |  ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\d/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=\w)\w/
+    |  ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\w/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=\w)(?:a+|b*c?|\d)d/
+    |  ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /(?:a+|b*c?|\d)d/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!\w)hello/
+    |  ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!\w)\d/
+    |  ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!\w)\w/
+    |  ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!\w)(?:a+|b*c?|\d)d/
+    |  ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=\w),/
+    |  ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=a)(,|b|c|(da)+)a/
+    |  ^~~~~ [1]
+
+[1] The lookahead '(?=a)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!\w),/
+    |  ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /,/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!a)(,|b|c|(da)+)a/
+    |  ^~~~~ [1]
+
+[1] The negative lookahead '(?!a)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /(,|b|c|(da)+)a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(\d)(?=\w)\1/
+    |      ^~~~~~ [1]
+
+[1] The lookahead '(?=\w)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /(\d)\1/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(\d)(?!\w)\1/
+    |      ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\w)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /[a-z_]\w*\b(?=\s*;)/
+    |           ^~ [1]
+
+[1] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*(?=\s*;)/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /[a-z_]\w*(?!\\)(?=\s*;)/
+    |           ^~~~~~ [1]
+
+[1] The negative lookahead '(?!\\)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*(?=\s*;)/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /[a-z_]\w*(?!\\)\b(?=\s*;)/
+    |           ^~~~~~ [1]
+    |                 ^~ [2]
+
+[1] The negative lookahead '(?!\\)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*\b(?=\s*;)/
+[2] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*(?!\\)(?=\s*;)/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /[a-z_]\w*\b(?!\\)(?=\s*;)/
+    |           ^~ [1]
+    |             ^~~~~~ [2]
+
+[1] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*(?!\\)(?=\s*;)/
+[2] The negative lookahead '(?!\\)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /[a-z_]\w*\b(?=\s*;)/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=a|$)b/u
+    |  ^~~~~~~ [1]
+
+[1] The lookahead '(?=a|$)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/u
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /^^a$$/
+    |   ^ [1]
+    |     ^ [2]
+
+[1] '^' will always accept because it is never preceded by a character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^a$$/
+[2] '$' will always accept because it is never followed by a character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^^a$/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /^^a$$/m
+    |   ^ [1]
+    |     ^ [2]
+
+[1] '^' will always accept because it is preceded by a line-terminator character or the start of the input string.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^a$$/m
+[2] '$' will always accept because it is followed by a line-terminator character or the end of the input string.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^^a$/m
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\b^a\b$/u
+    |  ^~  ^~
+    |  [1] [2]
+
+[1] '\b' will always accept because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^a\b$/u
+[2] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\b^a$/u
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /^\ba$\b/
+    |   ^~  ^~
+    |   [1] [2]
+
+[1] '\b' will always accept because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^a$\b/
+[2] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^\ba$/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /\b\ba\b\b/u
+    |    ^~ ^~
+    |   [1] [2]
+
+[1] '\b' will always accept because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\ba\b\b/u
+[2] '\b' will always accept because it is preceded by a word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /\b\ba\b/u
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /Java(?=Script)$/
+    |      ^~~~~~~~~~ [1]
+
+[1] The lookahead '(?=Script)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /Java$(?=Script)/
+    |      ^ [1]
+
+[1] '$' will always reject because it is followed by a character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a$(?!.)/s
+    |   ^ [1]
+
+[1] '$' will always accept because it is never followed by a character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a(?!.)/s
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a(?!.)$/s
+    |   ^~~~~ [1]
+
+[1] The negative lookahead '(?!.)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a$/s
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /^(\b|\B-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/
+    |    ^~ ^~
+    |   [1] [2]
+
+[1] '\b' will always accept because it is preceded by a non-word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^(|\B-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/
+[2] '\B' will always accept because it is preceded by a non-word character and followed by a non-word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /^(\b|-[a-z]{1,10}-)((?:repeating-)?(?:linear|radial)-gradient)/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!$)$/
+    |  ^~~~~ [1]
+
+[1] The negative lookahead '(?!$)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /[]/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=a|$)a/
+    |  ^~~~~~~ [1]
+
+[1] The lookahead '(?=a|$)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=(?=[a-f])(?=a|A)[\w%])a/
+    |  ^~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+[1] The lookahead '(?=(?=[a-f])(?=a|A)[\w%])' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=(?=[a-f])(?=[aA])\w(?<=[aA])(?<=[a-f]))a/
+    |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+[1] The lookahead '(?=(?=[a-f])(?=[aA])\w(?<=[aA])(?<=[a-f]))' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo(?:\.(?!$)|$)$/
+    |          ^~~~~ ^
+    |          [1]   [2]
+
+[1] The negative lookahead '(?!$)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /foo(?:$)$/
+[2] '$' will always accept because it is never followed by a character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /foo(?:\.(?!$)|)$/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?=a)+a/
+    |  ^~~~~ [1]
+
+[1] The lookahead '(?=a)' will always accept.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /(?!a)*a/
+    |  ^~~~~ [1]
+
+[1] The negative lookahead '(?!a)' will always reject.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /a/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a(\B)b/
+    |    ^~ [1]
+
+[1] '\B' will always accept because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove the assertion. (Replace with empty string.)
+        Output:
+          1 | /a()b/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /a(\b)b/
+    |    ^~ [1]
+
+[1] '\b' will always reject because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /a([])b/
+---
+
+
+Test: no-useless-assertions >> invalid
+Code:
+  1 | /foo|b(?:a(?:\br)|oo)|baz/
+    |              ^~ [1]
+
+[1] '\b' will always reject because it is preceded by a word character and followed by a word character.
+    Suggestions:
+      - Remove branch of the assertion. (Replace with empty set.)
+        Output:
+          1 | /foo|b(?:oo)|baz/
+---

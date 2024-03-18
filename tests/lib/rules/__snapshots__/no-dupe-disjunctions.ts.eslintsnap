@@ -1,0 +1,913 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|a/
+    |    ^ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /a/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(a|a)/
+    |     ^ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /(a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:a|a)/
+    |       ^ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /(?:a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?=[a-c])|(?=a)/
+    |            ^~~~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '(?=[a-c])' and can be removed.
+    Suggestions:
+      - Remove the '(?=a)' alternative.
+        Output:
+          1 | /(?=[a-c])/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?=a|a)/
+    |       ^ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /(?=a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?<=a|a)/
+    |        ^ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /(?<=a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:[ab]|[ab])/
+    |          ^~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '[ab]' alternative.
+        Output:
+          1 | /(?:[ab])/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:[ab]|[ba])/
+    |          ^~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '[ba]' alternative.
+        Output:
+          1 | /(?:[ab])/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:[\da-z]|[a-z\d])/
+    |             ^~~~~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '[a-z\d]' alternative.
+        Output:
+          1 | /(?:[\da-z])/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /((?:ab|ba)|(?:ab|ba))/
+    |             ^~~~~~~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '(?:ab|ba)' alternative.
+        Output:
+          1 | /((?:ab|ba))/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /((?:ab|ba)|(?:ab|ba))/v
+    |             ^~~~~~~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '(?:ab|ba)' alternative.
+        Output:
+          1 | /((?:ab|ba))/v
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /((?:ab|ba)|(?:ba|ab))/
+    |             ^~~~~~~~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed.
+    Suggestions:
+      - Remove the '(?:ba|ab)' alternative.
+        Output:
+          1 | /((?:ab|ba))/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:(a)|(a))/
+    |         ^~~ [1]
+
+[1] Unexpected duplicate alternative. This alternative can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:a|ab)/
+    |       ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.
+    Suggestions:
+      - Remove the 'ab' alternative.
+        Output:
+          1 | /(?:a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:.|a|b)/
+    |       ^ [1]
+    |         ^ [2]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '.' and can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /(?:.|b)/
+[2] Unexpected useless alternative. This alternative is a strict subset of '.' and can be removed.
+    Suggestions:
+      - Remove the 'b' alternative.
+        Output:
+          1 | /(?:.|a)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /.|abc/
+    |    ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by '.' and can be removed.
+    Suggestions:
+      - Remove the 'abc' alternative.
+        Output:
+          1 | /./
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|abc/
+    |    ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.
+    Suggestions:
+      - Remove the 'abc' alternative.
+        Output:
+          1 | /a/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\w|abc|123|_|[A-Z]|\$| /
+    |     ^~~ [1] ^ [3]
+    |         ^~~ [2]
+    |               ^~~~~ [4]
+
+[1] Unexpected useless alternative. This alternative is already covered by '\w' and can be removed.
+    Suggestions:
+      - Remove the 'abc' alternative.
+        Output:
+          1 | /\w|123|_|[A-Z]|\$| /
+[2] Unexpected useless alternative. This alternative is already covered by '\w' and can be removed.
+    Suggestions:
+      - Remove the '123' alternative.
+        Output:
+          1 | /\w|abc|_|[A-Z]|\$| /
+[3] Unexpected useless alternative. This alternative is a strict subset of '\w' and can be removed.
+    Suggestions:
+      - Remove the '_' alternative.
+        Output:
+          1 | /\w|abc|123|[A-Z]|\$| /
+[4] Unexpected useless alternative. This alternative is a strict subset of '\w' and can be removed.
+    Suggestions:
+      - Remove the '[A-Z]' alternative.
+        Output:
+          1 | /\w|abc|123|_|\$| /
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\W|abc|123|_|[A-Z]|\$| /
+    |                     ^~ ^
+    |                    [1] [2]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '\W' and can be removed.
+    Suggestions:
+      - Remove the '\$' alternative.
+        Output:
+          1 | /\W|abc|123|_|[A-Z]| /
+[2] Unexpected useless alternative. This alternative is a strict subset of '\W' and can be removed.
+    Suggestions:
+      - Remove the ' ' alternative.
+        Output:
+          1 | /\W|abc|123|_|[A-Z]|\$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\s|abc|123|_|[A-Z]|\$| /
+    |                        ^ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '\s' and can be removed.
+    Suggestions:
+      - Remove the ' ' alternative.
+        Output:
+          1 | /\s|abc|123|_|[A-Z]|\$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\S|abc|123|_|[A-Z]|\$| /
+    |     ^~~ [1] ^ [3]   ^~ [5]
+    |         ^~~ [2]
+    |               ^~~~~ [4]
+
+[1] Unexpected useless alternative. This alternative is already covered by '\S' and can be removed.
+    Suggestions:
+      - Remove the 'abc' alternative.
+        Output:
+          1 | /\S|123|_|[A-Z]|\$| /
+[2] Unexpected useless alternative. This alternative is already covered by '\S' and can be removed.
+    Suggestions:
+      - Remove the '123' alternative.
+        Output:
+          1 | /\S|abc|_|[A-Z]|\$| /
+[3] Unexpected useless alternative. This alternative is a strict subset of '\S' and can be removed.
+    Suggestions:
+      - Remove the '_' alternative.
+        Output:
+          1 | /\S|abc|123|[A-Z]|\$| /
+[4] Unexpected useless alternative. This alternative is a strict subset of '\S' and can be removed.
+    Suggestions:
+      - Remove the '[A-Z]' alternative.
+        Output:
+          1 | /\S|abc|123|_|\$| /
+[5] Unexpected useless alternative. This alternative is a strict subset of '\S' and can be removed.
+    Suggestions:
+      - Remove the '\$' alternative.
+        Output:
+          1 | /\S|abc|123|_|[A-Z]| /
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /[^\S]|abc|123|_|[A-Z]|\$| /
+    |                           ^ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '[^\S]' and can be removed.
+    Suggestions:
+      - Remove the ' ' alternative.
+        Output:
+          1 | /[^\S]|abc|123|_|[A-Z]|\$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /[^\r]|./
+    |        ^ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '[^\r]' and can be removed.
+    Suggestions:
+      - Remove the '.' alternative.
+        Output:
+          1 | /[^\r]/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\s|\S|./
+    |        ^ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '\s|\S' and can be removed.
+    Suggestions:
+      - Remove the '.' alternative.
+        Output:
+          1 | /\s|\S/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:ya?ml|yml)$/
+    |           ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.
+    Suggestions:
+      - Remove the 'yml' alternative.
+        Output:
+          1 | /(?:ya?ml)$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:yml|ya?ml)$/
+    |     ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.
+    Suggestions:
+      - Remove the 'yml' alternative.
+        Output:
+          1 | /(?:ya?ml)$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:yml|ya?ml)/
+    |     ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'ya?ml' and can be removed.
+    Suggestions:
+      - Remove the 'yml' alternative.
+        Output:
+          1 | /(?:ya?ml)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: all
+
+Code:
+  1 | /(?:\p{Lu}\p{L}*|[A-Z]\w*):/u
+    |                  ^~~~~~~~ [1]
+
+[1] Unexpected overlap. This alternative overlaps with '\p{Lu}\p{L}*'. The overlap is '[A-Z][A-Za-z]*'.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:\p{Lu}\p{L}*|[A-Z]\w*)/u
+    |                  ^~~~~~~~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by '\p{Lu}\p{L}*' and can be removed.
+    Suggestions:
+      - Remove the '[A-Z]\w*' alternative.
+        Output:
+          1 | /(?:\p{Lu}\p{L}*)/u
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: all
+
+Code:
+  1 | /b+(?:\w+|[+-]?\d+)/
+    |           ^~~~~~~~ [1]
+
+[1] Unexpected overlap. This alternative overlaps with '\w+'. The overlap is '\d+'.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /FOO|foo(?:bar)?/i
+    |      ^~~~~~~~~~~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by 'FOO' and can be removed.
+    Suggestions:
+      - Remove the 'foo(?:bar)?' alternative.
+        Output:
+          1 | /FOO/i
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /foo(?:bar)?|foo/
+    |              ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'foo(?:bar)?' and can be removed.
+    Suggestions:
+      - Remove the 'foo' alternative.
+        Output:
+          1 | /foo(?:bar)?/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?=[\t ]+[\S]{1,}|[\t ]+['"][\S]|[\t ]+$|$)/
+    |                    ^~~~~~~~~~~~~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '[\t ]+[\S]{1,}' and can be removed.
+    Suggestions:
+      - Remove the '[\t ]+['"][\S]' alternative.
+        Output:
+          1 | /(?=[\t ]+[\S]{1,}|[\t ]+$|$)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\w+(?:\s+(?:\S+|"[^"]*"))*/
+    |                  ^~~~~~~ [1]
+
+[1] Unexpected overlap. This alternative overlaps with '\S+'. The overlap is '"[^\s"]*"'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\b(?:\d|foo|\w+)\b/
+    |       ^~ ^~~
+    |      [1] [2]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '\w+' and can be removed.
+    Suggestions:
+      - Remove the '\d' alternative.
+        Output:
+          1 | /\b(?:foo|\w+)\b/
+[2] Unexpected useless alternative. This alternative is a strict subset of '\w+' and can be removed.
+    Suggestions:
+      - Remove the 'foo' alternative.
+        Output:
+          1 | /\b(?:\d|\w+)\b/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: interesting
+
+Code:
+  1 | /(?:\d|foo|\w+)a/
+    |            ^~~ [1]
+
+[1] Unexpected superset. This alternative is a superset of '\d|foo'. It might be possible to remove the other alternative(s).
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /\d|[a-z]|_|\w/i
+    |             ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '\d|[a-z]|_' and can be removed.
+    Suggestions:
+      - Remove the '\w' alternative.
+        Output:
+          1 | /\d|[a-z]|_/i
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /((?:ab|ba)|(?:ba|ac))/
+    |                ^~ [1]
+
+[1] Unexpected useless element. All paths of '(?:ba|ac)' that go through 'ba' are a strict subset of '(?:ab|ba)'. This element can be removed.
+    Suggestions:
+      - Remove the 'ba' alternative.
+        Output:
+          1 | /((?:ab|ba)|(?:ac))/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a+|a|b|c/
+    |     ^ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'a+' and can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /a+|b|c/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a+|(?:a|b|c)/
+    |        ^ [1]
+
+[1] Unexpected useless element. All paths of '(?:a|b|c)' that go through 'a' are a strict subset of 'a+'. This element can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /a+|(?:b|c)/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a+|[abc]/
+    |      ^ [1]
+
+[1] Unexpected useless element. All paths of '[abc]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.
+    Suggestions:
+      - Remove the 'a' (U+0061) element.
+        Output:
+          1 | /a+|[bc]/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a+|[a-c]/
+    |      ^ [1]
+
+[1] Unexpected useless element. All paths of '[a-c]' that go through 'a' (U+0061) are a strict subset of 'a+'. This element can be removed.
+    Suggestions:
+      - Replace 'a-c' (U+0061 - U+0063) with 'b-c'.
+        Output:
+          1 | /a+|[b-c]/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|aa|ba/
+    |    ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.
+    Suggestions:
+      - Remove the 'aa' alternative.
+        Output:
+          1 | /a|ba/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|(a|b)a/
+    |     ^ [1]
+
+[1] Unexpected useless element. All paths of '(a|b)a' that go through 'a' are already covered by 'a'. This element can be removed.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 | /a|(b)a/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|(?:(a)|b)a/
+    |       ^~~ [1]
+
+[1] Unexpected useless element. All paths of '(?:(a)|b)a' that go through '(a)' are already covered by 'a'. This element can be removed. Careful! This alternative contains capturing groups which might be difficult to remove.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /a|[ab]a/
+    |     ^ [1]
+
+[1] Unexpected useless element. All paths of '[ab]a' that go through 'a' (U+0061) are already covered by 'a'. This element can be removed.
+    Suggestions:
+      - Remove the 'a' (U+0061) element.
+        Output:
+          1 | /a|[b]a/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:js|jso?n?)$/
+    |     ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'jso?n?' and can be removed.
+    Suggestions:
+      - Remove the 'js' alternative.
+        Output:
+          1 | /(?:jso?n?)$/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /A+_|A*_/
+    |  ^~~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'A*_' and can be removed.
+    Suggestions:
+      - Remove the 'A+_' alternative.
+        Output:
+          1 | /A*_/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /(?:A+|A*)_/
+    |     ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of 'A*' and can be removed.
+    Suggestions:
+      - Remove the 'A+' alternative.
+        Output:
+          1 | /(?:A*)_/
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Code:
+  1 | /[\q{a|bb}]|bb/v
+    |             ^~ [1]
+
+[1] Unexpected useless alternative. This alternative is a strict subset of '[\q{a|bb}]' and can be removed.
+    Suggestions:
+      - Remove the 'bb' alternative.
+        Output:
+          1 | /[\q{a|bb}]/v
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - reportExponentialBacktracking: potential
+
+Code:
+  1 |
+  2 |             const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+    |                                            ^~~~ [1]
+  3 |             const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+    |                                       ^~~~~~~~~~~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.
+[2] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid >>> "\n            const partialPattern = /(?:ac?|\\wb?)a/ // overlap but not exp. backtracking\n            const bar = RegExp(\"^(?:\"+partialPattern.source+\")+$\") // exp backtracking\n             2"
+Code:
+  1 |
+  2 |             const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+    |                                            ^~~~ [1]
+  3 |             const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+    |                                       ^~~~~~~~~~~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.
+[2] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid >>> "\n            const partialPattern = /(?:ac?|\\wb?)a/ // overlap but not exp. backtracking\n            const bar = RegExp(\"^(?:\"+partialPattern.source+\")+$\") // exp backtracking\n             3"
+Options:
+  - reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+  3 |             const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+    |                                       ^~~~~~~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid >>> "\n            const partialPattern = /(?:ac?|\\wb?)a/ // overlap but not exp. backtracking\n            const bar = RegExp(\"^(?:\"+partialPattern.source+\")+$\") // exp backtracking\n             4"
+Options:
+  - report: all
+    reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const partialPattern = /(?:ac?|\wb?)a/ // overlap but not exp. backtracking
+    |                                            ^~~~ [1]
+  3 |             const bar = RegExp("^(?:"+partialPattern.source+")+$") // exp backtracking
+    |                                       ^~~~~~~~~~~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.
+[2] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const foo1 = /(?:ac?|\wb?)a/.source;
+  3 |             const bar = RegExp(`^(?:${foo1})+$`);
+    |                                ^~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: interesting
+    reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const foo2 = /(?:ac?|\wb?)a/.source;
+  3 |             const bar = RegExp(`^(?:${foo2})+$`);
+    |                                ^~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: interesting
+    reportExponentialBacktracking: potential
+
+Code:
+  1 |
+  2 |             const foo3 = /(?:ac?|\wb?)a/.source;
+    |                                  ^~~~ [1]
+  3 |             const bar = RegExp(`^(?:${foo3})+$`);
+    |                                ^~~~~~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.
+[2] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const partialPattern = /(?:(?:ac?|\wb?)a)+/ // overlap and backtracking.
+    |                                               ^~~~ [1]
+  3 |             const bar = RegExp("^"+partialPattern.source+"$")
+    |                                    ^~~~~~~~~~~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+[2] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - reportExponentialBacktracking: certain
+
+Code:
+  1 |
+  2 |             const foo4 = /(?:ac?|\wb?)a/ // overlap exp.
+  3 |             const bar = RegExp("^(?:(?:ac?|\\wb?)a)+$") // overlap exp backtracking
+    |                                            ^~~~~ [1]
+  4 |             
+
+[1] Unexpected overlap. This alternative overlaps with 'ac?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: all
+    reportUnreachable: potential
+
+Code:
+  1 |
+  2 |             const a = /a|aa/.source;
+    |                          ^~ [1]
+  3 |             const b = RegExp(`\b(${a})\b`);
+  4 |             
+
+[1] Unexpected useless alternative. This alternative is already covered by 'a' and can be removed.
+    Suggestions:
+      - Remove the 'aa' alternative.
+        Output:
+          1 |
+          2 |             const a = /a/.source;
+          3 |             const b = RegExp(`\b(${a})\b`);
+          4 |             
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - report: all
+    reportUnreachable: certain
+
+Code:
+  1 |
+  2 |             const a = /a|a/.source;
+    |                          ^ [1]
+  3 |             const b = RegExp(`\b(${a})\b`);
+    |                              ^~~~~~~~~~~~ [2]
+  4 |             
+
+[1] Unexpected duplicate alternative. This alternative can be removed. This ambiguity might cause exponential backtracking.
+    Suggestions:
+      - Remove the 'a' alternative.
+        Output:
+          1 |
+          2 |             const a = /a/.source;
+          3 |             const b = RegExp(`\b(${a})\b`);
+          4 |             
+[2] Unexpected duplicate alternative. This alternative can be removed.
+---
+
+
+Test: no-dupe-disjunctions >> invalid
+Options:
+  - reportExponentialBacktracking: potential
+    reportUnreachable: potential
+
+Code:
+  1 |
+  2 |             const partial = /a?|a+/.source;
+    |                                 ^~ [1]
+    |                                 ^~ [2]
+  3 |             const whole = RegExp(`^(?:${partial})+$`);
+    |                                  ^~~~~~~~~~~~~~~~~~~ [3]
+  4 |             
+
+[1] Unexpected useless alternative. This alternative is already covered by 'a?' and can be removed.
+    Suggestions:
+      - Remove the 'a+' alternative.
+        Output:
+          1 |
+          2 |             const partial = /a?/.source;
+          3 |             const whole = RegExp(`^(?:${partial})+$`);
+          4 |             
+[2] Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity might cause exponential backtracking.
+[3] Unexpected overlap. This alternative overlaps with 'a?'. The overlap is 'a'. This ambiguity is likely to cause exponential backtracking.
+---

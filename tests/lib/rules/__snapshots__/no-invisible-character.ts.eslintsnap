@@ -1,0 +1,134 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-invisible-character >> invalid
+Code:
+  1 | / /
+    |  ^ [1]
+
+Output:
+  1 | /\xa0/
+
+[1] Unexpected invisible character. Use '\xa0' instead.
+---
+
+
+Test: no-invisible-character >> invalid >>> /[\u0009]/
+Code:
+  1 | /[	]/
+    |   ^ [1]
+
+Output:
+  1 | /[\t]/
+
+[1] Unexpected invisible character. Use '\t' instead.
+---
+
+
+Test: no-invisible-character >> invalid >>> /[\u0009  ᠎             　﻿​]/
+Code:
+  1 | /[	  ᠎             　﻿​]/
+    |   ^ [1] ^ [7] ^ [13] ^ [20]
+    |    ^ [2] ^ [8] ^ [14] ^ [21]
+    |     ^ [3] ^ [9] ^ [15]
+    |      ^ [4] ^ [10] ^ [17]
+    |       ^ [5] ^ [11] ^ [18]
+    |        ^ [6] ^ [12] ^ [19]
+    |                  ^ [16]
+
+Output:
+  1 | /[\t\xa0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\x85\u200b]/
+
+[1] Unexpected invisible character. Use '\t' instead.
+[2] Unexpected invisible character. Use '\xa0' instead.
+[3] Unexpected invisible character. Use '\u1680' instead.
+[4] Unexpected invisible character. Use '\u180e' instead.
+[5] Unexpected invisible character. Use '\u2000' instead.
+[6] Unexpected invisible character. Use '\u2001' instead.
+[7] Unexpected invisible character. Use '\u2002' instead.
+[8] Unexpected invisible character. Use '\u2003' instead.
+[9] Unexpected invisible character. Use '\u2004' instead.
+[10] Unexpected invisible character. Use '\u2005' instead.
+[11] Unexpected invisible character. Use '\u2006' instead.
+[12] Unexpected invisible character. Use '\u2007' instead.
+[13] Unexpected invisible character. Use '\u2008' instead.
+[14] Unexpected invisible character. Use '\u2009' instead.
+[15] Unexpected invisible character. Use '\u200a' instead.
+[16] Unexpected invisible character. Use '\u202f' instead.
+[17] Unexpected invisible character. Use '\u205f' instead.
+[18] Unexpected invisible character. Use '\u3000' instead.
+[19] Unexpected invisible character. Use '\ufeff' instead.
+[20] Unexpected invisible character. Use '\x85' instead.
+[21] Unexpected invisible character. Use '\u200b' instead.
+---
+
+
+Test: no-invisible-character >> invalid
+Code:
+  1 | /[\t \u1680᠎\u2000 \u2002 \u2004 \u2006 \u2008 \u200a \u205f　\ufeff\u200b]/
+    |     ^ [1]  ^ [2]  ^ [3]  ^ [4]  ^ [5]  ^ [6]  ^ [7]  ^ [8]  ^ [9]  ^ [10]
+
+Output:
+  1 | /[\t\xa0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\x85\u200b]/
+
+[1] Unexpected invisible character. Use '\xa0' instead.
+[2] Unexpected invisible character. Use '\u180e' instead.
+[3] Unexpected invisible character. Use '\u2001' instead.
+[4] Unexpected invisible character. Use '\u2003' instead.
+[5] Unexpected invisible character. Use '\u2005' instead.
+[6] Unexpected invisible character. Use '\u2007' instead.
+[7] Unexpected invisible character. Use '\u2009' instead.
+[8] Unexpected invisible character. Use '\u202f' instead.
+[9] Unexpected invisible character. Use '\u3000' instead.
+[10] Unexpected invisible character. Use '\x85' instead.
+---
+
+
+Test: no-invisible-character >> invalid >>> new RegExp('\u0009  ᠎             　﻿​')
+Code:
+  1 | new RegExp('	  ᠎             　﻿​')
+    |             ^ [1] ^ [7] ^ [13] ^ [20]
+    |              ^ [2] ^ [8] ^ [14] ^ [21]
+    |               ^ [3] ^ [9] ^ [15]
+    |                ^ [4] ^ [10] ^ [17]
+    |                 ^ [5] ^ [11] ^ [18]
+    |                  ^ [6] ^ [12] ^ [19]
+    |                            ^ [16]
+
+Output:
+  1 | new RegExp('\t\xa0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff\x85\u200b')
+
+[1] Unexpected invisible character. Use '\t' instead.
+[2] Unexpected invisible character. Use '\xa0' instead.
+[3] Unexpected invisible character. Use '\u1680' instead.
+[4] Unexpected invisible character. Use '\u180e' instead.
+[5] Unexpected invisible character. Use '\u2000' instead.
+[6] Unexpected invisible character. Use '\u2001' instead.
+[7] Unexpected invisible character. Use '\u2002' instead.
+[8] Unexpected invisible character. Use '\u2003' instead.
+[9] Unexpected invisible character. Use '\u2004' instead.
+[10] Unexpected invisible character. Use '\u2005' instead.
+[11] Unexpected invisible character. Use '\u2006' instead.
+[12] Unexpected invisible character. Use '\u2007' instead.
+[13] Unexpected invisible character. Use '\u2008' instead.
+[14] Unexpected invisible character. Use '\u2009' instead.
+[15] Unexpected invisible character. Use '\u200a' instead.
+[16] Unexpected invisible character. Use '\u202f' instead.
+[17] Unexpected invisible character. Use '\u205f' instead.
+[18] Unexpected invisible character. Use '\u3000' instead.
+[19] Unexpected invisible character. Use '\ufeff' instead.
+[20] Unexpected invisible character. Use '\x85' instead.
+[21] Unexpected invisible character. Use '\u200b' instead.
+---
+
+
+Test: no-invisible-character >> invalid >>> /[\q{\u0009}]/v
+Code:
+  1 | /[\q{	}]/v
+    |      ^ [1]
+
+Output:
+  1 | /[\q{\t}]/v
+
+[1] Unexpected invisible character. Use '\t' instead.
+---

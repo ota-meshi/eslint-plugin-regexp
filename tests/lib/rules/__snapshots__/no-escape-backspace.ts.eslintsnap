@@ -1,0 +1,27 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-escape-backspace >> invalid
+Code:
+  1 | /[\b]/
+    |   ^~ [1]
+
+[1] Unexpected '[\b]'. Use '\u0008' instead.
+    Suggestions:
+      - Use '\u0008'.
+        Output:
+          1 | /[\u0008]/
+---
+
+
+Test: no-escape-backspace >> invalid
+Code:
+  1 | /[\q{\b}]/v
+    |      ^~ [1]
+
+[1] Unexpected '[\b]'. Use '\u0008' instead.
+    Suggestions:
+      - Use '\u0008'.
+        Output:
+          1 | /[\q{\u0008}]/v
+---

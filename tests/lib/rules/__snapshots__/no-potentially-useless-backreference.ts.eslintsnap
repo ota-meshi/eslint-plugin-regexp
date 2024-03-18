@@ -1,0 +1,61 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 |
+  2 |             var foo = /(a+)b\1/;
+  3 |
+  4 |             var foo = /(a)?b\1/;
+    |                             ^~ [1]
+  5 |             var foo = /((a)|c)+b\2/;
+    |                                 ^~ [2]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+[2] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 | /(a)?\1/
+    |      ^~ [1]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 | /(a)*\1/
+    |      ^~ [1]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 | /(?:(a)|b)\1/
+    |           ^~ [1]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 | /(?:(a)|b)+\1/
+    |            ^~ [1]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---
+
+
+Test: no-potentially-useless-backreference >> invalid
+Code:
+  1 | /(?:([\q{a}])|b)\1/v
+    |                 ^~ [1]
+
+[1] Some paths leading to the backreference do not go through the referenced capturing group or the captured text might be reset before reaching the backreference.
+---

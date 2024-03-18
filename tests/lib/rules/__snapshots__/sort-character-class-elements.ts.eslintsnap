@@ -1,0 +1,377 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[acdb]/
+    |      ^ [1]
+
+Output:
+  1 | /[abcd]/
+
+[1] Expected character class elements to be in ascending order. 'b' should be before 'c'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[b-da]/
+    |      ^ [1]
+
+Output:
+  1 | /[ab-d]/
+
+[1] Expected character class elements to be in ascending order. 'a' should be before 'b-d'.
+---
+
+
+Test: sort-character-class-elements >> invalid >>> /[b-da]/ 2
+Options:
+  - order: []
+
+Code:
+  1 | /[b-da]/
+    |      ^ [1]
+
+Output:
+  1 | /[ab-d]/
+
+[1] Expected character class elements to be in ascending order. 'a' should be before 'b-d'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[da-c]/
+    |    ^~~ [1]
+
+Output:
+  1 | /[a-cd]/
+
+[1] Expected character class elements to be in ascending order. 'a-c' should be before 'd'.
+---
+
+
+Test: sort-character-class-elements >> invalid >>> /[da-c]/ 2
+Options:
+  - order: []
+
+Code:
+  1 | /[da-c]/
+    |    ^~~ [1]
+
+Output:
+  1 | /[a-cd]/
+
+[1] Expected character class elements to be in ascending order. 'a-c' should be before 'd'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[abcd\d]/
+    |       ^~ [1]
+
+Output:
+  1 | /[\dabcd]/
+
+[1] Expected character class elements to be in ascending order. '\d' should be before 'a'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\s\d\w]/
+    |       ^~ [1]
+
+Output:
+  1 | /[\s\w\d]/
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\d'.
+---
+
+
+Test: sort-character-class-elements >> invalid >>> /[\s\d\w]/ 2
+Options:
+  - order: []
+
+Code:
+  1 | /[\s\d\w]/
+    |       ^~ [1]
+
+Output:
+  1 | /[\s\w\d]/
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\d'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\p{ASCII}\w]/u
+    |            ^~ [1]
+
+Output:
+  1 | /[\w\p{ASCII}]/u
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\p{ASCII}'.
+---
+
+
+Test: sort-character-class-elements >> invalid >>> /[\p{ASCII}\w]/u 2
+Options:
+  - order: []
+
+Code:
+  1 | /[\p{ASCII}\w]/u
+    |            ^~ [1]
+
+Output:
+  1 | /[\w\p{ASCII}]/u
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\p{ASCII}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\p{Script=Hiragana}\p{ASCII}]/u
+    |                      ^~~~~~~~~ [1]
+
+Output:
+  1 | /[\p{ASCII}\p{Script=Hiragana}]/u
+
+[1] Expected character class elements to be in ascending order. '\p{ASCII}' should be before '\p{Script=Hiragana}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\p{Script=Hiragana}\p{Script=Han}]/u
+    |                      ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\p{Script=Han}\p{Script=Hiragana}]/u
+
+[1] Expected character class elements to be in ascending order. '\p{Script=Han}' should be before '\p{Script=Hiragana}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Options:
+  - order: []
+
+Code:
+  1 | /[\d\w]/u
+    |     ^~ [1]
+
+Output:
+  1 | /[\w\d]/u
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\d'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\da-b-]/u
+    |        ^ [1]
+
+Output:
+  1 | /[\d\-a-b]/u
+
+[1] Expected character class elements to be in ascending order. '-' should be before 'a-b'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[a-b-]/u
+    |      ^ [1]
+
+Output:
+  1 | /[-a-b]/u
+
+[1] Expected character class elements to be in ascending order. '-' should be before 'a-b'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[-$a]/u
+    |    ^ [1]
+
+Output:
+  1 | /[$\-a]/u
+
+[1] Expected character class elements to be in ascending order. '$' should be before '-'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[-_\s]+/gu
+    |     ^~ [1]
+
+Output:
+  1 | /[\s\-_]+/gu
+
+[1] Expected character class elements to be in ascending order. '\s' should be before '-'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[-_-]/u
+    |     ^ [1]
+
+Output:
+  1 | /[-\-_]/u
+
+[1] Expected character class elements to be in ascending order. '-' should be before '_'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Options:
+  - order: []
+
+Code:
+  1 | const s = "[\\d\\w]"
+    |                ^~~ [1]
+  2 |             new RegExp(s, 'u')
+
+Output:
+  1 | const s = "[\\w\\d]"
+  2 |             new RegExp(s, 'u')
+
+[1] Expected character class elements to be in ascending order. '\w' should be before '\d'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 |
+  2 |             const jsxWhitespaceChars = " \n\r\t";
+    |                                          ^~  ^~
+    |                                          [1] [2]
+  3 |             const matchJsxWhitespaceRegex = new RegExp("([" + jsxWhitespaceChars + "]+)");
+  4 |             
+
+Output:
+  1 |
+  2 |             const jsxWhitespaceChars = "\t\n\r ";
+  3 |             const matchJsxWhitespaceRegex = new RegExp("([" + jsxWhitespaceChars + "]+)");
+  4 |             
+
+[1] Expected character class elements to be in ascending order. '\n' should be before ' '.
+[2] Expected character class elements to be in ascending order. '	' should be before ' '.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[[a--b][a]\q{a}a]/v
+    |            ^~~~~ [1]
+    |                 ^ [2]
+
+Output:
+  1 | /[a\q{a}[a--b][a]]/v
+
+[1] Expected character class elements to be in ascending order. '\q{a}' should be before '[a--b]'.
+[2] Expected character class elements to be in ascending order. 'a' should be before '[a--b]'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\q{a}[a--b][a]a]/v
+    |                 ^ [1]
+
+Output:
+  1 | /[a\q{a}[a--b][a]]/v
+
+[1] Expected character class elements to be in ascending order. 'a' should be before '\q{a}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[[b--c][a]]/v
+    |         ^~~ [1]
+
+Output:
+  1 | /[[a][b--c]]/v
+
+[1] Expected character class elements to be in ascending order. '[a]' should be before '[b--c]'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Options:
+  - order: []
+
+Code:
+  1 | /[[a]\q{a}]/v; /[\q{a}a]/v; /[[b-c]\q{a}]/v; /[[b-c][a]]/v;
+    |      ^~~~~ [1]        ^ [2]        ^~~~~ [3]        ^~~ [4]
+
+Output:
+  1 | /[\q{a}[a]]/v; /[a\q{a}]/v; /[\q{a}[b-c]]/v; /[[a][b-c]]/v;
+
+[1] Expected character class elements to be in ascending order. '\q{a}' should be before '[a]'.
+[2] Expected character class elements to be in ascending order. 'a' should be before '\q{a}'.
+[3] Expected character class elements to be in ascending order. '\q{a}' should be before '[b-c]'.
+[4] Expected character class elements to be in ascending order. '[a]' should be before '[b-c]'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\q{c}\q{b}\q{a}]/v
+    |        ^~~~~ [1]
+    |             ^~~~~ [2]
+
+Output:
+  1 | /[\q{a}\q{b}\q{c}]/v
+
+[1] Expected character class elements to be in ascending order. '\q{b}' should be before '\q{c}'.
+[2] Expected character class elements to be in ascending order. '\q{a}' should be before '\q{c}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\q{b}\q{c}\q{a}]/v
+    |             ^~~~~ [1]
+
+Output:
+  1 | /[\q{a}\q{b}\q{c}]/v
+
+[1] Expected character class elements to be in ascending order. '\q{a}' should be before '\q{b}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\q{ac}\q{ab}\q{aa}]/v
+    |         ^~~~~~ [1]
+    |               ^~~~~~ [2]
+
+Output:
+  1 | /[\q{aa}\q{ab}\q{ac}]/v
+
+[1] Expected character class elements to be in ascending order. '\q{ab}' should be before '\q{ac}'.
+[2] Expected character class elements to be in ascending order. '\q{aa}' should be before '\q{ac}'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[\q{ab}\q{ac}\q{aa}]/v
+    |               ^~~~~~ [1]
+
+Output:
+  1 | /[\q{aa}\q{ab}\q{ac}]/v
+
+[1] Expected character class elements to be in ascending order. '\q{aa}' should be before '\q{ab}'.
+---

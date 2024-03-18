@@ -1,0 +1,66 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:\b|(?=a))?/
+    |     ^~ ^~~~~
+    |    [1] [2]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.
+[2] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:\b|a)?/
+    |     ^~ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:^|a)*/
+    |     ^ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '*'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:((?:(\b|a)))|b)?/
+    |          ^~ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:((?:(\b|a)))|b)*/
+    |          ^~ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '*'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /((\b)+){0,}/
+    |    ^~ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '{0,}'.
+---
+
+
+Test: no-optional-assertion >> invalid
+Code:
+  1 | /(?:(?=[\q{a}]))?/v
+    |     ^~~~~~~~~~~ [1]
+
+[1] This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.
+---

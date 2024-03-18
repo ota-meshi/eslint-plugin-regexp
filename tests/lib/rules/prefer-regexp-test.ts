@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-regexp-test"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -40,58 +40,19 @@ tester.run("prefer-regexp-test", rule as any, {
         `,
     ],
     invalid: [
-        {
-            code: `
+        `
             const text = 'something';
             const pattern = /thing/;
             if (pattern.exec(text)) {}
             if (text.match(pattern)) {}
             `,
-            output: `
-            const text = 'something';
-            const pattern = /thing/;
-            if (pattern.test(text)) {}
-            if (pattern.test(text)) {}
-            `,
-            errors: [
-                {
-                    message:
-                        "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                    line: 4,
-                    column: 25,
-                    endLine: 4,
-                    endColumn: 29,
-                },
-                {
-                    message:
-                        "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-                    line: 5,
-                    column: 17,
-                    endLine: 5,
-                    endColumn: 36,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             const pattern = ()=>/thing/;
             if (pattern().exec(text)) {}
             if (text.match(pattern())) {}
             `,
-            output: `
-            const text = 'something';
-            const pattern = ()=>/thing/;
-            if (pattern().test(text)) {}
-            if (text.match(pattern())) {}
-            `,
-            errors: [
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             const pattern = /thing/;
             const b1 = Boolean(pattern.exec(text))
@@ -101,27 +62,7 @@ tester.run("prefer-regexp-test", rule as any, {
             const b5 = !(foo && pattern.exec(text))
             const b6 = !(foo || text.match(pattern))
             `,
-            output: `
-            const text = 'something';
-            const pattern = /thing/;
-            const b1 = Boolean(pattern.test(text))
-            const b2 = Boolean(pattern.test(text))
-            const b3 = !pattern.test(text)
-            const b4 = !pattern.test(text)
-            const b5 = !(foo && pattern.test(text))
-            const b6 = !(foo || pattern.test(text))
-            `,
-            errors: [
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const re = /a/g;
             const str = 'abc';
 
@@ -132,24 +73,7 @@ tester.run("prefer-regexp-test", rule as any, {
             console.log(re.test(str));
             console.log(re.test(str));
             `,
-            output: `
-            const re = /a/g;
-            const str = 'abc';
-
-            console.log(!!str.match(re)); // ignore
-            console.log(!!str.match(re)); // ignore
-            console.log(!!re.test(str));
-            console.log(!!re.test(str));
-            console.log(re.test(str));
-            console.log(re.test(str));
-            `,
-            errors: [
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             if (text.match()) {}
             const pattern1 = 'some';
@@ -157,71 +81,22 @@ tester.run("prefer-regexp-test", rule as any, {
             const pattern2 = Infinity;
             if (text.match(pattern2)) {}
             `,
-            output: null,
-            errors: [
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             const pattern = getPattern();
             if (text.match(pattern)) {}
             `,
-            output: null,
-            errors: [
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             /** @type {RegExp} */
             const pattern = getPattern();
             if (text.match(pattern)) {}
             `,
-            output: `
-            const text = 'something';
-            /** @type {RegExp} */
-            const pattern = getPattern();
-            if (pattern.test(text)) {}
-            `,
-            errors: [
-                "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-            ],
-        },
-        {
-            code: `
+        `
             const text = 'something';
             const pattern = /thin[[g]]/v;
             if (pattern.exec(text)) {}
             if (text.match(pattern)) {}
             `,
-            output: `
-            const text = 'something';
-            const pattern = /thin[[g]]/v;
-            if (pattern.test(text)) {}
-            if (pattern.test(text)) {}
-            `,
-            errors: [
-                {
-                    message:
-                        "Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.",
-                    line: 4,
-                    column: 25,
-                    endLine: 4,
-                    endColumn: 29,
-                },
-                {
-                    message:
-                        "Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.",
-                    line: 5,
-                    column: 17,
-                    endLine: 5,
-                    endColumn: 36,
-                },
-            ],
-        },
     ],
 })

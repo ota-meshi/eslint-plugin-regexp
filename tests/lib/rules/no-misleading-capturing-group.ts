@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-misleading-capturing-group"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -24,73 +24,15 @@ tester.run("no-misleading-capturing-group", rule as any, {
         },
     ],
     invalid: [
-        {
-            code: String.raw`/\d+(\d*)/`,
-            errors: [
-                {
-                    message:
-                        "'\\d*' can be removed because it is already included by '\\d+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
-                    suggestions: [
-                        {
-                            messageId: "suggestionRemove",
-                            output: String.raw`/\d+()/`,
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:!\d+|%\w+)(\d*)/`,
-            errors: [
-                {
-                    message:
-                        "'\\d*' can be removed because it is already included by '\\d+' and '\\w+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.",
-                    suggestions: [
-                        {
-                            messageId: "suggestionRemove",
-                            output: String.raw`/(?:!\d+|%\w+)()/`,
-                        },
-                    ],
-                },
-            ],
-        },
+        String.raw`/\d+(\d*)/`,
+        String.raw`/(?:!\d+|%\w+)(\d*)/`,
 
         // backtracking ends
-        {
-            code: String.raw`/^(a*).+/u`,
-            errors: [
-                "The quantifier 'a*' can exchange characters (a) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
-        {
-            code: String.raw`/^([\t ]*).+/gmu`,
-            errors: [
-                "The quantifier '[\\t ]*' can exchange characters ([\\t ]) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
-        {
-            code: String.raw`/('{2,5}).+?\1/`,
-            errors: [
-                "The quantifier ''{2,5}' can exchange characters (') with '.+?'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
-        {
-            code: String.raw`/^(---.*(?:\n|\r\n?))[\s\S]+?(?=(?:\n|\r\n?)^---$)/m`,
-            errors: [
-                "The quantifier '\\n?' can exchange characters (\\n) with '[\\s\\S]+?'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
-        {
-            code: String.raw`/(^~~?)[\s\S]+(?=\1$)/m`,
-            errors: [
-                "The quantifier '~?' can exchange characters (~) with '[\\s\\S]+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
-        {
-            code: String.raw`/^([a\q{abc}]*).+/v`,
-            errors: [
-                "The quantifier '[a\\q{abc}]*' can exchange characters (a) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.",
-            ],
-        },
+        String.raw`/^(a*).+/u`,
+        String.raw`/^([\t ]*).+/gmu`,
+        String.raw`/('{2,5}).+?\1/`,
+        String.raw`/^(---.*(?:\n|\r\n?))[\s\S]+?(?=(?:\n|\r\n?)^---$)/m`,
+        String.raw`/(^~~?)[\s\S]+(?=\1$)/m`,
+        String.raw`/^([a\q{abc}]*).+/v`,
     ],
 })

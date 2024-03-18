@@ -1,0 +1,136 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?=)/
+    |   ^~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?!)/
+    |   ^~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<=)x/
+    |  ^~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<!)x/
+    |  ^~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?=|)/
+    |   ^~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?!|)/
+    |   ^~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<=|)x/
+    |  ^~~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<!|)x/
+    |  ^~~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?=y|)/
+    |   ^~~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?!y|)/
+    |   ^~~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<=y|)x/
+    |  ^~~~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?<!y|)x/
+    |  ^~~~~~~ [1]
+
+[1] Unexpected empty lookbehind. It will trivially reject all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?=a*)/
+    |  ^~~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /(?=a|b*)/
+    |  ^~~~~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---
+
+
+Test: no-empty-lookarounds-assertion >> invalid
+Code:
+  1 | /x(?=[\q{}])/v
+    |   ^~~~~~~~~~ [1]
+
+[1] Unexpected empty lookahead. It will trivially accept all inputs.
+---

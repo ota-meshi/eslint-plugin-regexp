@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-trivially-nested-assertion"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -27,128 +27,32 @@ tester.run("no-trivially-nested-assertion", rule as any, {
         String.raw`/(?=[\q{$}])/v`,
     ],
     invalid: [
-        {
-            code: String(/(?=$)/),
-            output: String(/$/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?=^)/),
-            output: String(/^/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=$)/),
-            output: String(/$/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=^)/),
-            output: String(/^/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?=\b)/),
-            output: String(/\b/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?!\b)/),
-            output: String(/\B/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=\b)/),
-            output: String(/\b/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<!\b)/),
-            output: String(/\B/),
-            errors: [{ messageId: "unexpected" }],
-        },
+        String(/(?=$)/),
+        String(/(?=^)/),
+        String(/(?<=$)/),
+        String(/(?<=^)/),
+        String(/(?=\b)/),
+        String(/(?!\b)/),
+        String(/(?<=\b)/),
+        String(/(?<!\b)/),
 
         // all trivially nested lookarounds can be written as one lookaround
         // Note: The inner lookaround has to be negated if the outer one is negative.
-        {
-            code: String(/(?=(?=a))/),
-            output: String(/(?=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?=(?!a))/),
-            output: String(/(?!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?=(?<=a))/),
-            output: String(/(?<=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?=(?<!a))/),
-            output: String(/(?<!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?!(?=a))/),
-            output: String(/(?!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?!(?!a))/),
-            output: String(/(?=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?!(?<=a))/),
-            output: String(/(?<!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?!(?<!a))/),
-            output: String(/(?<=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=(?=a))/),
-            output: String(/(?=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=(?!a))/),
-            output: String(/(?!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=(?<=a))/),
-            output: String(/(?<=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<=(?<!a))/),
-            output: String(/(?<!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<!(?=a))/),
-            output: String(/(?!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<!(?!a))/),
-            output: String(/(?=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<!(?<=a))/),
-            output: String(/(?<!a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: String(/(?<!(?<!a))/),
-            output: String(/(?<=a)/),
-            errors: [{ messageId: "unexpected" }],
-        },
+        String(/(?=(?=a))/),
+        String(/(?=(?!a))/),
+        String(/(?=(?<=a))/),
+        String(/(?=(?<!a))/),
+        String(/(?!(?=a))/),
+        String(/(?!(?!a))/),
+        String(/(?!(?<=a))/),
+        String(/(?!(?<!a))/),
+        String(/(?<=(?=a))/),
+        String(/(?<=(?!a))/),
+        String(/(?<=(?<=a))/),
+        String(/(?<=(?<!a))/),
+        String(/(?<!(?=a))/),
+        String(/(?<!(?!a))/),
+        String(/(?<!(?<=a))/),
+        String(/(?<!(?<!a))/),
     ],
 })

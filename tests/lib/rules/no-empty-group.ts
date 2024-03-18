@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-empty-group"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -10,46 +10,5 @@ const tester = new RuleTester({
 
 tester.run("no-empty-group", rule as any, {
     valid: ["/(a)/", "/(a|)/", "/(?:a|)/", String.raw`/(?:a|[\q{}])/v`],
-    invalid: [
-        {
-            code: "/()/",
-            errors: [
-                {
-                    message: "Unexpected empty group.",
-                    column: 2,
-                    endColumn: 4,
-                },
-            ],
-        },
-        {
-            code: "/(?:)/",
-            errors: [
-                {
-                    message: "Unexpected empty group.",
-                    column: 2,
-                    endColumn: 6,
-                },
-            ],
-        },
-        {
-            code: "/(|)/",
-            errors: [
-                {
-                    message: "Unexpected empty group.",
-                    column: 2,
-                    endColumn: 5,
-                },
-            ],
-        },
-        {
-            code: "/(?:|)/",
-            errors: [
-                {
-                    message: "Unexpected empty group.",
-                    column: 2,
-                    endColumn: 7,
-                },
-            ],
-        },
-    ],
+    invalid: ["/()/", "/(?:)/", "/(|)/", "/(?:|)/"],
 })

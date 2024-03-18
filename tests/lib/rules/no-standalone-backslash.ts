@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-standalone-backslash"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -11,45 +11,9 @@ const tester = new RuleTester({
 tester.run("no-standalone-backslash", rule as any, {
     valid: [String.raw`/\cX/`, String.raw`/[[\cA-\cZ]--\cX]/v`],
     invalid: [
-        {
-            code: String.raw`/\c/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: String.raw`/\c-/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: String.raw`/\c1/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
-                    column: 2,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\c]/`,
-            errors: [
-                {
-                    message:
-                        "Unexpected standalone backslash (`\\`). It looks like an escape sequence, but it's a single `\\` character pattern.",
-                    column: 3,
-                },
-            ],
-        },
+        String.raw`/\c/`,
+        String.raw`/\c-/`,
+        String.raw`/\c1/`,
+        String.raw`/[\c]/`,
     ],
 })

@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/require-unicode-sets-regexp"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -11,41 +11,13 @@ const tester = new RuleTester({
 tester.run("require-unicode-sets-regexp", rule as any, {
     valid: [`/a/v`],
     invalid: [
-        {
-            code: `/a/`,
-            output: null, // It will not auto-fix if it does not have the u flag.
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: `/a/u`,
-            output: `/a/v`,
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: String.raw`/[\p{ASCII}]/iu`,
-            output: String.raw`/[\p{ASCII}]/iv`,
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: `/[[]/u`,
-            output: null, // Converting to the v flag will result in a parsing error.
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: String.raw`/[^\P{Lowercase_Letter}]/giu`,
-            output: null, // Converting to the v flag changes the behavior of the character set.
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: String.raw`/[^\P{ASCII}]/iu`,
-            output: null, // Converting to the v flag changes the behavior of the character set.
-            errors: ["Use the 'v' flag."],
-        },
-        {
-            code: String.raw`/[\P{ASCII}]/iu`,
-            output: null, // Converting to the v flag changes the behavior of the character set.
-            errors: ["Use the 'v' flag."],
-        },
+        `/a/`,
+        `/a/u`,
+        String.raw`/[\p{ASCII}]/iu`,
+        `/[[]/u`,
+        String.raw`/[^\P{Lowercase_Letter}]/giu`,
+        String.raw`/[^\P{ASCII}]/iu`,
+        String.raw`/[\P{ASCII}]/iu`,
         ...[
             "&&",
             "!!",
@@ -68,13 +40,7 @@ tester.run("require-unicode-sets-regexp", rule as any, {
             "~~",
         ].map((punctuator) => ({
             code: String.raw`/[a${punctuator}b]/u`,
-            output: null, // Converting to the v flag changes the behavior of the character set.
-            errors: ["Use the 'v' flag."],
         })),
-        {
-            code: String.raw`/[+--b]/u`,
-            output: null, // Converting to the v flag changes the behavior of the character set.
-            errors: ["Use the 'v' flag."],
-        },
+        String.raw`/[+--b]/u`,
     ],
 })

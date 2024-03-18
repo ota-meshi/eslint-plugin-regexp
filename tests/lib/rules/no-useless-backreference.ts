@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-useless-backreference"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -18,62 +18,23 @@ tester.run("no-useless-backreference", rule as any, {
         "/(?!(a)\\1)/",
     ],
     invalid: [
-        {
-            code: "/(b)(\\2a)/",
-            errors: [{ messageId: "nested" }],
-        },
-        {
-            code: "/(a\\1)/",
-            errors: [{ messageId: "nested" }],
-        },
+        "/(b)(\\2a)/",
+        "/(a\\1)/",
 
-        {
-            code: "/(\\b)a\\1/",
-            errors: [{ messageId: "empty" }],
-        },
-        {
-            code: "/([\\q{}])a\\1/v",
-            errors: [{ messageId: "empty" }],
-        },
-        {
-            code: "/(\\b|a{0})a\\1/",
-            errors: [{ messageId: "empty" }],
-        },
+        "/(\\b)a\\1/",
+        "/([\\q{}])a\\1/v",
+        "/(\\b|a{0})a\\1/",
 
-        {
-            code: "/(a)b|\\1/",
-            errors: [{ messageId: "disjunctive" }],
-        },
-        {
-            code: "/(?:(a)b|\\1)/",
-            errors: [{ messageId: "disjunctive" }],
-        },
-        {
-            code: "/(?<=(a)b|\\1)/",
-            errors: [{ messageId: "disjunctive" }],
-        },
+        "/(a)b|\\1/",
+        "/(?:(a)b|\\1)/",
+        "/(?<=(a)b|\\1)/",
 
-        {
-            code: "/\\1(a)/",
-            errors: [{ messageId: "forward" }],
-        },
-        {
-            code: "/(?:\\1(a))+/",
-            errors: [{ messageId: "forward" }],
-        },
+        "/\\1(a)/",
+        "/(?:\\1(a))+/",
 
-        {
-            code: "/(?<=(a)\\1)b/",
-            errors: [{ messageId: "backward" }],
-        },
+        "/(?<=(a)\\1)b/",
 
-        {
-            code: "/(?!(a))\\w\\1/",
-            errors: [{ messageId: "intoNegativeLookaround" }],
-        },
-        {
-            code: "/(?!(?!(a)))\\w\\1/",
-            errors: [{ messageId: "intoNegativeLookaround" }],
-        },
+        "/(?!(a))\\w\\1/",
+        "/(?!(?!(a)))\\w\\1/",
     ],
 })

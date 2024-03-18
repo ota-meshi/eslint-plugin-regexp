@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-useless-escape"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -121,434 +121,44 @@ tester.run("no-useless-escape", rule as any, {
         String.raw`/[\^]/v`,
     ],
     invalid: [
-        {
-            code: String.raw`/\a/`,
-            output: String.raw`/a/`,
-            errors: [
-                {
-                    message: "Unnecessary escape character: \\a.",
-                    line: 1,
-                    column: 2,
-                    endLine: 1,
-                    endColumn: 3,
-                },
-            ],
-        },
-        {
-            code: `/\\x7/`,
-            output: null,
-            errors: ["Unnecessary escape character: \\x."],
-        },
-        {
-            code: `/\\u41/`,
-            output: null,
-            errors: ["Unnecessary escape character: \\u."],
-        },
-        {
-            code: `/\\u{[41]}/`,
-            output: null,
-            errors: ["Unnecessary escape character: \\u."],
-        },
-        {
-            code: String.raw`/[ \^ \/ \. \$ \* \+ \? \[ \{ \} \| \( \) \k<title> \B \8 \9]/`,
-            output: String.raw`/[ ^ / . $ * + ? [ { } | ( ) \k<title> B 8 9]/`,
-            errors: [
-                "Unnecessary escape character: \\^.",
-                "Unnecessary escape character: \\/.",
-                "Unnecessary escape character: \\..",
-                "Unnecessary escape character: \\$.",
-                "Unnecessary escape character: \\*.",
-                "Unnecessary escape character: \\+.",
-                "Unnecessary escape character: \\?.",
-                "Unnecessary escape character: \\[.",
-                "Unnecessary escape character: \\{.",
-                "Unnecessary escape character: \\}.",
-                "Unnecessary escape character: \\|.",
-                "Unnecessary escape character: \\(.",
-                "Unnecessary escape character: \\).",
-                "Unnecessary escape character: \\k.",
-                "Unnecessary escape character: \\B.",
-                "Unnecessary escape character: \\8.",
-                "Unnecessary escape character: \\9.",
-            ],
-        },
-        {
-            code: String.raw`/\p{ASCII}/; /[\p{ASCII}]/; /\P{ASCII}/; /[\P{ASCII}]/`, // Missing u flag
-            output: null,
-            errors: [
-                "Unnecessary escape character: \\p.",
-                "Unnecessary escape character: \\p.",
-                "Unnecessary escape character: \\P.",
-                "Unnecessary escape character: \\P.",
-            ],
-        },
-        {
-            code: String.raw`/[\q{abc}]/;`, // Missing v flag
-            output: null,
-            errors: ["Unnecessary escape character: \\q."],
-        },
+        String.raw`/\a/`,
+        `/\\x7/`,
+        `/\\u41/`,
+        `/\\u{[41]}/`,
+        String.raw`/[ \^ \/ \. \$ \* \+ \? \[ \{ \} \| \( \) \k<title> \B \8 \9]/`,
+        String.raw`/\p{ASCII}/; /[\p{ASCII}]/; /\P{ASCII}/; /[\P{ASCII}]/`, // Missing u flag
+        String.raw`/[\q{abc}]/;`, // Missing v flag
 
         // ES2024
-        {
-            code: String.raw`/[\$]/v`,
-            output: String.raw`/[$]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    endColumn: 4,
-                    message: "Unnecessary escape character: \\$.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\&\&]/v`,
-            output: String.raw`/[&\&]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\&.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\!\!]/v`,
-            output: String.raw`/[!\!]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\!.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\#\#]/v`,
-            output: String.raw`/[#\#]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\#.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\%\%]/v`,
-            output: String.raw`/[%\%]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\%.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\*\*]/v`,
-            output: String.raw`/[*\*]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\*.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\+\+]/v`,
-            output: String.raw`/[+\+]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\+.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\,\,]/v`,
-            output: String.raw`/[,\,]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\,.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\.\.]/v`,
-            output: String.raw`/[.\.]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\:\:]/v`,
-            output: String.raw`/[:\:]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\:.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\;\;]/v`,
-            output: String.raw`/[;\;]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\;.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\<\<]/v`,
-            output: String.raw`/[<\<]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\<.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\=\=]/v`,
-            output: String.raw`/[=\=]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\=.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\>\>]/v`,
-            output: String.raw`/[>\>]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\>.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\?\?]/v`,
-            output: String.raw`/[?\?]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\?.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\@\@]/v`,
-            output: String.raw`/[@\@]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\@.",
-                },
-            ],
-        },
-        {
-            code: "/[\\`\\`]/v",
-            output: "/[`\\`]/v",
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\`.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\~\~]/v`,
-            output: String.raw`/[~\~]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\~.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[^\^\^]/v`,
-            output: String.raw`/[^^\^]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 4,
-                    message: "Unnecessary escape character: \\^.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[_\^\^]/v`,
-            output: String.raw`/[_^\^]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 4,
-                    message: "Unnecessary escape character: \\^.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[^\^]/v`,
-            output: String.raw`/[^^]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 4,
-                    message: "Unnecessary escape character: \\^.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\&\&&\&]/v`,
-            output: String.raw`/[&\&&\&]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\&.",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\p{ASCII}--\.]/v`,
-            output: String.raw`/[\p{ASCII}--.]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 14,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\p{ASCII}&&\.]/v`,
-            output: String.raw`/[\p{ASCII}&&.]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 14,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\.--[.&]]/v`,
-            output: String.raw`/[.--[.&]]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\.&&[.&]]/v`,
-            output: String.raw`/[.&&[.&]]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\.--\.--\.]/v`,
-            output: String.raw`/[.--.--.]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 7,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 11,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\.&&\.&&\.]/v`,
-            output: String.raw`/[.&&.&&.]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 3,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 7,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 11,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[[\.&]--[\.&]]/v`,
-            output: String.raw`/[[.&]--[.&]]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 4,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 11,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
-        {
-            code: String.raw`/[[\.&]&&[\.&]]/v`,
-            output: String.raw`/[[.&]&&[.&]]/v`,
-            errors: [
-                {
-                    line: 1,
-                    column: 4,
-                    message: "Unnecessary escape character: \\..",
-                },
-                {
-                    line: 1,
-                    column: 11,
-                    message: "Unnecessary escape character: \\..",
-                },
-            ],
-        },
+        String.raw`/[\$]/v`,
+        String.raw`/[\&\&]/v`,
+        String.raw`/[\!\!]/v`,
+        String.raw`/[\#\#]/v`,
+        String.raw`/[\%\%]/v`,
+        String.raw`/[\*\*]/v`,
+        String.raw`/[\+\+]/v`,
+        String.raw`/[\,\,]/v`,
+        String.raw`/[\.\.]/v`,
+        String.raw`/[\:\:]/v`,
+        String.raw`/[\;\;]/v`,
+        String.raw`/[\<\<]/v`,
+        String.raw`/[\=\=]/v`,
+        String.raw`/[\>\>]/v`,
+        String.raw`/[\?\?]/v`,
+        String.raw`/[\@\@]/v`,
+        "/[\\`\\`]/v",
+        String.raw`/[\~\~]/v`,
+        String.raw`/[^\^\^]/v`,
+        String.raw`/[_\^\^]/v`,
+        String.raw`/[^\^]/v`,
+        String.raw`/[\&\&&\&]/v`,
+        String.raw`/[\p{ASCII}--\.]/v`,
+        String.raw`/[\p{ASCII}&&\.]/v`,
+        String.raw`/[\.--[.&]]/v`,
+        String.raw`/[\.&&[.&]]/v`,
+        String.raw`/[\.--\.--\.]/v`,
+        String.raw`/[\.&&\.&&\.]/v`,
+        String.raw`/[[\.&]--[\.&]]/v`,
+        String.raw`/[[\.&]&&[\.&]]/v`,
     ],
 })

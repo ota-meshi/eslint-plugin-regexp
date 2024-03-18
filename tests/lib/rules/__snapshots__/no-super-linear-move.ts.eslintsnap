@@ -1,0 +1,91 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /a*:/
+    |  ^~ [1]
+
+[1] Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /^\s*(\w+)\s*[:=]/m
+    |   ^~~ [1]
+
+[1] Any attack string /[\n\r\u2028\u2029]+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /((?:\\{2})*)(\\?)\|/g
+    |   ^~~~~~~~~~ [1]
+
+[1] Any attack string /(?:\\{2})+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /[a-z_][A-Z_0-9]*(?=\s*\()/i
+    |        ^~~~~~~~~~ [1]
+
+[1] Any attack string /[A-Z_]+/i plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /(?!\d)\w+(?=\s*\()/i
+    |        ^~~ [1]
+
+[1] Any attack string /[A-Z_]+/i plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Options:
+  - report: potential
+
+Code:
+  1 | export default /a*/
+    |                 ^~ [1]
+
+[1] Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Options:
+  - ignorePartial: false
+
+Code:
+  1 | /a*b/.source
+    |  ^~ [1]
+
+[1] Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Options:
+  - ignoreSticky: false
+
+Code:
+  1 | /a*b/y
+    |  ^~ [1]
+
+[1] Any attack string /a+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---
+
+
+Test: no-super-linear-move >> invalid
+Code:
+  1 | /[\q{abc}]+a/v
+    |  ^~~~~~~~~~ [1]
+
+[1] Any attack string /(?:abc)+/ plus some rejecting suffix will cause quadratic runtime because of this quantifier.
+---

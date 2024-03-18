@@ -1,0 +1,145 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /a(?=\w)/
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /a\B/
+
+[1] This lookaround assertion can be replaced with a negated word boundary assertion ('\B').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /a(?!\w)/
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /a\b/
+
+[1] This lookaround assertion can be replaced with a word boundary assertion ('\b').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /(?<=\w)a/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /\Ba/
+
+[1] This lookaround assertion can be replaced with a negated word boundary assertion ('\B').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /(?<!\w)a/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /\ba/
+
+[1] This lookaround assertion can be replaced with a word boundary assertion ('\b').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /a(?=\W)./
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /a\b./
+
+[1] This lookaround assertion can be replaced with a word boundary assertion ('\b').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /a(?!\W)./
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /a\B./
+
+[1] This lookaround assertion can be replaced with a negated word boundary assertion ('\B').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /.(?<=\W)a/
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /.\ba/
+
+[1] This lookaround assertion can be replaced with a word boundary assertion ('\b').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /.(?<!\W)a/
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /.\Ba/
+
+[1] This lookaround assertion can be replaced with a negated word boundary assertion ('\B').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /.(?<!\W)a/v
+    |   ^~~~~~~ [1]
+
+Output:
+  1 | /.\Ba/v
+
+[1] This lookaround assertion can be replaced with a negated word boundary assertion ('\B').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /a+(?!\w)(?:\s|bc+)+/
+    |    ^~~~~~ [1]
+
+Output:
+  1 | /a+\b(?:\s|bc+)+/
+
+[1] This lookaround assertion can be replaced with a word boundary assertion ('\b').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /(?!.)(?![^])/
+    |       ^~~~~~~ [1]
+
+Output:
+  1 | /(?!.)$/
+
+[1] This lookaround assertion can be replaced with an edge assertion ('$').
+---
+
+
+Test: prefer-predefined-assertion >> invalid
+Code:
+  1 | /(?<!.)(?<![^])/m
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /^(?<![^])/m
+
+[1] This lookaround assertion can be replaced with an edge assertion ('^').
+---

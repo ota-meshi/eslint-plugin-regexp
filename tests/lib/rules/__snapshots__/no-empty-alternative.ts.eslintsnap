@@ -1,0 +1,102 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /|||||/
+    |  ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+    Suggestions:
+      - Use a quantifier instead.
+        Output:
+          1 | /(?:||||)??/
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /(a+|b+|)/
+    |        ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+    Suggestions:
+      - Use a quantifier instead.
+        Output:
+          1 | /((?:a+|b+)?)/
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /(?:\|\|||\|)/
+    |          ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /(?<name>a|b|)/
+    |             ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+    Suggestions:
+      - Use a quantifier instead.
+        Output:
+          1 | /(?<name>(?:a|b)?)/
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /(?:a|b|)f/
+    |        ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+    Suggestions:
+      - Use a quantifier instead.
+        Output:
+          1 | /(?:a|b)?f/
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /(?:a|b|)+f/
+    |        ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+    Suggestions:
+      - Use a quantifier instead.
+        Output:
+          1 | /(?:(?:a|b)?)+f/
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /[\q{a|}]/v
+    |       ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /[\q{|a}]/v
+    |      ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+---
+
+
+Test: no-empty-alternative >> invalid
+Code:
+  1 | /[\q{a||b}]/v
+    |        ^ [1]
+
+[1] This empty alternative might be a mistake. If not, use a quantifier instead.
+---

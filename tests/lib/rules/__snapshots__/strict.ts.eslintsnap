@@ -1,0 +1,229 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: strict >> invalid
+Code:
+  1 | /]/
+    |  ^ [1]
+
+Output:
+  1 | /\]/
+
+[1] Unescaped source character ']'.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /{/
+    |  ^ [1]
+
+Output:
+  1 | /\{/
+
+[1] Unescaped source character '{'.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /}/
+    |  ^ [1]
+
+Output:
+  1 | /\}/
+
+[1] Unescaped source character '}'.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\u{42}/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Incomplete escape sequence '\u'. Either use a valid escape sequence or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\u000;/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Incomplete escape sequence '\u'. Either use a valid escape sequence or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\x4/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Incomplete escape sequence '\x'. Either use a valid escape sequence or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\c;/
+    |  ^ [1]
+
+Output: unchanged
+
+[1] Invalid or incomplete control escape sequence. Either use a valid control escape sequence or escaping the standalone backslash.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\p/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Invalid property escape sequence '\p'. Either use a valid property escape sequence or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\p{H}/
+    |  ^~ [1]
+    |    ^ [2]
+    |      ^ [3]
+
+Output:
+  1 | /\p\{H\}/
+
+[1] Invalid property escape sequence '\p'. Either use a valid property escape sequence or remove the useless escaping.
+[2] Unescaped source character '{'.
+[3] Unescaped source character '}'.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\012/
+    |  ^~~~ [1]
+
+Output: unchanged
+
+[1] Invalid legacy octal escape sequence '\012'. Use a hexadecimal escape instead.
+    Suggestions:
+      - Replace the octal escape with a hexadecimal escape.
+        Output:
+          1 | /\x0a/
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\12/
+    |  ^~~ [1]
+
+Output: unchanged
+
+[1] Invalid legacy octal escape sequence '\12'. Use a hexadecimal escape instead.
+    Suggestions:
+      - Replace the octal escape with a hexadecimal escape.
+        Output:
+          1 | /\x0a/
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\k<foo/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Incomplete backreference '\k'. Either use a valid backreference or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\k<foo>/
+    |  ^~ [1]
+
+Output: unchanged
+
+[1] Incomplete backreference '\k'. Either use a valid backreference or remove the useless escaping.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /\; \_ \a \- \'/
+    |  ^~ [1]   ^~ [4]
+    |     ^~ [2]   ^~ [5]
+    |        ^~ [3]
+
+Output:
+  1 | /; _ a - '/
+
+[1] Useless identity escapes with non-syntax characters are forbidden.
+[2] Useless identity escapes with non-syntax characters are forbidden.
+[3] Useless identity escapes with non-syntax characters are forbidden.
+[4] Useless identity escapes with non-syntax characters are forbidden.
+[5] Useless identity escapes with non-syntax characters are forbidden.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /[\; \_ \a \']/
+    |   ^~ [1]   ^~ [4]
+    |      ^~ [2]
+    |         ^~ [3]
+
+Output:
+  1 | /[; _ a ']/
+
+[1] Useless identity escapes with non-syntax characters are forbidden.
+[2] Useless identity escapes with non-syntax characters are forbidden.
+[3] Useless identity escapes with non-syntax characters are forbidden.
+[4] Useless identity escapes with non-syntax characters are forbidden.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /[\w-a]/
+    |   ^~ [1]
+
+Output: unchanged
+
+[1] Invalid character class range. A character set cannot be the minimum or maximum of a character class range. Either escape the `-` or fix the character class range.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /[a-\w]/
+    |     ^~ [1]
+
+Output: unchanged
+
+[1] Invalid character class range. A character set cannot be the minimum or maximum of a character class range. Either escape the `-` or fix the character class range.
+---
+
+
+Test: strict >> invalid
+Code:
+  1 | /(?!a)+/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /(?:(?!a))+/
+
+[1] Assertion are not allowed to be quantified directly.
+---

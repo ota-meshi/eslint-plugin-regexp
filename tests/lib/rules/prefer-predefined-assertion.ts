@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-predefined-assertion"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -11,90 +11,20 @@ const tester = new RuleTester({
 tester.run("prefer-predefined-assertion", rule as any, {
     valid: [String.raw`/a(?=\W)/`, String.raw`/a(?=\W)/v`],
     invalid: [
-        {
-            code: String.raw`/a(?=\w)/`,
-            output: String.raw`/a\B/`,
-            errors: [
-                "This lookaround assertion can be replaced with a negated word boundary assertion ('\\B').",
-            ],
-        },
-        {
-            code: String.raw`/a(?!\w)/`,
-            output: String.raw`/a\b/`,
-            errors: [
-                "This lookaround assertion can be replaced with a word boundary assertion ('\\b').",
-            ],
-        },
-        {
-            code: String.raw`/(?<=\w)a/`,
-            output: String.raw`/\Ba/`,
-            errors: [
-                "This lookaround assertion can be replaced with a negated word boundary assertion ('\\B').",
-            ],
-        },
-        {
-            code: String.raw`/(?<!\w)a/`,
-            output: String.raw`/\ba/`,
-            errors: [
-                "This lookaround assertion can be replaced with a word boundary assertion ('\\b').",
-            ],
-        },
+        String.raw`/a(?=\w)/`,
+        String.raw`/a(?!\w)/`,
+        String.raw`/(?<=\w)a/`,
+        String.raw`/(?<!\w)a/`,
 
-        {
-            code: String.raw`/a(?=\W)./`,
-            output: String.raw`/a\b./`,
-            errors: [
-                "This lookaround assertion can be replaced with a word boundary assertion ('\\b').",
-            ],
-        },
-        {
-            code: String.raw`/a(?!\W)./`,
-            output: String.raw`/a\B./`,
-            errors: [
-                "This lookaround assertion can be replaced with a negated word boundary assertion ('\\B').",
-            ],
-        },
-        {
-            code: String.raw`/.(?<=\W)a/`,
-            output: String.raw`/.\ba/`,
-            errors: [
-                "This lookaround assertion can be replaced with a word boundary assertion ('\\b').",
-            ],
-        },
-        {
-            code: String.raw`/.(?<!\W)a/`,
-            output: String.raw`/.\Ba/`,
-            errors: [
-                "This lookaround assertion can be replaced with a negated word boundary assertion ('\\B').",
-            ],
-        },
-        {
-            code: String.raw`/.(?<!\W)a/v`,
-            output: String.raw`/.\Ba/v`,
-            errors: 1,
-        },
+        String.raw`/a(?=\W)./`,
+        String.raw`/a(?!\W)./`,
+        String.raw`/.(?<=\W)a/`,
+        String.raw`/.(?<!\W)a/`,
+        String.raw`/.(?<!\W)a/v`,
 
-        {
-            code: String.raw`/a+(?!\w)(?:\s|bc+)+/`,
-            output: String.raw`/a+\b(?:\s|bc+)+/`,
-            errors: [
-                "This lookaround assertion can be replaced with a word boundary assertion ('\\b').",
-            ],
-        },
+        String.raw`/a+(?!\w)(?:\s|bc+)+/`,
 
-        {
-            code: String.raw`/(?!.)(?![^])/`,
-            output: String.raw`/(?!.)$/`,
-            errors: [
-                "This lookaround assertion can be replaced with an edge assertion ('$').",
-            ],
-        },
-        {
-            code: String.raw`/(?<!.)(?<![^])/m`,
-            output: String.raw`/^(?<![^])/m`,
-            errors: [
-                "This lookaround assertion can be replaced with an edge assertion ('^').",
-            ],
-        },
+        String.raw`/(?!.)(?![^])/`,
+        String.raw`/(?<!.)(?<![^])/m`,
     ],
 })

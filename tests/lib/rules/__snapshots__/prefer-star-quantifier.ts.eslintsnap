@@ -1,0 +1,93 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 | /a{0,}/
+    |   ^~~~ [1]
+
+Output:
+  1 | /a*/
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 | /a{0,}?/
+    |   ^~~~ [1]
+
+Output:
+  1 | /a*?/
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 | /(a){0,}/
+    |     ^~~~ [1]
+
+Output:
+  1 | /(a)*/
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 | /(a){0,}/v
+    |     ^~~~ [1]
+
+Output:
+  1 | /(a)*/v
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 | /(a){0,}?/
+    |     ^~~~ [1]
+
+Output:
+  1 | /(a)*?/
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 |
+  2 |             const s = "a{0,}"
+    |                         ^~~~ [1]
+  3 |             new RegExp(s)
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = "a*"
+  3 |             new RegExp(s)
+  4 |             
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---
+
+
+Test: prefer-star-quantifier >> invalid
+Code:
+  1 |
+  2 |             const s = "a{0"+",}"
+    |                       ^~~~~~~~~~ [1]
+  3 |             new RegExp(s)
+  4 |             
+
+Output: unchanged
+
+[1] Unexpected quantifier '{0,}'. Use '*' instead.
+---

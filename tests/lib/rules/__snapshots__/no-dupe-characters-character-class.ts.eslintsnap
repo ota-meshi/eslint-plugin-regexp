@@ -1,0 +1,639 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | var re = /[\\(\\)]/
+    |               ^~ [1]
+
+Output:
+  1 | var re = /[\\()]/
+
+[1] Unexpected duplicate '\\' (U+005c).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | var re = /[a-z\\s]/
+    |                 ^ [1]
+
+Output:
+  1 | var re = /[a-z\\]/
+
+[1] 's' (U+0073) is already included in 'a-z' (U+0061 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[aaa]/
+    |    ^ [1]
+    |     ^ [2]
+
+Output:
+  1 | /[a]/
+
+[1] Unexpected duplicate 'a' (U+0061).
+[2] Unexpected duplicate 'a' (U+0061).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[0-9\d]/
+    |   ^~~ [1]
+
+Output:
+  1 | /[\d]/
+
+[1] '0-9' (U+0030 - U+0039) is already included in '\d'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\f\u000C]/
+    |     ^~~~~~ [1]
+
+Output:
+  1 | /[\f]/
+
+[1] Unexpected duplicate. '\u000C' (U+000c) is a duplicate of '\f' (U+000c).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | RegExp(/[bb]/)
+    |           ^ [1]
+
+Output:
+  1 | RegExp(/[b]/)
+
+[1] Unexpected duplicate 'b' (U+0062).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\s \f\n\r\t\v\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]/
+    |     ^ [1]  ^~ [5]    ^~~~~~ [8]  ^~~~~~~~~~~~~ [9]  ^~~~~~ [11] ^~~~~~ [13] ^~~~~~ [15]
+    |      ^~ [2]  ^~ [6]                           ^~~~~~ [10] ^~~~~~ [12] ^~~~~~ [14]
+    |        ^~ [3]  ^~~~~~ [7]
+    |          ^~ [4]
+
+Output:
+  1 | /[\s\u180e]/
+
+[1] ' ' (U+0020) is already included in '\s'.
+[2] '\f' (U+000c) is already included in '\s'.
+[3] '\n' (U+000a) is already included in '\s'.
+[4] '\r' (U+000d) is already included in '\s'.
+[5] '\t' (U+0009) is already included in '\s'.
+[6] '\v' (U+000b) is already included in '\s'.
+[7] '\u00a0' (U+00a0) is already included in '\s'.
+[8] '\u1680' (U+1680) is already included in '\s'.
+[9] '\u2000-\u200a' (U+2000 - U+200a) is already included in '\s'.
+[10] '\u2028' (U+2028) is already included in '\s'.
+[11] '\u2029' (U+2029) is already included in '\s'.
+[12] '\u202f' (U+202f) is already included in '\s'.
+[13] '\u205f' (U+205f) is already included in '\s'.
+[14] '\u3000' (U+3000) is already included in '\s'.
+[15] '\ufeff' (U+feff) is already included in '\s'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid >>> /[\t\u0009 \u0009]/
+Code:
+  1 | /[\t	 \u0009]/
+    |     ^ [1]
+    |       ^~~~~~ [2]
+
+Output:
+  1 | /[\t ]/
+
+[1] Unexpected duplicate. '	' (U+0009) is a duplicate of '\t' (U+0009).
+[2] Unexpected duplicate. '\u0009' (U+0009) is a duplicate of '\t' (U+0009).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\wA-Z a-z:0-9,_]/
+    |     ^~~ ^~~ ^~~ ^
+    |     [1] [2] [3] [4]
+
+Output:
+  1 | /[\w :,]/
+
+[1] 'A-Z' (U+0041 - U+005a) is already included in '\w'.
+[2] 'a-z' (U+0061 - U+007a) is already included in '\w'.
+[3] '0-9' (U+0030 - U+0039) is already included in '\w'.
+[4] '_' (U+005f) is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[!-z_abc-]/
+    |      ^ [1]
+    |       ^ [2]
+    |        ^ [3]
+    |         ^ [4]
+    |          ^ [5]
+
+Output:
+  1 | /[!-z]/
+
+[1] '_' (U+005f) is already included in '!-z' (U+0021 - U+007a).
+[2] 'a' (U+0061) is already included in '!-z' (U+0021 - U+007a).
+[3] 'b' (U+0062) is already included in '!-z' (U+0021 - U+007a).
+[4] 'c' (U+0063) is already included in '!-z' (U+0021 - U+007a).
+[5] '-' (U+002d) is already included in '!-z' (U+0021 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\w_abc-][\s \t\r\n\u2000\u3000]/
+    |     ^ [1]    ^ [5]  ^~~~~~ [9]
+    |      ^ [2]    ^~ [6]      ^~~~~~ [10]
+    |       ^ [3]     ^~ [7]
+    |        ^ [4]      ^~ [8]
+
+Output:
+  1 | /[\w-][\s]/
+
+[1] '_' (U+005f) is already included in '\w'.
+[2] 'a' (U+0061) is already included in '\w'.
+[3] 'b' (U+0062) is already included in '\w'.
+[4] 'c' (U+0063) is already included in '\w'.
+[5] ' ' (U+0020) is already included in '\s'.
+[6] '\t' (U+0009) is already included in '\s'.
+[7] '\r' (U+000d) is already included in '\s'.
+[8] '\n' (U+000a) is already included in '\s'.
+[9] '\u2000' (U+2000) is already included in '\s'.
+[10] '\u3000' (U+3000) is already included in '\s'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a-z a-z]/
+    |       ^~~ [1]
+
+Output:
+  1 | /[a-z ]/
+
+[1] Unexpected duplicate 'a-z' (U+0061 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a-z A-Z]/i
+    |       ^~~ [1]
+
+Output:
+  1 | /[a-z ]/i
+
+[1] Unexpected duplicate. 'A-Z' (U+0041 - U+005a) is a duplicate of 'a-z' (U+0061 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a-d e-h_d-e+c-d]/
+    |           ^~~ ^~~
+    |           [1] [2]
+
+Output:
+  1 | /[a-d e-h_+]/
+
+[1] 'd-e' (U+0064 - U+0065) is already included by the elements 'a-de-h' ('a-d' (U+0061 - U+0064), 'e-h' (U+0065 - U+0068)).
+[2] 'c-d' (U+0063 - U+0064) is already included in 'a-d' (U+0061 - U+0064).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[3-6 3-6_2-4+5-7]/
+    |   ^~~ ^~~
+    |   [1] [2]
+
+Output:
+  1 | /[ _2-4+5-7]/
+
+[1] '3-6' (U+0033 - U+0036) is already included by the elements '2-45-7' ('2-4' (U+0032 - U+0034), '5-7' (U+0035 - U+0037)).
+[2] Unexpected duplicate '3-6' (U+0033 - U+0036).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[3-6 3-6_5-7]/
+    |   ^~~ ^~~
+    |   [1] [2]
+
+Output:
+  1 | /[3-6 _5-7]/
+
+[1] Unexpected overlap of '3-6' (U+0033 - U+0036) and '5-7' (U+0035 - U+0037) was found '[56]'.
+[2] Unexpected duplicate '3-6' (U+0033 - U+0036).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\s\s \s]/
+    |     ^~ [1]
+    |       ^ [2]
+    |        ^~ [3]
+
+Output:
+  1 | /[\s]/
+
+[1] Unexpected duplicate '\s'.
+[2] ' ' (U+0020) is already included in '\s'.
+[3] Unexpected duplicate '\s'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\S\S \sa]/
+    |     ^~ [1]
+    |       ^ [2]
+    |          ^ [3]
+
+Output:
+  1 | /[\S\s]/
+
+[1] Unexpected duplicate '\S'.
+[2] ' ' (U+0020) is already included in '\s'.
+[3] 'a' (U+0061) is already included in '\S'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\d 0-9_!-z]/
+    |   ^~ [1]
+    |      ^~~ [2]
+    |         ^ [3]
+
+Output:
+  1 | /[ !-z]/
+
+[1] '\d' is already included in '!-z' (U+0021 - U+007a).
+[2] '0-9' (U+0030 - U+0039) is already included in '!-z' (U+0021 - U+007a).
+[3] '_' (U+005f) is already included in '!-z' (U+0021 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\W\W\w \d\d\D]/
+    |   ^~ [1] ^~ [4]
+    |     ^~ [2] ^~ [5]
+    |         ^ [3]
+
+Output:
+  1 | /[\w\D]/
+
+[1] '\W' is already included in '\D'.
+[2] Unexpected duplicate '\W'.
+[3] ' ' (U+0020) is already included in '\W'.
+[4] '\d' is already included in '\w'.
+[5] Unexpected duplicate '\d'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\p{ASCII}\P{ASCII}\p{Script=Hiragana}\P{Script=Hiragana}\p{ASCII}\p{Script=Hiragana}]/u
+    |   ^~~~~~~~~ [1]     ^~~~~~~~~~~~~~~~~~~ [2]               ^~~~~~~~~ [3]
+    |                                                                    ^~~~~~~~~~~~~~~~~~~ [4]
+
+Output:
+  1 | /[\P{ASCII}\P{Script=Hiragana}]/u
+
+[1] '\p{ASCII}' is already included in '\P{Script=Hiragana}'.
+[2] '\p{Script=Hiragana}' is already included in '\P{ASCII}'.
+[3] Unexpected duplicate '\p{ASCII}'.
+[4] Unexpected duplicate '\p{Script=Hiragana}'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\p{ASCII} abc\P{ASCII}]/u
+    |            ^ [1]
+    |             ^ [2]
+    |              ^ [3]
+    |               ^ [4]
+
+Output:
+  1 | /[\p{ASCII}\P{ASCII}]/u
+
+[1] ' ' (U+0020) is already included in '\p{ASCII}'.
+[2] 'a' (U+0061) is already included in '\p{ASCII}'.
+[3] 'b' (U+0062) is already included in '\p{ASCII}'.
+[4] 'c' (U+0063) is already included in '\p{ASCII}'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\P{Script=Hiragana} abc\p{Script=Hiragana}]/u
+    |                      ^ [1]
+    |                       ^ [2]
+    |                        ^ [3]
+    |                         ^ [4]
+
+Output:
+  1 | /[\P{Script=Hiragana}\p{Script=Hiragana}]/u
+
+[1] ' ' (U+0020) is already included in '\P{Script=Hiragana}'.
+[2] 'a' (U+0061) is already included in '\P{Script=Hiragana}'.
+[3] 'b' (U+0062) is already included in '\P{Script=Hiragana}'.
+[4] 'c' (U+0063) is already included in '\P{Script=Hiragana}'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\w /-7+8-:]/
+    |      ^~~ ^~~
+    |      [1] [2]
+
+Output: unchanged
+
+[1] Unexpected overlap of '/-7' (U+002f - U+0037) and '\w' was found '[0-7]'.
+[2] Unexpected overlap of '8-:' (U+0038 - U+003a) and '\w' was found '[89]'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[ -/\s]/
+    |   ^~~ [1]
+
+Output: unchanged
+
+[1] Unexpected overlap of ' -/' (U+0020 - U+002f) and '\s' was found ' '.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\wA-_]/
+    |     ^~~ [1]
+
+Output: unchanged
+
+[1] Unexpected overlap of 'A-_' (U+0041 - U+005f) and '\w' was found '[A-Z_]'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\w0-z]/
+    |   ^~ [1]
+
+Output:
+  1 | /[0-z]/
+
+[1] '\w' is already included in '0-z' (U+0030 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\t-\uFFFF\s]/
+    |            ^~ [1]
+
+Output:
+  1 | /[\t-\uFFFF]/
+
+[1] '\s' is already included in '\t-\uFFFF' (U+0009 - U+ffff).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\Sa]/
+    |     ^ [1]
+
+Output:
+  1 | /[\S]/
+
+[1] 'a' (U+0061) is already included in '\S'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a-z\p{L}]/u
+    |   ^~~ [1]
+
+Output:
+  1 | /[\p{L}]/u
+
+[1] 'a-z' (U+0061 - U+007a) is already included in '\p{L}'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\d\p{ASCII}]/u
+    |   ^~ [1]
+
+Output:
+  1 | /[\p{ASCII}]/u
+
+[1] '\d' is already included in '\p{ASCII}'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\t\s]/
+    |   ^~ [1]
+
+Output:
+  1 | /[\s]/
+
+[1] '\t' (U+0009) is already included in '\s'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[A-Z a-\uFFFF]/i
+    |   ^~~ [1]
+
+Output:
+  1 | /[ a-\uFFFF]/i
+
+[1] 'A-Z' (U+0041 - U+005a) is already included in 'a-\uFFFF' (U+0061 - U+ffff).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\xA0-\uFFFF\s]/
+    |   ^~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected overlap of '\xA0-\uFFFF' (U+00a0 - U+ffff) and '\s' was found '\xa0'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\u1fff-\u2005\s]/
+    |   ^~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected overlap of '\u1fff-\u2005' (U+1fff - U+2005) and '\s' was found '[\u2000-\u2005]'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]/i
+    |                             ^~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Unexpected overlap of '\x21-\x5a' (U+0021 - U+005a) and '\x53-\x7f' (U+0053 - U+007f) was found '[A-Z]'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a^\w]/
+    |   ^ [1]
+
+Output:
+  1 | /[\^\w]/
+
+[1] 'a' (U+0061) is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[0a-a-9a-z]/
+    |    ^~~ [1]
+
+Output:
+  1 | /[0\-9a-z]/
+
+[1] 'a-a' (U+0061 - U+0061) is already included in 'a-z' (U+0061 - U+007a).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[a:^\w]/
+    |   ^ [1]
+
+Output:
+  1 | /[:^\w]/
+
+[1] 'a' (U+0061) is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\sa-\w]/
+    |     ^ [1]
+
+Output:
+  1 | /[\s-\w]/
+
+[1] 'a' (U+0061) is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\x01\d-\x03\w]/
+    |       ^~ [1]
+
+Output:
+  1 | /[\x01\-\x03\w]/
+
+[1] '\d' is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\x01-\d\x03\w]/
+    |        ^~ [1]
+
+Output: unchanged
+
+[1] '\d' is already included in '\w'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\s0-\s9]/
+    |       ^~ [1]
+
+Output: unchanged
+
+[1] Unexpected duplicate '\s'.
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\x0x9]/
+    |      ^ [1]
+
+Output: unchanged
+
+[1] Unexpected duplicate. 'x' (U+0078) is a duplicate of '\x' (U+0078).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\q{a}aa-c[\w--b][\w&&a]]/v
+    |   ^~~~~ [1]       ^~~~~~~ [4]
+    |        ^ [2]
+    |         ^~~ [3]
+
+Output:
+  1 | /[a-c[\w--b]]/v
+
+[1] '\q{a}' is already included in 'a-c' (U+0061 - U+0063).
+[2] 'a' (U+0061) is already included in 'a-c' (U+0061 - U+0063).
+[3] Unexpected overlap of 'a-c' (U+0061 - U+0063) and '[\w--b]' was found '[ac]'.
+[4] '[\w&&a]' is already included in 'a-c' (U+0061 - U+0063).
+---
+
+
+Test: no-dupe-characters-character-class >> invalid
+Code:
+  1 | /[\q{abc}\q{abc|ab}[\q{abc}--b][\q{abc}&&\q{abc|ab}]]/v
+    |   ^~~~~~~ [1]      ^~~~~~~~~~~~ [2]
+    |                                ^~~~~~~~~~~~~~~~~~~~~ [3]
+
+Output:
+  1 | /[\q{abc|ab}]/v
+
+[1] '\q{abc}' is already included in '\q{abc|ab}'.
+[2] '[\q{abc}--b]' is already included in '\q{abc|ab}'.
+[3] '[\q{abc}&&\q{abc|ab}]' is already included in '\q{abc|ab}'.
+---

@@ -1,0 +1,153 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /\x00/
+    |  ^~~~ [1]
+
+Output:
+  1 | /\0/
+
+[1] Unexpected control character escape '\x00' (U+0000). Use '\0' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /\x0a/
+    |  ^~~~ [1]
+
+Output:
+  1 | /\n/
+
+[1] Unexpected control character escape '\x0a' (U+000a). Use '\n' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /\cJ/
+    |  ^~~ [1]
+
+Output:
+  1 | /\n/
+
+[1] Unexpected control character escape '\cJ' (U+000a). Use '\n' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /\u{a}/u
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\n/u
+
+[1] Unexpected control character escape '\u{a}' (U+000a). Use '\n' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | RegExp("\\cJ")
+    |         ^~~~ [1]
+
+Output:
+  1 | RegExp("\\n")
+
+[1] Unexpected control character escape '\cJ' (U+000a). Use '\n' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | RegExp("\\u{a}", "u")
+    |         ^~~~~~ [1]
+
+Output:
+  1 | RegExp("\\n", "u")
+
+[1] Unexpected control character escape '\u{a}' (U+000a). Use '\n' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /\u0009/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\t/
+
+[1] Unexpected control character escape '\u0009' (U+0009). Use '\t' instead.
+---
+
+
+Test: control-character-escape >> invalid >>> /\u0009/ 2
+Code:
+  1 | /	/
+    |  ^ [1]
+
+Output:
+  1 | /\t/
+
+[1] Unexpected control character escape '	' (U+0009). Use '\t' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 |
+  2 |             const s = "\\u0009"
+    |                        ^~~~~~~ [1]
+  3 |             new RegExp(s)
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = "\\t"
+  3 |             new RegExp(s)
+  4 |             
+
+[1] Unexpected control character escape '\u0009' (U+0009). Use '\t' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 |
+  2 |             const s = "\\u"+"0009"
+    |                       ^~~~~~~~~~~~ [1]
+  3 |             new RegExp(s)
+  4 |             
+
+Output: unchanged
+
+[1] Unexpected control character escape '\u0009' (U+0009). Use '\t' instead.
+---
+
+
+Test: control-character-escape >> invalid >>> RegExp("\t\r\n\0" + /\u0009/.source)
+Code:
+  1 | RegExp("\t\r\n\0" + /	/.source)
+    |                      ^ [1]
+
+Output:
+  1 | RegExp("\t\r\n\0" + /\t/.source)
+
+[1] Unexpected control character escape '	' (U+0009). Use '\t' instead.
+---
+
+
+Test: control-character-escape >> invalid
+Code:
+  1 | /[\q{\x00}]/v
+    |      ^~~~ [1]
+
+Output:
+  1 | /[\q{\0}]/v
+
+[1] Unexpected control character escape '\x00' (U+0000). Use '\0' instead.
+---

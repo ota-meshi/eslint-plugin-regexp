@@ -1,0 +1,289 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=$)/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /$/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=^)/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /^/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=$)/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /$/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=^)/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /^/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=\b)/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\b/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?!\b)/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /\B/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=\b)/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /\b/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<!\b)/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /\B/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=(?=a))/
+    |  ^~~~~~~~~ [1]
+
+Output:
+  1 | /(?=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=(?!a))/
+    |  ^~~~~~~~~ [1]
+
+Output:
+  1 | /(?!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=(?<=a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?=(?<!a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?!(?=a))/
+    |  ^~~~~~~~~ [1]
+
+Output:
+  1 | /(?!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?!(?!a))/
+    |  ^~~~~~~~~ [1]
+
+Output:
+  1 | /(?=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?!(?<=a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?!(?<!a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=(?=a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=(?!a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=(?<=a))/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<=(?<!a))/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<!(?=a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<!(?!a))/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /(?=a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<!(?<=a))/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<!a)/
+
+[1] Unexpected trivially nested assertion.
+---
+
+
+Test: no-trivially-nested-assertion >> invalid
+Code:
+  1 | /(?<!(?<!a))/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /(?<=a)/
+
+[1] Unexpected trivially nested assertion.
+---

@@ -1,0 +1,75 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /[]/
+    |  ^~ [1]
+
+[1] This character class matches no characters because it is empty.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /abc[]/
+    |     ^~ [1]
+
+[1] This character class matches no characters because it is empty.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /([])/
+    |   ^~ [1]
+
+[1] This character class matches no characters because it is empty.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | new RegExp("[]");
+    |             ^~ [1]
+
+[1] This character class matches no characters because it is empty.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /[^\s\S]/
+    |  ^~~~~~~ [1]
+
+[1] This character class cannot match any characters.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /[^\da-zA-Z_\W]/
+    |  ^~~~~~~~~~~~~~ [1]
+
+[1] This character class cannot match any characters.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /a[[a&&b]]/v
+    |   ^~~~~~~~ [1]
+    |    ^~~~~~ [2]
+
+[1] This character class cannot match any characters.
+[2] This character class cannot match any characters.
+---
+
+
+Test: no-empty-character-class >> invalid
+Code:
+  1 | /a[a&&b]/v
+    |   ^~~~~~ [1]
+
+[1] This character class cannot match any characters.
+---

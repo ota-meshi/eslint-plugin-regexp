@@ -1,0 +1,57 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | '€1,234'.replace(/€/, '$'); // "$1,234"
+    |                        ^ [1]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | '€1,234'.replace(/€/v, '$'); // "$1,234"
+    |                         ^ [1]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | '€1,234'.replaceAll(/€/, '$'); // "$1,234"
+    |                           ^ [1]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | 'abc'.replace(/./, '$ $$ $');
+    |                     ^    ^
+    |                     [1]  [2]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+[2] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | 'abc'.replace(/(?<foo>.)/, '$<foo');
+    |                             ^ [1]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
+
+
+Test: prefer-escape-replacement-dollar-char >> invalid
+Code:
+  1 | '€1,234'.replace(/[\q{€}]/v, '$'); // "$1,234"
+    |                               ^ [1]
+
+[1] Unexpected replacement `$` character without escaping. Use `$$` instead.
+---
