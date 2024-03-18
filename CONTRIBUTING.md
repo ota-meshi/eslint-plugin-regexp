@@ -56,9 +56,9 @@ The following steps will walk you through the process of creating a new rule.
 
 1. Test your rule:
 
-    Add test for every feature and option of your rule. (We use [ESLint's `RuleTester`](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) for testing rules.)
+    Add test for every feature and option of your rule. We use a snapshot-based rule tester for testing rules.
 
-    Use `npm test` to run all tests.
+    Use `npm test` to run all tests. Use `npm run test:update` to update snapshots.
 
 1. Document your rule:
 
