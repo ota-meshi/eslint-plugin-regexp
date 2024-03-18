@@ -244,7 +244,7 @@ Output:
 
 
 Test: prefer-result-array-groups >> invalid >>> "\n            const regex = /a(?<foo>b)c/\n            let match\n            while (match = regex.exec(foo)) {\n                const p1 = match[1]\n                // ...\n            }\n             2"
-Filename: C:\Users\micha\Git\eslint-plugin-regexp\tests\lib\rules\prefer-result-array-groups.ts
+Filename: tests/lib/rules/prefer-result-array-groups.ts
 Files:
   - "**/*.*"
 LanguageOptions: unable to serialize
@@ -295,7 +295,7 @@ Output: unchanged
 
 
 Test: prefer-result-array-groups >> invalid
-Filename: C:\Users\micha\Git\eslint-plugin-regexp\tests\lib\rules\prefer-result-array-groups.ts
+Filename: tests/lib/rules/prefer-result-array-groups.ts
 Files:
   - "**/*.*"
 LanguageOptions: unable to serialize
@@ -318,7 +318,7 @@ Output: unchanged
 
 
 Test: prefer-result-array-groups >> invalid
-Filename: C:\Users\micha\Git\eslint-plugin-regexp\tests\lib\rules\prefer-result-array-groups.ts
+Filename: tests/lib/rules/prefer-result-array-groups.ts
 Files:
   - "**/*.*"
 LanguageOptions: unable to serialize
@@ -349,7 +349,7 @@ Output:
 
 
 Test: prefer-result-array-groups >> invalid
-Filename: C:\Users\micha\Git\eslint-plugin-regexp\tests\lib\rules\prefer-result-array-groups.ts
+Filename: tests/lib/rules/prefer-result-array-groups.ts
 Files:
   - "**/*.*"
 LanguageOptions: unable to serialize

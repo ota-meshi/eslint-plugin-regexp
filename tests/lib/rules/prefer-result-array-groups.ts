@@ -1,7 +1,8 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import path from "path"
 import rule from "../../../lib/rules/prefer-result-array-groups"
 import * as tsParser from "@typescript-eslint/parser"
+
+const filename = "tests/lib/rules/prefer-result-array-groups.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {
@@ -190,7 +191,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         // with TypeScript
         {
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match
@@ -223,7 +224,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         {
             // Not using RegExpExecArray
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match: any[] | null
@@ -242,7 +243,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         {
             // Using `any` type.
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match: any
@@ -261,7 +262,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         {
             // https://github.com/ota-meshi/eslint-plugin-regexp/issues/355
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const match = /(?<foo>foo)/u.exec(str)!
             match[1]; // <-
