@@ -1,0 +1,194 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(/foo/, 'bar')
+    |                                      ^~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(/foo/g, 'bar')
+  4 |             
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(/foo/)
+    |                                    ^~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(/foo/g)
+  4 |             
+
+[1] The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(new RegExp('foo'), 'bar')
+    |                                      ^~~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(new RegExp('foo', "g"), 'bar')
+  4 |             
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp('foo'))
+    |                                    ^~~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp('foo', "g"))
+  4 |             
+
+[1] The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp(foo))
+    |                                    ^~~~~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp(foo, "g"))
+  4 |             
+
+[1] The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp('{', 'u'))
+    |                                    ^~~~~~~~~~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.matchAll(new RegExp('{', 'ug'))
+  4 |             
+
+[1] The pattern given to the argument of `String#matchAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const p = /foo/
+  3 |             const s = 'foo'
+  4 |             const ret = s.replaceAll(p, 'bar')
+    |                                      ^ [1]
+  5 |             
+
+Output: unchanged
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const flag = 'i'
+  4 |             const ret = s.replaceAll(new RegExp('foo', flag), 'bar')
+    |                                      ^~~~~~~~~~~~~~~~~~~~~~~ [1]
+  5 |             
+
+Output: unchanged
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const f = { flag: 'i' }
+  4 |             const ret = s.replaceAll(new RegExp('foo', f.flag), 'bar')
+    |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+  5 |             
+
+Output: unchanged
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const ret = s.replaceAll(/foo/, 'bar')
+    |                                      ^~~~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const ret = s.replaceAll(/foo/g, 'bar')
+  3 |             
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---
+
+
+Test: no-missing-g-flag >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(/[\q{foo}]/v, 'bar')
+    |                                      ^~~~~~~~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = 'foo'
+  3 |             const ret = s.replaceAll(/[\q{foo}]/vg, 'bar')
+  4 |             
+
+[1] The pattern given to the argument of `String#replaceAll()` requires the `g` flag, but is missing it.
+---

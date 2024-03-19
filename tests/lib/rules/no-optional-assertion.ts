@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-optional-assertion"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -18,88 +18,12 @@ tester.run("no-optional-assertion", rule as any, {
         String.raw`/(?:(?=[\q{a}]))/v`,
     ],
     invalid: [
-        {
-            code: String.raw`/(?:\b|(?=a))?/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
-                    line: 1,
-                    column: 5,
-                },
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
-                    line: 1,
-                    column: 8,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:\b|a)?/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
-                    line: 1,
-                    column: 5,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:^|a)*/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '*'.",
-                    line: 1,
-                    column: 5,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:((?:(\b|a)))|b)?/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
-                    line: 1,
-                    column: 10,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:((?:(\b|a)))|b)*/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '*'.",
-                    line: 1,
-                    column: 10,
-                },
-            ],
-        },
-        {
-            code: String.raw`/((\b)+){0,}/`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '{0,}'.",
-                    line: 1,
-                    column: 4,
-                },
-            ],
-        },
-        {
-            code: String.raw`/(?:(?=[\q{a}]))?/v`,
-            errors: [
-                {
-                    message:
-                        "This assertion effectively optional and does not change the pattern. Either remove the assertion or change the parent quantifier '?'.",
-                    line: 1,
-                    column: 5,
-                },
-            ],
-        },
+        String.raw`/(?:\b|(?=a))?/`,
+        String.raw`/(?:\b|a)?/`,
+        String.raw`/(?:^|a)*/`,
+        String.raw`/(?:((?:(\b|a)))|b)?/`,
+        String.raw`/(?:((?:(\b|a)))|b)*/`,
+        String.raw`/((\b)+){0,}/`,
+        String.raw`/(?:(?=[\q{a}]))?/v`,
     ],
 })

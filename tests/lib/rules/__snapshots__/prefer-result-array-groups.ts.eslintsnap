@@ -1,0 +1,447 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match.groups.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match?.[1]
+    |                            ^~~~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match?.groups.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match?.[(1)]
+    |                            ^~~~~~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match?.groups.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /(a)(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+  6 |                 const p2 = match[2]
+    |                            ^~~~~~~~ [1]
+  7 |                 // ...
+  8 |             }
+  9 |             
+
+Output:
+  1 |
+  2 |             const regex = /(a)(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+  6 |                 const p2 = match.groups.foo
+  7 |                 // ...
+  8 |             }
+  9 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /(?<foo>a)(?<bar>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const [,p1,p2] = match
+    |                         ^~ ^~
+    |                        [1] [2]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output: unchanged
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+[2] Unexpected indexed access for the named capturing group 'bar' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>[[b]])c/v
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>[[b]])c/v
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match.groups.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const arr = "str".match(/a(?<foo>b)c/)
+  3 |             const p1 = arr[1]
+    |                        ^~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const arr = "str".match(/a(?<foo>b)c/)
+  3 |             const p1 = arr.groups.foo
+  4 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const arr = unknown.match(/a(?<foo>b)c/)
+  3 |             const p1 = arr[1]
+    |                        ^~~~~~ [1]
+  4 |             
+
+Output:
+  1 |
+  2 |             const arr = unknown.match(/a(?<foo>b)c/)
+  3 |             const p1 = arr.groups.foo
+  4 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const matches = "str".matchAll(/a(?<foo>b)c/);
+  3 |             for (const match of matches) {
+  4 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  5 |                 // ..
+  6 |             }
+  7 |             
+
+Output:
+  1 |
+  2 |             const matches = "str".matchAll(/a(?<foo>b)c/);
+  3 |             for (const match of matches) {
+  4 |                 const p1 = match.groups.foo
+  5 |                 // ..
+  6 |             }
+  7 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const matches = unknown.matchAll(/a(?<foo>b)c/);
+  3 |             for (const match of matches) {
+  4 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  5 |                 // ..
+  6 |             }
+  7 |             
+
+Output:
+  1 |
+  2 |             const matches = unknown.matchAll(/a(?<foo>b)c/);
+  3 |             for (const match of matches) {
+  4 |                 const p1 = match.groups.foo
+  5 |                 // ..
+  6 |             }
+  7 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid >>> "\n            const regex = /a(?<foo>b)c/\n            let match\n            while (match = regex.exec(foo)) {\n                const p1 = match[1]\n                // ...\n            }\n             2"
+Filename: tests/lib/rules/prefer-result-array-groups.ts
+Files:
+  - "**/*.*"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match.groups!.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid >>> "\n            const regex = /a(?<foo>b)c/\n            let match\n            while (match = regex.exec(foo)) {\n                const p1 = match[1]\n                // ...\n            }\n             3"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output: unchanged
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Filename: tests/lib/rules/prefer-result-array-groups.ts
+Files:
+  - "**/*.*"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match: any[] | null
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output: unchanged
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Filename: tests/lib/rules/prefer-result-array-groups.ts
+Files:
+  - "**/*.*"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match: any
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match[1]
+    |                            ^~~~~~~~ [1]
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+Output:
+  1 |
+  2 |             const regex = /a(?<foo>b)c/
+  3 |             let match: any
+  4 |             while (match = regex.exec(foo)) {
+  5 |                 const p1 = match.groups.foo
+  6 |                 // ...
+  7 |             }
+  8 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Filename: tests/lib/rules/prefer-result-array-groups.ts
+Files:
+  - "**/*.*"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             const match = /(?<foo>foo)/u.exec(str)!
+  3 |             match[1]; // <-
+    |             ^~~~~~~~ [1]
+  4 |
+  5 |             /(?<bar>bar)/u.exec(str)?.[1]; // <-
+    |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [2]
+  6 |             const match2 = /(?<baz>baz)/u.exec(str)
+  7 |             match2?.[1] // <-
+    |             ^~~~~~~~~~~ [3]
+  8 |
+  9 |             const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+ 10 |             match3[1] // <-
+    |             ^~~~~~~~~ [4]
+ 11 |             
+
+Output:
+  1 |
+  2 |             const match = /(?<foo>foo)/u.exec(str)!
+  3 |             match.groups!.foo; // <-
+  4 |
+  5 |             /(?<bar>bar)/u.exec(str)?.groups!.bar; // <-
+  6 |             const match2 = /(?<baz>baz)/u.exec(str)
+  7 |             match2?.groups!.baz // <-
+  8 |
+  9 |             const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
+ 10 |             match3.groups!.qux // <-
+ 11 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+[2] Unexpected indexed access for the named capturing group 'bar' from regexp result array.
+[3] Unexpected indexed access for the named capturing group 'baz' from regexp result array.
+[4] Unexpected indexed access for the named capturing group 'qux' from regexp result array.
+---
+
+
+Test: prefer-result-array-groups >> invalid
+Code:
+  1 |
+  2 |             const match = /(?<foo>foo)/u.exec(str)
+  3 |             if (match) {
+  4 |                 match[1] // <-
+    |                 ^~~~~~~~ [1]
+  5 |             }
+  6 |
+  7 |             const match2 = /(?<bar>bar)/u.exec(str)
+  8 |             match2
+  9 |                 ? match2[1] // <-
+    |                   ^~~~~~~~~ [2]
+ 10 |                 : null;
+ 11 |
+ 12 |             const match3 = /(?<baz>baz)/u.exec(str)
+ 13 |             match3 && match3[1] // <-
+    |                       ^~~~~~~~~ [3]
+ 14 |
+ 15 |             const match4 = /(?<qux>qux)/u.exec(str)
+ 16 |             if (!match4) {
+ 17 |             } else {
+ 18 |                 match4[1] // <-
+    |                 ^~~~~~~~~ [4]
+ 19 |             }
+ 20 |             
+
+Output:
+  1 |
+  2 |             const match = /(?<foo>foo)/u.exec(str)
+  3 |             if (match) {
+  4 |                 match.groups.foo // <-
+  5 |             }
+  6 |
+  7 |             const match2 = /(?<bar>bar)/u.exec(str)
+  8 |             match2
+  9 |                 ? match2.groups.bar // <-
+ 10 |                 : null;
+ 11 |
+ 12 |             const match3 = /(?<baz>baz)/u.exec(str)
+ 13 |             match3 && match3.groups.baz // <-
+ 14 |
+ 15 |             const match4 = /(?<qux>qux)/u.exec(str)
+ 16 |             if (!match4) {
+ 17 |             } else {
+ 18 |                 match4.groups.qux // <-
+ 19 |             }
+ 20 |             
+
+[1] Unexpected indexed access for the named capturing group 'foo' from regexp result array.
+[2] Unexpected indexed access for the named capturing group 'bar' from regexp result array.
+[3] Unexpected indexed access for the named capturing group 'baz' from regexp result array.
+[4] Unexpected indexed access for the named capturing group 'qux' from regexp result array.
+---

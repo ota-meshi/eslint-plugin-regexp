@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/control-character-escape"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -19,109 +19,24 @@ tester.run("control-character-escape", rule as any, {
         String.raw`/[\q{\0\t\n\v\f\r}]/v`,
     ],
     invalid: [
-        {
-            code: String.raw`/\x00/`,
-            output: String.raw`/\0/`,
-            errors: [
-                "Unexpected control character escape '\\x00' (U+0000). Use '\\0' instead.",
-            ],
-        },
-        {
-            code: String.raw`/\x0a/`,
-            output: String.raw`/\n/`,
-            errors: [
-                "Unexpected control character escape '\\x0a' (U+000a). Use '\\n' instead.",
-            ],
-        },
-        {
-            code: String.raw`/\cJ/`,
-            output: String.raw`/\n/`,
-            errors: [
-                "Unexpected control character escape '\\cJ' (U+000a). Use '\\n' instead.",
-            ],
-        },
-        {
-            code: String.raw`/\u{a}/u`,
-            output: String.raw`/\n/u`,
-            errors: [
-                "Unexpected control character escape '\\u{a}' (U+000a). Use '\\n' instead.",
-            ],
-        },
-        {
-            code: String.raw`RegExp("\\cJ")`,
-            output: String.raw`RegExp("\\n")`,
-            errors: [
-                "Unexpected control character escape '\\cJ' (U+000a). Use '\\n' instead.",
-            ],
-        },
-        {
-            code: String.raw`RegExp("\\u{a}", "u")`,
-            output: String.raw`RegExp("\\n", "u")`,
-            errors: [
-                "Unexpected control character escape '\\u{a}' (U+000a). Use '\\n' instead.",
-            ],
-        },
+        String.raw`/\x00/`,
+        String.raw`/\x0a/`,
+        String.raw`/\cJ/`,
+        String.raw`/\u{a}/u`,
+        String.raw`RegExp("\\cJ")`,
+        String.raw`RegExp("\\u{a}", "u")`,
 
-        {
-            code: "/\\u0009/",
-            output: "/\\t/",
-            errors: [
-                {
-                    message:
-                        "Unexpected control character escape '\\u0009' (U+0009). Use '\\t' instead.",
-                    column: 2,
-                    endColumn: 8,
-                },
-            ],
-        },
-        {
-            code: "/\t/",
-            output: "/\\t/",
-            errors: [
-                {
-                    message:
-                        "Unexpected control character escape '\t' (U+0009). Use '\\t' instead.",
-                    column: 2,
-                    endColumn: 3,
-                },
-            ],
-        },
-        {
-            code: String.raw`
+        "/\\u0009/",
+        "/\t/",
+        String.raw`
             const s = "\\u0009"
             new RegExp(s)
             `,
-            output: String.raw`
-            const s = "\\t"
-            new RegExp(s)
-            `,
-            errors: [
-                "Unexpected control character escape '\\u0009' (U+0009). Use '\\t' instead.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             const s = "\\u"+"0009"
             new RegExp(s)
             `,
-            output: null,
-            errors: [
-                "Unexpected control character escape '\\u0009' (U+0009). Use '\\t' instead.",
-            ],
-        },
-        {
-            code: String.raw`RegExp("\t\r\n\0" + /	/.source)`,
-            output: String.raw`RegExp("\t\r\n\0" + /\t/.source)`,
-            errors: [
-                "Unexpected control character escape '\t' (U+0009). Use '\\t' instead.",
-            ],
-        },
-        {
-            code: String.raw`/[\q{\x00}]/v`,
-            output: String.raw`/[\q{\0}]/v`,
-            errors: [
-                "Unexpected control character escape '\\x00' (U+0000). Use '\\0' instead.",
-            ],
-        },
+        String.raw`RegExp("\t\r\n\0" + /	/.source)`,
+        String.raw`/[\q{\x00}]/v`,
     ],
 })

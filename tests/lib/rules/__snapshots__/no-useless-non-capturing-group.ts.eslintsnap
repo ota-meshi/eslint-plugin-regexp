@@ -1,0 +1,285 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:abcd)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /abcd/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:abcd)/v.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /abcd/v.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:[abcd])/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /[abcd]/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:ab|cd)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /ab|cd/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /a(?:ab|(?:.|a|b))/
+    |         ^~~ [1]
+
+Output:
+  1 | /a(?:ab|.|a|b)/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:[abcd]+?)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /[abcd]+?/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:0)/.test(str); /\1(?:0)/.test(str); /(?:1)/.test(str); /\1(?:1)/.test(str)
+    |  ^~~ [1]                                 ^~~ [2]
+
+Output:
+  1 | /0/.test(str); /\1(?:0)/.test(str); /1/.test(str); /\1(?:1)/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+[2] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:a\n)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /a\n/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const s = "(?:a\\n)"
+    |                        ^~~ [1]
+  3 |             ;(new RegExp(s)).test(str)
+
+Output:
+  1 |
+  2 |             const s = "a\\n"
+  3 |             ;(new RegExp(s)).test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 |
+  2 |             const s = "(?:a"+"\\n)"
+    |                        ^~~ [1]
+  3 |             ;(new RegExp(s)).test(str)
+
+Output: unchanged
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:a)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /a/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:a)+/
+    |  ^~~ [1]
+
+Output:
+  1 | /a+/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:\w)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /\w/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:[abc])*/
+    |  ^~~ [1]
+
+Output:
+  1 | /[abc]*/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /foo(?:[abc]*)bar/
+    |     ^~~ [1]
+
+Output:
+  1 | /foo[abc]*bar/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /foo(?:bar)/
+    |     ^~~ [1]
+
+Output:
+  1 | /foobar/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /(?:a|b)/.test(str)
+    |  ^~~ [1]
+
+Output:
+  1 | /a|b/.test(str)
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Code:
+  1 | /a|(?:b|c)/
+    |    ^~~ [1]
+
+Output:
+  1 | /a|b|c/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid >>> /a|(?:b|c)/ 2
+Options:
+  - allowTop: always
+
+Code:
+  1 | /a|(?:b|c)/
+    |    ^~~ [1]
+
+Output:
+  1 | /a|b|c/
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Options:
+  - allowTop: partial
+
+Code:
+  1 |
+  2 |             const foo = /(?:a|b)/
+    |                          ^~~ [1]
+  3 |             const bar = new RegExp('(?:a|b)' + 'c')
+  4 |             foo.exec(str)
+  5 |             bar.exec(str)
+  6 |             // { allowTop: "partial" }
+  7 |             
+
+Output:
+  1 |
+  2 |             const foo = /a|b/
+  3 |             const bar = new RegExp('(?:a|b)' + 'c')
+  4 |             foo.exec(str)
+  5 |             bar.exec(str)
+  6 |             // { allowTop: "partial" }
+  7 |             
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---
+
+
+Test: no-useless-non-capturing-group >> invalid
+Options:
+  - allowTop: never
+
+Code:
+  1 |
+  2 |             const foo = /(?:a|b)/
+    |                          ^~~ [1]
+  3 |             const bar = new RegExp(foo.source + 'c')
+  4 |             foo.exec(str)
+  5 |             bar.exec(str)
+  6 |             // { allowTop: "never" }
+  7 |             
+
+Output: unchanged
+
+[1] Unexpected unnecessary non-capturing group. This group can be removed without changing the behaviour of the regex.
+---

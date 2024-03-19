@@ -1,0 +1,204 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thing/;
+  4 |             if (pattern.exec(text)) {}
+    |                         ^~~~ [1]
+  5 |             if (text.match(pattern)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~ [2]
+  6 |             
+
+Output:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thing/;
+  4 |             if (pattern.test(text)) {}
+  5 |             if (pattern.test(text)) {}
+  6 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = ()=>/thing/;
+  4 |             if (pattern().exec(text)) {}
+    |                           ^~~~ [1]
+  5 |             if (text.match(pattern())) {}
+    |                 ^~~~~~~~~~~~~~~~~~~~~ [2]
+  6 |             
+
+Output:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = ()=>/thing/;
+  4 |             if (pattern().test(text)) {}
+  5 |             if (text.match(pattern())) {}
+  6 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thing/;
+  4 |             const b1 = Boolean(pattern.exec(text))
+    |                                        ^~~~ [1]
+  5 |             const b2 = Boolean(text.match(pattern))
+    |                                ^~~~~~~~~~~~~~~~~~~ [2]
+  6 |             const b3 = !pattern.exec(text)
+    |                                 ^~~~ [3]
+  7 |             const b4 = !text.match(pattern)
+    |                         ^~~~~~~~~~~~~~~~~~~ [4]
+  8 |             const b5 = !(foo && pattern.exec(text))
+    |                                         ^~~~ [5]
+  9 |             const b6 = !(foo || text.match(pattern))
+    |                                 ^~~~~~~~~~~~~~~~~~~ [6]
+ 10 |             
+
+Output:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thing/;
+  4 |             const b1 = Boolean(pattern.test(text))
+  5 |             const b2 = Boolean(pattern.test(text))
+  6 |             const b3 = !pattern.test(text)
+  7 |             const b4 = !pattern.test(text)
+  8 |             const b5 = !(foo && pattern.test(text))
+  9 |             const b6 = !(foo || pattern.test(text))
+ 10 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+[3] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[4] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+[5] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[6] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const re = /a/g;
+  3 |             const str = 'abc';
+  4 |
+  5 |             console.log(!!str.match(re)); // ignore
+  6 |             console.log(!!str.match(re)); // ignore
+  7 |             console.log(!!re.exec(str));
+    |                              ^~~~ [1]
+  8 |             console.log(!!re.exec(str));
+    |                              ^~~~ [2]
+  9 |             console.log(re.test(str));
+ 10 |             console.log(re.test(str));
+ 11 |             
+
+Output:
+  1 |
+  2 |             const re = /a/g;
+  3 |             const str = 'abc';
+  4 |
+  5 |             console.log(!!str.match(re)); // ignore
+  6 |             console.log(!!str.match(re)); // ignore
+  7 |             console.log(!!re.test(str));
+  8 |             console.log(!!re.test(str));
+  9 |             console.log(re.test(str));
+ 10 |             console.log(re.test(str));
+ 11 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             if (text.match()) {}
+  4 |             const pattern1 = 'some';
+  5 |             if (text.match(pattern1)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~~ [1]
+  6 |             const pattern2 = Infinity;
+  7 |             if (text.match(pattern2)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~~ [2]
+  8 |             
+
+Output: unchanged
+
+[1] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = getPattern();
+  4 |             if (text.match(pattern)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~ [1]
+  5 |             
+
+Output: unchanged
+
+[1] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             /** @type {RegExp} */
+  4 |             const pattern = getPattern();
+  5 |             if (text.match(pattern)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~ [1]
+  6 |             
+
+Output:
+  1 |
+  2 |             const text = 'something';
+  3 |             /** @type {RegExp} */
+  4 |             const pattern = getPattern();
+  5 |             if (pattern.test(text)) {}
+  6 |             
+
+[1] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thin[[g]]/v;
+  4 |             if (pattern.exec(text)) {}
+    |                         ^~~~ [1]
+  5 |             if (text.match(pattern)) {}
+    |                 ^~~~~~~~~~~~~~~~~~~ [2]
+  6 |             
+
+Output:
+  1 |
+  2 |             const text = 'something';
+  3 |             const pattern = /thin[[g]]/v;
+  4 |             if (pattern.test(text)) {}
+  5 |             if (pattern.test(text)) {}
+  6 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---

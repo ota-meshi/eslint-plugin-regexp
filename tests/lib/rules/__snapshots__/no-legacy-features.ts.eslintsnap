@@ -1,0 +1,327 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["input"]
+    | ^~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.input' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$_"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$_' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["lastMatch"]
+    | ^~~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.lastMatch' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$&"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$&' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["lastParen"]
+    | ^~~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.lastParen' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$+"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$+' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["leftContext"]
+    | ^~~~~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.leftContext' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$`"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$`' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["rightContext"]
+    | ^~~~~~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.rightContext' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$'"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$'' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$1"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$1' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$2"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$2' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$3"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$3' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$4"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$4' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$5"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$5' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$6"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$6' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$7"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$7' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$8"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$8' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp["$9"]
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.$9' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.input
+    | ^~~~~~~~~~~~ [1]
+
+[1] 'RegExp.input' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$_
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$_' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.lastMatch
+    | ^~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.lastMatch' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.lastParen
+    | ^~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.lastParen' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.leftContext
+    | ^~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.leftContext' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.rightContext
+    | ^~~~~~~~~~~~~~~~~~~ [1]
+
+[1] 'RegExp.rightContext' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$1
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$1' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$2
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$2' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$3
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$3' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$4
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$4' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$5
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$5' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$6
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$6' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$7
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$7' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$8
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$8' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | RegExp.$9
+    | ^~~~~~~~~ [1]
+
+[1] 'RegExp.$9' static property is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | const regexObj = new RegExp('foo', 'gi');
+  2 | regexObj.compile
+    | ^~~~~~~~~~~~~~~~ [1]
+
+[1] RegExp.prototype.compile method is forbidden.
+---
+
+
+Test: no-legacy-features >> invalid
+Code:
+  1 | const regexObj = /foo/;
+  2 | regexObj.compile('new foo', 'g')
+    | ^~~~~~~~~~~~~~~~ [1]
+
+[1] RegExp.prototype.compile method is forbidden.
+---

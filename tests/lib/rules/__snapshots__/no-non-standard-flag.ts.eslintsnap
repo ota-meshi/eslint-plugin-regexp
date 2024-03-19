@@ -1,0 +1,37 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-non-standard-flag >> invalid
+Code:
+  1 | /fo*o*/l
+    |        ^ [1]
+
+[1] Unexpected non-standard flag 'l'.
+---
+
+
+Test: no-non-standard-flag >> invalid
+Code:
+  1 | RegExp("foo", "l")
+    |                ^ [1]
+
+[1] Unexpected non-standard flag 'l'.
+---
+
+
+Test: no-non-standard-flag >> invalid
+Code:
+  1 | RegExp(someVariable, "l")
+    |                       ^ [1]
+
+[1] Unexpected non-standard flag 'l'.
+---
+
+
+Test: no-non-standard-flag >> invalid
+Code:
+  1 | RegExp("(", "l")
+    |              ^ [1]
+
+[1] Unexpected non-standard flag 'l'.
+---

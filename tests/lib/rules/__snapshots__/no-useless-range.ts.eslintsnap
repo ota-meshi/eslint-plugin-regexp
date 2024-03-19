@@ -1,0 +1,180 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-a]/
+    |   ^~~ [1]
+
+Output:
+  1 | /[a]/
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-a]/v
+    |   ^~~ [1]
+
+Output:
+  1 | /[a]/v
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-b]/
+    |   ^~~ [1]
+
+Output:
+  1 | /[ab]/
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-b]/v
+    |   ^~~ [1]
+
+Output:
+  1 | /[ab]/v
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-a-c-c]/
+    |   ^~~ ^~~
+    |   [1] [2]
+
+Output:
+  1 | /[a\-c]/
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[2] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 | /[a-abc]/
+    |   ^~~ [1]
+
+Output:
+  1 | /[abc]/
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 |
+  2 |             const s = "[a-a-c]"
+    |                         ^~~ [1]
+  3 |             new RegExp(s)
+
+Output:
+  1 |
+  2 |             const s = "[a\\-c]"
+  3 |             new RegExp(s)
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 |
+  2 |             const s = "[a-"+"a]"
+    |                       ^~~~~~~~~~ [1]
+  3 |             new RegExp(s)
+
+Output: unchanged
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 |
+  2 |             /[,--b]/;
+    |               ^~~ [1]
+  3 |             /[a-a-z]/;
+    |               ^~~ [2]
+  4 |             /[a-a--z]/;
+    |               ^~~ [3]
+  5 |             /[\c-d]/;
+    |                ^~~ [4]
+  6 |             /[\x6-7]/;
+    |                 ^~~ [5]
+  7 |             /[\u002-3]/;
+    |                   ^~~ [6]
+  8 |             /[A-\u004-5]/;
+    |                     ^~~ [7]
+  9 |             
+
+Output:
+  1 |
+  2 |             /[,\-b]/;
+  3 |             /[a\-z]/;
+  4 |             /[a\--z]/;
+  5 |             /[\c-d]/;
+  6 |             /[\x6-7]/;
+  7 |             /[\u002-3]/;
+  8 |             /[A-\u004-5]/;
+  9 |             
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[2] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[3] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[4] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[5] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[6] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[7] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---
+
+
+Test: no-useless-range >> invalid
+Code:
+  1 |
+  2 |             /[,-\-b]/;
+    |               ^~~~ [1]
+  3 |             /[c-d]/;
+    |               ^~~ [2]
+  4 |             /[x6-7]/;
+    |                ^~~ [3]
+  5 |             /[\x 6-7]/;
+    |                  ^~~ [4]
+  6 |             /[u002-3]/;
+    |                  ^~~ [5]
+  7 |             /[\u 002-3]/;
+    |                    ^~~ [6]
+  8 |             
+
+Output:
+  1 |
+  2 |             /[,\-b]/;
+  3 |             /[cd]/;
+  4 |             /[x67]/;
+  5 |             /[\x 67]/;
+  6 |             /[u0023]/;
+  7 |             /[\u 0023]/;
+  8 |             
+
+[1] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[2] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[3] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[4] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[5] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+[6] Unexpected unnecessary character ranges. The hyphen is unnecessary.
+---

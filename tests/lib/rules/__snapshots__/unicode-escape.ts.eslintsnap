@@ -1,0 +1,83 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: unicode-escape >> invalid
+Code:
+  1 | /a \x0a \cM \0 \u0100 \u00ff \ud83d\ude00 \u{1f600}/u
+    |                ^~~~~~ ^~~~~~
+    |                [1]    [2]
+
+Output:
+  1 | /a \x0a \cM \0 \u{100} \u{ff} \ud83d\ude00 \u{1f600}/u
+
+[1] Expected unicode code point escape ('\u{100}'), but unicode escape ('\u0100') is used.
+[2] Expected unicode code point escape ('\u{ff}'), but unicode escape ('\u00ff') is used.
+---
+
+
+Test: unicode-escape >> invalid >>> /a \x0a \cM \0 \u0100 \u00ff \ud83d\ude00 \u{1f600}/u 2
+Options:
+  - unicodeCodePointEscape
+
+Code:
+  1 | /a \x0a \cM \0 \u0100 \u00ff \ud83d\ude00 \u{1f600}/u
+    |                ^~~~~~ ^~~~~~
+    |                [1]    [2]
+
+Output:
+  1 | /a \x0a \cM \0 \u{100} \u{ff} \ud83d\ude00 \u{1f600}/u
+
+[1] Expected unicode code point escape ('\u{100}'), but unicode escape ('\u0100') is used.
+[2] Expected unicode code point escape ('\u{ff}'), but unicode escape ('\u00ff') is used.
+---
+
+
+Test: unicode-escape >> invalid
+Options:
+  - unicodeEscape
+
+Code:
+  1 | /a \x0a \cM \0 \u{ff} \u{100} \ud83d\ude00 \u{1f600}/u
+    |                ^~~~~~ ^~~~~~~
+    |                [1]    [2]
+
+Output:
+  1 | /a \x0a \cM \0 \u00ff \u0100 \ud83d\ude00 \u{1f600}/u
+
+[1] Expected unicode escape ('\u00ff'), but unicode code point escape ('\u{ff}') is used.
+[2] Expected unicode escape ('\u0100'), but unicode code point escape ('\u{100}') is used.
+---
+
+
+Test: unicode-escape >> invalid
+Options:
+  - unicodeCodePointEscape
+
+Code:
+  1 | /a \x0a \cM \0 \u0100 \u00ff \ud83d\ude00 \u{1f600}/v
+    |                ^~~~~~ ^~~~~~
+    |                [1]    [2]
+
+Output:
+  1 | /a \x0a \cM \0 \u{100} \u{ff} \ud83d\ude00 \u{1f600}/v
+
+[1] Expected unicode code point escape ('\u{100}'), but unicode escape ('\u0100') is used.
+[2] Expected unicode code point escape ('\u{ff}'), but unicode escape ('\u00ff') is used.
+---
+
+
+Test: unicode-escape >> invalid
+Options:
+  - unicodeEscape
+
+Code:
+  1 | /a \x0a \cM \0 \u{ff} \u{100} \ud83d\ude00 \u{1f600}/v
+    |                ^~~~~~ ^~~~~~~
+    |                [1]    [2]
+
+Output:
+  1 | /a \x0a \cM \0 \u00ff \u0100 \ud83d\ude00 \u{1f600}/v
+
+[1] Expected unicode escape ('\u00ff'), but unicode code point escape ('\u{ff}') is used.
+[2] Expected unicode escape ('\u0100'), but unicode code point escape ('\u{100}') is used.
+---

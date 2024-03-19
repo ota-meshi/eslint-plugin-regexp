@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/require-unicode-regexp"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -35,128 +35,36 @@ tester.run("require-unicode-regexp", rule as any, {
         String.raw`new RegExp('foo', 'v')`,
     ],
     invalid: [
-        {
-            code: String.raw`/foo/`,
-            output: String.raw`/foo/u`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`/foo/gimy`,
-            output: String.raw`/foo/gimyu`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`RegExp('foo')`,
-            output: String.raw`RegExp('foo', "u")`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`RegExp('foo', '')`,
-            output: String.raw`RegExp('foo', 'u')`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`RegExp('foo', 'gimy')`,
-            output: String.raw`RegExp('foo', 'gimyu')`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`new RegExp('foo')`,
-            output: String.raw`new RegExp('foo', "u")`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`new RegExp('foo', '')`,
-            output: String.raw`new RegExp('foo', 'u')`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`new RegExp('foo', 'gimy')`,
-            output: String.raw`new RegExp('foo', 'gimyu')`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`const flags = 'gi'; new RegExp('foo', flags)`,
-            output: String.raw`const flags = 'giu'; new RegExp('foo', flags)`,
-            errors: [{ messageId: "require" }],
-        },
-        {
-            code: String.raw`const flags = 'gimu'; new RegExp('foo', flags[0])`,
-            output: null,
-            errors: [{ messageId: "require" }],
-        },
+        String.raw`/foo/`,
+        String.raw`/foo/gimy`,
+        String.raw`RegExp('foo')`,
+        String.raw`RegExp('foo', '')`,
+        String.raw`RegExp('foo', 'gimy')`,
+        String.raw`new RegExp('foo')`,
+        String.raw`new RegExp('foo', '')`,
+        String.raw`new RegExp('foo', 'gimy')`,
+        String.raw`const flags = 'gi'; new RegExp('foo', flags)`,
+        String.raw`const flags = 'gimu'; new RegExp('foo', flags[0])`,
 
         // Compatibility
         // All of the below cases are only fixable if they are compatible
 
-        {
-            code: String.raw`/foo/`,
-            output: String.raw`/foo/u`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/❤️/`,
-            output: String.raw`/❤️/u`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/foo/i`,
-            output: String.raw`/foo/iu`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/ab+c/`,
-            output: String.raw`/ab+c/u`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/a.*b/`,
-            output: String.raw`/a.*b/u`,
-            errors: 1,
-        },
-        {
-            code: String.raw`/<[^<>]+>/`,
-            output: String.raw`/<[^<>]+>/u`,
-            errors: 1,
-        },
-        {
-            // "k" maps to 3 characters in ignore-case Unicode mode
-            code: String.raw`/k/i`,
-            output: null,
-            errors: 1,
-        },
-        {
-            // Same for \w
-            code: String.raw`/\w/i`,
-            output: null,
-            errors: 1,
-        },
-        {
-            // Same for \b
-            code: String.raw`/\bfoo/i`,
-            output: null,
-            errors: 1,
-        },
-        {
-            code: String.raw`/[😃]/`,
-            output: null,
-            errors: 1,
-        },
-        {
-            code: String.raw`/😃+/`,
-            output: null,
-            errors: 1,
-        },
-        {
-            code: String.raw`/\p{Ll}/`,
-            output: null,
-            errors: 1,
-        },
-        {
-            // "<😃>" is accepted by one but not the other
-            code: String.raw`/<[^<>]>/`,
-            output: null,
-            errors: 1,
-        },
+        String.raw`/❤️/`,
+        String.raw`/foo/i`,
+        String.raw`/ab+c/`,
+        String.raw`/a.*b/`,
+        String.raw`/<[^<>]+>/`,
+        // "k" maps to 3 characters in ignore-case Unicode mode
+        String.raw`/k/i`,
+        // Same for \w
+        String.raw`/\w/i`,
+        // Same for \b
+        String.raw`/\bfoo/i`,
+
+        String.raw`/[😃]/`,
+        String.raw`/😃+/`,
+        String.raw`/\p{Ll}/`,
+        // "<😃>" is accepted by one but not the other
+        String.raw`/<[^<>]>/`,
     ],
 })

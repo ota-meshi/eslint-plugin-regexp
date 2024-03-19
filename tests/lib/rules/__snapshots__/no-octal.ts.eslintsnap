@@ -1,0 +1,98 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /\07/
+    |  ^~~ [1]
+
+[1] Unexpected octal escape sequence '\07'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\x07/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /\077/
+    |  ^~~~ [1]
+
+[1] Unexpected octal escape sequence '\077'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\x3f/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /[\077]/
+    |   ^~~~ [1]
+
+[1] Unexpected octal escape sequence '\077'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /[\x3f]/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /\0777/
+    |  ^~~~ [1]
+
+[1] Unexpected octal escape sequence '\077'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\x3f7/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /\7/
+    |  ^~ [1]
+
+[1] Unexpected octal escape sequence '\7'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\x07/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /\1\2/
+    |  ^~ [1]
+    |    ^~ [2]
+
+[1] Unexpected octal escape sequence '\1'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\x01\2/
+[2] Unexpected octal escape sequence '\2'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /\1\x02/
+---
+
+
+Test: no-octal >> invalid
+Code:
+  1 | /()\1\2/
+    |      ^~ [1]
+
+[1] Unexpected octal escape sequence '\2'.
+    Suggestions:
+      - Replace the octal escape sequence with a hexadecimal escape sequence.
+        Output:
+          1 | /()\1\x02/
+---

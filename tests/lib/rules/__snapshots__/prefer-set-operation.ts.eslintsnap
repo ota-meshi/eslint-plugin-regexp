@@ -1,0 +1,37 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-set-operation >> invalid
+Code:
+  1 | /(?!a)\w/v
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[\w--a]/v
+
+[1] This lookaround can be combined with '\w' using a set operation.
+---
+
+
+Test: prefer-set-operation >> invalid
+Code:
+  1 | /\w(?<=\d)/v
+    |    ^~~~~~~ [1]
+
+Output:
+  1 | /[\w&&\d]/v
+
+[1] This lookaround can be combined with '\w' using a set operation.
+---
+
+
+Test: prefer-set-operation >> invalid
+Code:
+  1 | /(?!-)&/v
+    |  ^~~~~ [1]
+
+Output:
+  1 | /[\&--\-]/v
+
+[1] This lookaround can be combined with '&' using a set operation.
+---

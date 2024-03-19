@@ -1,0 +1,514 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /[a-fA-F][a-fA-F]?/
+    |  ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[a-fA-F]{1,2}/
+
+[1] '[a-fA-F]' and '[a-fA-F]?' can be combined into one quantifier '[a-fA-F]{1,2}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a\d*\d*a/
+    |      ^~~ [1]
+
+Output:
+  1 | /a\d*a/
+
+[1] '\d*' can be removed because it is already included by '\d*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\d+/
+    |     ^~~ [1]
+
+Output:
+  1 | /\w+\d/
+
+[1] '\d+' can be replaced with '\d' because of '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\d?/
+    |     ^~~ [1]
+
+Output:
+  1 | /\w+/
+
+[1] '\d?' can be removed because it is already included by '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a+\w+/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /a\w+/
+
+[1] 'a+' and '\w+' can be replaced with 'a\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\d*/
+    |     ^~~ [1]
+
+Output:
+  1 | /\w+/
+
+[1] '\d*' can be removed because it is already included by '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(\d*\w+)/
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /(\w+)/
+
+[1] '\d*' can be removed because it is already included by '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /;+.*/
+    |  ^~~~ [1]
+
+Output:
+  1 | /;.*/
+
+[1] ';+' and '.*' can be replaced with ';.*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a+(?:a|bb)+/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /a(?:a|bb)+/
+
+[1] 'a+' and '(?:a|bb)+' can be replaced with 'a(?:a|bb)+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+(?:a|b)+/
+    |     ^~~~~~~~ [1]
+
+Output:
+  1 | /\w+(?:a|b)/
+
+[1] '(?:a|b)+' can be replaced with '(?:a|b)' because of '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\d{3,5}\w*/
+    |  ^~~~~~~~~~ [1]
+
+Output:
+  1 | /\d{3}\w*/
+
+[1] '\d{3,5}' and '\w*' can be replaced with '\d{3}\w*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w\w*/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\w+/
+
+[1] '\w' and '\w*' can be combined into one quantifier '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w*\w/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\w+/
+
+[1] '\w*' and '\w' can be combined into one quantifier '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\w/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /\w{2,}/
+
+[1] '\w+' and '\w' can be combined into one quantifier '\w{2,}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\w{4}/
+    |  ^~~~~~~~ [1]
+
+Output:
+  1 | /\w{5,}/
+
+[1] '\w+' and '\w{4}' can be combined into one quantifier '\w{5,}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+\w{4}?/
+    |  ^~~~~~~~~ [1]
+
+Output:
+  1 | /\w{5,}/
+
+[1] '\w+' and '\w{4}?' can be combined into one quantifier '\w{5,}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w{4}\w{4}?/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /\w{8}/
+
+[1] '\w{4}' and '\w{4}?' can be combined into one quantifier '\w{8}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /[ab]*(?:a|b)/
+    |  ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[ab]+/
+
+[1] '[ab]*' and '(?:a|b)' can be combined into one quantifier '[ab]+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /aa*/
+    |  ^~~ [1]
+
+Output:
+  1 | /a+/
+
+[1] 'a' and 'a*' can be combined into one quantifier 'a+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a*a*/
+    |    ^~ [1]
+
+Output:
+  1 | /a*/
+
+[1] 'a*' can be removed because it is already included by 'a*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a?a?a?/
+    |  ^~~~ [1]
+    |    ^~~~ [2]
+
+Output:
+  1 | /a{0,3}/
+
+[1] 'a?' and 'a?' can be replaced with 'a{0,2}'.
+[2] 'a?' and 'a?' can be replaced with 'a{0,2}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a.{1,3}?.{2,4}?c/
+    |   ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /a.{3,7}?c/
+
+[1] '.{1,3}?' and '.{2,4}?' can be replaced with '.{3,7}?'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a.{1,3}.{2,4}c/
+    |   ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /a.{3,7}c/
+
+[1] '.{1,3}' and '.{2,4}' can be replaced with '.{3,7}'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+(?:foo|bar)?/
+    |     ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\w+/
+
+[1] '(?:foo|bar)?' can be removed because it is already included by '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /[ab]*(?:a|bb)+/
+    |       ^~~~~~~~~ [1]
+
+Output:
+  1 | /[ab]*(?:a|bb)/
+
+[1] '(?:a|bb)+' can be replaced with '(?:a|bb)' because of '[ab]*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(?:\d+|abc)\w+/
+    |     ^~~ [1]
+
+Output:
+  1 | /(?:\d|abc)\w+/
+
+[1] '\d+' can be replaced with '\d' because of '\w+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(^[ \t]*)[a-z\d].+(?::{2,4}|;;)(?=\s)/im
+    |                       ^~~~~~ [1]
+
+Output:
+  1 | /(^[ \t]*)[a-z\d].+(?::{2}|;;)(?=\s)/im
+
+[1] ':{2,4}' can be replaced with ':{2}' because of '.+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(^[\t ]*)#(?:const|else(?:[\t ]+if)?|end[\t ]+if|error|if).*/im
+    |                         ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /(^[\t ]*)#(?:const|else|end[\t ]+if|error|if).*/im
+
+[1] '(?:[\t ]+if)?' can be removed because of '.*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(&(?:\r\n?|\n)\s*)!.*/
+    |         ^~~ [1]
+
+Output:
+  1 | /(&(?:\r|\n)\s*)!.*/
+
+[1] '\n?' can be removed because of '\s*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a\s*(?=\r?\n|\r)/
+    |         ^~~ [1]
+
+Output:
+  1 | /a\s*(?=\n|\r)/
+
+[1] '\r?' can be removed because it is already included by '\s*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+(?:(?:\r\n?|\n)[ \t]*\.\.\. .*)?/
+    |                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /(^|[^\w.])[a-z][\w.]*(?:Error|Exception):.*(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+/
+
+[1] '(?:(?:\r\n?|\n)[ \t]*\.\.\. .*)?' can be removed because it is already included by '(?:(?:\r\n?|\n)[ \t]*(?:at[ \t].+|\.{3}.*|Caused by:.*))+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /&key\s+\S+(?:\s+\S+)*(?:\s+&allow-other-keys)?/
+    |                       ^~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /&key\s+\S+(?:\s+\S+)*/
+
+[1] '(?:\s+&allow-other-keys)?' can be removed because it is already included by '(?:\s+\S+)*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(?:xa+|y[ab]*)a*/
+    |                ^~ [1]
+
+Output:
+  1 | /(?:xa+|y[ab]*)/
+
+[1] 'a*' can be removed because it is already included by 'a+' and '[ab]*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(?:xa+|y[ab]*)(?:a*b)?/
+    |                   ^~ [1]
+
+Output:
+  1 | /(?:xa+|y[ab]*)(?:b)?/
+
+[1] 'a*' can be removed because it is already included by 'a+' and '[ab]*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a+(?:a*z+[ay]*)*b/
+    |       ^~ [1]
+
+Output:
+  1 | /a+(?:z+[ay]*)*b/
+
+[1] 'a*' can be removed because it is already included by 'a+' and '[ay]*'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(?:xa+|y[ab]*)(?:a*z[ac]*|xy[za]+)+b/
+    |                   ^~ [1]
+
+Output:
+  1 | /(?:xa+|y[ab]*)(?:z[ac]*|xy[za]+)+b/
+
+[1] 'a*' can be removed because it is already included by 'a+', '[ab]*', '[ac]*', and '[za]+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\w+(?:(a)|b)*/
+    |     ^~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] '(?:(a)|b)*' can be removed because it is already included by '\w+'. This cannot be fixed automatically because it removes a capturing group.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(\d)*\w+/
+    |  ^~~~~~~~ [1]
+
+Output: unchanged
+
+[1] '(\d)*' can be removed because it is already included by '\w+'. This cannot be fixed automatically because it might change or remove a capturing group.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(\d)\d+/
+    |  ^~~~~~~ [1]
+
+Output: unchanged
+
+[1] '(\d)' and '\d+' can be combined into one quantifier '\d{2,}'. This cannot be fixed automatically because it might change or remove a capturing group.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\d+(\d*)/
+    |      ^~~ [1]
+
+Output: unchanged
+
+[1] '\d*' can be removed because it is already included by '\d+'. This cannot be fixed automatically because it involves a capturing group.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /\d+(\d*)/v
+    |      ^~~ [1]
+
+Output: unchanged
+
+[1] '\d*' can be removed because it is already included by '\d+'. This cannot be fixed automatically because it involves a capturing group.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /a+[a\q{}]+/v
+    |    ^~~~~~~~ [1]
+
+Output:
+  1 | /a+[a\q{}]/v
+
+[1] '[a\q{}]+' can be replaced with '[a\q{}]' because of 'a+'.
+---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /[ab]*[\q{a|bb}]+/v
+    |       ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /[ab]*[\q{a|bb}]/v
+
+[1] '[\q{a|bb}]+' can be replaced with '[\q{a|bb}]' because of '[ab]*'.
+---

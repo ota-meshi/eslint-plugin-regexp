@@ -1,0 +1,85 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /[a-zA-Z]/
+    |          ^ [1]
+
+Output:
+  1 | /[a-z]/i
+
+[1] The character class(es) '[a-zA-Z]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /[aA][aA][aA][aA][aA]/
+    |                      ^ [1]
+
+Output:
+  1 | /[a][a][a][a][a]/i
+
+[1] The character class(es) '[aA]', '[aA]', '[aA]', '[aA]', '[aA]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /[aA]/u
+    |       ^ [1]
+
+Output:
+  1 | /[a]/iu
+
+[1] The character class(es) '[aA]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /[aA]/v
+    |       ^ [1]
+
+Output:
+  1 | /[a]/iv
+
+[1] The character class(es) '[aA]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /\b0[xX][a-fA-F0-9]+\b/
+    |                       ^ [1]
+
+Output:
+  1 | /\b0[x][a-f0-9]+\b/i
+
+[1] The character class(es) '[xX]', '[a-fA-F0-9]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | RegExp("[a-zA-Z]")
+    | ^~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | RegExp("[a-z]", "i")
+
+[1] The character class(es) '[a-zA-Z]' can be simplified using the `i` flag.
+---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /[\q{a|A}]/v
+    |            ^ [1]
+
+Output:
+  1 | /[\q{a}]/iv
+
+[1] The character class(es) '[\q{a|A}]' can be simplified using the `i` flag.
+---

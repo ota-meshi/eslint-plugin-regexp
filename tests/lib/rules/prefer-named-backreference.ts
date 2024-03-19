@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-named-backreference"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -10,16 +10,5 @@ const tester = new RuleTester({
 
 tester.run("prefer-named-backreference", rule as any, {
     valid: [`/(a)\\1/`, `/(?<foo>a)\\k<foo>/`, `/(a)\\1 (?<foo>a)\\k<foo>/`],
-    invalid: [
-        {
-            code: `/(?<foo>a)\\1/`,
-            output: `/(?<foo>a)\\k<foo>/`,
-            errors: [{ messageId: "unexpected" }],
-        },
-        {
-            code: `/(?<foo>a)\\1/v`,
-            output: `/(?<foo>a)\\k<foo>/v`,
-            errors: [{ messageId: "unexpected" }],
-        },
-    ],
+    invalid: [`/(?<foo>a)\\1/`, `/(?<foo>a)\\1/v`],
 })

@@ -55,10 +55,10 @@ export default createRule("${ruleId}", {
     )
     fs.writeFileSync(
         testFile,
-        `import { RuleTester } from "../rule-tester"
+        `import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/${ruleId}"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -70,19 +70,7 @@ tester.run("${ruleId}", rule as any, {
         \`/regexp/\`
     ],
     invalid: [
-        {
-            code: \`/regexp/\`,
-            errors: [
-                {
-                    messageId: "",
-                    data: {},
-                    line: 1,
-                    column: 1,
-                    endLine: 1,
-                    endColumn: 1,
-                },
-            ],
-        },
+        \`/regexp/\`
     ],
 })
 `,

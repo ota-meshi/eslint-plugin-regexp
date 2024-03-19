@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-useless-dollar-replacements"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -97,8 +97,7 @@ tester.run("no-useless-dollar-replacements", rule as any, {
         `,
     ],
     invalid: [
-        {
-            code: String.raw`
+        String.raw`
             const str = 'John Smith';
 
             /* ✗ BAD */
@@ -107,87 +106,26 @@ tester.run("no-useless-dollar-replacements", rule as any, {
             var newStr = str.replace(/(?<first>\w+)\s(?<last>\w+)/, '$<last>, $<first> $<middle>');
             // newStr = 'Smith, John '
             `,
-            errors: [
-                {
-                    message:
-                        "'$3' replacement will insert '$3' because there are less than 3 capturing groups. Use '$$' if you want to escape '$'.",
-                    line: 5,
-                    column: 55,
-                    endLine: 5,
-                    endColumn: 57,
-                },
-                {
-                    message:
-                        "'$<middle>' replacement will be ignored because the named capturing group is not found. Use '$$' if you want to escape '$'.",
-                    line: 7,
-                    column: 88,
-                    endLine: 7,
-                    endColumn: 97,
-                },
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             const str = 'John Smith';
             var newStr = str.replace(/(\w+)\s(\w+)/, '$03, $01 $02');
             `,
-            errors: [
-                {
-                    message:
-                        "'$03' replacement will insert '$03' because there are less than 3 capturing groups. Use '$$' if you want to escape '$'.",
-                    line: 3,
-                    column: 55,
-                    endLine: 3,
-                    endColumn: 58,
-                },
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             "abc".replaceAll(/()()(()())()()(.)/g, '$9'); // "$9$9$9"
             `,
-            errors: [
-                "'$9' replacement will insert '$9' because there are less than 9 capturing groups. Use '$$' if you want to escape '$'.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             "abc".replaceAll(/()()(()())()()(.)/g, '$09'); // "$09$09$09"
             `,
-            errors: [
-                "'$09' replacement will insert '$09' because there are less than 9 capturing groups. Use '$$' if you want to escape '$'.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             const regexp = /./g
             "abc".replaceAll(regexp, '$1');
             `,
-            errors: [
-                "'$1' replacement will insert '$1' because capturing group does not found. Use '$$' if you want to escape '$'.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             "abc".replaceAll(/(.)/g, '$<a>');
             `,
-            errors: [
-                "'$<a>' replacement will insert '$<a>' because named capturing group does not found. Use '$$' if you want to escape '$'.",
-            ],
-        },
-        {
-            code: String.raw`
+        String.raw`
             const str = 'John Smith';
             var newStr = str.replace(/([[\w]]+)[\s](\w+)/v, '$3, $1 $2');
             `,
-            errors: [
-                {
-                    message:
-                        "'$3' replacement will insert '$3' because there are less than 3 capturing groups. Use '$$' if you want to escape '$'.",
-                    line: 3,
-                    column: 62,
-                },
-            ],
-        },
     ],
 })

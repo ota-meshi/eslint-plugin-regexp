@@ -1,0 +1,37 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-standalone-backslash >> invalid
+Code:
+  1 | /\c/
+    |  ^ [1]
+
+[1] Unexpected standalone backslash (`\`). It looks like an escape sequence, but it's a single `\` character pattern.
+---
+
+
+Test: no-standalone-backslash >> invalid
+Code:
+  1 | /\c-/
+    |  ^ [1]
+
+[1] Unexpected standalone backslash (`\`). It looks like an escape sequence, but it's a single `\` character pattern.
+---
+
+
+Test: no-standalone-backslash >> invalid
+Code:
+  1 | /\c1/
+    |  ^ [1]
+
+[1] Unexpected standalone backslash (`\`). It looks like an escape sequence, but it's a single `\` character pattern.
+---
+
+
+Test: no-standalone-backslash >> invalid
+Code:
+  1 | /[\c]/
+    |   ^ [1]
+
+[1] Unexpected standalone backslash (`\`). It looks like an escape sequence, but it's a single `\` character pattern.
+---

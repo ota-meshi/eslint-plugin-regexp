@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-contradiction-with-assertion"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -23,71 +23,11 @@ tester.run("no-contradiction-with-assertion", rule as any, {
         String.raw`/(?:aa|a\b)-?a/v`,
     ],
     invalid: [
-        {
-            code: String.raw`/a\b-?a/`,
-            errors: [
-                {
-                    messageId: "alwaysEnterQuantifier",
-                    suggestions: [
-                        {
-                            messageId: "changeQuantifier",
-                            output: String.raw`/a\b-{1}a/`,
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            code: String.raw`/a\b(a|-)/`,
-            errors: [
-                {
-                    messageId: "alternative",
-                    suggestions: [],
-                },
-            ],
-        },
-        {
-            code: String.raw`/a\ba*-/`,
-            errors: [
-                {
-                    messageId: "cannotEnterQuantifier",
-                    suggestions: [
-                        {
-                            messageId: "removeQuantifier",
-                            output: String.raw`/a\b-/`,
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            code: String.raw`/a\b[a\q{foo|bar}]*-/v`,
-            errors: [
-                {
-                    messageId: "cannotEnterQuantifier",
-                    suggestions: [
-                        {
-                            messageId: "removeQuantifier",
-                            output: String.raw`/a\b-/v`,
-                        },
-                    ],
-                },
-            ],
-        },
+        String.raw`/a\b-?a/`,
+        String.raw`/a\b(a|-)/`,
+        String.raw`/a\ba*-/`,
+        String.raw`/a\b[a\q{foo|bar}]*-/v`,
 
-        {
-            code: String.raw`/(^[\t ]*)#(?:comments-start|cs)[\s\S]*?^[ \t]*#(?:comments-end|ce)/m`,
-            errors: [
-                {
-                    messageId: "alwaysEnterQuantifier",
-                    suggestions: [
-                        {
-                            messageId: "changeQuantifier",
-                            output: String.raw`/(^[\t ]*)#(?:comments-start|cs)[\s\S]+?^[ \t]*#(?:comments-end|ce)/m`,
-                        },
-                    ],
-                },
-            ],
-        },
+        String.raw`/(^[\t ]*)#(?:comments-start|cs)[\s\S]*?^[ \t]*#(?:comments-end|ce)/m`,
     ],
 })

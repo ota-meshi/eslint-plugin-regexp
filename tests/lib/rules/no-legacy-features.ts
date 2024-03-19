@@ -1,8 +1,8 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-legacy-features"
 import * as tsParser from "@typescript-eslint/parser"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -53,32 +53,16 @@ tester.run("no-legacy-features", rule as any, {
     ],
     invalid: [
         ...STATIC_PROPERTIES.map((sp) => {
-            return {
-                code: `RegExp["${sp}"]`,
-                errors: [`'RegExp.${sp}' static property is forbidden.`],
-            }
+            return `RegExp["${sp}"]`
         }),
         ...STATIC_PROPERTIES.filter((sp) => /^[\w$]+$/u.test(sp)).map((sp) => {
-            return {
-                code: `RegExp.${sp}`,
-                errors: [`'RegExp.${sp}' static property is forbidden.`],
-            }
+            return `RegExp.${sp}`
         }),
         ...PROTOTYPE_METHODS.map((pm) => {
-            return {
-                code: `
-                const regexObj = new RegExp('foo', 'gi');
-                regexObj.${pm}`,
-                errors: ["RegExp.prototype.compile method is forbidden."],
-            }
+            return `const regexObj = new RegExp('foo', 'gi');\nregexObj.${pm}`
         }),
         ...PROTOTYPE_METHODS.map((pm) => {
-            return {
-                code: `
-                const regexObj = /foo/;
-                regexObj.${pm}('new foo', 'g')`,
-                errors: ["RegExp.prototype.compile method is forbidden."],
-            }
+            return `const regexObj = /foo/;\nregexObj.${pm}('new foo', 'g')`
         }),
     ],
 })

@@ -1,0 +1,257 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /foo/
+    |     ^ [1]
+
+Output:
+  1 | /foo/u
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /foo/gimy
+    |      ^~~~ [1]
+
+Output:
+  1 | /foo/gimyu
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | RegExp('foo')
+    | ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | RegExp('foo', "u")
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | RegExp('foo', '')
+    |               ^ [1]
+
+Output:
+  1 | RegExp('foo', 'u')
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | RegExp('foo', 'gimy')
+    |                ^~~~ [1]
+
+Output:
+  1 | RegExp('foo', 'gimyu')
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | new RegExp('foo')
+    | ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | new RegExp('foo', "u")
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | new RegExp('foo', '')
+    |                   ^ [1]
+
+Output:
+  1 | new RegExp('foo', 'u')
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | new RegExp('foo', 'gimy')
+    |                    ^~~~ [1]
+
+Output:
+  1 | new RegExp('foo', 'gimyu')
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | const flags = 'gi'; new RegExp('foo', flags)
+    |                ^~ [1]
+
+Output:
+  1 | const flags = 'giu'; new RegExp('foo', flags)
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | const flags = 'gimu'; new RegExp('foo', flags[0])
+    |                                         ^~~~~~~~ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /❤️/
+    |    ^ [1]
+
+Output:
+  1 | /❤️/u
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /foo/i
+    |      ^ [1]
+
+Output:
+  1 | /foo/iu
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /ab+c/
+    |      ^ [1]
+
+Output:
+  1 | /ab+c/u
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /a.*b/
+    |      ^ [1]
+
+Output:
+  1 | /a.*b/u
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /<[^<>]+>/
+    |          ^ [1]
+
+Output:
+  1 | /<[^<>]+>/u
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /k/i
+    |    ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /\w/i
+    |     ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /\bfoo/i
+    |        ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /[😃]/
+    |      ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /😃+/
+    |     ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /\p{Ll}/
+    |        ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---
+
+
+Test: require-unicode-regexp >> invalid
+Code:
+  1 | /<[^<>]>/
+    |         ^ [1]
+
+Output: unchanged
+
+[1] Use the 'u' flag.
+---

@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-named-replacement"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -22,58 +22,17 @@ tester.run("prefer-named-replacement", rule as any, {
         `unknown.replaceAll(/a(?<foo>b)c/, "_$1_")`,
     ],
     invalid: [
-        {
-            code: `"str".replace(/a(?<foo>b)c/, "_$1_")`,
-            output: `"str".replace(/a(?<foo>b)c/, "_$<foo>_")`,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed reference in replacement string.",
-                    line: 1,
-                    column: 32,
-                },
-            ],
-        },
-        {
-            code: `"str".replace(/a(?<foo>b)c/v, "_$1_")`,
-            output: `"str".replace(/a(?<foo>b)c/v, "_$<foo>_")`,
-            errors: ["Unexpected indexed reference in replacement string."],
-        },
-        {
-            code: `"str".replaceAll(/a(?<foo>b)c/, "_$1_")`,
-            output: `"str".replaceAll(/a(?<foo>b)c/, "_$<foo>_")`,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed reference in replacement string.",
-                    line: 1,
-                    column: 35,
-                },
-            ],
-        },
-        {
-            code: `"str".replace(/(a)(?<foo>b)c/, "_$1$2_")`,
-            output: `"str".replace(/(a)(?<foo>b)c/, "_$1$<foo>_")`,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed reference in replacement string.",
-                    line: 1,
-                    column: 36,
-                },
-            ],
-        },
+        `"str".replace(/a(?<foo>b)c/, "_$1_")`,
+        `"str".replace(/a(?<foo>b)c/v, "_$1_")`,
+        `"str".replaceAll(/a(?<foo>b)c/, "_$1_")`,
+        `"str".replace(/(a)(?<foo>b)c/, "_$1$2_")`,
         {
             code: `unknown.replace(/a(?<foo>b)c/, "_$1_")`,
-            output: `unknown.replace(/a(?<foo>b)c/, "_$<foo>_")`,
             options: [{ strictTypes: false }],
-            errors: ["Unexpected indexed reference in replacement string."],
         },
         {
             code: `unknown.replaceAll(/a(?<foo>b)c/, "_$1_")`,
-            output: `unknown.replaceAll(/a(?<foo>b)c/, "_$<foo>_")`,
             options: [{ strictTypes: false }],
-            errors: ["Unexpected indexed reference in replacement string."],
         },
     ],
 })

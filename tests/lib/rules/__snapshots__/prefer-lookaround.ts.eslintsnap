@@ -1,0 +1,736 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?<after>!)/, '$<before>🦄$<after>');
+    |                                                                    ^~~~~~~~~~~~~~~~ [1]   ^~~~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<=love )unicorn(?=!)/, '🦄');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(love )unicorn(!)/, '$1🦄$2');
+    |                                                                    ^~~~~~~ [1]   ^~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<=love )unicorn(?=!)/, '🦄');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'A JavaScript linter written in JavaScript.'.replaceAll(/Java(Script)/g, 'Type$1');
+    |                                                                                      ^~~~~~~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'A JavaScript linter written in JavaScript.'.replaceAll(/Java(?=Script)/g, 'Type');
+  3 |             
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'A JavaScript formatter written in JavaScript.'.replace(/(Java)Script/g, '$1');
+    |                                                                                  ^~~~~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'A JavaScript formatter written in JavaScript.'.replace(/(?<=Java)Script/g, '');
+  3 |             
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=Java)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/Java(Script)/g, '$1');
+    |                                                   ^~~~~~~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/Java(?=Script)/g, '');
+  3 |             
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript.'.replace(/(Java)(Script)/, '$1 and Type$2');
+    |                                                ^~~~~~ [1]
+    |                                                      ^~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript.'.replace(/(?<=Java)(?=Script)/, ' and Type');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const replacement = '$<before>🦄$<after>'
+  3 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?<after>!)/, replacement);
+    |                                                                    ^~~~~~~~~~~~~~~~ [1]   ^~~~~~~~~~~ [2]
+  4 |             
+
+Output: unchanged
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const replacement = '$1🦄$2'
+  3 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(love )unicorn(!)/, replacement);
+    |                                                                    ^~~~~~~ [1]   ^~~ [2]
+  4 |             
+
+Output: unchanged
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=love )' and '(?=!)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript.'.replace(/(J)(ava)(Script)/, '$1Query, and Java$3');
+    |                                                ^~~ [1] ^~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript.'.replace(/(?<=J)(ava)(?=Script)/, 'Query, and Java');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=J)' and '(?=Script)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=J)' and '(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript.'.replace(/(J)(ava)(Script)/, '$1Query, $2, and Java$3');
+    |                                                ^~~ [1] ^~~~~~~~ [2]
+  3 |             
+
+Output: unchanged
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=J)' and '(?=Script)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=J)' and '(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const regex = /(Java)(Script)/g
+    |                            ^~~~~~ [1]
+    |                                  ^~~~~~~~ [2]
+  3 |             str.replace(regex, '$1$2');
+  4 |             str2.replace(regex, '$1 and Java$2');
+  5 |             str3.replace(regex, '$1 and $2');
+  6 |             
+
+Output:
+  1 |
+  2 |             const regex = /(?<=Java)(?=Script)/g
+  3 |             str.replace(regex, '');
+  4 |             str2.replace(regex, ' and Java');
+  5 |             str3.replace(regex, ' and ');
+  6 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Options:
+  - strictTypes: false
+
+Code:
+  1 |
+  2 |             const regex = /(Java)(Script)/
+    |                            ^~~~~~ [1]
+    |                                  ^~~~~~~~ [2]
+  3 |             str.replace(regex, '$1$2');
+  4 |             str2.replace(regex, '$1 and Java$2');
+  5 |             str3.replace(regex, '$1 and $2');
+  6 |             regex.test(str);
+  7 |             
+
+Output:
+  1 |
+  2 |             const regex = /(?<=Java)(?=Script)/
+  3 |             str.replace(regex, '');
+  4 |             str2.replace(regex, ' and Java');
+  5 |             str3.replace(regex, ' and ');
+  6 |             regex.test(str);
+  7 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=Java)' and '(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const regex = /(a)b(c)/
+    |                            ^~~ [1]
+  3 |             "abc".replace(regex, '$1ccount');
+  4 |             "abc".replace(regex, '$1$2$2ount');
+  5 |             
+
+Output: unchanged
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=a)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const regex = /(a)b(c)/
+    |                                ^~~ [1]
+  3 |             "abc".replace(regex, 'dynami$2');
+  4 |             "abc".replace(regex, 'dyn$1mi$2');
+  5 |             
+
+Output:
+  1 |
+  2 |             const regex = /(a)b(?=c)/
+  3 |             "abc".replace(regex, 'dynami');
+  4 |             "abc".replace(regex, 'dyn$1mi');
+  5 |             
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=c)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             "aabcaabbcc".replace(/(a+)b+c/g, "$1_")
+    |                                   ^~~~ [1]
+  3 |             // 'aa_aa_c'
+  4 |             
+
+Output:
+  1 |
+  2 |             "aabcaabbcc".replace(/(?<=a+)b+c/g, "_")
+  3 |             // 'aa_aa_c'
+  4 |             
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=a+)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | "aaaaaa".replace(/(^a+)a(a)/, "$1b$2")
+    |                         ^~~ [1]
+
+Output:
+  1 | "aaaaaa".replace(/(^a+)a(?=a)/, "$1b")
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=a)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | "aaaaaa".replace(/(^a+)a((a))/, "$1b$3$2")
+    |                         ^~~~~ [1]
+
+Output: unchanged
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=(a))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Script)$/g, 'Type$1')
+    |                                     ^~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script$)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script$)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Script)\b/g, 'Type$1')
+    |                                     ^~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script\b)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script\b)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Script)(?:\b|$)/g, 'Type$1')
+    |                                     ^~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script(?:\b|$))/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script(?:\b|$))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Scrip)(?=t)/g, 'Type$1')
+    |                                     ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScriptLinter'.replace(/Java(Script)(?=Linter|Checker)/g, 'Type$1')
+    |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScriptLinter'.replace(/Java(?=Script(?=Linter|Checker))/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script(?=Linter|Checker))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'Java'.replace(/^(J)ava/g, '$1Query')
+    |                           ^~~~ [1]
+
+Output:
+  1 | var str = 'Java'.replace(/(?<=^J)ava/g, 'Query')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=^J)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'Java'.replace(/\b(J)ava/g, '$1Query')
+    |                           ^~~~~ [1]
+
+Output:
+  1 | var str = 'Java'.replace(/(?<=\bJ)ava/g, 'Query')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=\bJ)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'Java'.replace(/(?:^|\b)(J)ava/g, '$1Query')
+    |                           ^~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'Java'.replace(/(?<=(?:^|\b)J)ava/g, 'Query')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=(?:^|\b)J)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'Java'.replace(/(?:^|\b|[\q{}])(J)ava/gv, '$1Query')
+    |                           ^~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'Java'.replace(/(?<=(?:^|\b|[\q{}])J)ava/gv, 'Query')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=(?:^|\b|[\q{}])J)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScriptCode'.replace(/(?<=Java)(Script)Code/g, '$1Linter')
+    |                                     ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScriptCode'.replace(/(?<=JavaScript)Code/g, 'Linter')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=JavaScript)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScriptCode'.replace(/(?<=Java|Type)(Script)Code/g, '$1Linter')
+    |                                     ^~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScriptCode'.replace(/(?<=(?<=Java|Type)Script)Code/g, 'Linter')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=(?<=Java|Type)Script)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/^(Java)(Script)$/, '$1 and Type$2');
+    |                                               ^~~~~~~ [1]
+    |                                                      ^~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=^Java)(?=Script$)/, ' and Type');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=^Java)' and '(?=Script$)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=^Java)' and '(?=Script$)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/\b(Java)(Script)\b/, '$1 and Type$2');
+    |                                               ^~~~~~~~ [1]
+    |                                                       ^~~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=\bJava)(?=Script\b)/, ' and Type');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=\bJava)' and '(?=Script\b)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=\bJava)' and '(?=Script\b)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?:^|\b)(Java)(Script)(?:\b|$)/, '$1 and Type$2');
+    |                                               ^~~~~~~~~~~~~~ [1]
+    |                                                             ^~~~~~~~~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=(?:^|\b)Java)(?=Script(?:\b|$))/, ' and Type');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=(?:^|\b)Java)' and '(?=Script(?:\b|$))').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=(?:^|\b)Java)' and '(?=Script(?:\b|$))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/^(J)(ava)(Script)$/, '$1Query, and Java$3');
+    |                                               ^~~~ [1] ^~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=^J)(ava)(?=Script$)/, 'Query, and Java');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=^J)' and '(?=Script$)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=^J)' and '(?=Script$)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/\b(J)(ava)(Script)\b/, '$1Query, and Java$3');
+    |                                               ^~~~~ [1] ^~~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=\bJ)(ava)(?=Script\b)/, 'Query, and Java');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=\bJ)' and '(?=Script\b)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=\bJ)' and '(?=Script\b)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(p)(t)/g, 'Type$1$2$3$4$5$6')
+    |                                                    ^~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=t)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(p)(?=t)/g, 'Type$1$2$3$4$5')
+    |                                                 ^~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=pt)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(S)(c)(r)(i)(?=pt)/g, 'Type$1$2$3$4')
+    |                                              ^~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=ipt)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/(?<=J)(a)(v)(a)Script/g, '$1$2$3Runtime')
+    |                                 ^~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=Ja)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             var str1 = 'ESLint ESLint'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+    |                                                   ^~~~~~~~~~~~ [1]
+  3 |             var str2 = 'ESTree ESTree'.replace(/ES(Lint|Tree)$/g, 'TypeScriptES$1');
+    |                                                   ^~~~~~~~~~~~ [2]
+  4 |             console.log(str1, str2)
+  5 |             
+
+Output:
+  1 |
+  2 |             var str1 = 'ESLint ESLint'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+  3 |             var str2 = 'ESTree ESTree'.replace(/ES(?=(?:Lint|Tree)$)/g, 'TypeScriptES');
+  4 |             console.log(str1, str2)
+  5 |             
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').
+[2] This capturing group can be replaced with a lookahead assertion ('(?=(?:Lint|Tree)$)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             var str1 = 'ESLint ESLint'.replace(/^(E|J)S/g, '$1Script');
+    |                                                 ^~~~~~ [1]
+  3 |             var str2 = 'JSLint JSLint'.replace(/^(E|J)S/g, '$1Script');
+    |                                                 ^~~~~~ [2]
+  4 |             console.log(str1, str2)
+  5 |             
+
+Output:
+  1 |
+  2 |             var str1 = 'ESLint ESLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+  3 |             var str2 = 'JSLint JSLint'.replace(/(?<=^(?:E|J))S/g, 'Script');
+  4 |             console.log(str1, str2)
+  5 |             
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').
+[2] This capturing group can be replaced with a lookbehind assertion ('(?<=^(?:E|J))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'foobarbaz'.replace(/foo(bar)(?:^|$|a{0}\b|(?=x)|(?<=y))/, 'test$1')
+    |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'foobarbaz'.replace(/foo(?=bar(?:^|$|a{0}\b|(?=x)|(?<=y)))/, 'test')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=bar(?:^|$|a{0}\b|(?=x)|(?<=y)))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'foobarbaz'.replace(/foo(bar)(?<=z\w+)/, 'test$1')
+    |                                   ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'foobarbaz'.replace(/foo(?=bar(?<=z\w+))/, 'test')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=bar(?<=z\w+))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Script)^/g, 'Type$1')
+    |                                     ^~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Script^)/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Script^)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'Java'.replace(/$(J)ava/g, '$1Query')
+    |                           ^~~~ [1]
+
+Output:
+  1 | var str = 'Java'.replace(/(?<=$J)ava/g, 'Query')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=$J)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/^\b(J)(ava)(Script)\b$/, '$1Query, and Java$3');
+    |                                               ^~~~~~ [1] ^~~~~~~~~~~ [2]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'JavaScript'.replace(/(?<=^\bJ)(ava)(?=Script\b$)/, 'Query, and Java');
+  3 |             
+
+[1] These capturing groups can be replaced with lookaround assertions ('(?<=^\bJ)' and '(?=Script\b$)').
+[2] These capturing groups can be replaced with lookaround assertions ('(?<=^\bJ)' and '(?=Script\b$)').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'foobar'.replace(/foo(bar)(\b|$)/, 'bar$1')
+    |                                ^~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'foobar'.replace(/foo(?=bar(\b|$))/, 'bar')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=bar(\b|$))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'foobar'.replace(/foo(bar)(\b|$)/, '$2$1')
+    |                                ^~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=bar(\b|$))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScript'.replace(/Java(Scrip)((?=t))/g, 'Type$1')
+    |                                     ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScript'.replace(/Java(?=Scrip((?=t)))/g, 'Type')
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=Scrip((?=t)))').
+---
+
+
+Test: prefer-lookaround >> invalid
+Code:
+  1 | var str = 'JavaScriptCode'.replace(/((?<=Java))(Script)Code/g, '$2Linter')
+    |                                     ^~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | var str = 'JavaScriptCode'.replace(/(?<=((?<=Java))Script)Code/g, 'Linter')
+
+[1] This capturing group can be replaced with a lookbehind assertion ('(?<=((?<=Java))Script)').
+---
+
+
+Test: prefer-lookaround >> invalid >>> "\n            const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?<after>!)/, '$<before>🦄$<after>');\n             2"
+Options:
+  - lookbehind: false
+
+Code:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?<after>!)/, '$<before>🦄$<after>');
+    |                                                                                           ^~~~~~~~~~~ [1]
+  3 |             
+
+Output:
+  1 |
+  2 |             const str = 'I love unicorn! I hate unicorn?'.replace(/(?<before>love )unicorn(?=!)/, '$<before>🦄');
+  3 |             
+
+[1] This capturing group can be replaced with a lookahead assertion ('(?=!)').
+---

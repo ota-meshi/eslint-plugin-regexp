@@ -1,0 +1,28 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: confusing-quantifier >> invalid
+Code:
+  1 | /(a?){5}/
+    |      ^~~ [1]
+
+[1] This quantifier is confusing because its minimum is 5 but it can match the empty string. Maybe replace it with `{0,5}` to reflect that it can match the empty string?
+---
+
+
+Test: confusing-quantifier >> invalid
+Code:
+  1 | /(?:a?b*|c+){4}/
+    |             ^~~ [1]
+
+[1] This quantifier is confusing because its minimum is 4 but it can match the empty string. Maybe replace it with `{0,4}` to reflect that it can match the empty string?
+---
+
+
+Test: confusing-quantifier >> invalid
+Code:
+  1 | /[\q{a|}]+/v
+    |          ^ [1]
+
+[1] This quantifier is confusing because its minimum is 1 but it can match the empty string. Maybe replace it with `*` to reflect that it can match the empty string?
+---

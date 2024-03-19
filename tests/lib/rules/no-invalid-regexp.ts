@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-invalid-regexp"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -11,67 +11,12 @@ const tester = new RuleTester({
 tester.run("no-invalid-regexp", rule as any, {
     valid: [`/regexp/`, `RegExp("(" + ")")`],
     invalid: [
-        {
-            code: `RegExp("(")`,
-            errors: [
-                {
-                    message:
-                        "Invalid regular expression: /(/: Unterminated group",
-                    column: 9,
-                    endColumn: 10,
-                },
-            ],
-        },
-        {
-            code: `RegExp("(" + "(")`,
-            errors: [
-                {
-                    message:
-                        "Invalid regular expression: /((/: Unterminated group",
-                    column: 15,
-                    endColumn: 16,
-                },
-            ],
-        },
-        {
-            code: `RegExp("[a-Z] some valid stuff")`,
-            errors: [
-                {
-                    message:
-                        "Invalid regular expression: /[a-Z] some valid stuff/: Range out of order in character class",
-                    column: 12,
-                    endColumn: 14,
-                },
-            ],
-        },
+        `RegExp("(")`,
+        `RegExp("(" + "(")`,
+        `RegExp("[a-Z] some valid stuff")`,
 
-        {
-            code: "new RegExp(pattern, 'uu');",
-            errors: [
-                {
-                    message: "Duplicate u flag.",
-                    column: 22,
-                },
-            ],
-        },
-        {
-            code: "new RegExp(pattern, 'uv');",
-            errors: [
-                {
-                    message: "Regex 'u' and 'v' flags cannot be used together.",
-                    column: 22,
-                },
-            ],
-        },
-        {
-            code: "new RegExp('[A&&&]', 'v');",
-            errors: [
-                {
-                    message:
-                        "Invalid regular expression: /[A&&&]/v: Invalid character in character class",
-                    column: 16,
-                },
-            ],
-        },
+        "new RegExp(pattern, 'uu');",
+        "new RegExp(pattern, 'uv');",
+        "new RegExp('[A&&&]', 'v');",
     ],
 })

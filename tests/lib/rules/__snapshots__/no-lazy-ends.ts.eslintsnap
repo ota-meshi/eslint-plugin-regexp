@@ -1,0 +1,275 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a??/.test(str)
+    |  ^~~ [1]
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /(?:)/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a?/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a*?/.test(str)
+    |  ^~~ [1]
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /(?:)/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a*/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a+?/.test(str)
+    |  ^~~ [1]
+
+[1] The quantifier can be removed because the quantifier is lazy and has a minimum of 1.
+    Suggestions:
+      - Remove the quantifier. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /a/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a+/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a{3,7}?/.test(str)
+    |  ^~~~~~~ [1]
+
+[1] The quantifier can be replaced with '{3}' because the quantifier is lazy and has a minimum of 3.
+    Suggestions:
+      - Replace the quantifier with '{3}'. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /a{3}/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a{3,7}/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a{3,}?/.test(str)
+    |  ^~~~~~ [1]
+
+[1] The quantifier can be replaced with '{3}' because the quantifier is lazy and has a minimum of 3.
+    Suggestions:
+      - Replace the quantifier with '{3}'. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /a{3}/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a{3,}/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /(?:a|b(c+?))/.test(str)
+    |         ^~~ [1]
+
+[1] The quantifier can be removed because the quantifier is lazy and has a minimum of 1.
+    Suggestions:
+      - Remove the quantifier. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /(?:a|b(c))/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /(?:a|b(c+))/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /a(?:c|ab+?)?/.test(str)
+    |         ^~~ [1]
+
+[1] The quantifier can be removed because the quantifier is lazy and has a minimum of 1.
+    Suggestions:
+      - Remove the quantifier. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /a(?:c|ab)?/.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /a(?:c|ab+)?/.test(str)
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const any = /[\s\S]*?/.source;
+  4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+  5 |
+  6 |             /* ✗ BAD */
+  7 |             const foo = /[\s\S]*?/
+    |                          ^~~~~~~~ [1]
+  8 |             foo.exec(str)
+  9 |             
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✓ GOOD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             /* ✗ BAD */
+          7 |             const foo = /(?:)/
+          8 |             foo.exec(str)
+          9 |             
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✓ GOOD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             /* ✗ BAD */
+          7 |             const foo = /[\s\S]*/
+          8 |             foo.exec(str)
+          9 |             
+---
+
+
+Test: no-lazy-ends >> invalid >>> "\n            /* ✓ GOOD */\n            const any = /[\\s\\S]*?/.source;\n            const pattern = RegExp(`<script(\\\\s${any})?>(${any})<\\/script>`, \"g\");\n\n            /* ✗ BAD */\n            const foo = /[\\s\\S]*?/\n            foo.exec(str)\n             2"
+Options:
+  - ignorePartial: true
+
+Code:
+  1 |
+  2 |             /* ✓ GOOD */
+  3 |             const any = /[\s\S]*?/.source;
+  4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+  5 |
+  6 |             /* ✗ BAD */
+  7 |             const foo = /[\s\S]*?/
+    |                          ^~~~~~~~ [1]
+  8 |             foo.exec(str)
+  9 |             
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✓ GOOD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             /* ✗ BAD */
+          7 |             const foo = /(?:)/
+          8 |             foo.exec(str)
+          9 |             
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✓ GOOD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             /* ✗ BAD */
+          7 |             const foo = /[\s\S]*/
+          8 |             foo.exec(str)
+          9 |             
+---
+
+
+Test: no-lazy-ends >> invalid
+Options:
+  - ignorePartial: false
+
+Code:
+  1 |
+  2 |             /* ✗ BAD */
+  3 |             const any = /[\s\S]*?/.source;
+    |                          ^~~~~~~~ [1]
+  4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+  5 |
+  6 |             const foo = /[\s\S]*?/
+    |                          ^~~~~~~~ [2]
+  7 |             foo.exec(str)
+  8 |             
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✗ BAD */
+          3 |             const any = /(?:)/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             const foo = /[\s\S]*?/
+          7 |             foo.exec(str)
+          8 |             
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✗ BAD */
+          3 |             const any = /[\s\S]*/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             const foo = /[\s\S]*?/
+          7 |             foo.exec(str)
+          8 |             
+[2] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✗ BAD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             const foo = /(?:)/
+          7 |             foo.exec(str)
+          8 |             
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 |
+          2 |             /* ✗ BAD */
+          3 |             const any = /[\s\S]*?/.source;
+          4 |             const pattern = RegExp(`<script(\\s${any})?>(${any})<\/script>`, "g");
+          5 |
+          6 |             const foo = /[\s\S]*/
+          7 |             foo.exec(str)
+          8 |             
+---
+
+
+Test: no-lazy-ends >> invalid
+Code:
+  1 | /[\q{ab|}]??/v.test(str)
+    |  ^~~~~~~~~~~ [1]
+
+[1] The quantifier and the quantified element can be removed because the quantifier is lazy and has a minimum of 0.
+    Suggestions:
+      - Remove the quantified element. (This does not changes the behavior of the regex.)
+        Output:
+          1 | /(?:)/v.test(str)
+      - Make the quantifier greedy. (This changes the behavior of the regex.)
+        Output:
+          1 | /[\q{ab|}]?/v.test(str)
+---

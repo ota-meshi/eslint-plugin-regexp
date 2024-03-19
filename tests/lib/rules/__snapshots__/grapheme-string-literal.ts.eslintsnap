@@ -1,0 +1,41 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: grapheme-string-literal >> invalid
+Code:
+  1 | /[\q{abc}]/v
+    |      ^~~ [1]
+
+[1] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|[...])`) for strings instead.
+---
+
+
+Test: grapheme-string-literal >> invalid
+Code:
+  1 | /[\q{a|bc|}]/v
+    |        ^~ [1]
+
+[1] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:bc|[...])`) for strings instead.
+---
+
+
+Test: grapheme-string-literal >> invalid
+Code:
+  1 | /[\q{🇦🇨🇦🇩}]/v
+    |      ^~~~~~~~ [1]
+
+[1] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:🇦🇨🇦🇩|[...])`) for strings instead.
+---
+
+
+Test: grapheme-string-literal >> invalid
+Code:
+  1 | /[\q{abc|def|ghi|j|k|lm|n}]/v
+    |      ^~~ ^~~ ^~~     ^~
+    |      [1] [2] [3]     [4]
+
+[1] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.
+[2] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.
+[3] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.
+[4] Only single characters and graphemes are allowed inside character classes. Use regular alternatives (e.g. `(?:abc|def|ghi|lm|[...])`) for strings instead.
+---

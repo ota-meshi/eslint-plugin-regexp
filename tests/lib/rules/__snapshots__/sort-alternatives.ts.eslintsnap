@@ -1,0 +1,279 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /c|b|a/
+    |  ^~~~~ [1]
+
+Output:
+  1 | /a|b|c/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /c|bb|a/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /a|bb|c/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:c|b|a)\b/
+    |       ^~~~~ [1]
+
+Output:
+  1 | /\b(?:a|b|c)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:A|a|C|c|B|b)\b/
+    |         ^~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:A|B|C|a|b|c)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:aa|aA|aB|ab)\b/
+    |       ^~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:aA|aB|aa|ab)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:A|a|C|c|B|b)\b/i
+    |           ^~~~~~~ [1]
+
+Output:
+  1 | /\b(?:A|a|B|b|C|c)\b/i
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:a|A|c|C|b|B)\b/i
+    |       ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:A|a|B|b|C|c)\b/i
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:aa|aA|aB|ab)\b/i
+    |       ^~~~~ [1]
+
+Output:
+  1 | /\b(?:aA|aa|aB|ab)\b/i
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:1|2|4|8|16|32|64|128|256|0)\b/
+    |       ^~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:0|1|2|4|8|16|32|64|128|256)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:[Nn]umber|[Ss]tring|[Bb]oolean|Function|any|mixed|null|void)\b/
+    |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:[Bb]oolean|Function|[Nn]umber|[Ss]tring|any|mixed|null|void)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /_(?:SERVER|GET|POST|FILES|REQUEST|SESSION|ENV|COOKIE)\b/
+    |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /_(?:COOKIE|ENV|FILES|GET|POST|REQUEST|SERVER|SESSION)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b[ui](?:128|16|32|64|8|size)\b/
+    |           ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b[ui](?:8|16|32|64|128|size)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\((?:TM|R|C)\)/
+    |       ^~~~~~ [1]
+
+Output:
+  1 | /\((?:C|R|TM)\)/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:\^|c|b|a)\b/
+    |          ^~~~~ [1]
+
+Output:
+  1 | /\b(?:\^|a|b|c)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:green|gr[ae]y)\b/
+    |       ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:gr[ae]y|green)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:(?:script|source)_foo|sample)\b/
+    |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:sample|(?:script|source)_foo)\b/
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /[\q{red|green|blue}]/v
+    |      ^~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\q{blue|green|red}]/v
+
+[1] The string alternatives can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /(?:c|[\q{red|green|blue}]|a)/v
+    |     ^~~~~~~~~~~~~~~~~~~~~~~~ [1]
+    |           ^~~~~~~~~~~~~~ [2]
+
+Output:
+  1 | /(?:a|[\q{blue|green|red}]|c)/v
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+[2] The string alternatives can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /[\q{ac|ab|aa}]/v
+    |      ^~~~~~~~ [1]
+
+Output:
+  1 | /[\q{aa|ab|ac}]/v
+
+[1] The string alternatives can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /(?:b|[a-b])/v
+    |     ^~~~~~~ [1]
+
+Output:
+  1 | /(?:[a-b]|b)/v
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:a[\q{bd}]|abc)\b/v
+    |       ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:abc|a[\q{bd}])\b/v
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:abb|[\q{a|aba}]bb)\b/v
+    |       ^~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:[\q{a|aba}]bb|abb)\b/v
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---
+
+
+Test: sort-alternatives >> invalid
+Code:
+  1 | /\b(?:c|b_|[\q{b|da}]_|b_2)\b/v
+    |       ^~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /\b(?:b_|[\q{b|da}]_|b_2|c)\b/v
+
+[1] The alternatives of this group can be sorted without affecting the regex.
+---

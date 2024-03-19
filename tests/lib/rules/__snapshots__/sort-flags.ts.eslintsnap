@@ -1,0 +1,85 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | /\w/yusimg
+    |     ^~~~~~ [1]
+
+Output:
+  1 | /\w/gimsuy
+
+[1] The flags 'yusimg' should be in the order 'gimsuy'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | /\w/yvsimg
+    |     ^~~~~~ [1]
+
+Output:
+  1 | /\w/gimsvy
+
+[1] The flags 'yvsimg' should be in the order 'gimsvy'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | new RegExp("\\w", "yusimg")
+    |                    ^~~~~~ [1]
+
+Output:
+  1 | new RegExp("\\w", "gimsuy")
+
+[1] The flags 'yusimg' should be in the order 'gimsuy'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | new RegExp("\\w", "yusimgd")
+    |                    ^~~~~~~ [1]
+
+Output:
+  1 | new RegExp("\\w", "dgimsuy")
+
+[1] The flags 'yusimgd' should be in the order 'dgimsuy'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | new RegExp("\\w)", "ui")
+    |                     ^~ [1]
+
+Output:
+  1 | new RegExp("\\w)", "iu")
+
+[1] The flags 'ui' should be in the order 'iu'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | RegExp('a' + b, 'us');
+    |                  ^~ [1]
+
+Output:
+  1 | RegExp('a' + b, 'su');
+
+[1] The flags 'us' should be in the order 'su'.
+---
+
+
+Test: sort-flags >> invalid
+Code:
+  1 | var a = "foo"; RegExp(foo, 'us'); RegExp(foo, 'u');
+    |                             ^~ [1]
+
+Output:
+  1 | var a = "foo"; RegExp(foo, 'su'); RegExp(foo, 'u');
+
+[1] The flags 'us' should be in the order 'su'.
+---

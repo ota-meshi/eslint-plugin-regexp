@@ -1,0 +1,19 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-named-capture-group >> invalid
+Code:
+  1 | /(foo)/
+    |  ^~~~~ [1]
+
+[1] Capture group '(foo)' should be converted to a named or non-capturing group.
+---
+
+
+Test: prefer-named-capture-group >> invalid
+Code:
+  1 | /(foo)/v
+    |  ^~~~~ [1]
+
+[1] Capture group '(foo)' should be converted to a named or non-capturing group.
+---

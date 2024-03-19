@@ -1,0 +1,81 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /\d+(\d*)/
+    |      ^~~ [1]
+
+[1] '\d*' can be removed because it is already included by '\d+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.
+    Suggestions:
+      - Remove '\d*'.
+        Output:
+          1 | /\d+()/
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /(?:!\d+|%\w+)(\d*)/
+    |                ^~~ [1]
+
+[1] '\d*' can be removed because it is already included by '\d+' and '\w+'. This makes the capturing group misleading, because it actually captures less text than its pattern suggests.
+    Suggestions:
+      - Remove '\d*'.
+        Output:
+          1 | /(?:!\d+|%\w+)()/
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /^(a*).+/u
+    |    ^~ [1]
+
+[1] The quantifier 'a*' can exchange characters (a) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /^([\t ]*).+/gmu
+    |    ^~~~~~ [1]
+
+[1] The quantifier '[\t ]*' can exchange characters ([\t ]) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /('{2,5}).+?\1/
+    |   ^~~~~~ [1]
+
+[1] The quantifier ''{2,5}' can exchange characters (') with '.+?'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /^(---.*(?:\n|\r\n?))[\s\S]+?(?=(?:\n|\r\n?)^---$)/m
+    |                 ^~~ [1]
+
+[1] The quantifier '\n?' can exchange characters (\n) with '[\s\S]+?'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /(^~~?)[\s\S]+(?=\1$)/m
+    |     ^~ [1]
+
+[1] The quantifier '~?' can exchange characters (~) with '[\s\S]+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---
+
+
+Test: no-misleading-capturing-group >> invalid
+Code:
+  1 | /^([a\q{abc}]*).+/v
+    |    ^~~~~~~~~~~ [1]
+
+[1] The quantifier '[a\q{abc}]*' can exchange characters (a) with '.+'. This makes the capturing group misleading, because the quantifier will capture fewer characters than its pattern suggests.
+---

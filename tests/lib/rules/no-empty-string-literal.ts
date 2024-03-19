@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-empty-string-literal"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -17,26 +17,5 @@ tester.run("no-empty-string-literal", rule as any, {
         String.raw`/[\q{|a}]/v`,
         String.raw`/[\q{|abc}]/v`,
     ],
-    invalid: [
-        {
-            code: String.raw`/[\q{}]/v`,
-            errors: [
-                {
-                    message: "Unexpected empty string literal.",
-                    column: 3,
-                    endColumn: 7,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\q{|}]/v`,
-            errors: [
-                {
-                    message: "Unexpected empty string literal.",
-                    column: 3,
-                    endColumn: 8,
-                },
-            ],
-        },
-    ],
+    invalid: [String.raw`/[\q{}]/v`, String.raw`/[\q{|}]/v`],
 })

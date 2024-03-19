@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/hexadecimal-escape"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -39,90 +39,26 @@ tester.run("hexadecimal-escape", rule as any, {
         },
     ],
     invalid: [
+        String.raw`/\u000a \u{00000a}/u`,
         {
             code: String.raw`/\u000a \u{00000a}/u`,
-            output: String.raw`/\x0a \x0a/u`,
-            errors: [
-                {
-                    message:
-                        "Expected hexadecimal escape ('\\x0a'), but unicode escape ('\\u000a') is used.",
-                    column: 2,
-                },
-                {
-                    message:
-                        "Expected hexadecimal escape ('\\x0a'), but unicode code point escape ('\\u{00000a}') is used.",
-                    column: 9,
-                },
-            ],
-        },
-        {
-            code: String.raw`/\u000a \u{00000a}/u`,
-            output: String.raw`/\x0a \x0a/u`,
             options: ["always"],
-            errors: [
-                {
-                    message:
-                        "Expected hexadecimal escape ('\\x0a'), but unicode escape ('\\u000a') is used.",
-                    column: 2,
-                },
-                {
-                    message:
-                        "Expected hexadecimal escape ('\\x0a'), but unicode code point escape ('\\u{00000a}') is used.",
-                    column: 9,
-                },
-            ],
         },
         {
             code: String.raw`/\x0f \xff/u`,
-            output: String.raw`/\u000f \u00ff/u`,
             options: ["never"],
-            errors: [
-                {
-                    message: "Unexpected hexadecimal escape ('\\x0f').",
-                    column: 2,
-                },
-                {
-                    message: "Unexpected hexadecimal escape ('\\xff').",
-                    column: 7,
-                },
-            ],
         },
         {
             code: String.raw`/\x0a \x0b \x41/u`,
-            output: String.raw`/\u000a \u000b \u0041/u`,
             options: ["never"],
-            errors: [
-                {
-                    message: "Unexpected hexadecimal escape ('\\x0a').",
-                    column: 2,
-                },
-                {
-                    message: "Unexpected hexadecimal escape ('\\x0b').",
-                    column: 7,
-                },
-                {
-                    message: "Unexpected hexadecimal escape ('\\x41').",
-                    column: 12,
-                },
-            ],
         },
         {
             code: String.raw`/[\q{\u000a \u{00000a}}]/v`,
-            output: String.raw`/[\q{\x0a \x0a}]/v`,
             options: ["always"],
-            errors: [
-                "Expected hexadecimal escape ('\\x0a'), but unicode escape ('\\u000a') is used.",
-                "Expected hexadecimal escape ('\\x0a'), but unicode code point escape ('\\u{00000a}') is used.",
-            ],
         },
         {
             code: String.raw`/[\q{\x0f \xff}]/v`,
-            output: String.raw`/[\q{\u000f \u00ff}]/v`,
             options: ["never"],
-            errors: [
-                "Unexpected hexadecimal escape ('\\x0f').",
-                "Unexpected hexadecimal escape ('\\xff').",
-            ],
         },
     ],
 })

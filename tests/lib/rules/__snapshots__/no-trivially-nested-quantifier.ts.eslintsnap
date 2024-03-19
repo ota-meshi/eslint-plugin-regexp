@@ -1,0 +1,157 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a?)+/
+    |  ^~~~~~~ [1]
+
+Output:
+  1 | /a*/
+
+[1] These two quantifiers are trivially nested and can be replaced with '*'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{1,2})*/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /a*/
+
+[1] These two quantifiers are trivially nested and can be replaced with '*'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{1,2})+/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /a+/
+
+[1] These two quantifiers are trivially nested and can be replaced with '+'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{1,2}){3,4}/
+    |  ^~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /a{3,8}/
+
+[1] These two quantifiers are trivially nested and can be replaced with '{3,8}'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{2,}){4}/
+    |  ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /a{8,}/
+
+[1] These two quantifiers are trivially nested and can be replaced with '{8,}'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{4,}){5}/
+    |  ^~~~~~~~~~~~ [1]
+
+Output:
+  1 | /a{20,}/
+
+[1] These two quantifiers are trivially nested and can be replaced with '{20,}'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{3}){4}/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /a{12}/
+
+[1] These two quantifiers are trivially nested and can be replaced with '{12}'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a+|b)*/
+    |     ^~ [1]
+
+Output:
+  1 | /(?:a|b)*/
+
+[1] This nested quantifier can be removed.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a?|b)*/
+    |     ^~ [1]
+
+Output:
+  1 | /(?:a|b)*/
+
+[1] This nested quantifier can be removed.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{0,4}|b)*/
+    |     ^~~~~~ [1]
+
+Output:
+  1 | /(?:a|b)*/
+
+[1] This nested quantifier can be removed.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{0,4}|b)+/
+    |     ^~~~~~ [1]
+
+Output:
+  1 | /(?:a?|b)+/
+
+[1] This nested quantifier can be simplified to '?'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:a{0,4}?|b)+?/
+    |     ^~~~~~~ [1]
+
+Output:
+  1 | /(?:a??|b)+?/
+
+[1] This nested quantifier can be simplified to '?'.
+---
+
+
+Test: no-trivially-nested-quantifier >> invalid
+Code:
+  1 | /(?:[\q{a}]+)+/v
+    |  ^~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\q{a}]+/v
+
+[1] These two quantifiers are trivially nested and can be replaced with '+'.
+---

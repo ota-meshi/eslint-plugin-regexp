@@ -1,0 +1,157 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w&&\d]/v
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[\d]/v
+
+[1] '\d' is a subset of '\w', so the result of the intersection is always going to be '\d'.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w&&\s]/v
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[]/v
+
+[1] '\w' and '\s' are disjoint, so the result of the intersection is always going to be the empty set.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[^\w&&\s]/v
+    |    ^~~~~~ [1]
+
+Output:
+  1 | /[^]/v
+
+[1] '\w' and '\s' are disjoint, so the result of the intersection is always going to be the empty set.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w&&[\d\s]]/v
+    |          ^~ [1]
+
+Output:
+  1 | /[[\d]]/v
+
+[1] '\s' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w&&[^\d\s]]/v
+    |           ^~ [1]
+
+Output:
+  1 | /[\w&&[^\d]]/v
+
+[1] '\s' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--\s]/v
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[\w]/v
+
+[1] '\w' and '\s' are disjoint, so the subtraction doesn't do anything.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\d--\w]/v
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[]/v
+
+[1] '\d' is a subset of '\w', so the result of the subtraction is always going to be the empty set.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[^\d--\w]/v
+    |    ^~~~~~ [1]
+
+Output:
+  1 | /[^]/v
+
+[1] '\d' is a subset of '\w', so the result of the subtraction is always going to be the empty set.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--[\d\s]]/v
+    |          ^~ [1]
+
+Output:
+  1 | /[\w--[\d]]/v
+
+[1] '\s' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--[^\d\s]]/v
+    |           ^~ [1]
+
+Output:
+  1 | /[\w--[^\d]]/v
+
+[1] '\s' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--[a\q{aa|b}]]/v
+    |            ^~ [1]
+
+Output:
+  1 | /[\w--[a\q{b}]]/v
+
+[1] 'aa' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--[a\q{aa}]]/v
+    |            ^~ [1]
+
+Output:
+  1 | /[\w--[a]]/v
+
+[1] 'aa' can be removed without changing the result of the subtraction.
+---
+
+
+Test: no-useless-set-operand >> invalid
+Code:
+  1 | /[\w--\q{a|aa}]/v
+    |            ^~ [1]
+
+Output:
+  1 | /[\w--\q{a}]/v
+
+[1] 'aa' can be removed without changing the result of the subtraction.
+---

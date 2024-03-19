@@ -1,0 +1,249 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[abcd]/
+    |   ^~~~ [1]
+
+Output:
+  1 | /[a-d]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-d' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[ABCD abcd]/
+    |   ^~~~ ^~~~
+    |   [1]  [2]
+
+Output:
+  1 | /[A-D a-d]/
+
+[1] Unexpected multiple adjacent characters. Use 'A-D' instead.
+[2] Unexpected multiple adjacent characters. Use 'a-d' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[ABCD abcd]/v
+    |   ^~~~ ^~~~
+    |   [1]  [2]
+
+Output:
+  1 | /[A-D a-d]/v
+
+[1] Unexpected multiple adjacent characters. Use 'A-D' instead.
+[2] Unexpected multiple adjacent characters. Use 'a-d' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[abc-f]/
+    |   ^~~~~ [1]
+
+Output:
+  1 | /[a-f]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[a-cd-f]/
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[a-f]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[d-fa-c]/
+    |   ^~~~~~ [1]
+
+Output:
+  1 | /[a-f]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[abc_d-f]/
+    |   ^~~ ^~~
+    |   [1] [2]
+
+Output:
+  1 | /[a-f_]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+[2] Unexpected multiple adjacent characters. Use 'a-f' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[abc_d-f_h-j_k-m]/
+    |   ^~~ ^~~ ^~~ ^~~
+    |   [1] [2] [3] [4]
+
+Output:
+  1 | /[a-f__h-m_]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+[2] Unexpected multiple adjacent characters. Use 'a-f' instead.
+[3] Unexpected multiple adjacent characters. Use 'h-m' instead.
+[4] Unexpected multiple adjacent characters. Use 'h-m' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[a-d_d-f_h-k_j-m]/
+    |   ^~~ ^~~ ^~~ ^~~
+    |   [1] [2] [3] [4]
+
+Output:
+  1 | /[a-f__h-m_]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-f' instead.
+[2] Unexpected multiple adjacent characters. Use 'a-f' instead.
+[3] Unexpected multiple adjacent characters. Use 'h-m' instead.
+[4] Unexpected multiple adjacent characters. Use 'h-m' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[0-2\d3-4]/
+    |   ^~~  ^~~
+    |   [1]  [2]
+
+Output:
+  1 | /[0-4\d]/
+
+[1] Unexpected multiple adjacent characters. Use '0-4' instead.
+[2] Unexpected multiple adjacent characters. Use '0-4' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | /[3-4560-2]/
+    |   ^~~~~~~~ [1]
+
+Output:
+  1 | /[0-6]/
+
+[1] Unexpected multiple adjacent characters. Use '0-6' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | const s = "[0-23-4\\d]"
+    |             ^~~~~~ [1]
+  2 |             new RegExp(s)
+
+Output:
+  1 | const s = "[0-4\\d]"
+  2 |             new RegExp(s)
+
+[1] Unexpected multiple adjacent characters. Use '0-4' instead.
+---
+
+
+Test: prefer-range >> invalid
+Code:
+  1 | const s = "[0-23" + "-4\\d]"
+  2 |             new RegExp(s)
+    |                        ^ [1]
+
+Output: unchanged
+
+[1] Unexpected multiple adjacent characters. Use '0-4' instead.
+---
+
+
+Test: prefer-range >> invalid
+Options:
+  - target: all
+
+Code:
+  1 | /[ !"#$]/
+    |   ^~~~~ [1]
+
+Output:
+  1 | /[ -$]/
+
+[1] Unexpected multiple adjacent characters. Use ' -$' instead.
+---
+
+
+Test: prefer-range >> invalid
+Options:
+  - target:
+      - alphanumeric
+      - ①-⑳
+
+Code:
+  1 | /[abcd ①②③④⑤⑥⑦⑧⑨10⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/
+    |   ^~~~ ^~~~~~~~~  ^~~~~~~~~~
+    |   [1]  [2]        [3]
+
+Output:
+  1 | /[a-d ①-⑨10⑪-⑳]/
+
+[1] Unexpected multiple adjacent characters. Use 'a-d' instead.
+[2] Unexpected multiple adjacent characters. Use '①-⑨' instead.
+[3] Unexpected multiple adjacent characters. Use '⑪-⑳' instead.
+---
+
+
+Test: prefer-range >> invalid
+Options:
+  - target:
+      - alphanumeric
+      - 😀-😏
+
+Code:
+  1 | /[😀😁😂😃😄 😆😇😈😉😊]/u
+    |   ^~~~~~~~~~ ^~~~~~~~~~
+    |   [1]        [2]
+
+Output:
+  1 | /[😀-😄 😆-😊]/u
+
+[1] Unexpected multiple adjacent characters. Use '😀-😄' instead.
+[2] Unexpected multiple adjacent characters. Use '😆-😊' instead.
+---
+
+
+Test: prefer-range >> invalid >>> /[😀😁😂😃😄 😆😇😈😉😊]/u 2
+Settings:
+  regexp:
+    allowedCharacterRanges:
+      - alphanumeric
+      - 😀-😏
+
+Code:
+  1 | /[😀😁😂😃😄 😆😇😈😉😊]/u
+    |   ^~~~~~~~~~ ^~~~~~~~~~
+    |   [1]        [2]
+
+Output:
+  1 | /[😀-😄 😆-😊]/u
+
+[1] Unexpected multiple adjacent characters. Use '😀-😄' instead.
+[2] Unexpected multiple adjacent characters. Use '😆-😊' instead.
+---

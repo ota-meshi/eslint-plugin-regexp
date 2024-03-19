@@ -1,7 +1,7 @@
-import { RuleTester } from "../rule-tester"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/match-any"
 
-const tester = new RuleTester({
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -44,187 +44,54 @@ tester.run("match-any", rule as any, {
         String.raw`/[\S\s\q{abc}]/v`,
     ],
     invalid: [
-        {
-            code: "/[\\S\\s]/",
-            output: "/[\\s\\S]/",
-            errors: [
-                {
-                    message:
-                        "Unexpected using '[\\S\\s]' to match any character.",
-                    column: 2,
-                    endColumn: 8,
-                },
-            ],
-        },
-        {
-            code: String.raw`/[\S\s]/v`,
-            output: String.raw`/[\s\S]/v`,
-            errors: ["Unexpected using '[\\S\\s]' to match any character."],
-        },
-        {
-            code: String.raw`/[\S\s\q{a|b|c}]/v`,
-            output: String.raw`/[\s\S]/v`,
-            errors: [
-                "Unexpected using '[\\S\\s\\q{a|b|c}]' to match any character.",
-            ],
-        },
-        {
-            code: String.raw`/[[\S\s\q{abc}]--\q{abc}]/v`,
-            output: String.raw`/[\s\S]/v`,
-            errors: [
-                "Unexpected using '[[\\S\\s\\q{abc}]--\\q{abc}]' to match any character.",
-            ],
-        },
-        {
-            code: "/[^]/",
-            output: "/[\\s\\S]/",
-            errors: [
-                {
-                    message: "Unexpected using '[^]' to match any character.",
-                    column: 2,
-                    endColumn: 5,
-                },
-            ],
-        },
-        {
-            code: "/[\\d\\D]/",
-            output: "/[\\s\\S]/",
-            errors: [
-                {
-                    message:
-                        "Unexpected using '[\\d\\D]' to match any character.",
-                    column: 2,
-                    endColumn: 8,
-                },
-            ],
-        },
-        {
-            code: "/[\\0-\\uFFFF]/",
-            output: "/[\\s\\S]/",
-            errors: [
-                {
-                    message:
-                        "Unexpected using '[\\0-\\uFFFF]' to match any character.",
-                    column: 2,
-                    endColumn: 13,
-                },
-            ],
-        },
+        "/[\\S\\s]/",
+        String.raw`/[\S\s]/v`,
+        String.raw`/[\S\s\q{a|b|c}]/v`,
+        String.raw`/[[\S\s\q{abc}]--\q{abc}]/v`,
+        "/[^]/",
+        "/[\\d\\D]/",
+        "/[\\0-\\uFFFF]/",
+        "/[\\s\\S][\\S\\s][^]./s",
         {
             code: "/[\\s\\S][\\S\\s][^]./s",
-            output: "/[\\s\\S][\\s\\S][\\s\\S]./s",
-            errors: [
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '[^]' to match any character.",
-            ],
-        },
-        {
-            code: "/[\\s\\S][\\S\\s][^]./s",
-            output: "/[^][^][^][^]/s",
             options: [{ allows: ["[^]"] }],
-            errors: [
-                "Unexpected using '[\\s\\S]' to match any character.",
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '.' to match any character.",
-            ],
         },
         {
             code: "/[\\s\\S] [\\S\\s] [^] ./s",
             // Only one character class gets fixed because they all depend on the `s` flag.
             // This shared dependency causes all of their fixes to conflict, so only one fix can be applied.
-            output: "/. [\\S\\s] [^] ./s",
             options: [{ allows: ["dotAll"] }],
-            errors: [
-                "Unexpected using '[\\s\\S]' to match any character.",
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '[^]' to match any character.",
-            ],
         },
         {
             code: "/. [\\S\\s] [^] ./s",
-            output: "/. . [^] ./s",
             options: [{ allows: ["dotAll"] }],
-            errors: [
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '[^]' to match any character.",
-            ],
         },
         {
             code: "/. . [^] ./s",
-            output: "/. . . ./s",
             options: [{ allows: ["dotAll"] }],
-            errors: ["Unexpected using '[^]' to match any character."],
         },
         {
             code: "new RegExp('[^]', 's')",
-            output: null,
             options: [{ allows: ["dotAll"] }],
-            errors: ["Unexpected using '[^]' to match any character."],
         },
         {
             code: String.raw`
             const s = "[\\s\\S][\\S\\s][^]."
             new RegExp(s, 's')
             `,
-            output: String.raw`
-            const s = "[^][^][^][^]"
-            new RegExp(s, 's')
-            `,
             options: [{ allows: ["[^]"] }],
-            errors: [
-                "Unexpected using '[\\s\\S]' to match any character.",
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '.' to match any character.",
-            ],
         },
         {
             code: String.raw`
             const s = "[\\s\\S]"+"[\\S\\s][^]."
             new RegExp(s, 's')
             `,
-            output: String.raw`
-            const s = "[^]"+"[^][^][^]"
-            new RegExp(s, 's')
-            `,
             options: [{ allows: ["[^]"] }],
-            errors: [
-                "Unexpected using '[\\s\\S]' to match any character.",
-                "Unexpected using '[\\S\\s]' to match any character.",
-                "Unexpected using '.' to match any character.",
-            ],
         },
-        {
-            code: "/[\\p{ASCII}\\P{ASCII}]/u",
-            output: "/[\\s\\S]/u",
-            errors: [
-                "Unexpected using '[\\p{ASCII}\\P{ASCII}]' to match any character.",
-            ],
-        },
-        {
-            code: "/[\\p{Script=Hiragana}\\P{Script=Hiragana}]/u",
-            output: "/[\\s\\S]/u",
-            errors: [
-                "Unexpected using '[\\p{Script=Hiragana}\\P{Script=Hiragana}]' to match any character.",
-            ],
-        },
-        {
-            code: "/[\\s\\S\\0-\\uFFFF]/",
-            output: "/[\\s\\S]/",
-            errors: [
-                "Unexpected using '[\\s\\S\\0-\\uFFFF]' to match any character.",
-            ],
-        },
-        {
-            code: "/[\\w\\D]/",
-            output: "/[\\s\\S]/",
-            errors: ["Unexpected using '[\\w\\D]' to match any character."],
-        },
-        {
-            code: "/[\\P{ASCII}\\w\\0-AZ-\\xFF]/u",
-            output: "/[\\s\\S]/u",
-            errors: [
-                "Unexpected using '[\\P{ASCII}\\w\\0-AZ-\\xFF]' to match any character.",
-            ],
-        },
+        "/[\\p{ASCII}\\P{ASCII}]/u",
+        "/[\\p{Script=Hiragana}\\P{Script=Hiragana}]/u",
+        "/[\\s\\S\\0-\\uFFFF]/",
+        "/[\\w\\D]/",
+        "/[\\P{ASCII}\\w\\0-AZ-\\xFF]/u",
     ],
 })

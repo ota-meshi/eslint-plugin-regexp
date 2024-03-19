@@ -1,0 +1,118 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(b)(\2a)/
+    |      ^~ [1]
+
+[1] Backreference '\2' will be ignored. It references group '(\2a)' from within that group.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(a\1)/
+    |    ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a\1)' from within that group.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(\b)a\1/
+    |       ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(\b)' which always captures zero characters.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /([\q{}])a\1/v
+    |           ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '([\q{}])' which always captures zero characters.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(\b|a{0})a\1/
+    |            ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(\b|a{0})' which always captures zero characters.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(a)b|\1/
+    |       ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which is in another alternative.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?:(a)b|\1)/
+    |          ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which is in another alternative.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?<=(a)b|\1)/
+    |           ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which is in another alternative.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /\1(a)/
+    |  ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?:\1(a))+/
+    |     ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?<=(a)\1)b/
+    |         ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which appears before in the same lookbehind.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?!(a))\w\1/
+    |           ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which is in a negative lookaround.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?!(?!(a)))\w\1/
+    |               ^~ [1]
+
+[1] Backreference '\1' will be ignored. It references group '(a)' which is in a negative lookaround.
+---

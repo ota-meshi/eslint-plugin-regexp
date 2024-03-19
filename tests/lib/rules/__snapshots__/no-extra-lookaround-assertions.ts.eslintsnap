@@ -1,0 +1,124 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScript'.replace(/Java(?=Scrip(?=t))/u, 'Type'))
+    |                                               ^~~~~ [1]
+
+Output:
+  1 | console.log('JavaScript'.replace(/Java(?=Script)/u, 'Type'))
+
+[1] This lookahead assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScript'.replace(/(?<=(?<=J)ava)Script/u, ''))
+    |                                       ^~~~~~ [1]
+
+Output:
+  1 | console.log('JavaScript'.replace(/(?<=Java)Script/u, ''))
+
+[1] This lookbehind assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScript Java JavaRuntime'.replace(/Java(?!Scrip(?=t))/gu, 'Python'))
+    |                                                                ^~~~~ [1]
+
+Output:
+  1 | console.log('JavaScript Java JavaRuntime'.replace(/Java(?!Script)/gu, 'Python'))
+
+[1] This lookahead assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScript TypeScript ActionScript'.replace(/(?<!(?<=J)ava)Script/gu, 'ScriptCompiler'))
+    |                                                               ^~~~~~ [1]
+
+Output:
+  1 | console.log('JavaScript TypeScript ActionScript'.replace(/(?<!Java)Script/gu, 'ScriptCompiler'))
+
+[1] This lookbehind assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?=Checker|Linter))/gu, 'Type'))
+    |                                                                        ^~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?:Checker|Linter))/gu, 'Type'))
+
+[1] This lookahead assertion is useless and can be converted into a group.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?=(?:Check|Lint)er))/gu, 'Type'))
+    |                                                                        ^~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?:Check|Lint)er)/gu, 'Type'))
+
+[1] This lookahead assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('ESLint JSLint TSLint'.replace(/(?<=(?<=J|T)S)Lint/gu, '-Runtime'))
+    |                                                 ^~~~~~~~ [1]
+
+Output:
+  1 | console.log('ESLint JSLint TSLint'.replace(/(?<=(?:J|T)S)Lint/gu, '-Runtime'))
+
+[1] This lookbehind assertion is useless and can be converted into a group.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=Script(?=Checker)|Script(?=Linter))/gu, 'Type'))
+    |                                                                        ^~~~~~~~~~~ [1]   ^~~~~~~~~~ [2]
+
+Output:
+  1 | console.log('JavaScriptChecker JavaScriptLinter'.replace(/Java(?=ScriptChecker|ScriptLinter)/gu, 'Type'))
+
+[1] This lookahead assertion is useless and can be inlined.
+[2] This lookahead assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('ESLint JSLint TSLint'.replace(/(?<=(?<=J)S|(?<=T)S)Lint/gu, '-Runtime'))
+    |                                                 ^~~~~~  ^~~~~~
+    |                                                 [1]     [2]
+
+Output:
+  1 | console.log('ESLint JSLint TSLint'.replace(/(?<=JS|TS)Lint/gu, '-Runtime'))
+
+[1] This lookbehind assertion is useless and can be inlined.
+[2] This lookbehind assertion is useless and can be inlined.
+---
+
+
+Test: no-extra-lookaround-assertions >> invalid
+Code:
+  1 | console.log('JavaScript'.replace(/Java(?=Scrip(?=[\q{t}]))/v, 'Type'))
+    |                                               ^~~~~~~~~~~ [1]
+
+Output:
+  1 | console.log('JavaScript'.replace(/Java(?=Scrip[\q{t}])/v, 'Type'))
+
+[1] This lookahead assertion is useless and can be inlined.
+---

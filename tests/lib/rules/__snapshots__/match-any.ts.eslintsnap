@@ -1,0 +1,296 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\S\s]/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[\S\s]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\S\s]/v
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/v
+
+[1] Unexpected using '[\S\s]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\S\s\q{a|b|c}]/v
+    |  ^~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/v
+
+[1] Unexpected using '[\S\s\q{a|b|c}]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[[\S\s\q{abc}]--\q{abc}]/v
+    |  ^~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/v
+
+[1] Unexpected using '[[\S\s\q{abc}]--\q{abc}]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[^]/
+    |  ^~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\d\D]/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[\d\D]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\0-\uFFFF]/
+    |  ^~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[\0-\uFFFF]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\s\S][\S\s][^]./s
+    |        ^~~~~~ [1]
+    |              ^~~ [2]
+
+Output:
+  1 | /[\s\S][\s\S][\s\S]./s
+
+[1] Unexpected using '[\S\s]' to match any character.
+[2] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid >>> /[\s\S][\S\s][^]./s 2
+Options:
+  - allows:
+      - "[^]"
+
+Code:
+  1 | /[\s\S][\S\s][^]./s
+    |  ^~~~~~ [1]     ^ [3]
+    |        ^~~~~~ [2]
+
+Output:
+  1 | /[^][^][^][^]/s
+
+[1] Unexpected using '[\s\S]' to match any character.
+[2] Unexpected using '[\S\s]' to match any character.
+[3] Unexpected using '.' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - dotAll
+
+Code:
+  1 | /[\s\S] [\S\s] [^] ./s
+    |  ^~~~~~ ^~~~~~ ^~~
+    |  [1]    [2]    [3]
+
+Output:
+  1 | /. . . ./s
+
+[1] Unexpected using '[\s\S]' to match any character.
+[2] Unexpected using '[\S\s]' to match any character.
+[3] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - dotAll
+
+Code:
+  1 | /. [\S\s] [^] ./s
+    |    ^~~~~~ ^~~
+    |    [1]    [2]
+
+Output:
+  1 | /. . . ./s
+
+[1] Unexpected using '[\S\s]' to match any character.
+[2] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - dotAll
+
+Code:
+  1 | /. . [^] ./s
+    |      ^~~ [1]
+
+Output:
+  1 | /. . . ./s
+
+[1] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - dotAll
+
+Code:
+  1 | new RegExp('[^]', 's')
+    |             ^~~ [1]
+
+Output: unchanged
+
+[1] Unexpected using '[^]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - "[^]"
+
+Code:
+  1 |
+  2 |             const s = "[\\s\\S][\\S\\s][^]."
+    |                        ^~~~~~~~ [1]       ^ [3]
+    |                                ^~~~~~~~ [2]
+  3 |             new RegExp(s, 's')
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = "[^][^][^][^]"
+  3 |             new RegExp(s, 's')
+  4 |             
+
+[1] Unexpected using '[\s\S]' to match any character.
+[2] Unexpected using '[\S\s]' to match any character.
+[3] Unexpected using '.' to match any character.
+---
+
+
+Test: match-any >> invalid
+Options:
+  - allows:
+      - "[^]"
+
+Code:
+  1 |
+  2 |             const s = "[\\s\\S]"+"[\\S\\s][^]."
+    |                        ^~~~~~~~   ^~~~~~~~   ^
+    |                        [1]        [2]        [3]
+  3 |             new RegExp(s, 's')
+  4 |             
+
+Output:
+  1 |
+  2 |             const s = "[^]"+"[^][^][^]"
+  3 |             new RegExp(s, 's')
+  4 |             
+
+[1] Unexpected using '[\s\S]' to match any character.
+[2] Unexpected using '[\S\s]' to match any character.
+[3] Unexpected using '.' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\p{ASCII}\P{ASCII}]/u
+    |  ^~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/u
+
+[1] Unexpected using '[\p{ASCII}\P{ASCII}]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\p{Script=Hiragana}\P{Script=Hiragana}]/u
+    |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/u
+
+[1] Unexpected using '[\p{Script=Hiragana}\P{Script=Hiragana}]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\s\S\0-\uFFFF]/
+    |  ^~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[\s\S\0-\uFFFF]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\w\D]/
+    |  ^~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/
+
+[1] Unexpected using '[\w\D]' to match any character.
+---
+
+
+Test: match-any >> invalid
+Code:
+  1 | /[\P{ASCII}\w\0-AZ-\xFF]/u
+    |  ^~~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output:
+  1 | /[\s\S]/u
+
+[1] Unexpected using '[\P{ASCII}\w\0-AZ-\xFF]' to match any character.
+---

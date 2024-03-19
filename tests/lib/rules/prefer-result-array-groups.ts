@@ -1,9 +1,10 @@
-import { RuleTester } from "../rule-tester"
-import path from "path"
+import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-result-array-groups"
 import * as tsParser from "@typescript-eslint/parser"
 
-const tester = new RuleTester({
+const filename = "tests/lib/rules/prefer-result-array-groups.ts"
+
+const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -109,8 +110,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         `,
     ],
     invalid: [
-        {
-            code: `
+        `
             const regex = /a(?<foo>b)c/
             let match
             while (match = regex.exec(foo)) {
@@ -118,25 +118,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>b)c/
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 5,
-                    column: 28,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const regex = /a(?<foo>b)c/
             let match
             while (match = regex.exec(foo)) {
@@ -144,25 +126,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>b)c/
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match?.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 5,
-                    column: 28,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const regex = /a(?<foo>b)c/
             let match
             while (match = regex.exec(foo)) {
@@ -170,25 +134,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>b)c/
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match?.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 5,
-                    column: 28,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const regex = /(a)(?<foo>b)c/
             let match
             while (match = regex.exec(foo)) {
@@ -197,26 +143,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /(a)(?<foo>b)c/
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match[1]
-                const p2 = match.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 6,
-                    column: 28,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const regex = /(?<foo>a)(?<bar>b)c/
             let match
             while (match = regex.exec(foo)) {
@@ -224,24 +151,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: null,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 5,
-                    column: 25,
-                },
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
-                    line: 5,
-                    column: 28,
-                },
-            ],
-        },
-        {
-            code: `
+        `
             const regex = /a(?<foo>[[b]])c/v
             let match
             while (match = regex.exec(foo)) {
@@ -249,114 +159,39 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>[[b]])c/v
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 5,
-                    column: 28,
-                },
-            ],
-        },
         // String.prototype.match()
-        {
-            code: `
+        `
             const arr = "str".match(/a(?<foo>b)c/)
             const p1 = arr[1]
             `,
-            output: `
-            const arr = "str".match(/a(?<foo>b)c/)
-            const p1 = arr.groups.foo
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 3,
-                    column: 24,
-                },
-            ],
-        },
         {
             code: `
             const arr = unknown.match(/a(?<foo>b)c/)
             const p1 = arr[1]
-            `,
-            output: `
-            const arr = unknown.match(/a(?<foo>b)c/)
-            const p1 = arr.groups.foo
             `,
             options: [{ strictTypes: false }],
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 3,
-                    column: 24,
-                },
-            ],
         },
         // String.prototype.matchAll()
-        {
-            code: `
+        `
             const matches = "str".matchAll(/a(?<foo>b)c/);
             for (const match of matches) {
                 const p1 = match[1]
                 // ..
             }
             `,
-            output: `
-            const matches = "str".matchAll(/a(?<foo>b)c/);
-            for (const match of matches) {
-                const p1 = match.groups.foo
-                // ..
-            }
-            `,
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 4,
-                    column: 28,
-                },
-            ],
-        },
         {
             code: `
             const matches = unknown.matchAll(/a(?<foo>b)c/);
             for (const match of matches) {
                 const p1 = match[1]
-                // ..
-            }
-            `,
-            output: `
-            const matches = unknown.matchAll(/a(?<foo>b)c/);
-            for (const match of matches) {
-                const p1 = match.groups.foo
                 // ..
             }
             `,
             options: [{ strictTypes: false }],
-            errors: [
-                {
-                    message:
-                        "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                    line: 4,
-                    column: 28,
-                },
-            ],
         },
         // with TypeScript
         {
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match
@@ -365,17 +200,6 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>b)c/
-            let match
-            while (match = regex.exec(foo)) {
-                const p1 = match.groups!.foo
-                // ...
-            }
-            `,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-            ],
             files: ["**/*.*"],
             languageOptions: {
                 parser: tsParser,
@@ -394,17 +218,13 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: null,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-            ],
             languageOptions: {
                 parser: tsParser,
             },
         },
         {
             // Not using RegExpExecArray
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match: any[] | null
@@ -413,10 +233,6 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: null,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-            ],
             files: ["**/*.*"],
             languageOptions: {
                 parser: tsParser,
@@ -427,7 +243,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         {
             // Using `any` type.
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const regex = /a(?<foo>b)c/
             let match: any
@@ -436,17 +252,6 @@ tester.run("prefer-result-array-groups", rule as any, {
                 // ...
             }
             `,
-            output: `
-            const regex = /a(?<foo>b)c/
-            let match: any
-            while (match = regex.exec(foo)) {
-                const p1 = match.groups.foo
-                // ...
-            }
-            `,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-            ],
             files: ["**/*.*"],
             languageOptions: {
                 parser: tsParser,
@@ -457,7 +262,7 @@ tester.run("prefer-result-array-groups", rule as any, {
         },
         {
             // https://github.com/ota-meshi/eslint-plugin-regexp/issues/355
-            filename: path.join(__dirname, "prefer-result-array-groups.ts"),
+            filename,
             code: `
             const match = /(?<foo>foo)/u.exec(str)!
             match[1]; // <-
@@ -469,23 +274,6 @@ tester.run("prefer-result-array-groups", rule as any, {
             const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
             match3[1] // <-
             `,
-            output: `
-            const match = /(?<foo>foo)/u.exec(str)!
-            match.groups!.foo; // <-
-
-            /(?<bar>bar)/u.exec(str)?.groups!.bar; // <-
-            const match2 = /(?<baz>baz)/u.exec(str)
-            match2?.groups!.baz // <-
-
-            const match3 = /(?<qux>qux)/u.exec(str) as RegExpExecArray
-            match3.groups!.qux // <-
-            `,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
-            ],
             files: ["**/*.*"],
             languageOptions: {
                 parser: tsParser,
@@ -494,8 +282,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 },
             },
         },
-        {
-            code: `
+        `
             const match = /(?<foo>foo)/u.exec(str)
             if (match) {
                 match[1] // <-
@@ -515,32 +302,5 @@ tester.run("prefer-result-array-groups", rule as any, {
                 match4[1] // <-
             }
             `,
-            output: `
-            const match = /(?<foo>foo)/u.exec(str)
-            if (match) {
-                match.groups.foo // <-
-            }
-
-            const match2 = /(?<bar>bar)/u.exec(str)
-            match2
-                ? match2.groups.bar // <-
-                : null;
-
-            const match3 = /(?<baz>baz)/u.exec(str)
-            match3 && match3.groups.baz // <-
-
-            const match4 = /(?<qux>qux)/u.exec(str)
-            if (!match4) {
-            } else {
-                match4.groups.qux // <-
-            }
-            `,
-            errors: [
-                "Unexpected indexed access for the named capturing group 'foo' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'bar' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'baz' from regexp result array.",
-                "Unexpected indexed access for the named capturing group 'qux' from regexp result array.",
-            ],
-        },
     ],
 })
