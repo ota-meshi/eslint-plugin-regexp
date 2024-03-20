@@ -1,6 +1,6 @@
 import path from "path"
 import fs from "fs"
-import { rules } from "../lib/utils/rules"
+import { rules } from "../lib/all-rules"
 import type { RuleModule } from "../lib/types"
 import { getNewVersion } from "./lib/changesets-util"
 

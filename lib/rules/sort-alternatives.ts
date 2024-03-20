@@ -21,7 +21,6 @@ import {
     CP_APOSTROPHE,
     createRule,
     defineRegexpVisitor,
-    assertValidFlags,
 } from "../utils"
 import type {
     GetLongestPrefixOptions,
@@ -38,7 +37,7 @@ import {
 } from "regexp-ast-analysis"
 import type { CharSet, Word, ReadonlyWord } from "refa"
 import { NFA, JS, transform } from "refa"
-import { getParser } from "../utils/regexp-ast"
+import { getParser, assertValidFlags } from "../utils/refa"
 import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest"
 
 interface AllowedChars {

@@ -10,9 +10,11 @@ import {
     isLetter,
     isLowercaseLetter,
     isUppercaseLetter,
+} from "../utils"
+import {
     EscapeSequenceKind,
     getEscapeSequenceKind,
-} from "../utils"
+} from "../utils/regex-syntax"
 
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
 type Case = (typeof CASE_SCHEMA)[number]

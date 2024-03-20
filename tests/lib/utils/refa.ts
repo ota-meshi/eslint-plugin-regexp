@@ -1,5 +1,5 @@
 import assert from "assert"
-import { toCharSetSource } from "../../../lib/utils"
+import { toCharSetSource } from "../../../lib/utils/refa"
 
 describe("toCharSetSource", () => {
     for (const c of "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789") {

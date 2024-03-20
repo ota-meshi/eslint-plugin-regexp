@@ -1,6 +1,5 @@
 import type { Expression, Literal, RegExpLiteral } from "estree"
 import type { Rule, AST, SourceCode } from "eslint"
-import { getStaticValue } from "."
 import {
     dereferenceOwnedVariable,
     astRangeToLocation,
@@ -8,6 +7,7 @@ import {
     getStringValueRange,
     isRegexpLiteral,
     isStringLiteral,
+    getStaticValue,
 } from "./utils"
 
 /**

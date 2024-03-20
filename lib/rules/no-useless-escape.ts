@@ -26,7 +26,7 @@ import {
     CP_MINUS,
     canUnwrapped,
 } from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_CP } from "../utils/unicode-set"
+import { RESERVED_DOUBLE_PUNCTUATOR_CP } from "../utils/regex-syntax"
 
 const REGEX_CHAR_CLASS_ESCAPES = new Set([
     CP_BACK_SLASH, // \\

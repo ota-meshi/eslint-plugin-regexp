@@ -1,12 +1,8 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
-import {
-    createRule,
-    defineRegexpVisitor,
-    getQuantifierOffsets,
-    quantToString,
-} from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { isPotentiallyEmpty } from "regexp-ast-analysis"
+import { quantToString, getQuantifierOffsets } from "../utils/regexp-ast"
 
 export default createRule("confusing-quantifier", {
     meta: {

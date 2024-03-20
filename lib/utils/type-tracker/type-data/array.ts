@@ -15,7 +15,6 @@ import {
     TypeGlobalFunction,
 } from "./function"
 import {
-    cache,
     createObject,
     getTypeName,
     isEquals,
@@ -27,6 +26,7 @@ import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
 import { TypeIterable } from "./iterable"
+import { lazy } from "../../util"
 
 export class TypeArray implements ITypeClass {
     public type = "Array" as const
@@ -117,7 +117,7 @@ export function buildArrayConstructor(): TypeGlobalFunction {
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }
 
-const getPrototypes = cache(() => {
+const getPrototypes = lazy(() => {
     const RETURN_ARRAY_ELEMENT = new TypeFunction(
         /**
          * Function Type that Return array element

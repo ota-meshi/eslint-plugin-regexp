@@ -5,11 +5,10 @@ import type {
     Alternative,
     CapturingGroup,
     Element,
-    Node,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, toCharSetSource } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     isPotentiallyZeroLength,
@@ -21,22 +20,12 @@ import {
     followPaths,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
+import { canSimplifyQuantifier, hasCapturingGroup } from "../utils/regexp-ast"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { joinEnglishList, mention } from "../utils/mention"
-import { getParser } from "../utils/regexp-ast"
-import { assertNever } from "../utils/util"
+import { getParser, toCharSetSource } from "../utils/refa"
+import { assertNever, cachedFn, reversed } from "../utils/util"
 import { CharSet } from "refa"
-
-/**
- * Returns an iterator that goes through all elements in the given array in
- * reverse order.
- */
-function* iterReverse<T>(array: readonly T[]): Iterable<T> {
-    for (let i = array.length - 1; i >= 0; i--) {
-        yield array[i]
-    }
-}
 
 /**
  * Returns all quantifiers that are always at the start of the given element.
@@ -67,7 +56,7 @@ function* getStartQuantifiers(
             break
         case "Alternative": {
             const elements =
-                direction === "ltr" ? root.elements : iterReverse(root.elements)
+                direction === "ltr" ? root.elements : reversed(root.elements)
             for (const e of elements) {
                 if (isEmpty(e, flags)) continue
                 yield* getStartQuantifiers(e, direction, flags)
@@ -93,24 +82,8 @@ function* getStartQuantifiers(
     }
 }
 
-/**
- * Returns whether the given node is or contains a capturing group.
- */
-function hasCapturingGroup(node: Node): boolean {
-    return hasSomeDescendant(node, (d) => d.type === "CapturingGroup")
-}
-
 type CharCache = WeakMap<Element | Alternative, CharSet>
-const caches = new WeakMap<ReadonlyFlags, CharCache>()
-
-function getCache(flags: ReadonlyFlags): CharCache {
-    let cache = caches.get(flags)
-    if (cache === undefined) {
-        cache = new WeakMap()
-        caches.set(flags, cache)
-    }
-    return cache
-}
+const getCache = cachedFn((_flags: ReadonlyFlags): CharCache => new WeakMap())
 
 /**
  * Returns the largest character set such that `L(chars) ⊆ L(element)`.

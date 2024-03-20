@@ -1,5 +1,5 @@
 import { Linter } from "eslint"
-import { rules } from "../../../../../lib/utils/rules.ts"
+import { rules } from "../../../../../lib/all-rules.ts"
 import { rules as recommendedRules } from "../../../../../lib/configs/recommended.ts"
 
 const coreRules = Object.fromEntries(new Linter().getRules())

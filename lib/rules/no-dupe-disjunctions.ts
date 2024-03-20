@@ -15,10 +15,9 @@ import {
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
-    assertValidFlags,
     fixRemoveStringAlternative,
 } from "../utils"
-import { getParser, isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
+import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
     Transformers,
@@ -44,6 +43,7 @@ import { PartialParser } from "../utils/partial-parser"
 import type { Rule } from "eslint"
 import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
 import { assertNever } from "../utils/util"
+import { getParser, assertValidFlags } from "../utils/refa"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 

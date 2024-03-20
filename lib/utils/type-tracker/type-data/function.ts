@@ -11,7 +11,7 @@ import type { TypeBigInt } from "./bigint"
 import { BIGINT } from "./bigint"
 import type { TypeBoolean } from "./boolean"
 import { BOOLEAN } from "./boolean"
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import type { TypeNumber } from "./number"
 import { NUMBER } from "./number"
 import type { TypeObject } from "./object"
@@ -20,6 +20,7 @@ import type { TypeRegExp } from "./regexp"
 import { REGEXP } from "./regexp"
 import type { TypeString } from "./string"
 import { STRING } from "./string"
+import { lazy } from "../../util"
 
 type FunctionArg = (
     thisType: (() => TypeInfo | null) | null,
@@ -185,7 +186,7 @@ const RETURN_SELF = new TypeFunction(
 const getPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
     [key in keyof Function]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
         [key in keyof Function]: TypeInfo | null

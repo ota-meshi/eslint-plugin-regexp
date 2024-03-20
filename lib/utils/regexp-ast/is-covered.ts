@@ -15,6 +15,7 @@ import type {
 } from "regexp-ast-analysis"
 import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import type { CharSet } from "refa"
+import { assertNever } from "../util"
 
 type Options = {
     flags: ReadonlyFlags
@@ -485,10 +486,6 @@ function normalizeNodeWithoutCache(
         default:
             return assertNever(node)
     }
-}
-
-function assertNever(value: never): never {
-    throw new Error(`Invalid value: ${value}`)
 }
 
 /** Check whether the right node is covered by the left nodes. */

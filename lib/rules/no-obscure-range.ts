@@ -5,14 +5,13 @@ import {
 } from "../utils/char-ranges"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
-    createRule,
-    defineRegexpVisitor,
     isControlEscape,
     isEscapeSequence,
-    isUseHexEscape,
     isOctalEscape,
-} from "../utils"
+    isHexLikeEscape,
+} from "../utils/regex-syntax"
 import { mentionChar } from "../utils/mention"
 
 export default createRule("no-obscure-range", {
@@ -65,8 +64,8 @@ export default createRule("no-obscure-range", {
                         return
                     }
                     if (
-                        (isUseHexEscape(min.raw) || min.value === 0) &&
-                        isUseHexEscape(max.raw)
+                        (isHexLikeEscape(min.raw) || min.value === 0) &&
+                        isHexLikeEscape(max.raw)
                     ) {
                         // both min and max are hexadecimal (with a small exception for \0)
                         return

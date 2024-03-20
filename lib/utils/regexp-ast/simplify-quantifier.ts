@@ -16,32 +16,15 @@ import type {
     QuantifiableElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import { assertNever } from "../util"
-
-/**
- * Wraps the given function to be cached by a `WeakMap`.
- */
-function weakCachedFn<T extends object, R>(
-    fn: (value: T) => R,
-): (value: T) => R {
-    const cache = new WeakMap<T, R>()
-    return (value) => {
-        let result = cache.get(value)
-        if (result === undefined) {
-            result = fn(value)
-            cache.set(value, result)
-        }
-        return result
-    }
-}
+import { assertNever, cachedFn, reversed } from "../util"
 
 /** Returns whether the given node contains any assertions. */
-const containsAssertions = weakCachedFn((node: Node) => {
+const containsAssertions = cachedFn((node: Node) => {
     return hasSomeDescendant(node, (n) => n.type === "Assertion")
 })
 /** A cached (and curried) version of {@link getConsumedChars}. */
-const cachedGetPossiblyConsumedChar = weakCachedFn((flags: ReadonlyFlags) => {
-    return weakCachedFn((element: Element) => getConsumedChars(element, flags))
+const cachedGetPossiblyConsumedChar = cachedFn((flags: ReadonlyFlags) => {
+    return cachedFn((element: Element) => getConsumedChars(element, flags))
 })
 
 export type CanSimplify = {
@@ -340,16 +323,6 @@ function removeTargetQuantifier(
     return result
 }
 
-/**
- * Returns an iterator that goes through all elements in the given array in
- * reverse order.
- */
-function* iterReverse<T>(array: readonly T[]): Iterable<T> {
-    for (let i = array.length - 1; i >= 0; i--) {
-        yield array[i]
-    }
-}
-
 type QuantifierSet = [Quantifier, ...Quantifier[]] | undefined
 
 /** Unions the given quantifier sets. */
@@ -396,7 +369,7 @@ function getTailQuantifiers(
         case "Alternative": {
             const elements =
                 direction === "ltr"
-                    ? iterReverse(element.elements)
+                    ? reversed(element.elements)
                     : element.elements
             for (const e of elements) {
                 // skip empty elements

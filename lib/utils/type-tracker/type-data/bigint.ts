@@ -6,9 +6,10 @@ import type {
     TypeInfo,
 } from "."
 import { STRING } from "./string"
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import { RETURN_BIGINT, RETURN_STRING, TypeGlobalFunction } from "./function"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 export class TypeBigInt implements ITypeClass {
     public type = "BigInt" as const
@@ -57,7 +58,7 @@ export function buildBigIntConstructor(): TypeGlobalFunction {
 }
 const getPrototypes: () => {
     [key in keyof bigint]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in keyof bigint]: TypeInfo | null
     }>({

@@ -3,7 +3,7 @@ import { Linter } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import assert from "assert"
 import rule from "../../../lib/rules/no-useless-flag"
-import { rules } from "../../../lib/utils/rules"
+import { rules } from "../../../lib/all-rules"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

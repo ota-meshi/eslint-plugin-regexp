@@ -5,14 +5,15 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { cache, createObject, getTypeName, isEquals } from "./common"
+import { createObject, getTypeName, isEquals } from "./common"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 type IterableKeys = keyof Iterable<unknown>
 
 const getPrototypes: () => {
     [key in IterableKeys]: TypeInfo | null
-} = cache(() => {
+} = lazy(() => {
     return createObject<{
         [key in IterableKeys]: TypeInfo | null
     }>({

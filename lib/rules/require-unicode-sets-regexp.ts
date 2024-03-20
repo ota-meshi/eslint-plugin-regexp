@@ -3,7 +3,7 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/unicode-set"
+import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/regex-syntax"
 
 /**
  * Returns whether the regex would keep its behavior if the v flag were to be

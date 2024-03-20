@@ -1,12 +1,11 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Character } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
-    createRule,
-    defineRegexpVisitor,
-    getEscapeSequenceKind,
     EscapeSequenceKind,
-} from "../utils"
+    getEscapeSequenceKind,
+} from "../utils/regex-syntax"
 
 export default createRule("unicode-escape", {
     meta: {

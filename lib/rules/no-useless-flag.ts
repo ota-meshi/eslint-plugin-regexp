@@ -1,11 +1,5 @@
 import type { RegExpContext, RegExpContextForSource } from "../utils"
-import {
-    getFlagsRange,
-    compositingVisitors,
-    createRule,
-    defineRegexpVisitor,
-    getFlagsLocation,
-} from "../utils"
+import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type {
     CallExpression,
     Expression,
@@ -22,7 +16,8 @@ import {
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
-import { isCaseVariant } from "../utils/regexp-ast/case-variation"
+import { isCaseVariant } from "../utils/regexp-ast"
+import { getFlagsRange, getFlagsLocation } from "../utils/ast-utils"
 
 type CodePathStack = {
     codePathId: string

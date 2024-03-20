@@ -6,7 +6,7 @@ import type {
     TypeInfo,
 } from "."
 import { BOOLEAN } from "./boolean"
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import {
     RETURN_REGEXP,
     RETURN_STRING_ARRAY,
@@ -16,6 +16,7 @@ import {
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
+import { lazy } from "../../util"
 
 export class TypeRegExp implements ITypeClass {
     public type = "RegExp" as const
@@ -83,7 +84,7 @@ export function buildRegExpConstructor(): TypeGlobalFunction {
 
 const getPrototypes: () => {
     [key in keyof RegExp]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in keyof RegExp]: TypeInfo | null
     }>({

@@ -1,5 +1,5 @@
 import { rules as recommendedRules } from "./recommended"
-import { rules as ruleLint } from "../../utils/rules"
+import { rules as ruleLint } from "../../all-rules"
 
 const all: Record<string, string> = {}
 for (const rule of ruleLint) {

@@ -8,7 +8,7 @@ import type {
 import { buildArrayConstructor } from "./array"
 import { buildBigIntConstructor } from "./bigint"
 import { buildBooleanConstructor } from "./boolean"
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import {
     RETURN_BOOLEAN,
     RETURN_NUMBER,
@@ -21,6 +21,7 @@ import { buildObjectConstructor } from "./object"
 import { buildRegExpConstructor } from "./regexp"
 import { buildSetConstructor } from "./set"
 import { buildStringConstructor } from "./string"
+import { lazy } from "../../util"
 
 export class TypeGlobal implements ITypeClass {
     public type = "Global" as const
@@ -58,7 +59,7 @@ export const GLOBAL = new TypeGlobal()
 
 const getProperties: () => {
     [key: string]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key: string]: TypeInfo | null
     }>({

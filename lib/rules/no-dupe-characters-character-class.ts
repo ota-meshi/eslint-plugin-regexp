@@ -16,10 +16,9 @@ import type { RegExpContext } from "../utils"
 import {
     createRule,
     defineRegexpVisitor,
-    toCharSetSource,
     fixRemoveCharacterClassElement,
-    assertValidFlags,
 } from "../utils"
+import { toCharSetSource, assertValidFlags } from "../utils/refa"
 import type { CharRange, CharSet } from "refa"
 import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"

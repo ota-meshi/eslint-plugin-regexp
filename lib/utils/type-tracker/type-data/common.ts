@@ -48,12 +48,6 @@ export function createObject<T>(t: T): T {
     return Object.assign(Object.create(null), t)
 }
 
-/** Cache builder */
-export function cache<T>(fn: () => T): () => T {
-    let t: T | undefined
-    return () => t ?? (t = fn())
-}
-
 export class TypeCollection {
     public readonly generator: () => IterableIterator<TypeInfo>
 

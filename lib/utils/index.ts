@@ -17,17 +17,25 @@ import {
     CONSTRUCT,
     ReferenceTracker,
 } from "@eslint-community/eslint-utils"
-import type { Rule, AST, SourceCode } from "eslint"
-import { getStringIfConstant } from "./ast-utils"
+import type { Rule, AST } from "eslint"
+import {
+    getFlagLocation,
+    getFlagsLocation,
+    getFlagsRange,
+    getStringIfConstant,
+} from "./ast-utils"
+import type { Quant } from "./regexp-ast"
+import {
+    extractCaptures,
+    getQuantifierOffsets,
+    quantToString,
+} from "./regexp-ast"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toCache } from "regexp-ast-analysis"
-import type { CharSet } from "refa"
-import { JS } from "refa"
 import type { UsageOfPattern } from "./get-usage-of-pattern"
 import { getUsageOfPattern } from "./get-usage-of-pattern"
 import {
     dereferenceOwnedVariable,
-    getStringValueRange,
     isRegexpLiteral,
     isStringLiteral,
 } from "./ast-utils/utils"
@@ -36,6 +44,8 @@ import { PatternSource } from "./ast-utils/pattern-source"
 import type { CapturingGroupReference } from "./extract-capturing-group-references"
 import { extractCapturingGroupReferences } from "./extract-capturing-group-references"
 import { createTypeTracker } from "./type-tracker"
+import { lazy } from "./util"
+import { parseFlags } from "./regex-syntax"
 export * from "./unicode"
 
 type RegExpContextBase = {
@@ -178,52 +188,6 @@ type UnparsableRegexpRule = {
 type RegexpRule = ParsableRegexpRule & UnparsableRegexpRule
 
 const regexpRules = new WeakMap<ESTree.Program, RegexpRule[]>()
-
-export const FLAG_GLOBAL = "g"
-export const FLAG_DOT_ALL = "s"
-export const FLAG_HAS_INDICES = "d"
-export const FLAG_IGNORECASE = "i"
-export const FLAG_MULTILINE = "m"
-export const FLAG_STICKY = "y"
-export const FLAG_UNICODE = "u"
-export const FLAG_UNICODE_SETS = "v"
-
-const flagsCache = new Map<string, Required<ReadonlyFlags>>()
-
-/**
- * Given some flags, this will return a parsed flags object.
- *
- * Non-standard flags will be ignored.
- */
-export function parseFlags(flags: string): ReadonlyFlags {
-    let cached = flagsCache.get(flags)
-    if (cached === undefined) {
-        cached = {
-            dotAll: flags.includes(FLAG_DOT_ALL),
-            global: flags.includes(FLAG_GLOBAL),
-            hasIndices: flags.includes(FLAG_HAS_INDICES),
-            ignoreCase: flags.includes(FLAG_IGNORECASE),
-            multiline: flags.includes(FLAG_MULTILINE),
-            sticky: flags.includes(FLAG_STICKY),
-            unicode: flags.includes(FLAG_UNICODE),
-            unicodeSets: flags.includes(FLAG_UNICODE_SETS),
-        }
-        flagsCache.set(flags, cached)
-    }
-    return cached
-}
-
-/**
- * Asserts that the given flags are valid (no `u` and `v` flag together).
- * @param flags
- */
-export function assertValidFlags(
-    flags: ReadonlyFlags,
-): asserts flags is JS.Flags {
-    if (!JS.isFlags(flags)) {
-        throw new Error(`Invalid flags: ${JSON.stringify(flags)}`)
-    }
-}
 
 /**
  * Define the rule.
@@ -640,7 +604,11 @@ function buildRegExpContextBase({
         boolean /* strictTypes */,
         CapturingGroupReference[]
     >()
-    let cacheAllCapturingGroups: CapturingGroup[] | null = null
+
+    const getAllCapturingGroups = lazy(
+        () => extractCaptures(parsedPattern).groups,
+    )
+
     return {
         getRegexpLocation: (range, offsets) => {
             if (offsets) {
@@ -681,8 +649,7 @@ function buildRegExpContextBase({
             if (cacheCapturingGroupReference) {
                 return cacheCapturingGroupReference
             }
-            const countOfCapturingGroup =
-                getAllCapturingGroupsWithCache().length
+            const countOfCapturingGroup = getAllCapturingGroups().length
             const capturingGroupReferences = [
                 ...extractCapturingGroupReferences(
                     regexpNode,
@@ -699,18 +666,12 @@ function buildRegExpContextBase({
             )
             return capturingGroupReferences
         },
-        getAllCapturingGroups: getAllCapturingGroupsWithCache,
+        getAllCapturingGroups,
 
         pattern: parsedPattern.raw,
         patternAst: parsedPattern,
         patternSource,
         flags: toCache(flags),
-    }
-
-    /** Returns a list of all capturing groups in the order of their numbers. */
-    function getAllCapturingGroupsWithCache(): CapturingGroup[] {
-        return (cacheAllCapturingGroups ??=
-            getAllCapturingGroups(parsedPattern))
     }
 }
 
@@ -761,111 +722,6 @@ function buildUnparsableRegExpContextBase({
                 includePattern ?? true,
             )
         },
-    }
-}
-
-export function getFlagsRange(flagsNode: ESTree.RegExpLiteral): AST.Range
-export function getFlagsRange(
-    flagsNode: ESTree.Expression | null,
-): AST.Range | null
-/**
- * Creates source range of the flags of the given regexp node
- * @param flagsNode The expression that contributes the flags.
- */
-export function getFlagsRange(
-    flagsNode: ESTree.Expression | null,
-): AST.Range | null {
-    if (!flagsNode) {
-        return null
-    }
-
-    if (isRegexpLiteral(flagsNode)) {
-        return [
-            flagsNode.range![1] - flagsNode.regex.flags.length,
-            flagsNode.range![1],
-        ]
-    }
-    if (isStringLiteral(flagsNode)) {
-        return [flagsNode.range![0] + 1, flagsNode.range![1] - 1]
-    }
-
-    return null
-}
-
-/**
- * Creates SourceLocation of the flags of the given regexp node
- * @param sourceCode The ESLint source code instance.
- * @param regexpNode The node to report.
- */
-export function getFlagsLocation(
-    sourceCode: SourceCode,
-    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
-    flagsNode: ESTree.Expression | null,
-): AST.SourceLocation {
-    const range = getFlagsRange(flagsNode)
-    if (range == null) {
-        return flagsNode?.loc ?? regexpNode.loc!
-    }
-
-    if (range[0] === range[1]) {
-        range[0]--
-    }
-
-    return {
-        start: sourceCode.getLocFromIndex(range[0]),
-        end: sourceCode.getLocFromIndex(range[1]),
-    }
-}
-
-/**
- * Creates source range of the given flag in the given flags node
- * @param flagsNode The expression that contributes the flags.
- */
-function getFlagRange(
-    sourceCode: SourceCode,
-    flagsNode: ESTree.Expression | null,
-    flag: string,
-): AST.Range | null {
-    if (!flagsNode || !flag) {
-        return null
-    }
-
-    if (isRegexpLiteral(flagsNode)) {
-        const index = flagsNode.regex.flags.indexOf(flag)
-        if (index === -1) {
-            return null
-        }
-        const start = flagsNode.range![1] - flagsNode.regex.flags.length + index
-        return [start, start + 1]
-    }
-    if (isStringLiteral(flagsNode)) {
-        const index = flagsNode.value.indexOf(flag)
-        if (index === -1) {
-            return null
-        }
-        return getStringValueRange(sourceCode, flagsNode, index, index + 1)
-    }
-
-    return null
-}
-
-/**
- * Creates source location of the given flag in the given flags node
- * @param flagsNode The expression that contributes the flags.
- */
-function getFlagLocation(
-    sourceCode: SourceCode,
-    regexpNode: ESTree.CallExpression | ESTree.RegExpLiteral,
-    flagsNode: ESTree.Expression | null,
-    flag: string,
-): AST.SourceLocation {
-    const range = getFlagRange(sourceCode, flagsNode, flag)
-    if (range == null) {
-        return flagsNode?.loc ?? regexpNode.loc!
-    }
-    return {
-        start: sourceCode.getLocFromIndex(range[0]),
-        end: sourceCode.getLocFromIndex(range[1]),
     }
 }
 
@@ -1029,80 +885,6 @@ function fixReplaceFlags(
 
         return [patternFix, flagsFix]
     }
-}
-
-/**
- * Get the offsets of the given quantifier
- */
-export function getQuantifierOffsets(qNode: Quantifier): [number, number] {
-    const startOffset = qNode.element.end - qNode.start
-    const endOffset = qNode.raw.length - (qNode.greedy ? 0 : 1)
-    return [startOffset, endOffset]
-}
-
-export interface Quant {
-    min: number
-    max: number
-    greedy?: boolean
-}
-
-/**
- * Returns the string representation of the given quantifier.
- */
-export function quantToString(quant: Readonly<Quant>): string {
-    if (
-        quant.max < quant.min ||
-        quant.min < 0 ||
-        !Number.isInteger(quant.min) ||
-        !(Number.isInteger(quant.max) || quant.max === Infinity)
-    ) {
-        throw new Error(
-            `Invalid quantifier { min: ${quant.min}, max: ${quant.max} }`,
-        )
-    }
-
-    let value
-    if (quant.min === 0 && quant.max === 1) {
-        value = "?"
-    } else if (quant.min === 0 && quant.max === Infinity) {
-        value = "*"
-    } else if (quant.min === 1 && quant.max === Infinity) {
-        value = "+"
-    } else if (quant.min === quant.max) {
-        value = `{${quant.min}}`
-    } else if (quant.max === Infinity) {
-        value = `{${quant.min},}`
-    } else {
-        value = `{${quant.min},${quant.max}}`
-    }
-
-    if (quant.greedy === false) {
-        return `${value}?`
-    }
-    return value
-}
-
-/**
- * Returns a regexp literal source of the given char set or char.
- */
-export function toCharSetSource(
-    charSetOrChar: CharSet | number,
-    flags: ReadonlyFlags,
-): string {
-    assertValidFlags(flags)
-    let charSet
-    if (typeof charSetOrChar === "number") {
-        charSet = JS.createCharSet([charSetOrChar], flags)
-    } else {
-        charSet = charSetOrChar
-    }
-    return JS.toLiteral(
-        {
-            type: "Concatenation",
-            elements: [{ type: "CharacterClass", characters: charSet }],
-        },
-        { flags },
-    ).source
 }
 
 /**
@@ -1325,110 +1107,4 @@ export function canUnwrapped(node: Element, text: string): boolean {
         !mightCreateNewElement(textBefore, text) &&
         !mightCreateNewElement(text, textAfter)
     )
-}
-
-/**
- * Returns whether the given raw of a character literal is an octal escape
- * sequence.
- */
-export function isOctalEscape(raw: string): boolean {
-    return /^\\[0-7]{1,3}$/u.test(raw)
-}
-/**
- * Returns whether the given raw of a character literal is a control escape
- * sequence.
- */
-export function isControlEscape(raw: string): boolean {
-    return /^\\c[A-Za-z]$/u.test(raw)
-}
-/**
- * Returns whether the given raw of a character literal is a hexadecimal escape
- * sequence.
- */
-export function isHexadecimalEscape(raw: string): boolean {
-    return /^\\x[\dA-Fa-f]{2}$/u.test(raw)
-}
-/**
- * Returns whether the given raw of a character literal is a unicode escape
- * sequence.
- */
-export function isUnicodeEscape(raw: string): boolean {
-    return /^\\u[\dA-Fa-f]{4}$/u.test(raw)
-}
-/**
- * Returns whether the given raw of a character literal is a unicode code point
- * escape sequence.
- */
-export function isUnicodeCodePointEscape(raw: string): boolean {
-    return /^\\u\{[\dA-Fa-f]{1,8}\}$/u.test(raw)
-}
-
-export enum EscapeSequenceKind {
-    octal = "octal",
-    control = "control",
-    hexadecimal = "hexadecimal",
-    unicode = "unicode",
-    unicodeCodePoint = "unicode code point",
-}
-/**
- * Returns which escape sequence kind was used for the given raw of a character literal.
- */
-export function getEscapeSequenceKind(raw: string): EscapeSequenceKind | null {
-    if (!raw.startsWith("\\")) {
-        return null
-    }
-    if (isOctalEscape(raw)) {
-        return EscapeSequenceKind.octal
-    }
-    if (isControlEscape(raw)) {
-        return EscapeSequenceKind.control
-    }
-    if (isHexadecimalEscape(raw)) {
-        return EscapeSequenceKind.hexadecimal
-    }
-    if (isUnicodeEscape(raw)) {
-        return EscapeSequenceKind.unicode
-    }
-    if (isUnicodeCodePointEscape(raw)) {
-        return EscapeSequenceKind.unicodeCodePoint
-    }
-    return null
-}
-/**
- * Returns whether the given raw of a character literal is a hexadecimal escape
- * sequence, a unicode escape sequence, or a unicode code point escape sequence.
- */
-export function isUseHexEscape(raw: string): boolean {
-    const kind = getEscapeSequenceKind(raw)
-    return (
-        kind === EscapeSequenceKind.hexadecimal ||
-        kind === EscapeSequenceKind.unicode ||
-        kind === EscapeSequenceKind.unicodeCodePoint
-    )
-}
-
-/**
- * Returns whether the given raw of a character literal is an octal escape
- * sequence, a control escape sequence, a hexadecimal escape sequence, a unicode
- * escape sequence, or a unicode code point escape sequence.
- */
-export function isEscapeSequence(raw: string): boolean {
-    return Boolean(getEscapeSequenceKind(raw))
-}
-
-/** Returns a list of all capturing groups in the order of their numbers. */
-function getAllCapturingGroups(pattern: Pattern): CapturingGroup[] {
-    const groups: CapturingGroup[] = []
-
-    visitRegExpAST(pattern, {
-        onCapturingGroupEnter(group) {
-            groups.push(group)
-        },
-    })
-
-    // visitRegExpAST given no guarantees in which order nodes are visited.
-    // Sort the list to guarantee order.
-    groups.sort((a, b) => a.start - b.start)
-
-    return groups
 }
