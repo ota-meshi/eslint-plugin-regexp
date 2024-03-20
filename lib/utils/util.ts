@@ -6,6 +6,23 @@ export function assertNever(value: never): never {
 }
 
 /**
+ * Returns a cached version of the given function for lazy evaluation.
+ *
+ * For the cached function to behave correctly, the given function must be pure.
+ */
+export function lazy<R extends NonNullable<unknown> | null>(
+    fn: () => R,
+): () => R {
+    let cached: R | undefined
+    return () => {
+        if (cached === undefined) {
+            cached = fn()
+        }
+        return cached
+    }
+}
+
+/**
  * Returns a cached version of the given function. A `WeakMap` is used internally.
  *
  * For the cached function to behave correctly, the given function must be pure.
@@ -22,4 +39,18 @@ export function cachedFn<K extends object, R>(
         }
         return cached
     }
+}
+
+/**
+ * Returns all code points of the given string.
+ */
+export function toCodePoints(s: string): number[] {
+    return [...s].map((c) => c.codePointAt(0)!)
+}
+
+/**
+ * Returns an array of the given iterable in reverse order.
+ */
+export function reversed<T>(iter: Iterable<T>): T[] {
+    return [...iter].reverse()
 }

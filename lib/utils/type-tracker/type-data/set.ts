@@ -8,7 +8,7 @@ import type {
 import { STRING } from "./string"
 import { isTypeClass } from "."
 import { TypeArray } from "./array"
-import { cache, createObject, getTypeName, isEquals } from "./common"
+import { createObject, getTypeName, isEquals } from "./common"
 import {
     RETURN_VOID,
     RETURN_BOOLEAN,
@@ -18,12 +18,13 @@ import {
 import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 type SetKeys = keyof Set<unknown>
 
 const getPrototypes: () => {
     [key in SetKeys]: TypeInfo | null
-} = cache(() => {
+} = lazy(() => {
     const RETURN_SELF = new TypeFunction(
         /**
          * Function Type that Return self array

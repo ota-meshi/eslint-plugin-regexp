@@ -5,7 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import {
     RETURN_NUMBER,
     RETURN_STRING,
@@ -13,6 +13,7 @@ import {
     TypeGlobalFunction,
 } from "./function"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 export class TypeNumber implements ITypeClass {
     public type = "Number" as const
@@ -76,7 +77,7 @@ export function buildNumberConstructor(): TypeGlobalFunction {
 }
 const getPrototypes: () => {
     [key in keyof number]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in keyof number]: TypeInfo | null
     }>({

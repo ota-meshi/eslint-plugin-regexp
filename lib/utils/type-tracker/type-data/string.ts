@@ -5,7 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import {
     RETURN_STRING,
     RETURN_STRING_ARRAY,
@@ -15,6 +15,7 @@ import {
 } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 export class TypeString implements ITypeClass {
     public type = "String" as const
@@ -71,7 +72,7 @@ export function buildStringConstructor(): TypeGlobalFunction {
 
 const getPrototypes: () => {
     [key in keyof string]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in keyof string]: TypeInfo | null
     }>({

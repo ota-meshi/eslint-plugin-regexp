@@ -1,8 +1,9 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
-import { isEscapeSequence, createRule, defineRegexpVisitor } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { mention, mentionChar } from "../utils/mention"
+import { isEscapeSequence } from "../utils/regex-syntax"
 import type {
     CharacterClass,
     CharacterClassElement,

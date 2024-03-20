@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress"
 import { BUNDLED_LANGUAGES } from "shiki"
 import path from "path"
 import { fileURLToPath } from "url"
-import { rules } from "../../lib/utils/rules.js"
+import { rules } from "../../lib/all-rules.js"
 import type { RuleModule } from "../../lib/types.js"
 
 // Pre-build cjs packages that cannot be bundled well.

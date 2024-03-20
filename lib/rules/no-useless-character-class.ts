@@ -7,7 +7,7 @@ import type {
     ExpressionCharacterClass,
     UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/unicode-set"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
 
 const ESCAPES_OUTSIDE_CHARACTER_CLASS = new Set("$()*+./?[{|")
 const ESCAPES_OUTSIDE_CHARACTER_CLASS_WITH_U = new Set([

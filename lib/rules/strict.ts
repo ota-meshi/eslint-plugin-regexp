@@ -6,12 +6,8 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
-import {
-    isOctalEscape,
-    createRule,
-    defineRegexpVisitor,
-    isEscapeSequence,
-} from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
+import { isEscapeSequence, isOctalEscape } from "../utils/regex-syntax"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 
 const validator = new RegExpValidator({ strict: true, ecmaVersion: 2020 })

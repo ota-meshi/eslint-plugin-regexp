@@ -7,8 +7,8 @@ import {
     isDigit,
     isLetter,
     isSymbol,
-    quantToString,
 } from "../utils"
+import { quantToString } from "../utils/regexp-ast"
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
 
 type CharTarget = CharacterSet | Character

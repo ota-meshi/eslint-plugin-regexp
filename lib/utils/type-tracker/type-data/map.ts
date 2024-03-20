@@ -7,13 +7,7 @@ import type {
 } from "."
 import { STRING } from "./string"
 import { TypeArray } from "./array"
-import {
-    cache,
-    createObject,
-    getTypeName,
-    isEquals,
-    isTypeClass,
-} from "./common"
+import { createObject, getTypeName, isEquals, isTypeClass } from "./common"
 import {
     RETURN_VOID,
     RETURN_BOOLEAN,
@@ -23,12 +17,13 @@ import {
 import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 type MapKeys = keyof Map<unknown, unknown>
 
 const getPrototypes: () => {
     [key in MapKeys]: TypeInfo | null
-} = cache(() => {
+} = lazy(() => {
     const RETURN_MAP_VALUE = new TypeFunction(
         /**
          * Function Type that Return Map value

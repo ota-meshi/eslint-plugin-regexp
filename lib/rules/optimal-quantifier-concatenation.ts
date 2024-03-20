@@ -7,13 +7,12 @@ import type {
     CharacterSet,
     Element,
     Group,
-    Node,
     QuantifiableElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
 import type { AST } from "eslint"
-import type { RegExpContext, Quant } from "../utils"
-import { createRule, defineRegexpVisitor, quantToString } from "../utils"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import type { Ancestor, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     Chars,
@@ -21,19 +20,17 @@ import {
     getConsumedChars,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import { getParser } from "../utils/regexp-ast"
+import { getParser } from "../utils/refa"
 import type { CharSet } from "refa"
 import { joinEnglishList, mention } from "../utils/mention"
-import { canSimplifyQuantifier } from "../utils/regexp-ast/simplify-quantifier"
+import type { Quant } from "../utils/regexp-ast"
+import {
+    canSimplifyQuantifier,
+    hasCapturingGroup,
+    quantToString,
+} from "../utils/regexp-ast"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { assertNever } from "../utils/util"
-
-/**
- * Returns whether the given node is or contains a capturing group.
- */
-function hasCapturingGroup(node: Node): boolean {
-    return hasSomeDescendant(node, (d) => d.type === "CapturingGroup")
-}
 
 interface SingleConsumedChar {
     readonly char: CharSet

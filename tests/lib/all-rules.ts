@@ -2,14 +2,14 @@ import assert from "assert"
 import path from "path"
 import fs from "fs"
 
-import type { RuleModule } from "../../../lib/types"
-import { rules as allRules } from "../../../lib/utils/rules"
+import type { RuleModule } from "../../lib/types"
+import { rules as allRules } from "../../lib/all-rules"
 
 /**
  * @returns {Array} Get the list of rules placed in the directory.
  */
 function getDirRules() {
-    const rulesRoot = path.resolve(__dirname, "../../../lib/rules")
+    const rulesRoot = path.resolve(__dirname, "../../lib/rules")
     const result = fs.readdirSync(rulesRoot)
     const rules: { [key: string]: RuleModule } = {}
     for (const name of result) {

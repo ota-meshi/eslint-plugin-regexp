@@ -6,7 +6,7 @@ import type {
     Quantifier,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpContext } from "../utils"
-import { quantToString, createRule, defineRegexpVisitor } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import type {
     FirstLookChar,
     MatchingDirection,
@@ -21,6 +21,7 @@ import {
     isZeroLength,
     FirstConsumedChars,
 } from "regexp-ast-analysis"
+import { quantToString } from "../utils/regexp-ast"
 import { mention } from "../utils/mention"
 
 /**

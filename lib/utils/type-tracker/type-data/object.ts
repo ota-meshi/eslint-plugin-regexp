@@ -5,7 +5,7 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { cache, createObject, isEquals, isTypeClass } from "./common"
+import { createObject, isEquals, isTypeClass } from "./common"
 import {
     RETURN_STRING,
     RETURN_BOOLEAN,
@@ -16,6 +16,7 @@ import {
     UNKNOWN_FUNCTION,
     TypeGlobalFunction,
 } from "./function"
+import { lazy } from "../../util"
 
 type ObjectKeys =
     | "constructor"
@@ -28,7 +29,7 @@ type ObjectKeys =
 
 export const getObjectPrototypes: () => {
     [key in ObjectKeys]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in ObjectKeys]: TypeInfo | null
     }>({

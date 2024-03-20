@@ -23,7 +23,7 @@ import {
 } from "regexp-ast-analysis"
 import type { Position, SourceLocation } from "estree"
 import { assertNever } from "../utils/util"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/unicode-set"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
 
 /**
  * Find the first index of an element that satisfies the given condition.

@@ -1,5 +1,5 @@
 import type { RuleModule } from "./types"
-import { rules as ruleList } from "./utils/rules"
+import { rules as ruleList } from "./all-rules"
 import * as recommended from "./configs/recommended"
 import * as all from "./configs/all"
 import * as flatRecommended from "./configs/flat/recommended"

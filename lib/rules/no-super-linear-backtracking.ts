@@ -5,7 +5,7 @@ import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { analyse } from "scslre"
 import type { Position, SourceLocation } from "estree"
 import { mention } from "../utils/mention"
-import { getJSRegexppAst } from "../utils/regexp-ast"
+import { getJSRegexppAst } from "../utils/refa"
 
 /**
  * Returns the combined source location of the two given locations.

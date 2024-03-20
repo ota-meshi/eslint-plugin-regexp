@@ -9,10 +9,7 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import {
-    getIgnoreCaseFlags,
-    isCaseVariant,
-} from "../utils/regexp-ast/case-variation"
+import { getIgnoreCaseFlags, isCaseVariant } from "../utils/regexp-ast"
 import { mention } from "../utils/mention"
 import type {
     PatternSource,

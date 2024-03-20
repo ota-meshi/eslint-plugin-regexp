@@ -8,7 +8,7 @@ import {
     isClassOrInterface,
     isUnionOrIntersection,
     isNull,
-} from "../utils/ts-utils"
+} from "../utils/ts-util"
 import type * as TS from "typescript"
 import type { Expression, Super } from "estree"
 

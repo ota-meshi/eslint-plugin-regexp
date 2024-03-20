@@ -5,9 +5,10 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { cache, createObject } from "./common"
+import { createObject } from "./common"
 import { RETURN_BOOLEAN, TypeGlobalFunction } from "./function"
 import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util"
 
 export class TypeBoolean implements ITypeClass {
     public type = "Boolean" as const
@@ -55,7 +56,7 @@ export function buildBooleanConstructor(): TypeGlobalFunction {
 
 const getPrototypes: () => {
     [key in keyof boolean]: TypeInfo | null
-} = cache(() =>
+} = lazy(() =>
     createObject<{
         [key in keyof boolean]: TypeInfo | null
     }>({

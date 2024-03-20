@@ -22,7 +22,7 @@ import {
     Transformers,
     CombinedTransformer,
 } from "refa"
-import { getJSRegexppAst } from "../utils/regexp-ast"
+import { getJSRegexppAst } from "../utils/refa"
 
 interface Report {
     quant: Quantifier

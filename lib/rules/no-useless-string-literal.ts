@@ -5,7 +5,7 @@ import type {
     ClassStringDisjunction,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/unicode-set"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
 
 export default createRule("no-useless-string-literal", {
     meta: {

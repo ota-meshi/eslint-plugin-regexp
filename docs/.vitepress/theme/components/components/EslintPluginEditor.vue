@@ -18,7 +18,7 @@
 <script>
 import EslintEditor from "@ota-meshi/site-kit-eslint-editor-vue"
 import { Linter } from "eslint"
-import { rules } from "../../../../../lib/utils/rules"
+import { rules } from "../../../../../lib/all-rules"
 
 export default {
     name: "EslintPluginEditor",
