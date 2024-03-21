@@ -1,4 +1,3 @@
-import type { RuleModule } from "./types"
 import confusingQuantifier from "./rules/confusing-quantifier"
 import controlCharacterEscape from "./rules/control-character-escape"
 import graphemeStringLiteral from "./rules/grapheme-string-literal"
@@ -80,6 +79,7 @@ import sortFlags from "./rules/sort-flags"
 import strict from "./rules/strict"
 import unicodeEscape from "./rules/unicode-escape"
 import useIgnoreCase from "./rules/use-ignore-case"
+import type { RuleModule } from "./types"
 
 export const rules: RuleModule[] = [
     confusingQuantifier,

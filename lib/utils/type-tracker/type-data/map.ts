@@ -1,11 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
-import { STRING } from "./string"
+import { lazy } from "../../util"
 import { TypeArray } from "./array"
 import { createObject, getTypeName, isEquals, isTypeClass } from "./common"
 import {
@@ -17,7 +10,14 @@ import {
 import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
+import { STRING } from "./string"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 type MapKeys = keyof Map<unknown, unknown>
 

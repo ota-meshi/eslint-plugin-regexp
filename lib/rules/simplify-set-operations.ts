@@ -1,6 +1,4 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import { RegExpParser } from "@eslint-community/regexpp"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -11,9 +9,11 @@ import type {
     EscapeCharacterSet,
     ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyFlags, ToUnicodeSetElement } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import { RegExpParser } from "@eslint-community/regexpp"
+import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils"
 
 type NegatableCharacterClassElement =
     | CharacterClass

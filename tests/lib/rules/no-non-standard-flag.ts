@@ -1,6 +1,6 @@
+import * as tsParser from "@typescript-eslint/parser"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/no-non-standard-flag"
-import * as tsParser from "@typescript-eslint/parser"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

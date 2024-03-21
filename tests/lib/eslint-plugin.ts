@@ -1,5 +1,5 @@
-import path from "path"
 import assert from "assert"
+import path from "path"
 import * as eslintModule from "eslint"
 import * as plugin from "../../lib/index"
 

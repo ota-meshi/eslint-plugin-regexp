@@ -12,11 +12,11 @@ import type {
     Property,
     SpreadElement,
 } from "estree"
-import { getParent, getStringIfConstant } from "./utils"
 import {
     extractExpressionReferences,
     extractExpressionReferencesForVariable,
 } from "./extract-expression-references"
+import { getParent, getStringIfConstant } from "./utils"
 
 export type PropertyReference =
     | {

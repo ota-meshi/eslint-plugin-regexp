@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import { createObject } from "./common"
 import {
     RETURN_NUMBER,
@@ -13,7 +7,13 @@ import {
     TypeGlobalFunction,
 } from "./function"
 import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 export class TypeNumber implements ITypeClass {
     public type = "Number" as const

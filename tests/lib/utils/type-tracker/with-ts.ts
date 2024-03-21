@@ -1,6 +1,6 @@
+import * as tsParser from "@typescript-eslint/parser"
 import type { TestCase } from "./test-utils"
 import { testTypeTrackerWithLinter } from "./test-utils"
-import * as tsParser from "@typescript-eslint/parser"
 
 const TESTCASES: TestCase[] = [
     {

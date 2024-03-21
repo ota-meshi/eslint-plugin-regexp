@@ -1,5 +1,5 @@
-import type { Expression, Literal, RegExpLiteral } from "estree"
 import type { Rule, AST, SourceCode } from "eslint"
+import type { Expression, Literal, RegExpLiteral } from "estree"
 import {
     dereferenceOwnedVariable,
     astRangeToLocation,

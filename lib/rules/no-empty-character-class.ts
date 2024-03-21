@@ -1,5 +1,5 @@
-import { matchesNoCharacters } from "regexp-ast-analysis"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { matchesNoCharacters } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 

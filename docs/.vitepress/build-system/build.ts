@@ -2,10 +2,10 @@
  * Pre-build cjs packages that cannot be bundled well.
  */
 
-import esbuild from "esbuild"
-import path from "path"
 import fs from "fs"
+import path from "path"
 import { fileURLToPath } from "url"
+import esbuild from "esbuild"
 
 const dirname = path.dirname(
     fileURLToPath(

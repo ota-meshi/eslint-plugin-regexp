@@ -1,5 +1,4 @@
 import type { Rule, SourceCode, AST, Scope } from "eslint"
-import * as eslintUtils from "@eslint-community/eslint-utils"
 import type {
     ArrowFunctionExpression,
     CallExpression,
@@ -12,8 +11,9 @@ import type {
     Node,
     RegExpLiteral,
 } from "estree"
-import { parseStringLiteral, parseStringTokens } from "../string-literal-parser"
 import { baseParseReplacements } from "../replacements-utils"
+import { parseStringLiteral, parseStringTokens } from "../string-literal-parser"
+import * as eslintUtils from "@eslint-community/eslint-utils"
 
 /**
  * Get a parent node

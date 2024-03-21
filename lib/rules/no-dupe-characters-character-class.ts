@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -12,18 +11,19 @@ import type {
     ClassStringDisjunction,
     ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { CharRange, CharSet } from "refa"
+import { JS } from "refa"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
 import {
     createRule,
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
 } from "../utils"
-import { toCharSetSource, assertValidFlags } from "../utils/refa"
-import type { CharRange, CharSet } from "refa"
-import { JS } from "refa"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
 import { mentionChar } from "../utils/mention"
+import { toCharSetSource, assertValidFlags } from "../utils/refa"
 import { assertNever } from "../utils/util"
 
 interface Grouping {

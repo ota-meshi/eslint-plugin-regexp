@@ -1,14 +1,14 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { Rule } from "eslint"
 import type {
     CharacterClass,
     ExpressionCharacterClass,
     Node,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Rule } from "eslint"
+import { matchesAllCharacters, hasStrings } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
-import { matchesAllCharacters, hasStrings } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 const OPTION_SS1 = "[\\s\\S]" as const

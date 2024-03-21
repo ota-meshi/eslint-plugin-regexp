@@ -1,7 +1,7 @@
 import type { CallExpression } from "estree"
 import { createRule } from "../utils"
-import { createTypeTracker } from "../utils/type-tracker"
 import { isKnownMethodCall, getStaticValue } from "../utils/ast-utils"
+import { createTypeTracker } from "../utils/type-tracker"
 
 // Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md
 export default createRule("prefer-regexp-exec", {

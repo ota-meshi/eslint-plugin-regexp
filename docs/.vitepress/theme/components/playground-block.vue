@@ -49,8 +49,8 @@
 import PgEditor from "./components/PgEditor.vue"
 import RulesSettings from "./components/RulesSettings.vue"
 import SnsBar from "./components/SnsBar.vue"
-import { deserializeState, serializeState } from "./state"
 import { DEFAULT_RULES_CONFIG, getRule } from "./rules"
+import { deserializeState, serializeState } from "./state"
 
 const DEFAULT_CODE = String.raw`
 /eslint-plugin[-regexp]/u

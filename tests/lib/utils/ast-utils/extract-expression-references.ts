@@ -1,15 +1,15 @@
-import type { Rule } from "eslint"
-import { Linter } from "eslint"
 import assert from "assert"
+import { Linter } from "eslint"
+import type { Rule } from "eslint"
 import type * as ESTree from "estree"
+import type { ExpressionReference } from "../../../../lib/utils/ast-utils"
+import { extractExpressionReferences } from "../../../../lib/utils/ast-utils"
+import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
 import {
     CALL,
     CONSTRUCT,
     ReferenceTracker,
 } from "@eslint-community/eslint-utils"
-import type { ExpressionReference } from "../../../../lib/utils/ast-utils"
-import { extractExpressionReferences } from "../../../../lib/utils/ast-utils"
-import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
 
 type ExpressionReferenceResult = { type: string; [key: string]: any }
 

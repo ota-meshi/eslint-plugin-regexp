@@ -1,5 +1,4 @@
-import type { Word } from "refa"
-import type { JS } from "refa"
+import type { Word, JS } from "refa"
 
 function findMin<T>(
     array: readonly T[],

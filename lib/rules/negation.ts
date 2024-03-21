@@ -1,4 +1,3 @@
-import { toUnicodeSet } from "regexp-ast-analysis"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -7,6 +6,7 @@ import type {
     ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { toUnicodeSet } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { assertNever } from "../utils/util"

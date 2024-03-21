@@ -1,7 +1,7 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Alternative, Quantifier } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
+import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 

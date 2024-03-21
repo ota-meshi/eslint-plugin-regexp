@@ -1,6 +1,4 @@
-import type * as ESTree from "estree"
-import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import type {
     Alternative,
     CapturingGroup,
@@ -11,41 +9,43 @@ import type {
     Quantifier,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
-import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
-import {
-    CALL,
-    CONSTRUCT,
-    ReferenceTracker,
-} from "@eslint-community/eslint-utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule, AST } from "eslint"
+import type * as ESTree from "estree"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import { toCache } from "regexp-ast-analysis"
+import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
 import {
     getFlagLocation,
     getFlagsLocation,
     getFlagsRange,
     getStringIfConstant,
 } from "./ast-utils"
-import type { Quant } from "./regexp-ast"
-import {
-    extractCaptures,
-    getQuantifierOffsets,
-    quantToString,
-} from "./regexp-ast"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { toCache } from "regexp-ast-analysis"
-import type { UsageOfPattern } from "./get-usage-of-pattern"
-import { getUsageOfPattern } from "./get-usage-of-pattern"
+import type { PatternRange } from "./ast-utils/pattern-source"
+import { PatternSource } from "./ast-utils/pattern-source"
 import {
     dereferenceOwnedVariable,
     isRegexpLiteral,
     isStringLiteral,
 } from "./ast-utils/utils"
-import type { PatternRange } from "./ast-utils/pattern-source"
-import { PatternSource } from "./ast-utils/pattern-source"
 import type { CapturingGroupReference } from "./extract-capturing-group-references"
 import { extractCapturingGroupReferences } from "./extract-capturing-group-references"
+import { getUsageOfPattern } from "./get-usage-of-pattern"
+import type { UsageOfPattern } from "./get-usage-of-pattern"
+import { parseFlags } from "./regex-syntax"
+import {
+    extractCaptures,
+    getQuantifierOffsets,
+    quantToString,
+} from "./regexp-ast"
+import type { Quant } from "./regexp-ast"
 import { createTypeTracker } from "./type-tracker"
 import { lazy } from "./util"
-import { parseFlags } from "./regex-syntax"
+import {
+    CALL,
+    CONSTRUCT,
+    ReferenceTracker,
+} from "@eslint-community/eslint-utils"
 export * from "./unicode"
 
 type RegExpContextBase = {

@@ -1,9 +1,9 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Position, SourceLocation } from "estree"
+import { analyse } from "scslre"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { analyse } from "scslre"
-import type { Position, SourceLocation } from "estree"
 import { mention } from "../utils/mention"
 import { getJSRegexppAst } from "../utils/refa"
 

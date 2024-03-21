@@ -1,10 +1,10 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
 import {
     isEmptyBackreference,
     isStrictBackreference,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 export default createRule("no-potentially-useless-backreference", {
     meta: {

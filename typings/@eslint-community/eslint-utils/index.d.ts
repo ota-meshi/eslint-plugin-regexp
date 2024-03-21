@@ -1,6 +1,6 @@
-import type * as ESTree from "estree"
 import type { SourceCode } from "eslint"
 import type eslint from "eslint"
+import type * as ESTree from "estree"
 
 export function findVariable(
     initialScope: eslint.Scope.Scope,

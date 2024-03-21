@@ -1,4 +1,3 @@
-import type { CharRange } from "refa"
 import { visitRegExpAST, RegExpParser } from "@eslint-community/regexpp"
 import type {
     Character,
@@ -9,8 +8,7 @@ import type {
     Quantifier,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { CharRange } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     hasSomeDescendant,
@@ -18,6 +16,8 @@ import {
     getFirstCharAfter,
     toUnicodeSet,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 const UTF16_MAX = 0xffff
 

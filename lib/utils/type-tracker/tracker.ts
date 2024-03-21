@@ -1,7 +1,29 @@
 import type { Rule } from "eslint"
-import type * as TS from "typescript"
 import type * as ES from "estree"
-import { findVariable, getPropertyName, isParenthesized } from "./utils"
+import type {
+    RootResult as JSDocTypeRootResult,
+    KeyValueResult,
+} from "jsdoc-type-pratt-parser"
+import type * as TS from "typescript"
+import { getParent } from "../ast-utils"
+import {
+    getTypeScript,
+    getTypeScriptTools,
+    isAny,
+    isArrayLikeObject,
+    isBigIntLike,
+    isBooleanLike,
+    isClassOrInterface,
+    isNumberLike,
+    isObject,
+    isReferenceObject,
+    isStringLine,
+    isTypeParameter,
+    isUnionOrIntersection,
+    isUnknown,
+} from "../ts-util"
+import { assertNever } from "../util"
+import { getJSDoc, parseTypeText } from "./jsdoc"
 import type { TypeInfo } from "./type-data"
 import {
     TypeFunction,
@@ -26,30 +48,8 @@ import {
     UNKNOWN_SET,
     hasType,
 } from "./type-data"
-import { getJSDoc, parseTypeText } from "./jsdoc"
-import type {
-    RootResult as JSDocTypeRootResult,
-    KeyValueResult,
-} from "jsdoc-type-pratt-parser"
 import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
-import { getParent } from "../ast-utils"
-import {
-    getTypeScript,
-    getTypeScriptTools,
-    isAny,
-    isArrayLikeObject,
-    isBigIntLike,
-    isBooleanLike,
-    isClassOrInterface,
-    isNumberLike,
-    isObject,
-    isReferenceObject,
-    isStringLine,
-    isTypeParameter,
-    isUnionOrIntersection,
-    isUnknown,
-} from "../ts-util"
-import { assertNever } from "../util"
+import { findVariable, getPropertyName, isParenthesized } from "./utils"
 
 const ts = getTypeScript()!
 

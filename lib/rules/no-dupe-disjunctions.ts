@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -9,15 +8,8 @@ import type {
     Pattern,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import {
-    createRule,
-    defineRegexpVisitor,
-    fixRemoveCharacterClassElement,
-    fixRemoveAlternative,
-    fixRemoveStringAlternative,
-} from "../utils"
-import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Rule } from "eslint"
 import type { Expression, FiniteAutomaton, NoParent, ReadonlyNFA } from "refa"
 import {
     Transformers,
@@ -36,14 +28,22 @@ import {
     getEffectiveMaximumRepetition,
     canReorder,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    fixRemoveCharacterClassElement,
+    fixRemoveAlternative,
+    fixRemoveStringAlternative,
+} from "../utils"
+import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { mention, mentionChar } from "../utils/mention"
 import type { NestedAlternative } from "../utils/partial-parser"
 import { PartialParser } from "../utils/partial-parser"
-import type { Rule } from "eslint"
-import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
-import { assertNever } from "../utils/util"
 import { getParser, assertValidFlags } from "../utils/refa"
+import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
+import { assertNever } from "../utils/util"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 

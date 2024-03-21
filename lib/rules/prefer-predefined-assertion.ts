@@ -1,12 +1,10 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterSet,
     ExpressionCharacterClass,
     LookaroundAssertion,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import {
     Chars,
     getFirstCharAfter,
@@ -14,6 +12,8 @@ import {
     invertMatchingDirection,
     toUnicodeSet,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 /**
  * If the lookaround only consists of a single character, character set, or

@@ -1,13 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import {
-    createRule,
-    defineRegexpVisitor,
-    CP_DIGIT_ZERO,
-    CP_DIGIT_NINE,
-} from "../utils"
-import { Chars, toUnicodeSet } from "regexp-ast-analysis"
-import { mention } from "../utils/mention"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -15,6 +5,16 @@ import type {
     EscapeCharacterSet,
     ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import {
+    createRule,
+    defineRegexpVisitor,
+    CP_DIGIT_ZERO,
+    CP_DIGIT_NINE,
+} from "../utils"
+import { mention } from "../utils/mention"
 
 /**
  * Returns whether the given character class element is equivalent to `\d`.

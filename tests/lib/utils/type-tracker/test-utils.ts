@@ -1,13 +1,14 @@
-import { Linter } from "eslint"
-import type { AST } from "eslint"
-import type * as ES from "estree"
-import type { Expression } from "estree"
-import path from "path"
-import { createTypeTracker } from "../../../../lib/utils/type-tracker"
 import assert from "assert"
-import { isCommentToken } from "@eslint-community/eslint-utils"
+import path from "path"
 import type * as tsParser from "@typescript-eslint/parser"
-import type { Rule } from "eslint"
+import { Linter } from "eslint"
+import type { AST, Rule } from "eslint"
+// eslint-disable-next-line import/no-duplicates -- we need both
+import type * as ES from "estree"
+// eslint-disable-next-line import/no-duplicates -- we need both
+import type { Expression } from "estree"
+import { createTypeTracker } from "../../../../lib/utils/type-tracker"
+import { isCommentToken } from "@eslint-community/eslint-utils"
 
 export type TestCase = {
     code: string

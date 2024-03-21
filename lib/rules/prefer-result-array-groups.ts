@@ -1,5 +1,6 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import { isOpeningBracketToken } from "@eslint-community/eslint-utils"
+import type { Expression, Super } from "estree"
+import type * as TS from "typescript"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import {
@@ -9,8 +10,7 @@ import {
     isUnionOrIntersection,
     isNull,
 } from "../utils/ts-util"
-import type * as TS from "typescript"
-import type { Expression, Super } from "estree"
+import { isOpeningBracketToken } from "@eslint-community/eslint-utils"
 
 export default createRule("prefer-result-array-groups", {
     meta: {

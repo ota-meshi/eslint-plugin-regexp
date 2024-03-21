@@ -1,5 +1,4 @@
-import type { RegExpContext, RegExpContextForSource } from "../utils"
-import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
+import type { Rule } from "eslint"
 import type {
     CallExpression,
     Expression,
@@ -8,16 +7,18 @@ import type {
     RegExpLiteral,
     Statement,
 } from "estree"
+import type { RuleListener } from "../types"
+import type { RegExpContext, RegExpContextForSource } from "../utils"
+import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type { KnownMethodCall } from "../utils/ast-utils"
 import {
     isKnownMethodCall,
     extractExpressionReferences,
+    getFlagsRange,
+    getFlagsLocation,
 } from "../utils/ast-utils"
-import { createTypeTracker } from "../utils/type-tracker"
-import type { RuleListener } from "../types"
-import type { Rule } from "eslint"
 import { isCaseVariant } from "../utils/regexp-ast"
-import { getFlagsRange, getFlagsLocation } from "../utils/ast-utils"
+import { createTypeTracker } from "../utils/type-tracker"
 
 type CodePathStack = {
     codePathId: string

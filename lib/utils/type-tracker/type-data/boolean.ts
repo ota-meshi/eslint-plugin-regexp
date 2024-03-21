@@ -1,3 +1,7 @@
+import { lazy } from "../../util"
+import { createObject } from "./common"
+import { RETURN_BOOLEAN, TypeGlobalFunction } from "./function"
+import { getObjectPrototypes } from "./object"
 import type {
     ITypeClass,
     NamedType,
@@ -5,10 +9,6 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { createObject } from "./common"
-import { RETURN_BOOLEAN, TypeGlobalFunction } from "./function"
-import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
 
 export class TypeBoolean implements ITypeClass {
     public type = "Boolean" as const

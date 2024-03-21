@@ -1,16 +1,16 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Character,
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
 import {
     getAllowedCharRanges,
     getAllowedCharValueSchema,
     inRange,
 } from "../utils/char-ranges"
-import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
 import { mention } from "../utils/mention"
 
 export default createRule("prefer-range", {

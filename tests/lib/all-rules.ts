@@ -1,9 +1,9 @@
 import assert from "assert"
-import path from "path"
 import fs from "fs"
+import path from "path"
 
-import type { RuleModule } from "../../lib/types"
 import { rules as allRules } from "../../lib/all-rules"
+import type { RuleModule } from "../../lib/types"
 
 /**
  * @returns {Array} Get the list of rules placed in the directory.

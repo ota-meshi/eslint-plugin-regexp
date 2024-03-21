@@ -1,5 +1,3 @@
-import { CharSet, JS } from "refa"
-import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -7,16 +5,18 @@ import type {
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Rule } from "eslint"
+import { CharSet, JS } from "refa"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { getIgnoreCaseFlags, isCaseVariant } from "../utils/regexp-ast"
-import { mention } from "../utils/mention"
 import type {
     PatternSource,
     PatternRange,
 } from "../utils/ast-utils/pattern-source"
-import type { Rule } from "eslint"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
+import { mention } from "../utils/mention"
+import { getIgnoreCaseFlags, isCaseVariant } from "../utils/regexp-ast"
 import { cachedFn } from "../utils/util"
 
 type FlatClassElement = CharacterClassElement | StringAlternative

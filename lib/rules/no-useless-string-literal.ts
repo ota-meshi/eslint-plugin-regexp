@@ -1,10 +1,10 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
 import type {
     ClassStringDisjunction,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
 
 export default createRule("no-useless-string-literal", {

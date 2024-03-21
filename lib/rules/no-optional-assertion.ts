@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Assertion,
@@ -6,10 +5,11 @@ import type {
     Group,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { isZeroLength } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 
 type ZeroQuantifier = Quantifier & { min: 0 }
 

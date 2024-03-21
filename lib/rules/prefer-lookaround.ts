@@ -1,13 +1,22 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CapturingGroup,
     Element,
     LookaroundAssertion,
     Pattern,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Rule } from "eslint"
+import type { Expression, Literal } from "estree"
+import type { CharSet } from "refa"
+import {
+    getLengthRange,
+    isZeroLength,
+    FirstConsumedChars,
+    getConsumedChars,
+} from "regexp-ast-analysis"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { createTypeTracker } from "../utils/type-tracker"
 import type { KnownMethodCall, ReferenceElement } from "../utils/ast-utils"
 import {
     getParent,
@@ -20,18 +29,9 @@ import type {
     PatternRange,
     PatternReplaceRange,
 } from "../utils/ast-utils/pattern-source"
-import type { Expression, Literal } from "estree"
-import type { Rule } from "eslint"
 import { mention } from "../utils/mention"
 import { getFirstConsumedCharPlusAfter } from "../utils/regexp-ast"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import {
-    getLengthRange,
-    isZeroLength,
-    FirstConsumedChars,
-    getConsumedChars,
-} from "regexp-ast-analysis"
-import type { CharSet } from "refa"
+import { createTypeTracker } from "../utils/type-tracker"
 
 type ReplaceReference = { ref: string | number; range?: [number, number] }
 type ReplaceReferences = {

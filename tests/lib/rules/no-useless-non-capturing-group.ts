@@ -1,5 +1,5 @@
-import rule from "../../../lib/rules/no-useless-non-capturing-group"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
+import rule from "../../../lib/rules/no-useless-non-capturing-group"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

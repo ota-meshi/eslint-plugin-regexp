@@ -1,8 +1,8 @@
+import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { toUnicodeSet } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
-import { toUnicodeSet } from "regexp-ast-analysis"
 import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/regex-syntax"
 
 /**

@@ -1,18 +1,18 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Node as RegExpNode,
     Backreference,
     Alternative,
     CapturingGroup,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getClosestAncestor,
     getMatchingDirection,
     isZeroLength,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
 
 /**
