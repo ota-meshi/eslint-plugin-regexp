@@ -1,14 +1,14 @@
-import { mention } from "../utils/mention"
 import { RegExpValidator } from "@eslint-community/regexpp"
 import type {
     CharacterClassElement,
     Element,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
+import { mention } from "../utils/mention"
 import { isEscapeSequence, isOctalEscape } from "../utils/regex-syntax"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
 
 const validator = new RegExpValidator({ strict: true, ecmaVersion: 2020 })
 

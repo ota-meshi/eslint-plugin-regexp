@@ -1,7 +1,7 @@
+import { parseRegExpLiteral, RegExpParser } from "@eslint-community/regexpp"
 import type { RegExpLiteral, Pattern } from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 import type { Expression } from "estree"
-import { parseRegExpLiteral, RegExpParser } from "@eslint-community/regexpp"
 import { getStaticValue } from "../ast-utils"
 
 const parser = new RegExpParser()

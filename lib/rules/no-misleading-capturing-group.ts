@@ -1,14 +1,13 @@
 /* eslint-disable eslint-comments/disable-enable-pair -- x */
 
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
     Element,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { CharSet } from "refa"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     isPotentiallyZeroLength,
@@ -20,12 +19,13 @@ import {
     followPaths,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import { canSimplifyQuantifier, hasCapturingGroup } from "../utils/regexp-ast"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { joinEnglishList, mention } from "../utils/mention"
 import { getParser, toCharSetSource } from "../utils/refa"
+import { canSimplifyQuantifier, hasCapturingGroup } from "../utils/regexp-ast"
 import { assertNever, cachedFn, reversed } from "../utils/util"
-import { CharSet } from "refa"
 
 /**
  * Returns all quantifiers that are always at the start of the given element.

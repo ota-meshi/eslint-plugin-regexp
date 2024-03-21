@@ -1,3 +1,6 @@
+import { lazy } from "../../util"
+import { createObject, getTypeName, isEquals } from "./common"
+import { getObjectPrototypes } from "./object"
 import type {
     ITypeClass,
     NamedType,
@@ -5,9 +8,6 @@ import type {
     TypeClass,
     TypeInfo,
 } from "."
-import { createObject, getTypeName, isEquals } from "./common"
-import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
 
 type IterableKeys = keyof Iterable<unknown>
 

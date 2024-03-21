@@ -1,3 +1,12 @@
+import { visitRegExpAST } from "@eslint-community/regexpp"
+import type {
+    Alternative,
+    CapturingGroup,
+    Element,
+    Node,
+    Pattern,
+    RegExpLiteral,
+} from "@eslint-community/regexpp/ast"
 import type {
     FirstConsumedChar,
     MatchingDirection,
@@ -9,15 +18,6 @@ import {
     getFirstConsumedCharAfter,
     hasSomeDescendant,
 } from "regexp-ast-analysis"
-import type {
-    Alternative,
-    CapturingGroup,
-    Element,
-    Node,
-    Pattern,
-    RegExpLiteral,
-} from "@eslint-community/regexpp/ast"
-import { visitRegExpAST } from "@eslint-community/regexpp"
 
 export type ShortCircuit = (aNode: Node, bNode: Node) => boolean | null
 

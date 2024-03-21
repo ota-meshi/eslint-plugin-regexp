@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Character,
@@ -10,18 +9,9 @@ import type {
     Pattern,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import {
-    CP_MINUS,
-    CP_PLUS,
-    CP_STAR,
-    CP_QUESTION,
-    CP_SLASH,
-    CP_SPACE,
-    CP_APOSTROPHE,
-    createRule,
-    defineRegexpVisitor,
-} from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { CharSet, Word, ReadonlyWord } from "refa"
+import { NFA, JS, transform } from "refa"
 import type {
     GetLongestPrefixOptions,
     ReadonlyFlags,
@@ -35,10 +25,20 @@ import {
     toUnicodeSet,
     hasStrings,
 } from "regexp-ast-analysis"
-import type { CharSet, Word, ReadonlyWord } from "refa"
-import { NFA, JS, transform } from "refa"
-import { getParser, assertValidFlags } from "../utils/refa"
+import {
+    CP_MINUS,
+    CP_PLUS,
+    CP_STAR,
+    CP_QUESTION,
+    CP_SLASH,
+    CP_SPACE,
+    CP_APOSTROPHE,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils"
+import type { RegExpContext } from "../utils"
 import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest"
+import { getParser, assertValidFlags } from "../utils/refa"
 
 interface AllowedChars {
     allowed: CharSet

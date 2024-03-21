@@ -1,10 +1,10 @@
 import type { Rule, SourceCode, AST } from "eslint"
 import type * as ES from "estree"
+import * as jsdocTypeParser from "jsdoc-type-pratt-parser"
+import type { RootResult } from "jsdoc-type-pratt-parser"
 import { isCommentToken } from "@eslint-community/eslint-utils"
 import * as commentParser from "comment-parser"
 import type { Spec } from "comment-parser"
-import * as jsdocTypeParser from "jsdoc-type-pratt-parser"
-import type { RootResult } from "jsdoc-type-pratt-parser"
 
 type ParsedComment = ReturnType<typeof commentParser.parse>[number]
 

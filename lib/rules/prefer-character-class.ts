@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -12,8 +11,8 @@ import type {
     Node,
     Pattern,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { Position, SourceLocation } from "estree"
 import type { CharSet } from "refa"
 import type { FirstConsumedChar, ReadonlyFlags } from "regexp-ast-analysis"
 import {
@@ -21,9 +20,10 @@ import {
     getMatchingDirection,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import type { Position, SourceLocation } from "estree"
-import { assertNever } from "../utils/util"
+import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils"
 import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
+import { assertNever } from "../utils/util"
 
 /**
  * Find the first index of an element that satisfies the given condition.

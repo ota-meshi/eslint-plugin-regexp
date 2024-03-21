@@ -1,8 +1,8 @@
+import type { CapturingGroup } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { getCapturingGroupNumber } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import type { CapturingGroup } from "@eslint-community/regexpp/ast"
-import { getCapturingGroupNumber } from "regexp-ast-analysis"
 
 /**
  * Returns an identifier for the given capturing group.

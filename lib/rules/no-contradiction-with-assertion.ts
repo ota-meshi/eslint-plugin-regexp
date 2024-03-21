@@ -1,12 +1,10 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Assertion,
     Element,
     Alternative,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     FirstLookChar,
     MatchingDirection,
@@ -21,8 +19,10 @@ import {
     isZeroLength,
     FirstConsumedChars,
 } from "regexp-ast-analysis"
-import { quantToString } from "../utils/regexp-ast"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
+import { quantToString } from "../utils/regexp-ast"
 
 /**
  * Returns whether the given assertions is guaranteed to always trivially

@@ -1,11 +1,3 @@
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import {
-    toCache,
-    hasSomeDescendant,
-    toCharSet,
-    isEmptyBackreference,
-    toUnicodeSet,
-} from "regexp-ast-analysis"
 import type {
     Alternative,
     CharacterClass,
@@ -16,6 +8,14 @@ import type {
     Pattern,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import {
+    toCache,
+    hasSomeDescendant,
+    toCharSet,
+    isEmptyBackreference,
+    toUnicodeSet,
+} from "regexp-ast-analysis"
 import { assertNever, cachedFn } from "../util"
 
 /**

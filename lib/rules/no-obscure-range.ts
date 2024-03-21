@@ -1,18 +1,18 @@
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import {
     getAllowedCharRanges,
     inRange,
     getAllowedCharValueSchema,
 } from "../utils/char-ranges"
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import { mentionChar } from "../utils/mention"
 import {
     isControlEscape,
     isEscapeSequence,
     isOctalEscape,
     isHexLikeEscape,
 } from "../utils/regex-syntax"
-import { mentionChar } from "../utils/mention"
 
 export default createRule("no-obscure-range", {
     meta: {

@@ -1,16 +1,16 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { mention, mentionChar } from "../utils/mention"
-import { isEscapeSequence } from "../utils/regex-syntax"
 import type {
     CharacterClass,
     CharacterClassElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { PatternRange } from "../utils/ast-utils/pattern-source"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
+import type { PatternRange } from "../utils/ast-utils/pattern-source"
+import { mention, mentionChar } from "../utils/mention"
+import { isEscapeSequence } from "../utils/regex-syntax"
 
 const segmenter = new Intl.Segmenter()
 

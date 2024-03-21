@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Character,
@@ -8,9 +7,10 @@ import type {
     LookaroundAssertion,
     Node,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { hasStrings } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { hasStrings } from "regexp-ast-analysis"
 
 type CharElement =
     | Character

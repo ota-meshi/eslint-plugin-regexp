@@ -1,10 +1,11 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
+import {
+    createObject,
+    getTypeName,
+    isEquals,
+    isTypeClass,
+    TypeCollection,
+} from "./common"
 import {
     RETURN_NUMBER,
     RETURN_STRING,
@@ -14,19 +15,18 @@ import {
     RETURN_BOOLEAN,
     TypeGlobalFunction,
 } from "./function"
-import {
-    createObject,
-    getTypeName,
-    isEquals,
-    isTypeClass,
-    TypeCollection,
-} from "./common"
+import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
 import { TypeUnionOrIntersection } from "./union-or-intersection"
-import { TypeIterable } from "./iterable"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 export class TypeArray implements ITypeClass {
     public type = "Array" as const

@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import { createObject } from "./common"
 import {
     RETURN_STRING,
@@ -15,7 +9,13 @@ import {
 } from "./function"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 export class TypeString implements ITypeClass {
     public type = "String" as const

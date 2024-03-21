@@ -1,4 +1,6 @@
 import type { Rule } from "eslint"
+import type { JSONSchema4 } from "json-schema"
+import type { CharRange } from "refa"
 import {
     CP_CAPITAL_A,
     CP_CAPITAL_Z,
@@ -7,8 +9,6 @@ import {
     CP_SMALL_A,
     CP_SMALL_Z,
 } from "./unicode"
-import type { JSONSchema4 } from "json-schema"
-import type { CharRange } from "refa"
 
 const ALL_RANGES: readonly CharRange[] = [{ min: 0, max: 0x10ffff }]
 const ALPHANUMERIC_RANGES: readonly CharRange[] = [

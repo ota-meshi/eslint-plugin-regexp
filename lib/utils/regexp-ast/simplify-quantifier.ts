@@ -1,3 +1,10 @@
+import type {
+    Alternative,
+    Element,
+    Node,
+    QuantifiableElement,
+    Quantifier,
+} from "@eslint-community/regexpp/ast"
 import type { JS } from "refa"
 import { DFA, NFA } from "refa"
 import type { MatchingDirection, ReadonlyFlags } from "regexp-ast-analysis"
@@ -9,13 +16,6 @@ import {
     isPotentiallyZeroLength,
     getConsumedChars,
 } from "regexp-ast-analysis"
-import type {
-    Alternative,
-    Element,
-    Node,
-    QuantifiableElement,
-    Quantifier,
-} from "@eslint-community/regexpp/ast"
 import { assertNever, cachedFn, reversed } from "../util"
 
 /** Returns whether the given node contains any assertions. */

@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import type { TypeArray } from "./array"
 import { STRING_ARRAY, UNKNOWN_ARRAY } from "./array"
 import type { TypeBigInt } from "./bigint"
@@ -20,7 +14,13 @@ import type { TypeRegExp } from "./regexp"
 import { REGEXP } from "./regexp"
 import type { TypeString } from "./string"
 import { STRING } from "./string"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 type FunctionArg = (
     thisType: (() => TypeInfo | null) | null,

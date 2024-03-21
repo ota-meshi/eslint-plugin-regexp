@@ -1,6 +1,6 @@
+import assert from "assert"
 import type { Rule } from "eslint"
 import { Linter } from "eslint"
-import assert from "assert"
 import type * as ESTree from "estree"
 import { isRegexpLiteral } from "../../../lib/utils/ast-utils/utils"
 import {

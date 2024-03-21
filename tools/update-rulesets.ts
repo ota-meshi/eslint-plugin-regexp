@@ -1,5 +1,5 @@
-import path from "path"
 import fs from "fs"
+import path from "path"
 // import eslint from "eslint"
 import { rules } from "./lib/load-rules"
 

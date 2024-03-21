@@ -1,8 +1,8 @@
-import * as eslintUtils from "@eslint-community/eslint-utils"
-import type { Variable } from "eslint-scope"
 import type { Rule } from "eslint"
+import type { Variable } from "eslint-scope"
 import type * as ES from "estree"
 import * as astUtils from "../ast-utils"
+import * as eslintUtils from "@eslint-community/eslint-utils"
 
 /**
  * Find the variable of a given name.

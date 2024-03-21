@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClassElement,
     ClassSetOperand,
@@ -6,9 +5,10 @@ import type {
     Node,
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { toUnicodeSet } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { toUnicodeSet } from "regexp-ast-analysis"
 
 type FlatElement = CharacterClassElement | StringAlternative
 

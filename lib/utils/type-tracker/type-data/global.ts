@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import { buildArrayConstructor } from "./array"
 import { buildBigIntConstructor } from "./bigint"
 import { buildBooleanConstructor } from "./boolean"
@@ -21,7 +15,13 @@ import { buildObjectConstructor } from "./object"
 import { buildRegExpConstructor } from "./regexp"
 import { buildSetConstructor } from "./set"
 import { buildStringConstructor } from "./string"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 export class TypeGlobal implements ITypeClass {
     public type = "Global" as const

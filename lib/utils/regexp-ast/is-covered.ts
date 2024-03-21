@@ -7,15 +7,15 @@ import type {
     Pattern,
     LookaroundAssertion,
 } from "@eslint-community/regexpp/ast"
-import { isEqualNodes } from "./is-equals"
+import type { CharSet } from "refa"
 import type {
     ReadonlyFlags,
     ToCharSetElement,
     ToUnicodeSetElement,
 } from "regexp-ast-analysis"
 import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
-import type { CharSet } from "refa"
 import { assertNever } from "../util"
+import { isEqualNodes } from "./is-equals"
 
 type Options = {
     flags: ReadonlyFlags

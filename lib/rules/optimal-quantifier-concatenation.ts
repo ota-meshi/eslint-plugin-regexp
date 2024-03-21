@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     CapturingGroup,
@@ -10,9 +9,9 @@ import type {
     QuantifiableElement,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { AST } from "eslint"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { CharSet } from "refa"
 import type { Ancestor, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     Chars,
@@ -20,16 +19,17 @@ import {
     getConsumedChars,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import { getParser } from "../utils/refa"
-import type { CharSet } from "refa"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
+import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { joinEnglishList, mention } from "../utils/mention"
+import { getParser } from "../utils/refa"
 import type { Quant } from "../utils/regexp-ast"
 import {
     canSimplifyQuantifier,
     hasCapturingGroup,
     quantToString,
 } from "../utils/regexp-ast"
-import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
 import { assertNever } from "../utils/util"
 
 interface SingleConsumedChar {

@@ -1,3 +1,4 @@
+import type { AST } from "@eslint-community/regexpp"
 import type {
     Concatenation,
     Element,
@@ -6,7 +7,6 @@ import type {
     CharRange,
 } from "refa"
 import { JS } from "refa"
-import type { AST } from "@eslint-community/regexpp"
 import { assertNever } from "./util"
 
 export type NestedAlternative =

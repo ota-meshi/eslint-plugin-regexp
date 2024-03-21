@@ -1,3 +1,4 @@
+import { isEquals, TypeCollection } from "./common"
 import type {
     ITypeClass,
     NamedType,
@@ -6,7 +7,6 @@ import type {
     TypeInfo,
 } from "."
 import { isTypeClass } from "."
-import { isEquals, TypeCollection } from "./common"
 
 export class TypeUnionOrIntersection implements ITypeClass {
     public type = "TypeUnionOrIntersection" as const

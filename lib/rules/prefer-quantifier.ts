@@ -1,5 +1,5 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Character, CharacterSet } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -8,8 +8,8 @@ import {
     isLetter,
     isSymbol,
 } from "../utils"
-import { quantToString } from "../utils/regexp-ast"
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
+import { quantToString } from "../utils/regexp-ast"
 
 type CharTarget = CharacterSet | Character
 

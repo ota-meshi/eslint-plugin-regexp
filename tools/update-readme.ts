@@ -1,5 +1,5 @@
-import path from "path"
 import fs from "fs"
+import path from "path"
 import { rules } from "./lib/load-rules"
 import { getRemovedTable } from "./meta/removed-rules"
 

@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import { createObject, isEquals, isTypeClass } from "./common"
 import {
     RETURN_STRING,
@@ -16,7 +10,13 @@ import {
     UNKNOWN_FUNCTION,
     TypeGlobalFunction,
 } from "./function"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 type ObjectKeys =
     | "constructor"

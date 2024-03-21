@@ -1,12 +1,12 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Node as RegExpNode,
     Assertion,
     LookaroundAssertion,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { hasSomeDescendant } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
-import { hasSomeDescendant } from "regexp-ast-analysis"
 
 function isLookaround(node: RegExpNode): node is LookaroundAssertion {
     return (

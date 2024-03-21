@@ -1,10 +1,10 @@
+import type { Node } from "@eslint-community/regexpp/ast"
 import type {
     ToCharSetElement,
     ReadonlyFlags,
     ToUnicodeSetElement,
 } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type { Node } from "@eslint-community/regexpp/ast"
 import type { ShortCircuit } from "./common"
 
 /**

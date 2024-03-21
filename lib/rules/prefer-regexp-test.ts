@@ -1,15 +1,15 @@
 import type * as ES from "estree"
-import {
-    hasSideEffect,
-    isOpeningParenToken,
-} from "@eslint-community/eslint-utils"
 import { createRule } from "../utils"
-import { createTypeTracker } from "../utils/type-tracker"
 import {
     getParent,
     isKnownMethodCall,
     getStaticValue,
 } from "../utils/ast-utils"
+import { createTypeTracker } from "../utils/type-tracker"
+import {
+    hasSideEffect,
+    isOpeningParenToken,
+} from "@eslint-community/eslint-utils"
 
 // Inspired by https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-regexp-test.md
 export default createRule("prefer-regexp-test", {

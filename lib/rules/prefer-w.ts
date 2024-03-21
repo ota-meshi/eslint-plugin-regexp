@@ -1,9 +1,10 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
+import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -16,7 +17,6 @@ import {
     CP_DIGIT_NINE,
     CP_LOW_LINE,
 } from "../utils"
-import { Chars, toUnicodeSet } from "regexp-ast-analysis"
 import { mention } from "../utils/mention"
 
 function isSmallLetterRange(node: CharacterClassElement) {

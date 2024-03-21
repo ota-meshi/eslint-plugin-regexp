@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Assertion,
@@ -9,8 +8,7 @@ import type {
     Pattern,
     WordBoundaryAssertion,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     MatchingDirection,
     ReadonlyFlags,
@@ -28,6 +26,8 @@ import {
     FirstConsumedChars,
     invertMatchingDirection,
 } from "regexp-ast-analysis"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
 import { assertNever } from "../utils/util"
 

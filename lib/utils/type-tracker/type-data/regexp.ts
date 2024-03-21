@@ -1,10 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
+import { lazy } from "../../util"
 import { BOOLEAN } from "./boolean"
 import { createObject } from "./common"
 import {
@@ -16,7 +10,13 @@ import {
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
 import { STRING } from "./string"
-import { lazy } from "../../util"
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 export class TypeRegExp implements ITypeClass {
     public type = "RegExp" as const

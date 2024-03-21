@@ -1,12 +1,4 @@
-import type {
-    ITypeClass,
-    NamedType,
-    OtherTypeName,
-    TypeClass,
-    TypeInfo,
-} from "."
-import { STRING } from "./string"
-import { isTypeClass } from "."
+import { lazy } from "../../util"
 import { TypeArray } from "./array"
 import { createObject, getTypeName, isEquals } from "./common"
 import {
@@ -18,7 +10,15 @@ import {
 import { TypeIterable } from "./iterable"
 import { NUMBER } from "./number"
 import { getObjectPrototypes } from "./object"
-import { lazy } from "../../util"
+import { STRING } from "./string"
+import { isTypeClass } from "."
+import type {
+    ITypeClass,
+    NamedType,
+    OtherTypeName,
+    TypeClass,
+    TypeInfo,
+} from "."
 
 type SetKeys = keyof Set<unknown>
 

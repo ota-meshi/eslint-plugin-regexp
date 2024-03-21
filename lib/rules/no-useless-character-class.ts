@@ -1,12 +1,12 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import type {
     CharacterClass,
     CharacterClassElement,
     ExpressionCharacterClass,
     UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { RegExpContext } from "../utils"
+import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
 
 const ESCAPES_OUTSIDE_CHARACTER_CLASS = new Set("$()*+./?[{|")

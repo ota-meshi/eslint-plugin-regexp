@@ -1,5 +1,5 @@
-import getReleasePlan from "@changesets/get-release-plan"
 import path from "path"
+import getReleasePlan from "@changesets/get-release-plan"
 
 /** Get new version string from changesets */
 export async function getNewVersion(): Promise<string> {

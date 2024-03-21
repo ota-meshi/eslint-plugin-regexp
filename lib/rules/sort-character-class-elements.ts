@@ -1,4 +1,3 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     CharacterClass,
     CharacterClassElement,
@@ -6,13 +5,14 @@ import type {
     UnicodePropertyCharacterSet,
     UnicodeSetsCharacterClassElement,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { mention } from "../utils/mention"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ReadonlyWord } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type { ReadonlyWord } from "refa"
+import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils"
 import { getLexicographicallySmallest } from "../utils/lexicographically-smallest"
+import { mention } from "../utils/mention"
 
 type CharacterClassElementKind =
     | "\\w"

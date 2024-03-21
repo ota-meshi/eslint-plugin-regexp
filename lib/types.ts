@@ -1,5 +1,5 @@
-import type { JSONSchema4 } from "json-schema"
 import type { Rule } from "eslint"
+import type { JSONSchema4 } from "json-schema"
 
 export type RuleListener = Rule.RuleListener
 

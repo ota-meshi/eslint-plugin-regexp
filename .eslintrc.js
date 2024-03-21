@@ -74,6 +74,8 @@ module.exports = {
             },
         ],
 
+        "import/order": ["warn", { alphabetize: { order: "asc" } }],
+
         // regexp next recommended
         "regexp/no-contradiction-with-assertion": "error",
         "regexp/no-empty-character-class": "error",

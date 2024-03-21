@@ -1,5 +1,5 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Character } from "@eslint-community/regexpp/ast"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { RegExpContext } from "../utils"
 import { defineRegexpVisitor, createRule } from "../utils"
 import {

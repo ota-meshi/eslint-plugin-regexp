@@ -1,19 +1,9 @@
-import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type {
     Alternative,
     Pattern,
     Quantifier,
 } from "@eslint-community/regexpp/ast"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { analyse } from "scslre"
-import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
-import {
-    isPotentiallyEmpty,
-    getMatchingDirection,
-    getFirstConsumedCharAfter,
-} from "regexp-ast-analysis"
+import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { NoParentNode, Expression } from "refa"
 import {
     visitAst,
@@ -22,6 +12,16 @@ import {
     Transformers,
     CombinedTransformer,
 } from "refa"
+import {
+    isPotentiallyEmpty,
+    getMatchingDirection,
+    getFirstConsumedCharAfter,
+} from "regexp-ast-analysis"
+import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
+import { analyse } from "scslre"
+import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern"
 import { getJSRegexppAst } from "../utils/refa"
 
 interface Report {
