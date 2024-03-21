@@ -14,6 +14,7 @@ module.exports = {
         "plugin:@ota-meshi/+yaml",
         // "plugin:@ota-meshi/+md",
         "plugin:@ota-meshi/+prettier",
+        "plugin:import/recommended",
         "plugin:regexp/recommended",
     ],
     rules: {
@@ -118,6 +119,12 @@ module.exports = {
                 "no-implicit-globals": "off",
                 "@typescript-eslint/naming-convention": "off",
             },
+            settings: {
+                "import/resolver": {
+                    typescript: true,
+                    node: true,
+                },
+            },
         },
         {
             files: ["lib/rules/**"],
@@ -148,6 +155,8 @@ module.exports = {
             rules: {
                 "vue/multi-word-component-names": "off",
                 "@typescript-eslint/no-explicit-any": "off",
+                "import/named": "off",
+                "import/no-unresolved": "off",
             },
         },
         {

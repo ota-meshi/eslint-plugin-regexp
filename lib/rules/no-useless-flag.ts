@@ -12,12 +12,13 @@ import type { KnownMethodCall } from "../utils/ast-utils"
 import {
     isKnownMethodCall,
     extractExpressionReferences,
+    getFlagsRange,
+    getFlagsLocation,
 } from "../utils/ast-utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { RuleListener } from "../types"
 import type { Rule } from "eslint"
 import { isCaseVariant } from "../utils/regexp-ast"
-import { getFlagsRange, getFlagsLocation } from "../utils/ast-utils"
 
 type CodePathStack = {
     codePathId: string
