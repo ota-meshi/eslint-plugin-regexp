@@ -1,1 +1,1 @@
-export { TypeTracker, createTypeTracker } from "./tracker"
+export { type TypeTracker, createTypeTracker } from "./tracker"
