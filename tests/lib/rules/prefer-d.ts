@@ -12,6 +12,7 @@ tester.run("prefer-d", rule as any, {
     valid: [
         String.raw`/\d/`,
         String.raw`/[1-9]/`,
+        "/[^0-9\\w]/",
         {
             code: String.raw`/[0-9a-z]/`,
             options: [{ insideCharacterClass: "ignore" }],
@@ -40,7 +41,10 @@ tester.run("prefer-d", rule as any, {
     invalid: [
         "/[0-9]/",
         "/[^0-9]/",
-        "/[^0-9\\w]/",
+        {
+            code: "/[^0-9\\w]/",
+            options: [{ insideCharacterClass: "d" }],
+        },
         `
             const s = "[0-9]"
             new RegExp(s)

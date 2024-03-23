@@ -26,6 +26,9 @@ Output:
 
 
 Test: prefer-d >> invalid
+Options:
+  - insideCharacterClass: d
+
 Code:
   1 | /[^0-9\w]/
     |    ^~~ [1]

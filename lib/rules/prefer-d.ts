@@ -60,7 +60,7 @@ export default createRule("prefer-d", {
     },
     create(context) {
         const insideCharacterClass: "ignore" | "range" | "d" =
-            context.options[0]?.insideCharacterClass ?? "d"
+            context.options[0]?.insideCharacterClass ?? "ignore"
 
         function createVisitor({
             node,

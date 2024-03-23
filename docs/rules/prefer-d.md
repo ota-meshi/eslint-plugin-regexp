@@ -55,7 +55,7 @@ This option control how character class element equivalent to `\d` will be treat
 *Note:* This option does not affect character classes equivalent to `\d`. E.g. `[\d]`, `[0-9]`, and `[0123456789]` are unaffected.
 It also does not affect expression non-nested operands equivalent to `\d`. E.g. `[\d&&x]`, and `[\d--x]` are unaffected.
 
-- `insideCharacterClass: "d"` (*default*)
+- `insideCharacterClass: "d"`
 
   Character class element equivalent to `\d` will be reported and replaced with `\d`.
 
@@ -98,7 +98,7 @@ It also does not affect expression non-nested operands equivalent to `\d`. E.g. 
 
   </eslint-code-block>
 
-- `insideCharacterClass: "ignore"`
+- `insideCharacterClass: "ignore"` (*default*)
 
   Character class element will not be reported.
 
