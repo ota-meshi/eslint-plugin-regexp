@@ -1,19 +1,13 @@
-import type { DefaultTheme } from "vitepress"
-import { defineConfig } from "vitepress"
-import { BUNDLED_LANGUAGES } from "shiki"
 import path from "path"
 import { fileURLToPath } from "url"
+import eslint4b from "vite-plugin-eslint4b"
+import type { DefaultTheme } from "vitepress"
+import { defineConfig } from "vitepress"
+// eslint-disable-next-line import/no-unresolved -- OK
 import { rules } from "../../lib/all-rules.js"
 import type { RuleModule } from "../../lib/types.js"
 
-// Pre-build cjs packages that cannot be bundled well.
-import "./build-system/build"
-
 const dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Include `json5` as alias for jsonc
-const jsonc = BUNDLED_LANGUAGES.find((lang) => lang.id === "jsonc")
-if (jsonc) jsonc.aliases = [...(jsonc?.aliases ?? []), "json5"]
 
 function ruleToSidebarItem({
     meta: {
@@ -49,14 +43,11 @@ export default defineConfig({
         "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
 
     vite: {
-        resolve: {
-            alias: {
-                eslint: path.join(dirname, "./build-system/shim/eslint.mjs"),
-                path: path.join(dirname, "./build-system/shim/path.mjs"),
-            },
-        },
+        plugins: [eslint4b()],
         define: {
             "process.env.NODE_DEBUG": "false",
+            "process.platform": JSON.stringify(process.platform),
+            "process.version": JSON.stringify(process.version),
         },
     },
 

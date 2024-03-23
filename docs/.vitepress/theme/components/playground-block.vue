@@ -104,7 +104,7 @@ export default {
                 serializedString !== window.location.hash.slice(1) &&
                 !this._initializing
             ) {
-                window.location.replace(`#${serializedString}`)
+                history.replaceState(null, "", `#${serializedString}`)
             }
         },
     },
