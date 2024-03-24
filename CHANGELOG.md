@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.4.0
+
+### Minor Changes
+
+- Change default configuration of `prefer-d` to ignore digits inside character classes. ([#715](https://github.com/ota-meshi/eslint-plugin-regexp/pull/715))
+
 ## 2.3.0
 
 ### Minor Changes
