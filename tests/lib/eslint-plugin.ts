@@ -45,7 +45,6 @@ describe("Integration with eslint-plugin-regexp", async () => {
                     "regexp/no-dupe-characters-character-class",
                     "regexp/prefer-w",
                     "regexp/prefer-d",
-                    "regexp/prefer-d",
                     "regexp/use-ignore-case",
                 ],
             )
@@ -74,7 +73,6 @@ describe("Integration with eslint-plugin-regexp", async () => {
             [
                 "regexp/no-dupe-characters-character-class",
                 "regexp/prefer-w",
-                "regexp/prefer-d",
                 "regexp/prefer-d",
                 "regexp/use-ignore-case",
             ],
