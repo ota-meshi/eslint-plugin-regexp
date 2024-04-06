@@ -174,6 +174,10 @@ This option controls whether the short or long form is required. Which forms is 
 
 If the option is set to a string instead of an object, it will be used for all property types.
 
+> NOTE: The `"short"` and `"long"` options follow the [Unicode standard](https://unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt) for short and long names. However, short names aren't always shorter than long names. E.g. the short name for `p{sc=Han}` is `\p{sc=Hani}`.
+>
+> There are also some properties that don't have a short name, such as `\p{sc=Thai}`, and some that have additional aliases that can be longer than the long name, such as `\p{Mark}` (long) with its short name `\p{M}` and alias `\p{Combining_Mark}`.
+
 #### Examples
 
 All set to `"long"`:
