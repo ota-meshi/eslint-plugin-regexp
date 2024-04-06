@@ -1,0 +1,649 @@
+# eslint-snapshot-rule-tester format: v1
+
+
+Test: unicode-property >> invalid >>> test default configuration
+Code:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=L}/u;
+    |     ^~ [1]
+  8 | /\p{gc=Letter}/u;
+    |     ^~ [2]
+  9 | /\p{General_Category=L}/u;
+    |     ^~~~~~~~~~~~~~~~ [3]
+ 10 | /\p{General_Category=Letter}/u;
+    |     ^~~~~~~~~~~~~~~~ [4]
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+    |        ^~~~ [5]
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Grek}/u;
+    |            ^~~~ [6]
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+    |         ^~~~ [7]
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+    |                       ^~~~ [8]
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+
+Output:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{L}/u;
+  8 | /\p{Letter}/u;
+  9 | /\p{L}/u;
+ 10 | /\p{Letter}/u;
+ 11 |
+ 12 | /\p{sc=Greek}/u;
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Greek}/u;
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Greek}/u;
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Greek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+
+[1] Unnecessary 'gc=' in Unicode property.
+[2] Unnecessary 'gc=' in Unicode property.
+[3] Unnecessary 'General_Category=' in Unicode property.
+[4] Unnecessary 'General_Category=' in Unicode property.
+[5] Excepted long Script property. Use 'Greek' instead.
+[6] Excepted long Script property. Use 'Greek' instead.
+[7] Excepted long Script property. Use 'Greek' instead.
+[8] Excepted long Script property. Use 'Greek' instead.
+---
+
+
+Test: unicode-property >> invalid
+Options:
+  - generalCategory: always
+    key: ignore
+    property: ignore
+
+Code:
+  1 | /\p{L}/u;
+    |  ^~~~~ [1]
+  2 | /\p{Letter}/u;
+    |  ^~~~~~~~~~ [2]
+  3 | /\p{gc=L}/u;
+  4 | /\p{gc=Letter}/u;
+  5 | /\p{General_Category=L}/u;
+  6 | /\p{General_Category=Letter}/u;
+
+Output:
+  1 | /\p{gc=L}/u;
+  2 | /\p{gc=Letter}/u;
+  3 | /\p{gc=L}/u;
+  4 | /\p{gc=Letter}/u;
+  5 | /\p{General_Category=L}/u;
+  6 | /\p{General_Category=Letter}/u;
+
+[1] Missing 'gc=' in Unicode property.
+[2] Missing 'gc=' in Unicode property.
+---
+
+
+Test: unicode-property >> invalid >>> "/\\p{L}/u;\n/\\p{Letter}/u;\n/\\p{gc=L}/u;\n/\\p{gc=Letter}/u;\n/\\p{General_Category=L}/u;\n/\\p{General_Category=Letter}/u; 2"
+Options:
+  - generalCategory: never
+    key: ignore
+    property: ignore
+
+Code:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{gc=L}/u;
+    |     ^~ [1]
+  4 | /\p{gc=Letter}/u;
+    |     ^~ [2]
+  5 | /\p{General_Category=L}/u;
+    |     ^~~~~~~~~~~~~~~~ [3]
+  6 | /\p{General_Category=Letter}/u;
+    |     ^~~~~~~~~~~~~~~~ [4]
+
+Output:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{L}/u;
+  4 | /\p{Letter}/u;
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+
+[1] Unnecessary 'gc=' in Unicode property.
+[2] Unnecessary 'gc=' in Unicode property.
+[3] Unnecessary 'General_Category=' in Unicode property.
+[4] Unnecessary 'General_Category=' in Unicode property.
+---
+
+
+Test: unicode-property >> invalid
+Options:
+  - generalCategory: ignore
+    key: long
+    property: ignore
+
+Code:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{gc=L}/u;
+    |     ^~ [1]
+  4 | /\p{gc=Letter}/u;
+    |     ^~ [2]
+  5 | /\p{General_Category=L}/u;
+  6 | /\p{General_Category=Letter}/u;
+  7 |
+  8 | /\p{sc=Grek}/u;
+    |     ^~ [3]
+  9 | /\p{sc=Greek}/u;
+    |     ^~ [4]
+ 10 | /\p{Script=Grek}/u;
+ 11 | /\p{Script=Greek}/u;
+ 12 |
+ 13 | /\p{scx=Grek}/u;
+    |     ^~~ [5]
+ 14 | /\p{scx=Greek}/u;
+    |     ^~~ [6]
+ 15 | /\p{Script_Extensions=Grek}/u;
+ 16 | /\p{Script_Extensions=Greek}/u;
+
+Output:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{General_Category=L}/u;
+  4 | /\p{General_Category=Letter}/u;
+  5 | /\p{General_Category=L}/u;
+  6 | /\p{General_Category=Letter}/u;
+  7 |
+  8 | /\p{Script=Grek}/u;
+  9 | /\p{Script=Greek}/u;
+ 10 | /\p{Script=Grek}/u;
+ 11 | /\p{Script=Greek}/u;
+ 12 |
+ 13 | /\p{Script_Extensions=Grek}/u;
+ 14 | /\p{Script_Extensions=Greek}/u;
+ 15 | /\p{Script_Extensions=Grek}/u;
+ 16 | /\p{Script_Extensions=Greek}/u;
+
+[1] Excepted long key. Use 'General_Category' instead.
+[2] Excepted long key. Use 'General_Category' instead.
+[3] Excepted long key. Use 'Script' instead.
+[4] Excepted long key. Use 'Script' instead.
+[5] Excepted long key. Use 'Script_Extensions' instead.
+[6] Excepted long key. Use 'Script_Extensions' instead.
+---
+
+
+Test: unicode-property >> invalid >>> "/\\p{L}/u;\n/\\p{Letter}/u;\n/\\p{gc=L}/u;\n/\\p{gc=Letter}/u;\n/\\p{General_Category=L}/u;\n/\\p{General_Category=Letter}/u;\n\n/\\p{sc=Grek}/u;\n/\\p{sc=Greek}/u;\n/\\p{Script=Grek}/u;\n/\\p{Script=Greek}/u;\n\n/\\p{scx=Grek}/u;\n/\\p{scx=Greek}/u;\n/\\p{Script_Extensions=Grek}/u;\n/\\p{Script_Extensions=Greek}/u; 2"
+Options:
+  - generalCategory: ignore
+    key: short
+    property: ignore
+
+Code:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{gc=L}/u;
+  4 | /\p{gc=Letter}/u;
+  5 | /\p{General_Category=L}/u;
+    |     ^~~~~~~~~~~~~~~~ [1]
+  6 | /\p{General_Category=Letter}/u;
+    |     ^~~~~~~~~~~~~~~~ [2]
+  7 |
+  8 | /\p{sc=Grek}/u;
+  9 | /\p{sc=Greek}/u;
+ 10 | /\p{Script=Grek}/u;
+    |     ^~~~~~ [3]
+ 11 | /\p{Script=Greek}/u;
+    |     ^~~~~~ [4]
+ 12 |
+ 13 | /\p{scx=Grek}/u;
+ 14 | /\p{scx=Greek}/u;
+ 15 | /\p{Script_Extensions=Grek}/u;
+    |     ^~~~~~~~~~~~~~~~~ [5]
+ 16 | /\p{Script_Extensions=Greek}/u;
+    |     ^~~~~~~~~~~~~~~~~ [6]
+
+Output:
+  1 | /\p{L}/u;
+  2 | /\p{Letter}/u;
+  3 | /\p{gc=L}/u;
+  4 | /\p{gc=Letter}/u;
+  5 | /\p{gc=L}/u;
+  6 | /\p{gc=Letter}/u;
+  7 |
+  8 | /\p{sc=Grek}/u;
+  9 | /\p{sc=Greek}/u;
+ 10 | /\p{sc=Grek}/u;
+ 11 | /\p{sc=Greek}/u;
+ 12 |
+ 13 | /\p{scx=Grek}/u;
+ 14 | /\p{scx=Greek}/u;
+ 15 | /\p{scx=Grek}/u;
+ 16 | /\p{scx=Greek}/u;
+
+[1] Excepted short key. Use 'gc' instead.
+[2] Excepted short key. Use 'gc' instead.
+[3] Excepted short key. Use 'sc' instead.
+[4] Excepted short key. Use 'sc' instead.
+[5] Excepted short key. Use 'scx' instead.
+[6] Excepted short key. Use 'scx' instead.
+---
+
+
+Test: unicode-property >> invalid
+Options:
+  - generalCategory: ignore
+    key: ignore
+    property: long
+
+Code:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex}/u;
+    |     ^~~ [1]
+  4 |
+  5 | /\p{L}/u;
+    |     ^ [2]
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=L}/u;
+    |        ^ [3]
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=L}/u;
+    |                      ^ [4]
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+    |        ^~~~ [5]
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Grek}/u;
+    |            ^~~~ [6]
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+    |         ^~~~ [7]
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+    |                       ^~~~ [8]
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+    |                 ^~ [9] ^~~~~ [10]
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+    |              ^     ^~~~~~~~~~~~~~
+    |              [11]  [12]
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+    |                        ^~     ^~~~~
+    |                        [13]   [14]
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+    |                     ^     ^~~~~
+    |                     [15]  [16]
+
+Output:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex_Digit}/u;
+  4 |
+  5 | /\p{Letter}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=Letter}/u;
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=Letter}/u;
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Greek}/u;
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Greek}/u;
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Greek}/u;
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Greek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Control} \p{Control}/u;
+ 28 | /\p{Mark} \p{Mark} \p{Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Decimal_Number} \p{Decimal_Number}/u;
+ 30 | /\p{Punctuation} \p{Punctuation} \p{Punctuation}/u;
+
+[1] Excepted long binary property. Use 'Hex_Digit' instead.
+[2] Excepted long General_Category property. Use 'Letter' instead.
+[3] Excepted long General_Category property. Use 'Letter' instead.
+[4] Excepted long General_Category property. Use 'Letter' instead.
+[5] Excepted long Script property. Use 'Greek' instead.
+[6] Excepted long Script property. Use 'Greek' instead.
+[7] Excepted long Script property. Use 'Greek' instead.
+[8] Excepted long Script property. Use 'Greek' instead.
+[9] Excepted long General_Category property. Use 'Control' instead.
+[10] Excepted long General_Category property. Use 'Control' instead.
+[11] Excepted long General_Category property. Use 'Mark' instead.
+[12] Excepted long General_Category property. Use 'Mark' instead.
+[13] Excepted long General_Category property. Use 'Decimal_Number' instead.
+[14] Excepted long General_Category property. Use 'Decimal_Number' instead.
+[15] Excepted long General_Category property. Use 'Punctuation' instead.
+[16] Excepted long General_Category property. Use 'Punctuation' instead.
+---
+
+
+Test: unicode-property >> invalid >>> "/\\P{ASCII}/u;\n/\\P{Hex_Digit}/u;\n/\\P{Hex}/u;\n\n/\\p{L}/u;\n/\\p{Letter}/u;\n/\\p{gc=L}/u;\n/\\p{gc=Letter}/u;\n/\\p{General_Category=L}/u;\n/\\p{General_Category=Letter}/u;\n\n/\\p{sc=Grek}/u;\n/\\p{sc=Greek}/u;\n/\\p{Script=Grek}/u;\n/\\p{Script=Greek}/u;\n\n/\\p{scx=Grek}/u;\n/\\p{scx=Greek}/u;\n/\\p{Script_Extensions=Grek}/u;\n/\\p{Script_Extensions=Greek}/u;\n\n// Binary Properties\n// https://github.com/tc39/ecma262/issues/3286\n// /\\p{White_Space} \\p{space} \\p{WSpace}/u;\n\n// General_Category\n/\\p{Control} \\p{Cc} \\p{cntrl}/u;\n/\\p{Mark} \\p{M} \\p{Combining_Mark}/u;\n/\\p{Decimal_Number} \\p{Nd} \\p{digit}/u;\n/\\p{Punctuation} \\p{P} \\p{punct}/u; 2"
+Options:
+  - generalCategory: ignore
+    key: ignore
+    property: short
+
+Code:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+    |     ^~~~~~~~~ [1]
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+    |     ^~~~~~ [2]
+  7 | /\p{gc=L}/u;
+  8 | /\p{gc=Letter}/u;
+    |        ^~~~~~ [3]
+  9 | /\p{General_Category=L}/u;
+ 10 | /\p{General_Category=Letter}/u;
+    |                      ^~~~~~ [4]
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Greek}/u;
+    |        ^~~~~ [5]
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Greek}/u;
+    |            ^~~~~ [6]
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Greek}/u;
+    |         ^~~~~ [7]
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+    |                       ^~~~~ [8]
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+    |     ^~~~~~~ [9]        ^~~~~ [10]
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+    |     ^~~~ [11]      ^~~~~~~~~~~~~~ [12]
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+    |     ^~~~~~~~~~~~~~ [13]       ^~~~~ [14]
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+    |     ^~~~~~~~~~~ [15]      ^~~~~ [16]
+
+Output:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex}/u;
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{L}/u;
+  7 | /\p{gc=L}/u;
+  8 | /\p{gc=L}/u;
+  9 | /\p{General_Category=L}/u;
+ 10 | /\p{General_Category=L}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Grek}/u;
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Grek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Grek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Grek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Cc} \p{Cc} \p{Cc}/u;
+ 28 | /\p{M} \p{M} \p{M}/u;
+ 29 | /\p{Nd} \p{Nd} \p{Nd}/u;
+ 30 | /\p{P} \p{P} \p{P}/u;
+
+[1] Excepted short binary property. Use 'Hex' instead.
+[2] Excepted short General_Category property. Use 'L' instead.
+[3] Excepted short General_Category property. Use 'L' instead.
+[4] Excepted short General_Category property. Use 'L' instead.
+[5] Excepted short Script property. Use 'Grek' instead.
+[6] Excepted short Script property. Use 'Grek' instead.
+[7] Excepted short Script property. Use 'Grek' instead.
+[8] Excepted short Script property. Use 'Grek' instead.
+[9] Excepted short General_Category property. Use 'Cc' instead.
+[10] Excepted short General_Category property. Use 'Cc' instead.
+[11] Excepted short General_Category property. Use 'M' instead.
+[12] Excepted short General_Category property. Use 'M' instead.
+[13] Excepted short General_Category property. Use 'Nd' instead.
+[14] Excepted short General_Category property. Use 'Nd' instead.
+[15] Excepted short General_Category property. Use 'P' instead.
+[16] Excepted short General_Category property. Use 'P' instead.
+---
+
+
+Test: unicode-property >> invalid >>> "/\\P{ASCII}/u;\n/\\P{Hex_Digit}/u;\n/\\P{Hex}/u;\n\n/\\p{L}/u;\n/\\p{Letter}/u;\n/\\p{gc=L}/u;\n/\\p{gc=Letter}/u;\n/\\p{General_Category=L}/u;\n/\\p{General_Category=Letter}/u;\n\n/\\p{sc=Grek}/u;\n/\\p{sc=Greek}/u;\n/\\p{Script=Grek}/u;\n/\\p{Script=Greek}/u;\n\n/\\p{scx=Grek}/u;\n/\\p{scx=Greek}/u;\n/\\p{Script_Extensions=Grek}/u;\n/\\p{Script_Extensions=Greek}/u;\n\n// Binary Properties\n// https://github.com/tc39/ecma262/issues/3286\n// /\\p{White_Space} \\p{space} \\p{WSpace}/u;\n\n// General_Category\n/\\p{Control} \\p{Cc} \\p{cntrl}/u;\n/\\p{Mark} \\p{M} \\p{Combining_Mark}/u;\n/\\p{Decimal_Number} \\p{Nd} \\p{digit}/u;\n/\\p{Punctuation} \\p{P} \\p{punct}/u; 3"
+Options:
+  - generalCategory: ignore
+    key: ignore
+    property:
+      binary: short
+      generalCategory: long
+      script: ignore
+
+Code:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+    |     ^~~~~~~~~ [1]
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{L}/u;
+    |     ^ [2]
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=L}/u;
+    |        ^ [3]
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=L}/u;
+    |                      ^ [4]
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+    |                 ^~ [5] ^~~~~ [6]
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+    |              ^ [7] ^~~~~~~~~~~~~~ [8]
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+    |                        ^~ [9] ^~~~~ [10]
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+    |                     ^     ^~~~~
+    |                     [11]  [12]
+
+Output:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex}/u;
+  3 | /\P{Hex}/u;
+  4 |
+  5 | /\p{Letter}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=Letter}/u;
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=Letter}/u;
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Greek}/u;
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Greek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Greek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Control} \p{Control}/u;
+ 28 | /\p{Mark} \p{Mark} \p{Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Decimal_Number} \p{Decimal_Number}/u;
+ 30 | /\p{Punctuation} \p{Punctuation} \p{Punctuation}/u;
+
+[1] Excepted short binary property. Use 'Hex' instead.
+[2] Excepted long General_Category property. Use 'Letter' instead.
+[3] Excepted long General_Category property. Use 'Letter' instead.
+[4] Excepted long General_Category property. Use 'Letter' instead.
+[5] Excepted long General_Category property. Use 'Control' instead.
+[6] Excepted long General_Category property. Use 'Control' instead.
+[7] Excepted long General_Category property. Use 'Mark' instead.
+[8] Excepted long General_Category property. Use 'Mark' instead.
+[9] Excepted long General_Category property. Use 'Decimal_Number' instead.
+[10] Excepted long General_Category property. Use 'Decimal_Number' instead.
+[11] Excepted long General_Category property. Use 'Punctuation' instead.
+[12] Excepted long General_Category property. Use 'Punctuation' instead.
+---
+
+
+Test: unicode-property >> invalid >>> "/\\P{ASCII}/u;\n/\\P{Hex_Digit}/u;\n/\\P{Hex}/u;\n\n/\\p{L}/u;\n/\\p{Letter}/u;\n/\\p{gc=L}/u;\n/\\p{gc=Letter}/u;\n/\\p{General_Category=L}/u;\n/\\p{General_Category=Letter}/u;\n\n/\\p{sc=Grek}/u;\n/\\p{sc=Greek}/u;\n/\\p{Script=Grek}/u;\n/\\p{Script=Greek}/u;\n\n/\\p{scx=Grek}/u;\n/\\p{scx=Greek}/u;\n/\\p{Script_Extensions=Grek}/u;\n/\\p{Script_Extensions=Greek}/u;\n\n// Binary Properties\n// https://github.com/tc39/ecma262/issues/3286\n// /\\p{White_Space} \\p{space} \\p{WSpace}/u;\n\n// General_Category\n/\\p{Control} \\p{Cc} \\p{cntrl}/u;\n/\\p{Mark} \\p{M} \\p{Combining_Mark}/u;\n/\\p{Decimal_Number} \\p{Nd} \\p{digit}/u;\n/\\p{Punctuation} \\p{P} \\p{punct}/u; 4"
+Options:
+  - generalCategory: ignore
+    key: ignore
+    property:
+      binary: long
+      generalCategory: ignore
+      script: short
+
+Code:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex}/u;
+    |     ^~~ [1]
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=L}/u;
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=L}/u;
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Greek}/u;
+    |        ^~~~~ [2]
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Greek}/u;
+    |            ^~~~~ [3]
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Greek}/u;
+    |         ^~~~~ [4]
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Greek}/u;
+    |                       ^~~~~ [5]
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+
+Output:
+  1 | /\P{ASCII}/u;
+  2 | /\P{Hex_Digit}/u;
+  3 | /\P{Hex_Digit}/u;
+  4 |
+  5 | /\p{L}/u;
+  6 | /\p{Letter}/u;
+  7 | /\p{gc=L}/u;
+  8 | /\p{gc=Letter}/u;
+  9 | /\p{General_Category=L}/u;
+ 10 | /\p{General_Category=Letter}/u;
+ 11 |
+ 12 | /\p{sc=Grek}/u;
+ 13 | /\p{sc=Grek}/u;
+ 14 | /\p{Script=Grek}/u;
+ 15 | /\p{Script=Grek}/u;
+ 16 |
+ 17 | /\p{scx=Grek}/u;
+ 18 | /\p{scx=Grek}/u;
+ 19 | /\p{Script_Extensions=Grek}/u;
+ 20 | /\p{Script_Extensions=Grek}/u;
+ 21 |
+ 22 | // Binary Properties
+ 23 | // https://github.com/tc39/ecma262/issues/3286
+ 24 | // /\p{White_Space} \p{space} \p{WSpace}/u;
+ 25 |
+ 26 | // General_Category
+ 27 | /\p{Control} \p{Cc} \p{cntrl}/u;
+ 28 | /\p{Mark} \p{M} \p{Combining_Mark}/u;
+ 29 | /\p{Decimal_Number} \p{Nd} \p{digit}/u;
+ 30 | /\p{Punctuation} \p{P} \p{punct}/u;
+
+[1] Excepted long binary property. Use 'Hex_Digit' instead.
+[2] Excepted short Script property. Use 'Grek' instead.
+[3] Excepted short Script property. Use 'Grek' instead.
+[4] Excepted short Script property. Use 'Grek' instead.
+[5] Excepted short Script property. Use 'Grek' instead.
+---

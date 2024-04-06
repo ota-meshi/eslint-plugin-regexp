@@ -231,6 +231,7 @@ The `plugin.configs["flat/all"]` / `plugin:regexp/all` config enables all rules.
 | [sort-character-class-elements](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-character-class-elements.html)       | enforces elements order in character class                             |       |    | 🔧 |    |
 | [sort-flags](https://ota-meshi.github.io/eslint-plugin-regexp/rules/sort-flags.html)                                             | require regex flags to be sorted                                       | 🟢 🔵 |    | 🔧 |    |
 | [unicode-escape](https://ota-meshi.github.io/eslint-plugin-regexp/rules/unicode-escape.html)                                     | enforce consistent usage of unicode escape or unicode codepoint escape |       |    | 🔧 |    |
+| [unicode-property](https://ota-meshi.github.io/eslint-plugin-regexp/rules/unicode-property.html)                                 | enforce consistent naming of unicode properties                        |       |    | 🔧 |    |
 
 <!-- end auto-generated rules list -->
 

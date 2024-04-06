@@ -78,6 +78,7 @@ import sortCharacterClassElements from "./rules/sort-character-class-elements"
 import sortFlags from "./rules/sort-flags"
 import strict from "./rules/strict"
 import unicodeEscape from "./rules/unicode-escape"
+import unicodeProperty from "./rules/unicode-property"
 import useIgnoreCase from "./rules/use-ignore-case"
 import type { RuleModule } from "./types"
 
@@ -162,5 +163,6 @@ export const rules: RuleModule[] = [
     sortFlags,
     strict,
     unicodeEscape,
+    unicodeProperty,
     useIgnoreCase,
 ]
