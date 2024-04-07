@@ -2,6 +2,7 @@
     "extends": "./tsconfig.json",
     "exclude": ["tests/**/*", "tools/**/*", "typings/**/*", "docs/**/*"],
     "compilerOptions": {
-        "removeComments": true /* Do not emit comments to output. */
+        "removeComments": true /* Do not emit comments to output. */,
+        "declaration": true /* Generates corresponding '.d.ts' file. */
     }
 }
