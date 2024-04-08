@@ -1,5 +1,15 @@
 # eslint-plugin-regexp
 
+## 2.5.0
+
+### Minor Changes
+
+- Add `regexp/unicode-property` rule to enforce consistent naming of unicode properties ([#722](https://github.com/ota-meshi/eslint-plugin-regexp/pull/722))
+
+### Patch Changes
+
+- Publish type declarations ([#724](https://github.com/ota-meshi/eslint-plugin-regexp/pull/724))
+
 ## 2.4.0
 
 ### Minor Changes
