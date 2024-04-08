@@ -3,6 +3,7 @@ pageClass: "rule-details"
 sidebarDepth: 0
 title: "regexp/unicode-property"
 description: "enforce consistent naming of unicode properties"
+since: "v2.5.0"
 ---
 # regexp/unicode-property
 
@@ -237,7 +238,7 @@ var re = /\p{sc=Greek}/u;
 
 ## :rocket: Version
 
-:exclamation: <badge text="This rule has not been released yet." vertical="middle" type="error"> ***This rule has not been released yet.*** </badge>
+This rule was introduced in eslint-plugin-regexp v2.5.0
 
 ## :mag: Implementation
 
