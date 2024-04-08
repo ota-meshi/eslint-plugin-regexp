@@ -87,7 +87,7 @@
         "eslint-plugin-jsonc": "^2.0.0",
         "eslint-plugin-n": "^16.0.0",
         "eslint-plugin-prettier": "^5.0.0",
-        "eslint-plugin-regexp": "~2.4.0",
+        "eslint-plugin-regexp": "~2.5.0",
         "eslint-plugin-vue": "^9.0.0",
         "eslint-plugin-yml": "^1.0.0",
         "eslint-snapshot-rule-tester": "^0.1.0",
