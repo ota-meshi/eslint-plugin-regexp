@@ -108,6 +108,7 @@ sidebarDepth: 0
 | [sort-character-class-elements](sort-character-class-elements.md)       | enforces elements order in character class                             |       |    | 🔧 |    |
 | [sort-flags](sort-flags.md)                                             | require regex flags to be sorted                                       | 🟢 🔵 |    | 🔧 |    |
 | [unicode-escape](unicode-escape.md)                                     | enforce consistent usage of unicode escape or unicode codepoint escape |       |    | 🔧 |    |
+| [unicode-property](unicode-property.md)                                 | enforce consistent naming of unicode properties                        |       |    | 🔧 |    |
 
 <!-- end auto-generated rules list -->
 
