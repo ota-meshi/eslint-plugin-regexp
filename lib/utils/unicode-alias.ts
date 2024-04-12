@@ -50,6 +50,7 @@ export const UNICODE_CATEGORY_ALIAS = new AliasMap({
     otherToLong: {},
 })
 
+/* PROPERTY_ALIASES_START */
 // https://unicode.org/Public/UCD/latest/ucd/PropertyAliases.txt
 export const UNICODE_BINARY_PROPERTY_ALIAS = new AliasMap({
     shortToLong: {
@@ -120,7 +121,9 @@ export const UNICODE_BINARY_PROPERTY_ALIAS = new AliasMap({
         space: "White_Space",
     },
 })
+/* PROPERTY_ALIASES_END */
 
+/* PROPERTY_VALUE_ALIASES_START */
 // https://unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt
 export const UNICODE_GENERAL_CATEGORY_ALIAS = new AliasMap({
     shortToLong: {
@@ -337,3 +340,4 @@ export const UNICODE_SCRIPT_ALIAS = new AliasMap({
         Qaai: "Inherited",
     },
 })
+/* PROPERTY_VALUE_ALIASES_END */
