@@ -1,11 +1,12 @@
 name: cron
 on:
+    workflow_dispatch: null
     schedule:
         - cron: 0 0 * * 0
 
 jobs:
-    check-unicode-alias-update:
-        name: check-unicode-alias-update
+    update-unicode-alias:
+        name: update-unicode-alias
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -18,7 +19,9 @@ jobs:
               run: npm run update:unicode-alias
             - name: Format
               run: npm run eslint-fix
-            - name: Check changes
-              run: |
-                  git add --all && \
-                  git diff-index --cached HEAD --stat --exit-code
+            - uses: peter-evans/create-pull-request@v6
+              with:
+                  commit-message: Updates unicode property alias resource with latest
+                  branch: update-unicode-alias
+                  branch-suffix: timestamp
+                  title: Updates unicode property alias resource with latest
