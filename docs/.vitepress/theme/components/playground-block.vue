@@ -141,7 +141,9 @@ export default {
                 (typeof window !== "undefined" &&
                     window.location.hash.slice(1)) ||
                 ""
-            if (serializedString !== this.serializedString) {
+            if (!serializedString && this.serializedString) {
+                history.replaceState(null, "", `#${this.serializedString}`)
+            } else if (serializedString !== this.serializedString) {
                 const state = deserializeState(serializedString)
                 this.code = state.code || DEFAULT_CODE
                 this.rules =
