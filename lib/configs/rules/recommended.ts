@@ -70,4 +70,4 @@ export const rules = {
     "regexp/sort-flags": "error",
     "regexp/strict": "error",
     "regexp/use-ignore-case": "error",
-}
+} as const
