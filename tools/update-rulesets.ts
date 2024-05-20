@@ -14,7 +14,9 @@ const coreRules = [
     // "require-unicode-regexp", // modern
 ]
 
-const content = `export const rules = {
+const content = `import type { SeverityString } from "../../types"
+
+export const rules: Record<string, SeverityString> = {
     // ESLint core rules
     ${coreRules.map((ruleName) => `"${ruleName}": "error"`).join(",\n    ")},
     // The ESLint rule will report fewer cases than our rule

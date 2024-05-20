@@ -13,6 +13,8 @@ export type RuleCategory =
     | "Best Practices"
     | "Stylistic Issues"
 
+export type SeverityString = "error" | "warn" | "off"
+
 export interface RuleMetaData {
     docs: {
         description: string
@@ -21,7 +23,7 @@ export interface RuleMetaData {
         url: string
         ruleId: string
         ruleName: string
-        default?: "error" | "warn"
+        default?: Exclude<SeverityString, "off">
     }
     messages: { [messageId: string]: string }
     fixable?: "code" | "whitespace"
@@ -42,7 +44,7 @@ export interface PartialRuleMetaData {
         description: string
         category: RuleCategory
         recommended: boolean
-        default?: "error" | "warn"
+        default?: Exclude<SeverityString, "off">
     }
     messages: { [messageId: string]: string }
     fixable?: "code" | "whitespace"
