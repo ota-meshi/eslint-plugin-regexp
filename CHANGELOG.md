@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.6.0
+
+### Minor Changes
+
+- Improved compatibility of type information with typescript-eslint in config. ([#740](https://github.com/ota-meshi/eslint-plugin-regexp/pull/740))
+
 ## 2.5.0
 
 ### Minor Changes
