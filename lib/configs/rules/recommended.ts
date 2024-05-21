@@ -1,4 +1,6 @@
-export const rules = {
+import type { SeverityString } from "../../types"
+
+export const rules: Record<string, SeverityString> = {
     // ESLint core rules
     "no-control-regex": "error",
     "no-misleading-character-class": "error",
