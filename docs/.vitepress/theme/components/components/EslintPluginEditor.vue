@@ -57,38 +57,50 @@ export default {
 
     computed: {
         config() {
-            return {
-                globals: {
-                    // ES2015 globals
-                    ArrayBuffer: false,
-                    DataView: false,
-                    Float32Array: false,
-                    Float64Array: false,
-                    Int16Array: false,
-                    Int32Array: false,
-                    Int8Array: false,
-                    Map: false,
-                    Promise: false,
-                    Proxy: false,
-                    Reflect: false,
-                    Set: false,
-                    Symbol: false,
-                    Uint16Array: false,
-                    Uint32Array: false,
-                    Uint8Array: false,
-                    Uint8ClampedArray: false,
-                    WeakMap: false,
-                    WeakSet: false,
-                    // ES2017 globals
-                    Atomics: false,
-                    SharedArrayBuffer: false,
+            return [
+                {
+                    plugins: {
+                        regexp: {
+                            rules: Object.fromEntries(
+                                rules.map((rule) => [
+                                    rule.meta.docs.ruleName,
+                                    rule,
+                                ]),
+                            ),
+                        },
+                    },
+                    languageOptions: {
+                        sourceType: "module",
+                        ecmaVersion: "latest",
+                        globals: {
+                            // ES2015 globals
+                            ArrayBuffer: false,
+                            DataView: false,
+                            Float32Array: false,
+                            Float64Array: false,
+                            Int16Array: false,
+                            Int32Array: false,
+                            Int8Array: false,
+                            Map: false,
+                            Promise: false,
+                            Proxy: false,
+                            Reflect: false,
+                            Set: false,
+                            Symbol: false,
+                            Uint16Array: false,
+                            Uint32Array: false,
+                            Uint8Array: false,
+                            Uint8ClampedArray: false,
+                            WeakMap: false,
+                            WeakSet: false,
+                            // ES2017 globals
+                            Atomics: false,
+                            SharedArrayBuffer: false,
+                        },
+                    },
+                    rules: this.rules,
                 },
-                rules: this.rules,
-                parserOptions: {
-                    sourceType: "module",
-                    ecmaVersion: "latest",
-                },
-            }
+            ]
         },
         fileName() {
             return "a.js"
@@ -98,12 +110,6 @@ export default {
         },
         linter() {
             const linter = new Linter()
-
-            for (const k of Object.keys(rules)) {
-                const rule = rules[k]
-                linter.defineRule(rule.meta.docs.ruleId, rule)
-            }
-
             return linter
         },
     },

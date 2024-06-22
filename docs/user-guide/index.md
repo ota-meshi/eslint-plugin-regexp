@@ -63,7 +63,7 @@ import * as regexpPlugin from "eslint-plugin-regexp"
 
 export default [
     {
-        plugins: { regexp: regexpPlugin }
+        plugins: { regexp: regexpPlugin },
         rules: {
             // Override/add rules settings here, such as:
             "regexp/rule-name": "error"

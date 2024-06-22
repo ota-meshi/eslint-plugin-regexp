@@ -11,10 +11,10 @@ import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
 import { mention } from "../utils/mention"
 
-const OPTION_SS1 = "[\\s\\S]" as const
-const OPTION_SS2 = "[\\S\\s]" as const
-const OPTION_CARET = "[^]" as const
-const OPTION_DOTALL = "dotAll" as const
+const OPTION_SS1 = "[\\s\\S]"
+const OPTION_SS2 = "[\\S\\s]"
+const OPTION_CARET = "[^]"
+const OPTION_DOTALL = "dotAll"
 type Allowed =
     | typeof OPTION_SS1
     | typeof OPTION_SS2

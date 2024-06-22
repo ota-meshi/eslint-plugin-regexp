@@ -87,6 +87,8 @@ This rule reports ???.
 
 <eslint-code-block>
 
+<!-- eslint-skip -->
+
 \`\`\`js
 /* eslint regexp/${ruleId}: "error" */
 

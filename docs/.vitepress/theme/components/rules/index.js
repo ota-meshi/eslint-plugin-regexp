@@ -1,8 +1,6 @@
-import { Linter } from "eslint"
+import { builtinRules } from "eslint/use-at-your-own-risk"
 import { rules } from "../../../../../lib/all-rules.ts"
 import { rules as recommendedRules } from "../../../../../lib/configs/recommended.ts"
-
-const coreRules = Object.fromEntries(new Linter().getRules())
 
 const CATEGORY_TITLES = {
     "Possible Errors": "Possible Errors",
@@ -45,8 +43,7 @@ for (const k of Object.keys(rules)) {
         init: "error",
     })
 }
-for (const k of Object.keys(coreRules)) {
-    const rule = coreRules[k]
+for (const [k, rule] of builtinRules.entries()) {
     if (rule.meta.deprecated) {
         continue
     }

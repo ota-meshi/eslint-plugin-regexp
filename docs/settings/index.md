@@ -10,7 +10,7 @@ Example **.eslintrc.js**:
 
 ```js
 module.exports = {
-  ..., // rules, plugins, etc.
+  // ... rules, plugins, etc.
 
   settings: {
     // all settings for this plugin have to be in the `regexp` namespace
@@ -56,7 +56,7 @@ If the setting isn't defined, its value defaults to `"alphanumeric"`.
 
 ```js
 module.exports = {
-  ..., // rules, plugins, etc.
+  // ... rules, plugins, etc.
   settings: {
     regexp: {
       // allow alphanumeric and cyrillic ranges

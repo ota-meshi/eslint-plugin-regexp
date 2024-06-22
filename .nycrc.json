@@ -1,9 +1,5 @@
 {
     "all": true,
-    "include": [
-      "lib/**/*.ts"
-    ],
-    "exclude": [
-      "tests/**/*.ts"
-    ]
-  }
+    "include": ["lib/**/*.ts"],
+    "exclude": ["tests/**/*.ts"]
+}

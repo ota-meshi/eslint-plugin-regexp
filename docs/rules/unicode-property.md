@@ -161,6 +161,8 @@ Similar to `key`, most property names also have long and short forms. E.g. `\p{L
 
 This option controls whether the short or long form is required. Which forms is required can be configured for each property type via an object. The object has to be of the type:
 
+<!-- eslint-skip -->
+
 ```ts
 {
   binary?: "short" | "long" | "ignore",

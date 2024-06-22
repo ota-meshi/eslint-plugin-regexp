@@ -3,7 +3,6 @@ import { fileURLToPath } from "url"
 import eslint4b from "vite-plugin-eslint4b"
 import type { DefaultTheme } from "vitepress"
 import { defineConfig } from "vitepress"
-// eslint-disable-next-line import/no-unresolved -- OK
 import { rules } from "../../lib/all-rules.js"
 import type { RuleModule } from "../../lib/types.js"
 
