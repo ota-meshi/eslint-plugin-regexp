@@ -31,8 +31,8 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
             - name: Install ESLint ${{ matrix.eslint }}
-              # We use -f because we get a lot of dependency warnings when installing eslint v9.
-              run: npm i -D eslint@${{ matrix.eslint }} -f
+              # We use --legacy-peer-deps because we get a lot of dependency warnings when installing eslint v9
+              run: npm i -D eslint@${{ matrix.eslint }} --legacy-peer-deps
             - name: Install Packages
               # run: npm ci
               # We use `npm i` because there is an error regarding dependencies when installing eslint v9.
