@@ -139,10 +139,16 @@ export function isCaseVariant(
                     // case-variant in Unicode mode
                     return unicodeLike && d.kind === "word"
 
-                case "Backreference":
+                case "Backreference": {
                     // we need to check whether the associated capturing group
                     // is case variant
-                    if (hasSomeDescendant(element, d.resolved)) {
+
+                    const outside = [d.resolved]
+                        .flat()
+                        .filter(
+                            (resolved) => !hasSomeDescendant(element, resolved),
+                        )
+                    if (outside.length === 0) {
                         // the capturing group is part of the root element, so
                         // we don't need to make an extra check
                         return false
@@ -150,8 +156,11 @@ export function isCaseVariant(
 
                     return (
                         !isEmptyBackreference(d, flags) &&
-                        isCaseVariant(d.resolved, flags)
+                        outside.some((resolved) =>
+                            isCaseVariant(resolved, flags),
+                        )
                     )
+                }
 
                 case "Character":
                 case "CharacterClassRange":
