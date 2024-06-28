@@ -23,7 +23,7 @@ jobs:
         strategy:
             matrix:
                 node: [18.x, 20.x]
-                eslint: [8, ^9.0.0-0]
+                eslint: [8, 9]
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js ${{ matrix.node }}
@@ -31,11 +31,11 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
             - name: Install ESLint ${{ matrix.eslint }}
-              # We use --legacy-peer-deps because we get a lot of dependency warnings when installing eslint v9-alpha.
+              # We use --legacy-peer-deps because we get a lot of dependency warnings when installing eslint v9
               run: npm i -D eslint@${{ matrix.eslint }} --legacy-peer-deps
             - name: Install Packages
               # run: npm ci
-              # We use `npm i` because there is an error regarding dependencies when installing eslint v9-alpha.
+              # We use `npm i` because there is an error regarding dependencies when installing eslint v9.
               run: npm i -f
             - name: Build
               run: npm run build

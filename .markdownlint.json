@@ -1,5 +1,5 @@
 {
-  "line-length": false,
-  "no-inline-html": false,
-  "single-title": false
+    "line-length": false,
+    "no-inline-html": false,
+    "single-title": false
 }

@@ -1,4 +1,4 @@
-/* eslint-disable eslint-comments/disable-enable-pair -- x */
+/* eslint-disable @eslint-community/eslint-comments/disable-enable-pair -- x */
 
 import type {
     Alternative,
