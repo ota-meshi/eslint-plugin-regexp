@@ -43,5 +43,6 @@ tester.run("use-ignore-case", rule as any, {
         String.raw`/\b0[xX][a-fA-F0-9]+\b/`,
         String.raw`RegExp("[a-zA-Z]")`,
         String.raw`/[\q{a|A}]/v`,
+        String.raw`/(?:(?<foo>[aA])|(?<foo>[bB]))\k<foo>/`,
     ],
 })

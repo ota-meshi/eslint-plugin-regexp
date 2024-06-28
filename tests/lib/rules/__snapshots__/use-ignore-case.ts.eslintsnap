@@ -83,3 +83,15 @@ Output:
 
 [1] The character class(es) '[\q{a|A}]' can be simplified using the `i` flag.
 ---
+
+
+Test: use-ignore-case >> invalid
+Code:
+  1 | /(?:(?<foo>[aA])|(?<foo>[bB]))\k<foo>/
+    |                                      ^ [1]
+
+Output:
+  1 | /(?:(?<foo>[a])|(?<foo>[b]))\k<foo>/i
+
+[1] The character class(es) '[aA]', '[bB]' can be simplified using the `i` flag.
+---
