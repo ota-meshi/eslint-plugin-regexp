@@ -1,4 +1,6 @@
+import { ESLint } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
+import semver from "semver"
 import rule from "../../../lib/rules/use-ignore-case"
 
 const tester = new SnapshotRuleTester({
@@ -43,6 +45,9 @@ tester.run("use-ignore-case", rule as any, {
         String.raw`/\b0[xX][a-fA-F0-9]+\b/`,
         String.raw`RegExp("[a-zA-Z]")`,
         String.raw`/[\q{a|A}]/v`,
-        String.raw`/(?:(?<foo>[aA])|(?<foo>[bB]))\k<foo>/`,
+        // ES2025
+        ...(semver.gte(ESLint.version, "9.6.0")
+            ? [String.raw`/(?:(?<foo>[aA])|(?<foo>[bB]))\k<foo>/`]
+            : []),
     ],
 })
