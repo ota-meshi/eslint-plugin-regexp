@@ -146,7 +146,7 @@ export function isCaseVariant(
                     // we need to check whether the associated capturing group
                     // is case variant
 
-                    const outside = getActualReferencedGroupOfBackreference(
+                    const outside = getReferencedGroupsFromBackreference(
                         d,
                     ).filter(
                         (resolved) => !hasSomeDescendant(element, resolved),
@@ -193,15 +193,15 @@ export function isCaseVariant(
 }
 
 /**
- * Gets the groups in the same Alternative that the given Backreference refers to.
+ * Returns the actually referenced capturing group from the given backreference.
  */
-function getActualReferencedGroupOfBackreference(
+function getReferencedGroupsFromBackreference(
     backRef: Backreference,
 ): CapturingGroup[] {
     return [backRef.resolved].flat().filter((group) => {
         const closestAncestor = getClosestAncestor(backRef, group)
         return (
-            closestAncestor === group || closestAncestor.type === "Alternative"
+            closestAncestor !== group && closestAncestor.type === "Alternative"
         )
     })
 }
