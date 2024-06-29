@@ -1,5 +1,7 @@
 import type {
     Alternative,
+    Backreference,
+    CapturingGroup,
     CharacterClass,
     CharacterClassElement,
     CharacterSet,
@@ -15,6 +17,7 @@ import {
     toCharSet,
     isEmptyBackreference,
     toUnicodeSet,
+    getClosestAncestor,
 } from "regexp-ast-analysis"
 import { assertNever, cachedFn } from "../util"
 
@@ -143,11 +146,11 @@ export function isCaseVariant(
                     // we need to check whether the associated capturing group
                     // is case variant
 
-                    const outside = [d.resolved]
-                        .flat()
-                        .filter(
-                            (resolved) => !hasSomeDescendant(element, resolved),
-                        )
+                    const outside = getActualReferencedGroupOfBackreference(
+                        d,
+                    ).filter(
+                        (resolved) => !hasSomeDescendant(element, resolved),
+                    )
                     if (outside.length === 0) {
                         // the capturing group is part of the root element, so
                         // we don't need to make an extra check
@@ -187,4 +190,18 @@ export function isCaseVariant(
             )
         },
     )
+}
+
+/**
+ * Gets the groups in the same Alternative that the given Backreference refers to.
+ */
+function getActualReferencedGroupOfBackreference(
+    backRef: Backreference,
+): CapturingGroup[] {
+    return [backRef.resolved].flat().filter((group) => {
+        const closestAncestor = getClosestAncestor(backRef, group)
+        return (
+            closestAncestor === group || closestAncestor.type === "Alternative"
+        )
+    })
 }
