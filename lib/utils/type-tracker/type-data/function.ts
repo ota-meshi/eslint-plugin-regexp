@@ -184,11 +184,11 @@ const RETURN_SELF = new TypeFunction(
     },
 )
 const getPrototypes: () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
     [key in keyof Function]: TypeInfo | null
 } = lazy(() =>
     createObject<{
-        // eslint-disable-next-line @typescript-eslint/ban-types -- ignore
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
         [key in keyof Function]: TypeInfo | null
     }>({
         ...getObjectPrototypes(),

@@ -46,7 +46,7 @@ function isCompatible(regexpContext: RegExpContext): boolean {
         new RegExpParser().parsePattern(pattern, undefined, undefined, {
             unicodeSets: true,
         })
-    } catch (_error) {
+    } catch {
         return false
     }
 

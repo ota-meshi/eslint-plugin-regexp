@@ -108,7 +108,7 @@ function containsAssertions(expression: NoParent<Expression>): boolean {
             },
         })
         return false
-    } catch (_error) {
+    } catch {
         return true
     }
 }
@@ -129,7 +129,7 @@ function containsAssertionsOrUnknowns(
             },
         })
         return false
-    } catch (_error) {
+    } catch {
         return true
     }
 }
@@ -185,7 +185,7 @@ function toNFA(
             ),
             partial: containsAssertionsOrUnknowns(e),
         }
-    } catch (_error) {
+    } catch {
         return {
             nfa: NFA.empty({
                 maxCharacter: parser.maxCharacter,
@@ -303,7 +303,7 @@ function* iteratePartialAlternatives(
             const expression = partialParser.parse(alternative, nested)
             const nfa = NFA.fromRegex(expression, { maxCharacter })
             yield { nested, nfa }
-        } catch (_error) {
+        } catch {
             // ignore error and skip this
         }
     }
@@ -339,7 +339,7 @@ function isSubsetOf(
         a.minimize()
         b.minimize()
         return a.structurallyEqual(b)
-    } catch (_error) {
+    } catch {
         return null
     }
 }
@@ -381,7 +381,7 @@ function getSubsetRelation(
             return SubsetRelation.leftSupersetOfRight
         }
         return SubsetRelation.none
-    } catch (_error) {
+    } catch {
         return SubsetRelation.unknown
     }
 }
@@ -450,7 +450,7 @@ function faToSource(fa: FiniteAutomaton, flags: ReadonlyFlags): string {
     try {
         assertValidFlags(flags)
         return JS.toLiteral(fa.toRegex(), { flags }).source
-    } catch (_error) {
+    } catch {
         return "<ERROR>"
     }
 }
