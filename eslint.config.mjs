@@ -235,4 +235,11 @@ export default [
             "import/no-named-as-default-member": "off",
         },
     },
+    {
+        files: ["tests/fixtures/integrations/eslint-plugin/eslint.config.mjs"],
+        rules: {
+            "import/no-unresolved": "off",
+            "n/no-missing-import": "off",
+        },
+    },
 ]
