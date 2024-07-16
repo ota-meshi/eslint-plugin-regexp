@@ -84,7 +84,7 @@
         "assert": "^2.0.0",
         "chai": "^5.0.0",
         "env-cmd": "^10.1.0",
-        "eslint": "^9.5.0",
+        "eslint": "^9.6.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-doc-generator": "^1.7.1",
         "eslint-import-resolver-typescript": "^3.6.1",
@@ -120,7 +120,7 @@
     },
     "dependencies": {
         "@eslint-community/eslint-utils": "^4.2.0",
-        "@eslint-community/regexpp": "^4.9.1",
+        "@eslint-community/regexpp": "^4.11.0",
         "comment-parser": "^1.4.0",
         "jsdoc-type-pratt-parser": "^4.0.0",
         "refa": "^0.12.1",
