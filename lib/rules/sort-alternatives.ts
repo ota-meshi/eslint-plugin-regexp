@@ -230,7 +230,7 @@ function getLexicographicallySmallestFromAlternative(
         )
 
         return getLexicographicallySmallestFromNfa(nfa.initial, nfa.finals)
-    } catch (_error) {
+    } catch {
         return undefined
     }
 }

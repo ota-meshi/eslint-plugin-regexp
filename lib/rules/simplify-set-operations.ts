@@ -100,7 +100,7 @@ function getParsedElement(
                 )
                     return element
             }
-    } catch (_error) {
+    } catch {
         // ignore
     }
     return null
