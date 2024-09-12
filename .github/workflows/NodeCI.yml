@@ -19,7 +19,7 @@ jobs:
             - name: Lint
               run: npm run lint
     test:
-        runs-on: macos-latest
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 node: [18.x, 20.x]
