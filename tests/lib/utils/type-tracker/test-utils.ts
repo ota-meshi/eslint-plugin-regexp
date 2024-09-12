@@ -57,9 +57,11 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                     types = createTypeTracker(context).getTypes(
                         target ?? lastExpr!,
                     )
-                } catch {
+                } catch (e) {
                     console.log("Test", context.sourceCode.ast)
-                    console.log("Test2", target ?? lastExpr!)
+                    console.log("Test2", target ?? lastExpr)
+                    console.log("Test3", context.sourceCode.text)
+                    throw e
                 }
             },
         }
