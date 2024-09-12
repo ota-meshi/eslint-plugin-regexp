@@ -23,3 +23,15 @@ index 93c3936..e24616d 100644
      }
      const currentProjectsFromSettings = new Map(parseSettings.projects);
      /*
+diff --git a/node_modules/@typescript-eslint/typescript-estree/dist/parser.js b/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
+index 183d7e3..6ab4deb 100644
+--- a/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
++++ b/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
+@@ -40,6 +40,7 @@ function clearDefaultProjectMatchedFiles() {
+  * @returns Returns a source file and program corresponding to the linted code
+  */
+ function getProgramAndAST(parseSettings, hasFullTypeInformation) {
++    console.log(parseSettings)
+     if (parseSettings.projectService) {
+         const fromProjectService = (0, useProgramFromProjectService_1.useProgramFromProjectService)(parseSettings.projectService, parseSettings, hasFullTypeInformation, defaultProjectMatchedFiles);
+         if (fromProjectService) {
