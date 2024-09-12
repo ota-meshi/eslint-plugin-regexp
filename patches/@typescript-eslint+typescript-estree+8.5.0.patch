@@ -24,14 +24,18 @@ index 93c3936..e24616d 100644
      const currentProjectsFromSettings = new Map(parseSettings.projects);
      /*
 diff --git a/node_modules/@typescript-eslint/typescript-estree/dist/parser.js b/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
-index 183d7e3..da44a97 100644
+index 183d7e3..865bda8 100644
 --- a/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
 +++ b/node_modules/@typescript-eslint/typescript-estree/dist/parser.js
-@@ -98,6 +98,7 @@ function parseAndGenerateServices(code, tsestreeOptions) {
+@@ -98,6 +98,11 @@ function parseAndGenerateServices(code, tsestreeOptions) {
       * Reset the parse configuration
       */
      const parseSettings = (0, createParseSettings_1.createParseSettings)(code, tsestreeOptions);
-+    if(parseSettings.filePath.endsWith('type-tracker/fixture.ts'))    console.log(parseSettings.programs)
++    if(parseSettings.filePath.endsWith('type-tracker/fixture.ts')) console.log({
++        programs: parseSettings.programs,
++        projects: parseSettings.projects,
++        singleRun: parseSettings.singleRun,
++})
      /**
       * If this is a single run in which the user has not provided any existing programs but there
       * are programs which need to be created from the provided "project" option,
