@@ -1,5 +1,7 @@
 import type {
     Alternative,
+    Backreference,
+    CapturingGroup,
     CharacterClass,
     CharacterClassElement,
     CharacterSet,
@@ -15,6 +17,7 @@ import {
     toCharSet,
     isEmptyBackreference,
     toUnicodeSet,
+    getClosestAncestor,
 } from "regexp-ast-analysis"
 import { assertNever, cachedFn } from "../util"
 
@@ -139,10 +142,16 @@ export function isCaseVariant(
                     // case-variant in Unicode mode
                     return unicodeLike && d.kind === "word"
 
-                case "Backreference":
+                case "Backreference": {
                     // we need to check whether the associated capturing group
                     // is case variant
-                    if (hasSomeDescendant(element, d.resolved)) {
+
+                    const outside = getReferencedGroupsFromBackreference(
+                        d,
+                    ).filter(
+                        (resolved) => !hasSomeDescendant(element, resolved),
+                    )
+                    if (outside.length === 0) {
                         // the capturing group is part of the root element, so
                         // we don't need to make an extra check
                         return false
@@ -150,8 +159,11 @@ export function isCaseVariant(
 
                     return (
                         !isEmptyBackreference(d, flags) &&
-                        isCaseVariant(d.resolved, flags)
+                        outside.some((resolved) =>
+                            isCaseVariant(resolved, flags),
+                        )
                     )
+                }
 
                 case "Character":
                 case "CharacterClassRange":
@@ -178,4 +190,18 @@ export function isCaseVariant(
             )
         },
     )
+}
+
+/**
+ * Returns the actually referenced capturing group from the given backreference.
+ */
+function getReferencedGroupsFromBackreference(
+    backRef: Backreference,
+): CapturingGroup[] {
+    return [backRef.resolved].flat().filter((group) => {
+        const closestAncestor = getClosestAncestor(backRef, group)
+        return (
+            closestAncestor !== group && closestAncestor.type === "Alternative"
+        )
+    })
 }

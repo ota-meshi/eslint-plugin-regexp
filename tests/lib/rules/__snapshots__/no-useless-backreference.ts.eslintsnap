@@ -116,3 +116,85 @@ Code:
 
 [1] Backreference '\1' will be ignored. It references group '(a)' which is in a negative lookaround.
 ---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /\k<foo>((?<foo>bar)|(?<foo>baz))/
+    |  ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and another group which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?<foo>bar)|\k<foo>(?<foo>baz))/
+    |               ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>baz)' which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /\k<foo>((?<foo>bar)|(?<foo>baz)|(?<foo>qux))/
+    |  ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and other 2 groups which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?<foo>bar)|\k<foo>(?<foo>baz)|(?<foo>qux))/
+    |               ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>baz)' which appears later in the pattern.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?<foo>bar)|\k<foo>|(?<foo>baz))/
+    |               ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and another group which is in another alternative.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?<foo>bar)|\k<foo>|(?<foo>baz)|(?<foo>qux))/
+    |               ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and other 2 groups which is in another alternative.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?<foo>bar)|(?<foo>baz\k<foo>)|(?<foo>qux\k<foo>))/
+    |                         ^~~~~~~ [1]        ^~~~~~~ [2]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>baz\k<foo>)' from within that group.
+[2] Backreference '\k<foo>' will be ignored. It references group '(?<foo>qux\k<foo>)' from within that group.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /(?<=((?<foo>bar)|(?<foo>baz))\k<foo>)/
+    |                               ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and another group which appears before in the same lookbehind.
+---
+
+
+Test: no-useless-backreference >> invalid
+Code:
+  1 | /((?!(?<foo>bar))|(?!(?<foo>baz)))\k<foo>/
+    |                                   ^~~~~~~ [1]
+
+[1] Backreference '\k<foo>' will be ignored. It references group '(?<foo>bar)' and another group which is in a negative lookaround.
+---

@@ -15,6 +15,14 @@ import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { mention } from "../utils/mention"
 
+type MessageId =
+    | "nested"
+    | "disjunctive"
+    | "intoNegativeLookaround"
+    | "forward"
+    | "backward"
+    | "empty"
+
 /**
  * Returns whether the list of ancestors from `from` to `to` contains a negated
  * lookaround.
@@ -36,15 +44,66 @@ function hasNegatedLookaroundInBetween(
 }
 
 /**
+ * Returns the problem information specifying the reason why the backreference is
+ * useless.
+ */
+function getUselessProblem(
+    backRef: Backreference,
+    flags: ReadonlyFlags,
+): { messageId: MessageId; group: CapturingGroup; otherGroups: string } | null {
+    const groups = [backRef.resolved].flat()
+
+    const problems: { messageId: MessageId; group: CapturingGroup }[] = []
+    for (const group of groups) {
+        const messageId = getUselessMessageId(backRef, group, flags)
+        if (!messageId) {
+            return null
+        }
+        problems.push({ messageId, group })
+    }
+    if (problems.length === 0) {
+        return null
+    }
+
+    let problemsToReport
+
+    // Gets problems that appear in the same disjunction.
+    const problemsInSameDisjunction = problems.filter(
+        (problem) => problem.messageId !== "disjunctive",
+    )
+
+    if (problemsInSameDisjunction.length) {
+        // Only report problems that appear in the same disjunction.
+        problemsToReport = problemsInSameDisjunction
+    } else {
+        // If all groups appear in different disjunctions, report it.
+        problemsToReport = problems
+    }
+
+    const [{ messageId, group }, ...other] = problemsToReport
+    let otherGroups = ""
+
+    if (other.length === 1) {
+        otherGroups = " and another group"
+    } else if (other.length > 1) {
+        otherGroups = ` and other ${other.length} groups`
+    }
+    return {
+        messageId,
+        group,
+        otherGroups,
+    }
+}
+
+/**
  * Returns the message id specifying the reason why the backreference is
  * useless.
  */
 function getUselessMessageId(
     backRef: Backreference,
+    group: CapturingGroup,
     flags: ReadonlyFlags,
-): string | null {
-    const group = backRef.resolved
-
+): MessageId | null {
     const closestAncestor = getClosestAncestor(backRef, group)
 
     if (closestAncestor === group) {
@@ -93,16 +152,16 @@ export default createRule("no-useless-backreference", {
         },
         schema: [],
         messages: {
-            nested: "Backreference {{ bref }} will be ignored. It references group {{ group }} from within that group.",
+            nested: "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} from within that group.",
             forward:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} which appears later in the pattern.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} which appears later in the pattern.",
             backward:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} which appears before in the same lookbehind.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} which appears before in the same lookbehind.",
             disjunctive:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in another alternative.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} which is in another alternative.",
             intoNegativeLookaround:
-                "Backreference {{ bref }} will be ignored. It references group {{ group }} which is in a negative lookaround.",
-            empty: "Backreference {{ bref }} will be ignored. It references group {{ group }} which always captures zero characters.",
+                "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} which is in a negative lookaround.",
+            empty: "Backreference {{ bref }} will be ignored. It references group {{ group }}{{ otherGroups }} which always captures zero characters.",
         },
         type: "suggestion", // "problem",
     },
@@ -114,16 +173,17 @@ export default createRule("no-useless-backreference", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(backRef) {
-                    const messageId = getUselessMessageId(backRef, flags)
+                    const problem = getUselessProblem(backRef, flags)
 
-                    if (messageId) {
+                    if (problem) {
                         context.report({
                             node,
                             loc: getRegexpLocation(backRef),
-                            messageId,
+                            messageId: problem.messageId,
                             data: {
                                 bref: mention(backRef),
-                                group: mention(backRef.resolved),
+                                group: mention(problem.group),
+                                otherGroups: problem.otherGroups,
                             },
                         })
                     }

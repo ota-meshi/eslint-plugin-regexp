@@ -205,6 +205,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 parser: tsParser,
                 parserOptions: {
                     project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
                 },
             },
         },
@@ -238,6 +239,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 parser: tsParser,
                 parserOptions: {
                     project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
                 },
             },
         },
@@ -257,6 +259,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 parser: tsParser,
                 parserOptions: {
                     project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
                 },
             },
         },
@@ -279,6 +282,7 @@ tester.run("prefer-result-array-groups", rule as any, {
                 parser: tsParser,
                 parserOptions: {
                     project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
                 },
             },
         },

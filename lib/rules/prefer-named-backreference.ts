@@ -24,7 +24,11 @@ export default createRule("prefer-named-backreference", {
         }: RegExpContext): RegExpVisitor.Handlers {
             return {
                 onBackreferenceEnter(bNode) {
-                    if (bNode.resolved.name && !bNode.raw.startsWith("\\k<")) {
+                    if (
+                        !bNode.ambiguous &&
+                        bNode.resolved.name &&
+                        !bNode.raw.startsWith("\\k<")
+                    ) {
                         context.report({
                             node,
                             loc: getRegexpLocation(bNode),
