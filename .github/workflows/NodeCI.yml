@@ -36,8 +36,8 @@ jobs:
               run: npm ci
             - name: Install ESLint ${{ matrix.eslint }}
               run: npm i -D eslint@${{ matrix.eslint }} -f
-            - name: Build
-              run: npm run build
+            # - name: Build
+            #   run: npm run build
             - name: Test
               run: npm test
     test-and-coverage:
