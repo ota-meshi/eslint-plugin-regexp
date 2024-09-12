@@ -61,6 +61,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                     console.log("Test", context.sourceCode.ast)
                     console.log("Test2", target ?? lastExpr)
                     console.log("Test3", context.sourceCode.text)
+                    console.log("Test4", filename)
                     throw e
                 }
             },
