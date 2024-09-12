@@ -1,6 +1,6 @@
 import assert from "assert"
 import path from "path"
-import type * as tsParser from "@typescript-eslint/parser"
+import * as tsParser from "@typescript-eslint/parser"
 import { Linter } from "eslint"
 import type { AST, Rule } from "eslint"
 // eslint-disable-next-line import/no-duplicates -- we need both
@@ -20,8 +20,8 @@ export type TestCase = {
 }
 
 const tsconfigRootDir = path.resolve(__dirname, "../../../..")
-const project = "tsconfig.json"
-const filename = path.join(
+const project = path.resolve(tsconfigRootDir, "./tsconfig.json")
+const filename = path.resolve(
     tsconfigRootDir,
     "./tests/lib/utils/type-tracker/fixture.ts",
 )
@@ -53,12 +53,23 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 }
             },
             "Program:exit"() {
-                types = createTypeTracker(context).getTypes(target ?? lastExpr!)
+                try {
+                    types = createTypeTracker(context).getTypes(
+                        target ?? lastExpr!,
+                    )
+                } catch (e) {
+                    console.log("Test", context.sourceCode.ast)
+                    console.log("Test2", target ?? lastExpr)
+                    console.log("Test3", context.sourceCode.text)
+                    console.log("Test4", filename)
+                    throw e
+                }
             },
         }
     }
 
     const linter = new Linter({ configType: "flat" })
+    tsParser.clearCaches()
     const r = linter.verify(
         testCase.code,
         {
@@ -93,7 +104,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 "test/test": "error",
             },
         },
-        filename,
+        path.normalize(filename),
     )
     if (r.length) {
         assert.deepStrictEqual(r, [])
