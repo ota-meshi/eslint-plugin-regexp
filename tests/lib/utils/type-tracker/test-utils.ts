@@ -86,6 +86,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 parserOptions: {
                     tsconfigRootDir,
                     project,
+                    disallowAutomaticSingleRunInference: false,
                     ...testCase.languageOptions?.parserOptions,
                 },
             },
