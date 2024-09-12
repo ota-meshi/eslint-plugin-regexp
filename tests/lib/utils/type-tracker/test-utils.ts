@@ -1,6 +1,6 @@
 import assert from "assert"
 import path from "path"
-import type * as tsParser from "@typescript-eslint/parser"
+import * as tsParser from "@typescript-eslint/parser"
 import { Linter } from "eslint"
 import type { AST, Rule } from "eslint"
 // eslint-disable-next-line import/no-duplicates -- we need both
@@ -69,6 +69,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
     }
 
     const linter = new Linter({ configType: "flat" })
+    tsParser.clearCaches()
     const r = linter.verify(
         testCase.code,
         {
@@ -103,7 +104,7 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
                 "test/test": "error",
             },
         },
-        filename,
+        path.normalize(filename),
     )
     if (r.length) {
         assert.deepStrictEqual(r, [])
