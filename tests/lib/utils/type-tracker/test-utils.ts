@@ -20,7 +20,7 @@ export type TestCase = {
 }
 
 const tsconfigRootDir = path.resolve(__dirname, "../../../..")
-const project = "tsconfig.json"
+const project = path.join(tsconfigRootDir, "tsconfig.json")
 const filename = path.join(
     tsconfigRootDir,
     "./tests/lib/utils/type-tracker/fixture.ts",
