@@ -19,15 +19,8 @@ type BaseReferenceElement<T> = {
 
 export function parseReplacementsForString(
     text: string,
-): BaseReplacementElement<{
-    /* empty object */
-}>[] {
-    return baseParseReplacements<
-        {
-            /* empty object */
-        },
-        { value: string }
-    >(
+): BaseReplacementElement<object>[] {
+    return baseParseReplacements<object, { value: string }>(
         [...text].map((s) => ({ value: s })),
         () => ({}),
     )
