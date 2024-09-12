@@ -133,6 +133,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
         if (cacheTypeInfo.has(node)) {
             return cacheTypeInfo.get(node) ?? null
         }
+        if (typeof node !== "object" || !node) console.log("Test", node)
         cacheTypeInfo.set(node, null) // Store null to avoid an infinite loop.
         try {
             const type = getTypeWithoutCache(node)
