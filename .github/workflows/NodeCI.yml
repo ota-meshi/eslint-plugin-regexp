@@ -16,6 +16,8 @@ jobs:
               run: npm ci
             - name: Build
               run: npm run build
+            - name: patch-package
+              run: npx patch-package
             - name: Lint
               run: npm run lint
     test:

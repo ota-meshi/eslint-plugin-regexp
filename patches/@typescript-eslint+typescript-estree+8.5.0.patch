@@ -1,0 +1,12 @@
+diff --git a/node_modules/@typescript-eslint/typescript-estree/dist/create-program/getWatchProgramsForProjects.js b/node_modules/@typescript-eslint/typescript-estree/dist/create-program/getWatchProgramsForProjects.js
+index 93c3936..479a8f3 100644
+--- a/node_modules/@typescript-eslint/typescript-estree/dist/create-program/getWatchProgramsForProjects.js
++++ b/node_modules/@typescript-eslint/typescript-estree/dist/create-program/getWatchProgramsForProjects.js
+@@ -120,6 +120,7 @@ function getWatchProgramsForProjects(parseSettings) {
+     if (parsedFilesSeenHash.get(filePath) !== codeHash &&
+         fileWatchCallbacks &&
+         fileWatchCallbacks.size > 0) {
++            console.log('File changed, triggering update. %s', filePath);
+         fileWatchCallbacks.forEach(cb => cb(filePath, ts.FileWatcherEventKind.Changed));
+     }
+     const currentProjectsFromSettings = new Map(parseSettings.projects);
