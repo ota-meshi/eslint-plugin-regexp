@@ -60,7 +60,7 @@ The `plugin.configs["flat/recommended"]` config enables a subset of [the rules](
 
 ```js
 // eslint.config.js
-import * as regexpPlugin from "eslint-plugin-regexp"
+import regexpPlugin from "eslint-plugin-regexp"
 
 export default [
     regexpPlugin.configs["flat/recommended"],
