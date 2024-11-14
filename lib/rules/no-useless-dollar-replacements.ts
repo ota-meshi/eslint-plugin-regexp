@@ -32,11 +32,11 @@ export default createRule("no-useless-dollar-replacements", {
             numberRef:
                 "'${{ refText }}' replacement will insert '${{ refText }}' because there are less than {{ num }} capturing groups. Use '$$' if you want to escape '$'.",
             numberRefCapturingNotFound:
-                "'${{ refText }}' replacement will insert '${{ refText }}' because capturing group does not found. Use '$$' if you want to escape '$'.",
+                "'${{ refText }}' replacement will insert '${{ refText }}' because capturing group is not found. Use '$$' if you want to escape '$'.",
             namedRef:
                 "'$<{{ refText }}>' replacement will be ignored because the named capturing group is not found. Use '$$' if you want to escape '$'.",
             namedRefNamedCapturingNotFound:
-                "'$<{{ refText }}>' replacement will insert '$<{{ refText }}>' because named capturing group does not found. Use '$$' if you want to escape '$'.",
+                "'$<{{ refText }}>' replacement will insert '$<{{ refText }}>' because named capturing group is not found. Use '$$' if you want to escape '$'.",
         },
         type: "suggestion", // "problem",
     },
