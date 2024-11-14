@@ -62,7 +62,7 @@ Code:
     |                                       ^~ [1]
   4 |             
 
-[1] '$1' replacement will insert '$1' because capturing group does not found. Use '$$' if you want to escape '$'.
+[1] '$1' replacement will insert '$1' because capturing group is not found. Use '$$' if you want to escape '$'.
 ---
 
 
@@ -73,7 +73,7 @@ Code:
     |                                       ^~~~ [1]
   3 |             
 
-[1] '$<a>' replacement will insert '$<a>' because named capturing group does not found. Use '$$' if you want to escape '$'.
+[1] '$<a>' replacement will insert '$<a>' because named capturing group is not found. Use '$$' if you want to escape '$'.
 ---
 
 
