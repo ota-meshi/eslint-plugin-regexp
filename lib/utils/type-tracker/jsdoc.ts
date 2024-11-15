@@ -109,7 +109,11 @@ export class JSDoc {
  * Get the JSDoc comment for a given expression node.
  */
 export function getJSDoc(
-    node: ES.Expression | ES.VariableDeclarator | ES.FunctionDeclaration,
+    node:
+        | ES.Expression
+        | ES.VariableDeclarator
+        | ES.FunctionDeclaration
+        | ES.PrivateIdentifier,
     context: Rule.RuleContext,
 ): JSDoc | null {
     const sourceCode = context.sourceCode

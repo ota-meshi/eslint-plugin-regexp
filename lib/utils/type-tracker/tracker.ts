@@ -74,7 +74,10 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
 
     const { tsNodeMap, checker, usedTS } = getTypeScriptTools(context)
 
-    const cacheTypeInfo = new WeakMap<ES.Expression, TypeInfo | null>()
+    const cacheTypeInfo = new WeakMap<
+        ES.Expression | ES.PrivateIdentifier,
+        TypeInfo | null
+    >()
 
     const tracker: TypeTracker = {
         isString,
@@ -129,7 +132,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
     /**
      * Get the type name from given node.
      */
-    function getType(node: ES.Expression): TypeInfo | null {
+    function getType(
+        node: ES.Expression | ES.PrivateIdentifier,
+    ): TypeInfo | null {
         if (cacheTypeInfo.has(node)) {
             return cacheTypeInfo.get(node) ?? null
         }
@@ -147,7 +152,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
     /**
      * Get the type name from given node.
      */
-    function getTypeWithoutCache(node: ES.Expression): TypeInfo | null {
+    function getTypeWithoutCache(
+        node: ES.Expression | ES.PrivateIdentifier,
+    ): TypeInfo | null {
         if (node.type === "Literal") {
             if (typeof node.value === "string") {
                 return STRING
@@ -511,7 +518,9 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
     /**
      * Get type from given node by ts types.
      */
-    function getTypeByTs(node: ES.Expression): TypeInfo | null {
+    function getTypeByTs(
+        node: ES.Expression | ES.PrivateIdentifier,
+    ): TypeInfo | null {
         const tsNode = tsNodeMap.get(node)
         const tsType = (tsNode && checker?.getTypeAtLocation(tsNode)) || null
         return tsType && getTypeFromTsType(tsType)

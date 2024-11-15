@@ -1,5 +1,4 @@
-import type { Rule } from "eslint"
-import type { Variable } from "eslint-scope"
+import type { Rule, Scope } from "eslint"
 import type * as ES from "estree"
 import * as astUtils from "../ast-utils"
 import * as eslintUtils from "@eslint-community/eslint-utils"
@@ -10,7 +9,7 @@ import * as eslintUtils from "@eslint-community/eslint-utils"
 export function findVariable(
     context: Rule.RuleContext,
     node: ES.Identifier,
-): Variable | null {
+): Scope.Variable | null {
     return astUtils.findVariable(context, node)
 }
 /**

@@ -141,6 +141,22 @@ const EQUALS_CHECKER: {
     Group(a, b, flags, shortCircuit) {
         return isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
     },
+    ModifierFlags(a, b) {
+        return (
+            a.dotAll === b.dotAll &&
+            a.ignoreCase === b.ignoreCase &&
+            a.multiline === b.multiline
+        )
+    },
+    Modifiers(a, b, flags, shortCircuit) {
+        return (
+            isEqualNodes(a.add, b.add, flags, shortCircuit) &&
+            ((a.remove == null && b.remove == null) ||
+                (a.remove != null &&
+                    b.remove != null &&
+                    isEqualNodes(a.remove, b.remove, flags, shortCircuit)))
+        )
+    },
     Pattern(a, b, flags, shortCircuit) {
         return isEqualSet(a.alternatives, b.alternatives, flags, shortCircuit)
     },

@@ -1,5 +1,10 @@
 import type { Rule, AST, SourceCode } from "eslint"
-import type { Expression, Literal, RegExpLiteral } from "estree"
+import type {
+    Expression,
+    Literal,
+    RegExpLiteral,
+    PrivateIdentifier,
+} from "estree"
 import {
     dereferenceOwnedVariable,
     astRangeToLocation,
@@ -266,6 +271,7 @@ export class PatternSource {
         let value = ""
 
         for (const e of flat) {
+            if (e.type === "PrivateIdentifier") return null
             const staticValue = getStaticValue(context, e)
             if (!staticValue) {
                 return null
@@ -433,10 +439,15 @@ export class PatternSource {
  *
  * This will automatically dereference owned constants.
  */
-function flattenPlus(context: Rule.RuleContext, e: Expression): Expression[] {
+function flattenPlus(
+    context: Rule.RuleContext,
+    e: Expression,
+): (Expression | PrivateIdentifier)[] {
     if (e.type === "BinaryExpression" && e.operator === "+") {
         return [
-            ...flattenPlus(context, e.left),
+            ...(e.left.type !== "PrivateIdentifier"
+                ? flattenPlus(context, e.left)
+                : [e.left]),
             ...flattenPlus(context, e.right),
         ]
     }

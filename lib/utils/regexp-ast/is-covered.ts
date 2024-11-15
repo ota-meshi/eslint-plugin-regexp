@@ -481,6 +481,8 @@ function normalizeNodeWithoutCache(
 
         case "Backreference":
         case "Flags":
+        case "ModifierFlags":
+        case "Modifiers":
             return NormalizedOther.fromNode(node)
 
         default:
