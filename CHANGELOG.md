@@ -1,5 +1,17 @@
 # eslint-plugin-regexp
 
+## 2.7.0
+
+### Minor Changes
+
+- Add support for ES2025 duplicate named capturing groups ([#752](https://github.com/ota-meshi/eslint-plugin-regexp/pull/752))
+
+### Patch Changes
+
+- Updates unicode property alias resource with latest ([#766](https://github.com/ota-meshi/eslint-plugin-regexp/pull/766))
+
+- fix(regexp/no-useless-dollar-replacements): Correct capturing group not found grammar ([#776](https://github.com/ota-meshi/eslint-plugin-regexp/pull/776))
+
 ## 2.6.0
 
 ### Minor Changes
