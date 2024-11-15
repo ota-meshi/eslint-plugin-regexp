@@ -625,6 +625,9 @@ function jsDocTypeNodeToTypeInfo(
     if (node.type === "JsdocTypeNumber") {
         return NUMBER
     }
+    if (node.type === "JsdocTypeAsserts") {
+        return BOOLEAN
+    }
     if (
         node.type === "JsdocTypeOptional" ||
         node.type === "JsdocTypeNullable" ||
