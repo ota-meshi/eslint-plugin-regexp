@@ -109,7 +109,7 @@
         "prettier": "~3.4.0",
         "semver": "^7.5.4",
         "stylelint": "^16.0.0",
-        "stylelint-config-recommended": "^14.0.1",
+        "stylelint-config-recommended": "^15.0.0",
         "stylelint-config-recommended-vue": "^1.5.0",
         "ts-node": "^10.9.2",
         "typescript": "~5.7.0",
