@@ -7,6 +7,7 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import { Chars, toUnicodeSet } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -60,7 +61,8 @@ export default createRule("prefer-d", {
     },
     create(context) {
         const insideCharacterClass: "ignore" | "range" | "d" =
-            context.options[0]?.insideCharacterClass ?? "ignore"
+            (context.options[0] as ObjectOption)?.insideCharacterClass ??
+            "ignore"
 
         function createVisitor({
             node,

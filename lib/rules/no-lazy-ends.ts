@@ -1,6 +1,7 @@
 import type { Alternative, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
@@ -79,7 +80,8 @@ export default createRule("no-lazy-ends", {
         type: "problem",
     },
     create(context) {
-        const ignorePartial = context.options[0]?.ignorePartial ?? true
+        const ignorePartial =
+            (context.options[0] as ObjectOption)?.ignorePartial ?? true
 
         function createVisitor({
             node,

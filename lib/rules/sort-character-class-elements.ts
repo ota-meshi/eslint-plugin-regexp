@@ -9,6 +9,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyWord } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { getLexicographicallySmallest } from "../utils/lexicographically-smallest"
@@ -135,7 +136,7 @@ export default createRule("sort-character-class-elements", {
         } = { "*": Infinity }
 
         ;(
-            (context.options[0]?.order ??
+            ((context.options[0] as ObjectOption)?.order ??
                 DEFAULT_ORDER) as CharacterClassElementKind[]
         ).forEach((o, i) => {
             orderOption[o] = i + 1

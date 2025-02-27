@@ -19,6 +19,7 @@ import {
     followPaths,
     toUnicodeSet,
 } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
@@ -291,7 +292,7 @@ export default createRule("no-misleading-capturing-group", {
     },
     create(context) {
         const reportBacktrackingEnds =
-            context.options[0]?.reportBacktrackingEnds ?? true
+            (context.options[0] as ObjectOption)?.reportBacktrackingEnds ?? true
 
         function createVisitor(
             regexpContext: RegExpContext,

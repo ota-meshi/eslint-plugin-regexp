@@ -1,5 +1,6 @@
 import type { Group } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
@@ -56,11 +57,12 @@ export default createRule("no-useless-non-capturing-group", {
     },
     create(context) {
         const allowTop: "always" | "never" | "partial" =
-            context.options[0]?.allowTop === true
+            (context.options[0] as ObjectOption)?.allowTop === true
                 ? "always"
-                : context.options[0]?.allowTop === false
+                : (context.options[0] as ObjectOption)?.allowTop === false
                   ? "never"
-                  : (context.options[0]?.allowTop ?? "partial")
+                  : ((context.options[0] as ObjectOption)?.allowTop ??
+                    "partial")
 
         function createVisitor({
             node,

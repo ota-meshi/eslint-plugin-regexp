@@ -54,3 +54,8 @@ export interface PartialRuleMetaData {
     type: "problem" | "suggestion" | "layout"
     hasSuggestions?: boolean
 }
+
+export type RegexpSettings = {
+    allowedCharacterRanges?: string | readonly string[]
+}
+export type ObjectOption = Record<string, never>

@@ -19,6 +19,7 @@ import {
 } from "regexp-ast-analysis"
 import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
 import { analyse } from "scslre"
+import type { ObjectOption } from "../types"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { RegExpContext } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
@@ -145,9 +146,12 @@ export default createRule("no-super-linear-move", {
     },
     create(context) {
         const reportUncertain =
-            (context.options[0]?.report ?? "certain") === "potential"
-        const ignoreSticky = context.options[0]?.ignoreSticky ?? true
-        const ignorePartial = context.options[0]?.ignorePartial ?? true
+            ((context.options[0] as ObjectOption)?.report ?? "certain") ===
+            "potential"
+        const ignoreSticky =
+            (context.options[0] as ObjectOption)?.ignoreSticky ?? true
+        const ignorePartial =
+            (context.options[0] as ObjectOption)?.ignorePartial ?? true
 
         function getScslreReports(
             regexpContext: RegExpContext,

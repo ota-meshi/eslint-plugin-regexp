@@ -1,6 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Position, SourceLocation } from "estree"
 import { analyse } from "scslre"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern"
@@ -60,7 +61,8 @@ export default createRule("no-super-linear-backtracking", {
     },
     create(context) {
         const reportUncertain =
-            (context.options[0]?.report ?? "certain") === "potential"
+            ((context.options[0] as ObjectOption)?.report ?? "certain") ===
+            "potential"
 
         function createVisitor(
             regexpContext: RegExpContext,

@@ -19,6 +19,7 @@ import {
     getConsumedChars,
     toUnicodeSet,
 } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
@@ -589,7 +590,7 @@ export default createRule("optimal-quantifier-concatenation", {
     },
     create(context) {
         const cgReporting: CapturingGroupReporting =
-            context.options[0]?.capturingGroups ??
+            (context.options[0] as ObjectOption)?.capturingGroups ??
             CapturingGroupReporting.report
 
         function createVisitor(

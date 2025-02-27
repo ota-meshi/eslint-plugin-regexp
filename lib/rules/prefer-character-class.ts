@@ -20,6 +20,7 @@ import {
     getMatchingDirection,
     toUnicodeSet,
 } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { RegExpContext } from "../utils"
 import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
@@ -468,7 +469,7 @@ export default createRule("prefer-character-class", {
     },
     create(context) {
         const minCharacterAlternatives: number =
-            context.options[0]?.minAlternatives ?? 3
+            (context.options[0] as ObjectOption)?.minAlternatives ?? 3
 
         function createVisitor(
             regexpContext: RegExpContext,

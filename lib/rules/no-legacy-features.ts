@@ -1,4 +1,5 @@
 import type { MemberExpression } from "estree"
+import type { ObjectOption } from "../types"
 import { createRule } from "../utils"
 import { createTypeTracker } from "../utils/type-tracker"
 import type { TYPES } from "@eslint-community/eslint-utils"
@@ -83,9 +84,11 @@ export default createRule("no-legacy-features", {
     },
     create(context) {
         const staticProperties: StaticProperty[] =
-            context.options[0]?.staticProperties ?? STATIC_PROPERTIES
+            (context.options[0] as ObjectOption)?.staticProperties ??
+            STATIC_PROPERTIES
         const prototypeMethods: PrototypeMethod[] =
-            context.options[0]?.prototypeMethods ?? PROTOTYPE_METHODS
+            (context.options[0] as ObjectOption)?.prototypeMethods ??
+            PROTOTYPE_METHODS
         const typeTracer = createTypeTracker(context)
 
         return {

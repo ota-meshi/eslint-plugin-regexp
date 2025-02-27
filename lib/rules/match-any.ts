@@ -6,6 +6,7 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import { matchesAllCharacters, hasStrings } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import { isRegexpLiteral } from "../utils/ast-utils/utils"
@@ -58,10 +59,8 @@ export default createRule("match-any", {
     },
     create(context) {
         const sourceCode = context.sourceCode
-        const allowList: Allowed[] = context.options[0]?.allows ?? [
-            OPTION_SS1,
-            OPTION_DOTALL,
-        ]
+        const allowList: Allowed[] = (context.options[0] as ObjectOption)
+            ?.allows ?? [OPTION_SS1, OPTION_DOTALL]
         const allows = new Set<string>(allowList)
 
         const preference: Allowed | null = allowList[0] || null

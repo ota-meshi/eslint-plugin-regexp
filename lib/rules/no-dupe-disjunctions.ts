@@ -28,6 +28,7 @@ import {
     getEffectiveMaximumRepetition,
     canReorder,
 } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -969,12 +970,14 @@ export default createRule("no-dupe-disjunctions", {
     },
     create(context) {
         const reportExponentialBacktracking: ReportExponentialBacktracking =
-            context.options[0]?.reportExponentialBacktracking ??
+            (context.options[0] as ObjectOption)
+                ?.reportExponentialBacktracking ??
             ReportExponentialBacktracking.potential
         const reportUnreachable: ReportUnreachable =
-            context.options[0]?.reportUnreachable ?? ReportUnreachable.certain
+            (context.options[0] as ObjectOption)?.reportUnreachable ??
+            ReportUnreachable.certain
         const report: ReportOption =
-            context.options[0]?.report ?? ReportOption.trivial
+            (context.options[0] as ObjectOption)?.report ?? ReportOption.trivial
 
         const allowedRanges = getAllowedCharRanges(undefined, context)
 

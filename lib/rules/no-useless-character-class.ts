@@ -5,6 +5,7 @@ import type {
     UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
 import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
@@ -48,7 +49,8 @@ export default createRule("no-useless-character-class", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const ignores: string[] = context.options[0]?.ignores ?? ["="]
+        const ignores: string[] = (context.options[0] as ObjectOption)
+            ?.ignores ?? ["="]
 
         function createVisitor({
             node,

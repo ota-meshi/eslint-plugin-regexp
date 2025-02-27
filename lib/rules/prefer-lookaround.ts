@@ -15,6 +15,7 @@ import {
     getConsumedChars,
 } from "regexp-ast-analysis"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { KnownMethodCall, ReferenceElement } from "../utils/ast-utils"
@@ -399,7 +400,9 @@ export default createRule("prefer-lookaround", {
         type: "suggestion",
     },
     create(context) {
-        const { lookbehind, strictTypes } = parseOption(context.options[0])
+        const { lookbehind, strictTypes } = parseOption(
+            context.options[0] as ObjectOption,
+        )
         const typeTracer = createTypeTracker(context)
 
         function createVisitor(

@@ -1,6 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Expression, Super } from "estree"
 import type * as TS from "typescript"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import {
@@ -36,7 +37,8 @@ export default createRule("prefer-result-array-groups", {
         type: "suggestion",
     },
     create(context) {
-        const strictTypes = context.options[0]?.strictTypes ?? true
+        const strictTypes =
+            (context.options[0] as ObjectOption)?.strictTypes ?? true
         const sourceCode = context.sourceCode
 
         function createVisitor(

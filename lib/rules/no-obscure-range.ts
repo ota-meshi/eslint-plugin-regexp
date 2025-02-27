@@ -1,4 +1,5 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import {
@@ -38,7 +39,7 @@ export default createRule("no-obscure-range", {
     },
     create(context) {
         const allowedRanges = getAllowedCharRanges(
-            context.options[0]?.allowed,
+            (context.options[0] as ObjectOption)?.allowed,
             context,
         )
 

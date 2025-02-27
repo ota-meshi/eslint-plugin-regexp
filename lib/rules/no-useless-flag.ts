@@ -7,7 +7,7 @@ import type {
     RegExpLiteral,
     Statement,
 } from "estree"
-import type { RuleListener } from "../types"
+import type { ObjectOption, RuleListener } from "../types"
 import type { RegExpContext, RegExpContextForSource } from "../utils"
 import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
 import type { KnownMethodCall } from "../utils/ast-utils"
@@ -830,7 +830,9 @@ export default createRule("no-useless-flag", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const { ignore, strictTypes } = parseOption(context.options[0])
+        const { ignore, strictTypes } = parseOption(
+            context.options[0] as ObjectOption,
+        )
 
         let visitor: RuleListener = {}
         if (!ignore.has("i")) {

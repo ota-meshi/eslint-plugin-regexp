@@ -1,6 +1,7 @@
 import type { CapturingGroup } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import { getCapturingGroupNumber } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
@@ -45,8 +46,10 @@ export default createRule("no-unused-capturing-group", {
         hasSuggestions: true,
     },
     create(context) {
-        const fixable: boolean = context.options[0]?.fixable ?? false
-        const allowNamed: boolean = context.options[0]?.allowNamed ?? false
+        const fixable: boolean =
+            (context.options[0] as ObjectOption)?.fixable ?? false
+        const allowNamed: boolean =
+            (context.options[0] as ObjectOption)?.allowNamed ?? false
 
         function reportUnused(
             unused: Set<CapturingGroup>,

@@ -3,6 +3,7 @@ import type {
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
@@ -38,7 +39,7 @@ export default createRule("prefer-range", {
     },
     create(context) {
         const allowedRanges = getAllowedCharRanges(
-            context.options[0]?.target,
+            (context.options[0] as ObjectOption)?.target,
             context,
         )
         const sourceCode = context.sourceCode

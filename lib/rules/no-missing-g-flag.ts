@@ -1,3 +1,4 @@
+import type { ObjectOption } from "../types"
 import type { RegExpContext, UnparsableRegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { ExpressionReference } from "../utils/ast-utils"
@@ -51,7 +52,7 @@ export default createRule("no-missing-g-flag", {
         type: "problem",
     },
     create(context) {
-        const { strictTypes } = parseOption(context.options[0])
+        const { strictTypes } = parseOption(context.options[0] as ObjectOption)
         const typeTracer = createTypeTracker(context)
 
         /** The logic of this rule */

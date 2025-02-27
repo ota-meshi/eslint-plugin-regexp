@@ -3,6 +3,7 @@ import type {
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -88,7 +89,7 @@ export default createRule("letter-case", {
         type: "layout", // "problem",
     },
     create(context) {
-        const options = parseOptions(context.options[0])
+        const options = parseOptions(context.options[0] as ObjectOption)
 
         function report(
             { node, getRegexpLocation, fixReplaceNode }: RegExpContext,

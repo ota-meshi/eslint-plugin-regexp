@@ -1,4 +1,5 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 
@@ -25,7 +26,8 @@ export default createRule("prefer-named-replacement", {
         type: "suggestion", // "problem",
     },
     create(context) {
-        const strictTypes = context.options[0]?.strictTypes ?? true
+        const strictTypes =
+            (context.options[0] as ObjectOption)?.strictTypes ?? true
         const sourceCode = context.sourceCode
 
         function createVisitor(

@@ -6,6 +6,7 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import { createRule, defineRegexpVisitor } from "../utils"
 import type { PatternRange } from "../utils/ast-utils/pattern-source"
@@ -225,7 +226,7 @@ export default createRule("no-misleading-unicode-character", {
         type: "problem",
     },
     create(context) {
-        const fixable = context.options[0]?.fixable ?? false
+        const fixable = (context.options[0] as ObjectOption)?.fixable ?? false
 
         function makeFix(
             fix: Rule.ReportFixer,

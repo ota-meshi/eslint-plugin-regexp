@@ -1,6 +1,7 @@
 import type { Rule } from "eslint"
 import type { JSONSchema4 } from "json-schema"
 import type { CharRange } from "refa"
+import type { RegexpSettings } from "../types"
 import {
     CP_CAPITAL_A,
     CP_CAPITAL_Z,
@@ -28,7 +29,8 @@ export function getAllowedCharRanges(
     context: Rule.RuleContext,
 ): readonly CharRange[] {
     let target: string | readonly string[] | undefined =
-        allowedByRuleOption || context.settings.regexp?.allowedCharacterRanges
+        allowedByRuleOption ||
+        (context.settings.regexp as RegexpSettings)?.allowedCharacterRanges
 
     if (!target) {
         // defaults to "alphanumeric"
