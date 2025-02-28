@@ -112,7 +112,7 @@
         "stylelint-config-recommended": "^15.0.0",
         "stylelint-config-recommended-vue": "^1.5.0",
         "ts-node": "^10.9.2",
-        "typescript": "~5.7.0",
+        "typescript": "~5.8.0",
         "typescript-eslint": "~8.25.0",
         "vite-plugin-eslint4b": "^0.5.1",
         "vitepress": "^1.0.0",
