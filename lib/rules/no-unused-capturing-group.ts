@@ -140,11 +140,21 @@ export default createRule("no-unused-capturing-group", {
             }
 
             return {
-                unusedIndexRef(index: number): boolean {
+                unusedIndexRef(index: number, groupTotal: number): boolean {
                     if (hasSplit) {
                         return false
                     }
-                    return !indexRefs.includes(index)
+                    if (!indexRefs.length) {
+                        return true
+                    }
+                    if (indexRefs.includes(index)) {
+                        return false
+                    }
+                    const _indexRefs = indexRefs.filter((i) => i <= groupTotal)
+                    if (!indexRefs.length) {
+                        return true
+                    }
+                    return _indexRefs.every((i) => i < index)
                 },
                 unusedNamedRef(name: string): boolean {
                     if (hasUnknownName) {
@@ -169,7 +179,10 @@ export default createRule("no-unused-capturing-group", {
                 const cgNode = allCapturingGroups[index]
                 if (
                     cgNode.references.length ||
-                    !references.unusedIndexRef(index + 1)
+                    !references.unusedIndexRef(
+                        index + 1,
+                        allCapturingGroups.length,
+                    )
                 ) {
                     continue
                 }

@@ -26,6 +26,7 @@ This rule reports unused capturing groups.
 
 /* ✓ GOOD */
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2/$3') // "2000/12/31"
+var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3') // "31"
 var replaced = '2000-12-31'.replace(/(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})/u, '$<y>/$<m>/$<d>') // "2000/12/31"
 var replaced = '2000-12-31'.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, y, m, d) => `${y}/${m}/${d}`) // "2000/12/31"
 
