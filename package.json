@@ -116,7 +116,7 @@
         "typescript-eslint": "~8.26.0",
         "vite-plugin-eslint4b": "^0.5.1",
         "vitepress": "^1.0.0",
-        "vue-eslint-parser": "^9.0.0"
+        "vue-eslint-parser": "^10.0.0"
     },
     "dependencies": {
         "@eslint-community/eslint-utils": "^4.2.0",
