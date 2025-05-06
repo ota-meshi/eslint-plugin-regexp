@@ -74,7 +74,7 @@
         "@types/chai": "^5.0.0",
         "@types/eslint": "^9.0.0",
         "@types/eslint__eslintrc": "^2.1.1",
-        "@types/eslint-scope": "^3.7.1",
+        "@types/eslint-scope": "^8.0.0",
         "@types/estree": "^1.0.6",
         "@types/mocha": "^10.0.0",
         "@types/node": "^22.0.0",
