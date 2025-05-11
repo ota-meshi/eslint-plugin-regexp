@@ -6,7 +6,7 @@ import { getNewVersion } from "./lib/changesets-util"
 
 function yamlValue(val: unknown) {
     if (typeof val === "string") {
-        return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
+        return `"${val.replace(/\\/gu, "\\\\").replace(/"/gu, String.raw`\"`)}"`
     }
     return val
 }

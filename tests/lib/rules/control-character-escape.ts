@@ -14,7 +14,7 @@ tester.run("control-character-escape", rule as any, {
         String.raw`RegExp(/\0\t\n\v\f\r/, "i")`,
         String.raw`RegExp("\0\t\n\v\f\r", "i")`,
         String.raw`RegExp("\\0\\t\\n\\v\\f\\r", "i")`,
-        "/\\t/",
+        String.raw`/\t/`,
         "new RegExp('\t')",
         String.raw`/[\q{\0\t\n\v\f\r}]/v`,
     ],
@@ -26,7 +26,7 @@ tester.run("control-character-escape", rule as any, {
         String.raw`RegExp("\\cJ")`,
         String.raw`RegExp("\\u{a}", "u")`,
 
-        "/\\u0009/",
+        String.raw`/\u0009/`,
         "/\t/",
         String.raw`
             const s = "\\u0009"

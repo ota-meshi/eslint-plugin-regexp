@@ -9,16 +9,16 @@ describe("toCharSetSource", () => {
         })
     }
     it(`0x9 to \\t`, () => {
-        assert.strictEqual(toCharSetSource(9, {}), "\\t")
+        assert.strictEqual(toCharSetSource(9, {}), String.raw`\t`)
     })
     it(`0xA to \\n`, () => {
-        assert.strictEqual(toCharSetSource(10, {}), "\\n")
+        assert.strictEqual(toCharSetSource(10, {}), String.raw`\n`)
     })
     it(`0xC to \\f`, () => {
-        assert.strictEqual(toCharSetSource(12, {}), "\\f")
+        assert.strictEqual(toCharSetSource(12, {}), String.raw`\f`)
     })
     it(`0xD to \\n`, () => {
-        assert.strictEqual(toCharSetSource(13, {}), "\\r")
+        assert.strictEqual(toCharSetSource(13, {}), String.raw`\r`)
     })
 })
 

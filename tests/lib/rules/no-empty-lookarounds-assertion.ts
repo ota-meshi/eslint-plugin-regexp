@@ -18,8 +18,8 @@ tester.run("no-empty-lookarounds-assertion", rule as any, {
         "/x($)/",
         "/(?=(?=.).*)/",
         "/(?=$|a)/",
-        "/(?=\\ba*\\b)/",
-        '/b?r(#*)"(?:[^"]|"(?!\\1))*"\\1/',
+        String.raw`/(?=\ba*\b)/`,
+        String.raw`/b?r(#*)"(?:[^"]|"(?!\1))*"\1/`,
         String.raw`/x(?=[\q{a}])/v`,
     ],
     invalid: [
