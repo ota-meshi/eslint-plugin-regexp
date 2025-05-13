@@ -422,8 +422,7 @@ describe("Don't conflict even if using the rules together.", () => {
             messages: [
                 {
                     ruleId: "regexp/match-any",
-                    message:
-                        "Unexpected using '[\\s\\S]' to match any character.",
+                    message: String.raw`Unexpected using '[\s\S]' to match any character.`,
                 },
                 {
                     ruleId: "regexp/no-useless-flag",
@@ -434,8 +433,7 @@ describe("Don't conflict even if using the rules together.", () => {
             messagesAfterFix: [
                 {
                     ruleId: "regexp/match-any",
-                    message:
-                        "Unexpected using '[\\s\\S]' to match any character.",
+                    message: String.raw`Unexpected using '[\s\S]' to match any character.`,
                 },
             ],
         },
@@ -451,8 +449,7 @@ describe("Don't conflict even if using the rules together.", () => {
             messages: [
                 {
                     ruleId: "regexp/match-any",
-                    message:
-                        "Unexpected using '[\\s\\S]' to match any character.",
+                    message: String.raw`Unexpected using '[\s\S]' to match any character.`,
                 },
                 {
                     ruleId: "regexp/no-useless-flag",
@@ -463,8 +460,7 @@ describe("Don't conflict even if using the rules together.", () => {
             messagesAfterFix: [
                 {
                     ruleId: "regexp/match-any",
-                    message:
-                        "Unexpected using '[\\s\\S]' to match any character.",
+                    message: String.raw`Unexpected using '[\s\S]' to match any character.`,
                 },
             ],
         },

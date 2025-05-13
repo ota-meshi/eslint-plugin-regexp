@@ -18,12 +18,12 @@ const TESTCASES = [
         eval: null,
     },
     {
-        code: "'\\077'",
+        code: String.raw`'\077'`,
         q: "'",
         eval: "?",
     },
     {
-        code: "'\\777'",
+        code: String.raw`'\777'`,
         q: "'",
         eval: "?7",
     },

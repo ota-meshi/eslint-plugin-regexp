@@ -11,36 +11,36 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-useless-backreference", rule as any, {
     valid: [
-        "/.(?=(b))\\1/",
-        "/(?:(a)|b)\\1/",
-        "/(a)?\\1/",
-        "/(a)\\1/",
-        "/(?=(a))\\w\\1/",
-        "/(?!(a)\\1)/",
+        String.raw`/.(?=(b))\1/`,
+        String.raw`/(?:(a)|b)\1/`,
+        String.raw`/(a)?\1/`,
+        String.raw`/(a)\1/`,
+        String.raw`/(?=(a))\w\1/`,
+        String.raw`/(?!(a)\1)/`,
         // ES2025
         ...(semver.gte(ESLint.version, "9.6.0")
             ? [`/((?<foo>bar)\\k<foo>|(?<foo>baz))/`]
             : []),
     ],
     invalid: [
-        "/(b)(\\2a)/",
-        "/(a\\1)/",
+        String.raw`/(b)(\2a)/`,
+        String.raw`/(a\1)/`,
 
-        "/(\\b)a\\1/",
-        "/([\\q{}])a\\1/v",
-        "/(\\b|a{0})a\\1/",
+        String.raw`/(\b)a\1/`,
+        String.raw`/([\q{}])a\1/v`,
+        String.raw`/(\b|a{0})a\1/`,
 
-        "/(a)b|\\1/",
-        "/(?:(a)b|\\1)/",
-        "/(?<=(a)b|\\1)/",
+        String.raw`/(a)b|\1/`,
+        String.raw`/(?:(a)b|\1)/`,
+        String.raw`/(?<=(a)b|\1)/`,
 
-        "/\\1(a)/",
-        "/(?:\\1(a))+/",
+        String.raw`/\1(a)/`,
+        String.raw`/(?:\1(a))+/`,
 
-        "/(?<=(a)\\1)b/",
+        String.raw`/(?<=(a)\1)b/`,
 
-        "/(?!(a))\\w\\1/",
-        "/(?!(?!(a)))\\w\\1/",
+        String.raw`/(?!(a))\w\1/`,
+        String.raw`/(?!(?!(a)))\w\1/`,
 
         // ES2025
         ...(semver.gte(ESLint.version, "9.6.0")

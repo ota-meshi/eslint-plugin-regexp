@@ -14,8 +14,8 @@ tester.run("no-invisible-character", rule as any, {
         "/ /",
         "/[a]/",
         "/[ ]/",
-        "/\\t/",
-        "new RegExp('\\t')",
+        String.raw`/\t/`,
+        String.raw`new RegExp('\t')`,
         `
         const a = '' + '\t';
         new RegExp(a)`,

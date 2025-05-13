@@ -9,13 +9,18 @@ const tester = new SnapshotRuleTester({
 })
 
 tester.run("no-empty-capturing-group", rule as any, {
-    valid: ["/(a)/", "/a(\\bb)/", "/a(\\b|b)/", String.raw`/a([\q{a}])/v`],
+    valid: [
+        "/(a)/",
+        String.raw`/a(\bb)/`,
+        String.raw`/a(\b|b)/`,
+        String.raw`/a([\q{a}])/v`,
+    ],
     invalid: [
-        "/a(\\b)/",
+        String.raw`/a(\b)/`,
         "/a($)/",
         "/(^)a/",
         "/()a/",
-        "/(\\b\\b|(?:\\B|$))a/",
+        String.raw`/(\b\b|(?:\B|$))a/`,
         String.raw`/a([\q{}])/v`,
     ],
 })

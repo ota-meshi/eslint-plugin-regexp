@@ -10,7 +10,7 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-obscure-range", rule as any, {
     valid: [
-        "/[\\d\\0-\\x1f\\cA-\\cZ\\2-\\5\\012-\\123\\x10-\\uffff a-z a-f]/",
+        String.raw`/[\d\0-\x1f\cA-\cZ\2-\5\012-\123\x10-\uffff a-z a-f]/`,
         {
             code: "/[а-я А-Я]/",
             options: [{ allowed: ["alphanumeric", "а-я", "А-Я"] }],
@@ -37,17 +37,17 @@ tester.run("no-obscure-range", rule as any, {
             },
         },
 
-        "/[\\1-\\x13]/",
-        "/[\\x20-\\113]/",
+        String.raw`/[\1-\x13]/`,
+        String.raw`/[\x20-\113]/`,
 
-        "/[\\n-\\r]/",
+        String.raw`/[\n-\r]/`,
 
-        "/[\\cA-Z]/",
+        String.raw`/[\cA-Z]/`,
 
         "/[A-z]/",
         "/[0-A]/",
         "/[Z-a]/",
-        "/[A-\\x43]/",
+        String.raw`/[A-\x43]/`,
 
         "/[*+-/]/",
         String.raw`/[[ -\/]--+]/v`,

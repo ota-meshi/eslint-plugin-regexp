@@ -9,12 +9,17 @@ const tester = new SnapshotRuleTester({
 })
 
 tester.run("prefer-w", rule as any, {
-    valid: ["/\\w/", "/[\\Da-zA-Z_#]/", "/\\w/v", "/[\\Da-zA-Z_#]/v"],
+    valid: [
+        String.raw`/\w/`,
+        String.raw`/[\Da-zA-Z_#]/`,
+        String.raw`/\w/v`,
+        String.raw`/[\Da-zA-Z_#]/v`,
+    ],
     invalid: [
         "/[0-9a-zA-Z_]/",
         "/[0-9a-zA-Z_#]/",
-        "/[\\da-zA-Z_#]/",
-        "/[0-9a-z_[\\s&&\\p{ASCII}]]/iv",
+        String.raw`/[\da-zA-Z_#]/`,
+        String.raw`/[0-9a-z_[\s&&\p{ASCII}]]/iv`,
         "/[0-9a-z_]/i",
         "/[^0-9a-zA-Z_]/",
         "/[^0-9A-Z_]/i",

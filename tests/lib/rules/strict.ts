@@ -20,8 +20,8 @@ tester.run("strict", rule as any, {
         String.raw`/\p{L}/u`,
         String.raw`/ \( \) \[ \] \{ \} \| \* \+ \? \^ \$ \\ \/ \./`,
         String.raw`/[\( \) \[ \] \{ \} \| \* \+ \? \^ \$ \\ \/ \. \-]/`,
-        "/\\u000f/",
-        "/\\x000f/",
+        String.raw`/\u000f/`,
+        String.raw`/\x000f/`,
         String.raw`/[A--B]/v`,
     ],
     invalid: [
@@ -32,21 +32,21 @@ tester.run("strict", rule as any, {
 
         // invalid or incomplete escape sequences
         String.raw`/\u{42}/`,
-        "/\\u000;/",
-        "/\\x4/",
-        "/\\c;/",
-        "/\\p/",
-        "/\\p{H}/",
-        "/\\012/",
-        "/\\12/",
+        String.raw`/\u000;/`,
+        String.raw`/\x4/`,
+        String.raw`/\c;/`,
+        String.raw`/\p/`,
+        String.raw`/\p{H}/`,
+        String.raw`/\012/`,
+        String.raw`/\12/`,
 
         // incomplete backreference
-        "/\\k<foo/",
-        "/\\k<foo>/",
+        String.raw`/\k<foo/`,
+        String.raw`/\k<foo>/`,
 
         // useless escape
-        "/\\; \\_ \\a \\- \\'/",
-        "/[\\; \\_ \\a \\']/",
+        String.raw`/\; \_ \a \- \'/`,
+        String.raw`/[\; \_ \a \']/`,
 
         // invalid ranges
         String.raw`/[\w-a]/`,

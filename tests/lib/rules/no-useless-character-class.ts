@@ -22,7 +22,7 @@ tester.run("no-useless-character-class", rule as any, {
         },
         {
             code: String.raw`/[\d]/`,
-            options: [{ ignores: ["\\d"] }],
+            options: [{ ignores: [String.raw`\d`] }],
         },
         {
             code: String.raw`/[\u0061]/`,
@@ -59,7 +59,7 @@ tester.run("no-useless-character-class", rule as any, {
         },
         {
             code: String.raw`/[\D]/`,
-            options: [{ ignores: ["\\d"] }],
+            options: [{ ignores: [String.raw`\d`] }],
         },
         String.raw`/(,)[\0]/`,
         String.raw`/(,)[\01]/`,

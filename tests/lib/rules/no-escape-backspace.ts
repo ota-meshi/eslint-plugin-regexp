@@ -10,11 +10,11 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-escape-backspace", rule as any, {
     valid: [
-        "/\\b/",
-        "/\\u0008/",
-        "/\\ch/",
-        "/\\cH/",
+        String.raw`/\b/`,
+        String.raw`/\u0008/`,
+        String.raw`/\ch/`,
+        String.raw`/\cH/`,
         String.raw`/[\q{\u0008}]/v`,
     ],
-    invalid: ["/[\\b]/", String.raw`/[\q{\b}]/v`],
+    invalid: [String.raw`/[\b]/`, String.raw`/[\q{\b}]/v`],
 })

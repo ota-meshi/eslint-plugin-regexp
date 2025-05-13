@@ -5,6 +5,7 @@ import { FlatCompat } from "@eslint/eslintrc"
 import js from "@eslint/js"
 import myPlugin from "@ota-meshi/eslint-plugin"
 import regexp from "eslint-plugin-regexp"
+import unicorn from "eslint-plugin-unicorn"
 import tseslint from "typescript-eslint"
 
 const __filename = fileURLToPath(import.meta.url)
@@ -173,7 +174,10 @@ export default [
     {
         files: ["lib/rules/**"],
         rules: {
-            "eslint-plugin/report-message-format": ["error", "[^a-z].*\\.$"],
+            "eslint-plugin/report-message-format": [
+                "error",
+                String.raw`[^a-z].*\.$`,
+            ],
         },
     },
     {
@@ -240,6 +244,13 @@ export default [
         rules: {
             "import/no-unresolved": "off",
             "n/no-missing-import": "off",
+        },
+    },
+    {
+        ignores: ["lib/**/*", "**/*.json"],
+        plugins: { unicorn },
+        rules: {
+            "unicorn/prefer-string-raw": "error",
         },
     },
 ]
