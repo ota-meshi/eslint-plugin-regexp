@@ -19,6 +19,14 @@ tester.run("prefer-quantifier", rule as any, {
         `/---/`,
         `/a.{1,3}?.{2,4}c/`,
         `/a.{1,3}.{2,4}?c/`,
+        {
+            code: `/www/`,
+            options: [{ allows: ["www"] }],
+        },
+        {
+            code: `/\\d\\d/`,
+            options: [{ allows: [`\\d\\d`] }],
+        },
     ],
     invalid: [
         `/\\d\\d/`,
@@ -39,5 +47,13 @@ tester.run("prefer-quantifier", rule as any, {
             const s = "\\\\d"+"\\\\d"
             new RegExp(s)
             `,
+        {
+            code: `/wwww/`,
+            options: [{ allows: ["www"] }],
+        },
+        {
+            code: String.raw`/\d\d-\d\d\d\d/`,
+            options: [{ allows: [`\\d\\d`] }],
+        },
     ],
 })

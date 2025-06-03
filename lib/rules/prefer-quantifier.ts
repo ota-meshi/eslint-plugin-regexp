@@ -1,5 +1,6 @@
 import type { Character, CharacterSet } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import type { ObjectOption } from "../types"
 import type { RegExpContext } from "../utils"
 import {
     createRule,
@@ -22,9 +23,12 @@ class CharBuffer {
 
     public equalChar: (element: CharTarget) => boolean
 
-    public constructor(target: CharTarget) {
+    private readonly allows: string[]
+
+    public constructor(target: CharTarget, allows: string[]) {
         this.target = target
         this.elements = [target]
+        this.allows = allows
 
         this.times = 1
 
@@ -57,10 +61,18 @@ class CharBuffer {
         this.times += 1
     }
 
+    private get bufferRawContents() {
+        return this.elements.reduce((acc, element) => acc + element.raw, "")
+    }
+
     public isValid(): boolean {
         if (this.elements.length < 2) {
             return true
         }
+        if (this.allows.includes(this.bufferRawContents)) {
+            return true
+        }
+
         let charKind: "digit" | "letter" | "symbol" | null = null
         for (const element of this.elements) {
             if (element.type === "Character") {
@@ -105,7 +117,20 @@ export default createRule("prefer-quantifier", {
             recommended: false,
         },
         fixable: "code",
-        schema: [],
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    allows: {
+                        type: "array",
+                        items: {
+                            type: "string",
+                        },
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             unexpected:
                 "Unexpected consecutive same {{type}}. Use '{{quantifier}}' instead.",
@@ -113,6 +138,9 @@ export default createRule("prefer-quantifier", {
         type: "suggestion", // "problem",
     },
     create(context) {
+        const allows: string[] =
+            (context.options[0] as ObjectOption)?.allows ?? []
+
         function createVisitor({
             node,
             patternSource,
@@ -129,7 +157,7 @@ export default createRule("prefer-quantifier", {
                                 charBuffer.addElement(element)
                             } else {
                                 validateBuffer(charBuffer)
-                                charBuffer = new CharBuffer(element)
+                                charBuffer = new CharBuffer(element, allows)
                             }
                         } else {
                             validateBuffer(charBuffer)

@@ -162,3 +162,35 @@ Output: unchanged
 
 [1] Unexpected consecutive same character class escapes. Use '{2}' instead.
 ---
+
+
+Test: prefer-quantifier >> invalid
+Options:
+  - allows:
+      - www
+
+Code:
+  1 | /wwww/
+    |  ^~~~ [1]
+
+Output:
+  1 | /w{4}/
+
+[1] Unexpected consecutive same characters. Use '{4}' instead.
+---
+
+
+Test: prefer-quantifier >> invalid
+Options:
+  - allows:
+      - \d\d
+
+Code:
+  1 | /\d\d-\d\d\d\d/
+    |       ^~~~~~~~ [1]
+
+Output:
+  1 | /\d\d-\d{4}/
+
+[1] Unexpected consecutive same character class escapes. Use '{4}' instead.
+---
