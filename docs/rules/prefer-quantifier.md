@@ -33,7 +33,33 @@ var foo = /\d\d\d\d-\d\d-\d\d/;
 
 ## :wrench: Options
 
-Nothing.
+```json
+{
+  "regexp/prefer-quantifier": ["error", {
+    "allows": ["www", "\\d\\d"]
+  }]
+}
+```
+
+- `"allows"` ... Array of allowed patterns.
+
+### `{ "allows": ["www", "\\d\\d"] }`
+
+<eslint-code-block fix>
+
+```js
+/* eslint regexp/prefer-quantifier: ["error", { "allows": ["www", "\\d\\d"] }] */
+
+/* ✓ GOOD */
+var foo = /(?:www\.)?(.*)/;
+var foo = /\d\d:\d\d/;
+
+/* ✗ BAD */
+var foo = /wwww/;
+var foo = /\d\d\d\d/;
+```
+
+</eslint-code-block>
 
 ## :rocket: Version
 
