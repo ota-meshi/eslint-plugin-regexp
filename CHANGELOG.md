@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.8.0
+
+### Minor Changes
+
+- Add `allows` option to `prefer-quantifier` rule ([#835](https://github.com/ota-meshi/eslint-plugin-regexp/pull/835))
+
 ## 2.7.0
 
 ### Minor Changes
