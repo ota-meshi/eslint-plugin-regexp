@@ -38,6 +38,14 @@ tester.run("prefer-regexp-test", rule as any, {
         const pattern = /thin[[g]]/v;
         if (pattern.test(text)) {}
         `,
+        `
+        const text = 'something';
+        const pattern = /thing/;
+        const a = pattern.exec(test) instanceof null;
+        const b = pattern.exec(test) === maybeNull; 
+        const c = pattern.exec(test).groups !== undefined;
+        const d = text.match(pattern) != null;
+        `,
     ],
     invalid: [
         `
@@ -97,6 +105,22 @@ tester.run("prefer-regexp-test", rule as any, {
             const pattern = /thin[[g]]/v;
             if (pattern.exec(text)) {}
             if (text.match(pattern)) {}
+            `,
+        `
+        const text = 'something';
+        const pattern = /thing/;
+        const a = pattern.exec(test) === null;
+        const b = pattern.exec(test) !== null;
+        const c = text.match(pattern) === null;
+        const d = text.match(pattern) !== null;
+            `,
+        `
+        const text = 'something';
+        const pattern = /thing/;
+        const a = pattern.exec(test)=== null;
+        const b = pattern.exec(test) /* Comment */ !== null;
+        const c = text.match(pattern) === /** Comment */ null;
+        const d = (text.match(pattern)) !== null;
             `,
     ],
 })

@@ -222,6 +222,7 @@ export function findFunction(
 export type KnownMethodCall = CallExpression & {
     callee: MemberExpression & { object: Expression; property: Identifier }
     arguments: Expression[]
+    parent: Node
 }
 /**
  * Checks whether given node is expected method call
