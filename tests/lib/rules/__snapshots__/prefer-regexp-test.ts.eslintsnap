@@ -202,3 +202,67 @@ Output:
 [1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
 [2] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
 ---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |         const text = 'something';
+  3 |         const pattern = /thing/;
+  4 |         const a = pattern.exec(test) === null;
+    |                           ^~~~ [1]
+  5 |         const b = pattern.exec(test) !== null;
+    |                           ^~~~ [2]
+  6 |         const c = text.match(pattern) === null;
+    |                   ^~~~~~~~~~~~~~~~~~~ [3]
+  7 |         const d = text.match(pattern) !== null;
+    |                   ^~~~~~~~~~~~~~~~~~~ [4]
+  8 |             
+
+Output:
+  1 |
+  2 |         const text = 'something';
+  3 |         const pattern = /thing/;
+  4 |         const a = !pattern.test(test);
+  5 |         const b = pattern.test(test);
+  6 |         const c = !pattern.test(text);
+  7 |         const d = pattern.test(text);
+  8 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[3] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+[4] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
+
+
+Test: prefer-regexp-test >> invalid
+Code:
+  1 |
+  2 |         const text = 'something';
+  3 |         const pattern = /thing/;
+  4 |         const a = pattern.exec(test)=== null;
+    |                           ^~~~ [1]
+  5 |         const b = pattern.exec(test) /* Comment */ !== null;
+    |                           ^~~~ [2]
+  6 |         const c = text.match(pattern) === /** Comment */ null;
+    |                   ^~~~~~~~~~~~~~~~~~~ [3]
+  7 |         const d = (text.match(pattern)) !== null;
+    |                    ^~~~~~~~~~~~~~~~~~~ [4]
+  8 |             
+
+Output:
+  1 |
+  2 |         const text = 'something';
+  3 |         const pattern = /thing/;
+  4 |         const a = !pattern.test(test);
+  5 |         const b = pattern.test(test) /* Comment */;
+  6 |         const c = !pattern.test(text);
+  7 |         const d = (pattern.test(text));
+  8 |             
+
+[1] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[2] Use the `RegExp#test()` method instead of `RegExp#exec`, if you need a boolean.
+[3] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+[4] Use the `RegExp#test()` method instead of `String#match`, if you need a boolean.
+---
