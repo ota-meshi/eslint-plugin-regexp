@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.9.0
+
+### Minor Changes
+
+- feat: support explicit comparisons to null for prefer-regexp-test ([#839](https://github.com/ota-meshi/eslint-plugin-regexp/pull/839))
+
 ## 2.8.0
 
 ### Minor Changes
