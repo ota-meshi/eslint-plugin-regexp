@@ -1,3 +1,4 @@
+import type { SourceCode, Rule } from "eslint"
 import type * as ES from "estree"
 import { createRule } from "../utils"
 import {
@@ -95,10 +96,19 @@ export default createRule("prefer-regexp-test", {
                             const regexpText = sourceCode.text.slice(
                                 ...regexpRange,
                             )
+                            const convertedComparison =
+                                node.parent.type === "BinaryExpression" &&
+                                isComparisonToNull(node.parent)
+                                    ? convertComparison(
+                                          node.parent,
+                                          sourceCode,
+                                      )(fixer)
+                                    : [] // Do nothing
                             return [
                                 fixer.replaceTextRange(stringRange, regexpText),
                                 fixer.replaceText(memberExpr.property, "test"),
                                 fixer.replaceTextRange(regexpRange, stringText),
+                                ...convertedComparison,
                             ]
                         },
                     })
@@ -112,7 +122,19 @@ export default createRule("prefer-regexp-test", {
                         node: execNode,
                         messageId: "disallow",
                         data: { target: "RegExp#exec" },
-                        fix: (fixer) => fixer.replaceText(execNode, "test"),
+                        *fix(fixer) {
+                            yield fixer.replaceText(execNode, "test")
+
+                            if (
+                                node.parent.type === "BinaryExpression" &&
+                                isComparisonToNull(node.parent)
+                            ) {
+                                yield* convertComparison(
+                                    node.parent,
+                                    sourceCode,
+                                )(fixer)
+                            }
+                        },
                     })
                 }
             },
@@ -148,11 +170,46 @@ function isUseBoolean(node: ES.Expression): boolean {
         // e.g. if (expr) {}
         return parent.test === node
     }
+    if (parent.type === "BinaryExpression") {
+        // e.g. expr !== null
+        return isComparisonToNull(parent)
+    }
     if (parent.type === "LogicalExpression") {
         if (parent.operator === "&&" || parent.operator === "||") {
             // e.g. Boolean(expr1 || expr2)
             return isUseBoolean(parent)
         }
     }
+
     return false
+}
+
+function isComparisonToNull(binary: ES.BinaryExpression): boolean {
+    return (
+        (binary.operator === "===" || binary.operator === "!==") &&
+        binary.right.type === "Literal" &&
+        binary.right.value === null
+    )
+}
+
+function convertComparison(
+    comparison: ES.BinaryExpression,
+    sourceCode: SourceCode,
+): (fixer: Rule.RuleFixer) => Rule.Fix[] {
+    return function removeComparisonFixer(fixer: Rule.RuleFixer) {
+        const operator = sourceCode.getTokenBefore(
+            comparison.right,
+            ({ value }) => value === comparison.operator,
+        )!
+        const beforeOperator = sourceCode.getTokenBefore(operator, {
+            includeComments: true,
+        })!
+
+        return [
+            fixer.removeRange([beforeOperator.range![1], comparison.range![1]]),
+            ...(comparison.operator === "==="
+                ? [fixer.insertTextBefore(comparison.left, "!")]
+                : []),
+        ]
+    }
 }
