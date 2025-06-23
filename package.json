@@ -107,7 +107,7 @@
         "npm-run-all2": "^8.0.0",
         "nyc": "^17.0.0",
         "pako": "^2.1.0",
-        "prettier": "~3.5.0",
+        "prettier": "~3.6.0",
         "semver": "^7.5.4",
         "stylelint": "^16.0.0",
         "stylelint-config-recommended": "^16.0.0",
