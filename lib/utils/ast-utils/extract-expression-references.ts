@@ -1,5 +1,4 @@
-import type { Rule } from "eslint"
-import type { Variable } from "eslint-scope"
+import type { Rule, Scope } from "eslint"
 import type {
     ArrayPattern,
     ArrowFunctionExpression,
@@ -66,7 +65,7 @@ export type ExpressionReference =
       }
 
 type AlreadyChecked = {
-    variables: Set<Variable>
+    variables: Set<Scope.Variable>
     functions: Map<
         FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
         Set<number>
