@@ -96,5 +96,7 @@ tester.run("sort-character-class-elements", rule as any, {
         String.raw`/[\q{b}\q{c}\q{a}]/v`,
         String.raw`/[\q{ac}\q{ab}\q{aa}]/v`,
         String.raw`/[\q{ab}\q{ac}\q{aa}]/v`,
+        String.raw`/[~^*]/`,
+        String.raw`/[~^]/`,
     ],
 })

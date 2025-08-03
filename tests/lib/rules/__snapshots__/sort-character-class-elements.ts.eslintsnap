@@ -375,3 +375,29 @@ Output:
 
 [1] Expected character class elements to be in ascending order. '\q{aa}' should be before '\q{ab}'.
 ---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[~^*]/
+    |    ^ [1]
+    |     ^ [2]
+
+Output:
+  1 | /[*\^~]/
+
+[1] Expected character class elements to be in ascending order. '^' should be before '~'.
+[2] Expected character class elements to be in ascending order. '*' should be before '~'.
+---
+
+
+Test: sort-character-class-elements >> invalid
+Code:
+  1 | /[~^]/
+    |    ^ [1]
+
+Output:
+  1 | /[\^~]/
+
+[1] Expected character class elements to be in ascending order. '^' should be before '~'.
+---
