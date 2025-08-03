@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.9.1
+
+### Patch Changes
+
+- fix(sort-character-class-elements): wrong autofix for `^` ([#859](https://github.com/ota-meshi/eslint-plugin-regexp/pull/859))
+
 ## 2.9.0
 
 ### Minor Changes
