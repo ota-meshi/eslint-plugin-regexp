@@ -68,7 +68,7 @@
         "@eslint/compat": "^1.1.0",
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^9.5.0",
-        "@ota-meshi/eslint-plugin": "^0.17.4",
+        "@ota-meshi/eslint-plugin": "^0.18.0",
         "@ota-meshi/site-kit-eslint-editor-vue": "^0.2.0",
         "@svitejs/changesets-changelog-github-compact": "^1.1.0",
         "@types/chai": "^5.0.0",
