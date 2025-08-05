@@ -88,7 +88,7 @@
         "eslint-config-prettier": "^10.0.0",
         "eslint-doc-generator": "^2.0.0",
         "eslint-import-resolver-typescript": "^4.0.0",
-        "eslint-plugin-eslint-plugin": "^6.1.0",
+        "eslint-plugin-eslint-plugin": "^7.0.0",
         "eslint-plugin-import": "^2.29.1",
         "eslint-plugin-jsdoc": "^52.0.0",
         "eslint-plugin-json-schema-validator": "^5.1.1",
