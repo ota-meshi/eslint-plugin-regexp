@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 2.10.0
+
+### Minor Changes
+
+- refctor: replace `indexOf()` with strict equality ([#864](https://github.com/ota-meshi/eslint-plugin-regexp/pull/864))
+
 ## 2.9.1
 
 ### Patch Changes
