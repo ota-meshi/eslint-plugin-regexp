@@ -302,7 +302,7 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
             | UnicodeSetsCharacterClassElement
             | ClassRangesCharacterClassElement
         )[] = parent.elements
-        if (elements.indexOf(target) === 0) {
+        if (elements[0] === target) {
             raw = `\\${raw}`
         }
     }
