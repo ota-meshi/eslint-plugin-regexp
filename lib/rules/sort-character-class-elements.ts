@@ -296,17 +296,17 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
         ) {
             raw = `\\${raw}`
         }
-    } else if (raw[0] === "^") {
+    } else if (raw.startsWith("^")) {
         const parent = target.parent as CharacterClass
         const elements: (
             | UnicodeSetsCharacterClassElement
             | ClassRangesCharacterClassElement
         )[] = parent.elements
-        if (elements.indexOf(target) === 0) {
+        if (elements[0] === target) {
             raw = `\\${raw}`
         }
     }
-    if (target.raw[0] === "-") {
+    if (target.raw.startsWith("-")) {
         if (node.type === "Character" || node.type === "CharacterSet") {
             raw = `${raw}\\`
         }
