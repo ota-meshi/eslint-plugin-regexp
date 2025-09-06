@@ -121,7 +121,7 @@ export default createRule("no-useless-escape", {
                 onExpressionCharacterClassLeave: () =>
                     characterClassStack.shift(),
                 onCharacterEnter(cNode) {
-                    if (cNode.raw.startsWith("\\")) {
+                    if (cNode.raw[0] === "\\") {
                         // escapes
                         const char = cNode.raw.slice(1)
                         const escapedChar = String.fromCodePoint(cNode.value)

@@ -108,7 +108,7 @@ async function* getUnicodePropertyAliases(): AsyncIterable<UnicodePropertyAlias>
         if (!line) {
             continue
         }
-        if (line.startsWith("#")) {
+        if (line[0] === "#") {
             if (
                 /^#\s*=+$/u.test(dbLines[index - 1]) &&
                 /^#\s*=+$/u.test(dbLines[index + 1])
@@ -137,7 +137,7 @@ async function* getUnicodePropertyValueAliases(): AsyncIterable<UnicodePropertyV
     logger.log("Fetching data... (%s)", DB_URL)
     const dbContent = await fetch(DB_URL).then((res) => res.text())
     for (const line of dbContent.split("\n")) {
-        if (!line || line.startsWith("#")) {
+        if (!line || line[0] === "#") {
             continue
         }
         const [propertyAlias, short, long, ...other] = line
