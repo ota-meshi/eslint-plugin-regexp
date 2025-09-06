@@ -53,7 +53,7 @@ export default createRule("no-control-character", {
             function isAllowedEscapeRaw(raw: string): boolean {
                 return (
                     ALLOWED_CONTROL_CHARS.test(raw) ||
-                    (raw.startsWith("\\") &&
+                    (raw[0] === "\\" &&
                         ALLOWED_CONTROL_CHARS.test(raw.slice(1)))
                 )
             }
@@ -78,7 +78,7 @@ export default createRule("no-control-character", {
 
                 return (
                     isBadEscapeRaw(char.raw, char.value) ||
-                    (char.raw.startsWith("\\") &&
+                    (char.raw[0] === "\\" &&
                         isBadEscapeRaw(char.raw.slice(1), char.value))
                 )
             }
