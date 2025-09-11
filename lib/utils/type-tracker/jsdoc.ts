@@ -174,7 +174,7 @@ function findJSDocComment(node: ES.Node, sourceCode: SourceCode) {
     if (
         tokenBefore &&
         tokenBefore.type === "Block" &&
-        tokenBefore.value.startsWith("*")
+        tokenBefore.value[0] === "*"
     ) {
         return tokenBefore
     }

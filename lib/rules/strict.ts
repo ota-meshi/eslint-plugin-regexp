@@ -185,7 +185,7 @@ export default createRule("strict", {
                         return
                     }
 
-                    if (cNode.raw.startsWith("\\")) {
+                    if (cNode.raw[0] === "\\") {
                         const identity = cNode.raw.slice(1)
                         const syntaxChars = insideCharClass
                             ? CHARACTER_CLASS_SYNTAX_CHARACTERS
