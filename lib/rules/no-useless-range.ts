@@ -67,7 +67,7 @@ export default createRule("no-useless-range", {
                                 }
                             }
 
-                            if (rawAfter.startsWith("-")) {
+                            if (rawAfter[0] === "-") {
                                 // the next "-" might be interpreted as a range
                                 // operator now, so we have to escape it
                                 // e.g. /[a-a-z]/ -> /[a\-z]/

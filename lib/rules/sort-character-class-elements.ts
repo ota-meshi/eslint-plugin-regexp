@@ -283,7 +283,7 @@ export default createRule("sort-character-class-elements", {
  */
 function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
     let raw = node.raw
-    if (raw.startsWith("-")) {
+    if (raw[0] === "-") {
         const parent = target.parent as CharacterClass
         const elements: (
             | UnicodeSetsCharacterClassElement
@@ -296,7 +296,7 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
         ) {
             raw = `\\${raw}`
         }
-    } else if (raw.startsWith("^")) {
+    } else if (raw[0] === "^") {
         const parent = target.parent as CharacterClass
         const elements: (
             | UnicodeSetsCharacterClassElement
@@ -306,7 +306,7 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
             raw = `\\${raw}`
         }
     }
-    if (target.raw.startsWith("-")) {
+    if (target.raw[0] === "-") {
         if (node.type === "Character" || node.type === "CharacterSet") {
             raw = `${raw}\\`
         }
