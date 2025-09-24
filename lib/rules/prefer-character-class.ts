@@ -122,7 +122,7 @@ function elementsToCharacterClass(elements: CharElementArray): string {
         }
     })
 
-    if (parts.length > 0 && parts[0].startsWith("^")) {
+    if (parts.length > 0 && parts[0][0] === "^") {
         parts[0] = `\\${parts[0]}`
     }
 

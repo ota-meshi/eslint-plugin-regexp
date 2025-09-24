@@ -68,7 +68,7 @@ export enum EscapeSequenceKind {
  * Returns which escape sequence kind was used for the given raw of a character literal.
  */
 export function getEscapeSequenceKind(raw: string): EscapeSequenceKind | null {
-    if (!raw.startsWith("\\")) {
+    if (raw[0] !== "\\") {
         return null
     }
     if (isOctalEscape(raw)) {

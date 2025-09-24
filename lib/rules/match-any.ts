@@ -112,7 +112,7 @@ export default createRule("match-any", {
 
             if (
                 regexpNode.type === "CharacterClass" &&
-                preference.startsWith("[") &&
+                preference[0] === "[" &&
                 preference.endsWith("]")
             ) {
                 // We know that the first and last character are the same,

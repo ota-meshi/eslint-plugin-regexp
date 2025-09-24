@@ -935,7 +935,7 @@ export function mightCreateNewElement(before: string, after: string): boolean {
     if (
         (/(?:^|[^\\])(?:\\{2})*\\[1-9]\d*$/u.test(before) &&
             /^\d/u.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\\k$/u.test(before) && after.startsWith("<")) ||
+        (/(?:^|[^\\])(?:\\{2})*\\k$/u.test(before) && after[0] === "<") ||
         /(?:^|[^\\])(?:\\{2})*\\k<[^<>]*$/u.test(before)
     ) {
         return true
@@ -959,8 +959,7 @@ export function mightCreateNewElement(before: string, after: string): boolean {
             /^[\d,}]/u.test(after)) ||
         (/(?:^|[^\\])(?:\\{2})*\{\d+,$/u.test(before) &&
             /^(?:\d+(?:\}|$)|\})/u.test(after)) ||
-        (/(?:^|[^\\])(?:\\{2})*\{\d+,\d*$/u.test(before) &&
-            after.startsWith("}"))
+        (/(?:^|[^\\])(?:\\{2})*\{\d+,\d*$/u.test(before) && after[0] === "}")
     ) {
         return true
     }
@@ -1014,13 +1013,13 @@ export function fixRemoveCharacterClassElement(
         if (
             // ... the text character is a dash
             // e.g. [a\w-b] -> [a\-b], [\w-b] -> [-b], [\s\w-b] -> [\s-b]
-            (textAfter.startsWith("-") &&
+            (textAfter[0] === "-" &&
                 elementBefore &&
                 elementBefore.type === "Character") ||
             // ... the next character is a caret and the caret will then be the
             // first character in the character class
             // e.g. [a^b] -> [\^b], [ba^] -> [b^]
-            (textAfter.startsWith("^") && !cc.negate && !elementBefore)
+            (textAfter[0] === "^" && !cc.negate && !elementBefore)
         ) {
             return "\\"
         }

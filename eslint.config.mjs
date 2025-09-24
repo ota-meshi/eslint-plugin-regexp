@@ -4,6 +4,7 @@ import { fixupConfigRules } from "@eslint/compat"
 import { FlatCompat } from "@eslint/eslintrc"
 import js from "@eslint/js"
 import myPlugin from "@ota-meshi/eslint-plugin"
+import pere from "eslint-plugin-pere"
 import regexp from "eslint-plugin-regexp"
 import unicorn from "eslint-plugin-unicorn"
 import tseslint from "typescript-eslint"
@@ -169,6 +170,12 @@ export default [
             "no-implicit-globals": "off",
             "@typescript-eslint/naming-convention": "off",
             "@typescript-eslint/no-shadow": "error",
+            "@typescript-eslint/prefer-string-starts-ends-with": [
+                "error",
+                {
+                    allowSingleElementEquality: "always",
+                },
+            ],
         },
     },
     {
@@ -251,6 +258,13 @@ export default [
         plugins: { unicorn },
         rules: {
             "unicorn/prefer-string-raw": "error",
+        },
+    },
+    {
+        files: ["**/*.{ts,mts}"],
+        plugins: { pere },
+        rules: {
+            "pere/no-startswith-one-char": "error",
         },
     },
 ]
