@@ -124,7 +124,7 @@
         "@eslint-community/eslint-utils": "^4.2.0",
         "@eslint-community/regexpp": "^4.11.0",
         "comment-parser": "^1.4.0",
-        "jsdoc-type-pratt-parser": "^4.0.0",
+        "jsdoc-type-pratt-parser": "^5.0.0",
         "refa": "^0.12.1",
         "regexp-ast-analysis": "^0.7.1",
         "scslre": "^0.3.0"
