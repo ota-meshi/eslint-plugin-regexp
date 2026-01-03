@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/confusing-quantifier"
+import rule from "../../../lib/rules/confusing-quantifier.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

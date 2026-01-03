@@ -1,6 +1,6 @@
 import type { Rule, Scope } from "eslint"
 import type * as ES from "estree"
-import * as astUtils from "../ast-utils"
+import * as astUtils from "../ast-utils/index.ts"
 import * as eslintUtils from "@eslint-community/eslint-utils"
 
 /**
@@ -19,6 +19,7 @@ export function getPropertyName(
     context: Rule.RuleContext,
     node: ES.Property | ES.MemberExpression | ES.MethodDefinition,
 ): string | null {
+    // @ts-expect-error -- TODO: fix types
     return eslintUtils.getPropertyName(node, astUtils.getScope(context, node))
 }
 /**

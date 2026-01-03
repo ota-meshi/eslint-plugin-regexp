@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/hexadecimal-escape"
+import rule from "../../../lib/rules/hexadecimal-escape.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/sort-flags"
+import rule from "../../../lib/rules/sort-flags.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

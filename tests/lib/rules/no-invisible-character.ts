@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-invisible-character"
+import rule from "../../../lib/rules/no-invisible-character.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -1,11 +1,13 @@
-import assert from "assert"
-import path from "path"
+import assert from "node:assert"
+import path from "node:path"
 import * as eslintModule from "eslint"
-import * as plugin from "../../lib/index"
+import * as plugin from "../../lib/index.ts"
 
 // -----------------------------------------------------------------------------
 // Tests
 // -----------------------------------------------------------------------------
+
+const __dirname = import.meta.dirname
 
 const TEST_CWD_FOR_FLAT_CONFIG = path.join(
     __dirname,

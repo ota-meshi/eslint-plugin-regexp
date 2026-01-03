@@ -1,4 +1,11 @@
-import * as plugin from "../../index"
-export { rules } from "../rules/recommended"
+import module from "node:module"
+export { rules } from "../rules/recommended.ts"
 
-export const plugins = { regexp: plugin }
+const require = module.createRequire(import.meta.url)
+
+export const plugins = {
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types -- ignore for dynamically plugin import
+    get regexp() {
+        return require("../../index.js").default
+    },
+}

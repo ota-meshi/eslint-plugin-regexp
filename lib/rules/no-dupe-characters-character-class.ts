@@ -20,11 +20,11 @@ import {
     createRule,
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
-} from "../utils"
-import type { RegExpContext } from "../utils"
-import { mentionChar } from "../utils/mention"
-import { toCharSetSource, assertValidFlags } from "../utils/refa"
-import { assertNever } from "../utils/util"
+} from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { mentionChar } from "../utils/mention.ts"
+import { toCharSetSource, assertValidFlags } from "../utils/refa.ts"
+import { assertNever } from "../utils/util.ts"
 
 interface Grouping {
     duplicates: {

@@ -1,6 +1,6 @@
-import { rules as ruleLint } from "../../all-rules"
-import type { SeverityString } from "../../types"
-import { rules as recommendedRules } from "./recommended"
+import { rules as ruleLint } from "../../all-rules.ts"
+import type { SeverityString } from "../../types.ts"
+import { rules as recommendedRules } from "./recommended.ts"
 
 const all: Record<string, SeverityString> = {}
 for (const rule of ruleLint) {

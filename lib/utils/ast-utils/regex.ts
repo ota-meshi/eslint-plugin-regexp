@@ -1,6 +1,10 @@
 import type { AST, SourceCode } from "eslint"
 import type * as ESTree from "estree"
-import { getStringValueRange, isRegexpLiteral, isStringLiteral } from "./utils"
+import {
+    getStringValueRange,
+    isRegexpLiteral,
+    isStringLiteral,
+} from "./utils.ts"
 
 export function getFlagsRange(flagsNode: ESTree.RegExpLiteral): AST.Range
 export function getFlagsRange(

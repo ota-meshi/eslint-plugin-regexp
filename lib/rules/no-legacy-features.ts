@@ -1,7 +1,8 @@
 import type { MemberExpression } from "estree"
-import type { ObjectOption } from "../types"
-import { createRule } from "../utils"
-import { createTypeTracker } from "../utils/type-tracker"
+import type { ObjectOption } from "../types.ts"
+import { createRule } from "../utils/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
+// @ts-expect-error -- TODO: fix types
 import type { TYPES } from "@eslint-community/eslint-utils"
 import { READ, ReferenceTracker } from "@eslint-community/eslint-utils"
 

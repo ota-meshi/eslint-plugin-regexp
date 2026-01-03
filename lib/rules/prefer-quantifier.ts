@@ -1,16 +1,16 @@
 import type { Character, CharacterSet } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
+import type { ObjectOption } from "../types.ts"
+import type { PatternRange } from "../utils/ast-utils/pattern-source.ts"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
     isDigit,
     isLetter,
     isSymbol,
-} from "../utils"
-import type { PatternRange } from "../utils/ast-utils/pattern-source"
-import { quantToString } from "../utils/regexp-ast"
+} from "../utils/index.ts"
+import { quantToString } from "../utils/regexp-ast/index.ts"
 
 type CharTarget = CharacterSet | Character
 

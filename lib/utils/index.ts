@@ -14,39 +14,39 @@ import type { Rule, AST } from "eslint"
 import type * as ESTree from "estree"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { toCache } from "regexp-ast-analysis"
-import type { RuleListener, RuleModule, PartialRuleModule } from "../types"
+import type { RuleListener, RuleModule, PartialRuleModule } from "../types.ts"
 import {
     getFlagLocation,
     getFlagsLocation,
     getFlagsRange,
     getStringIfConstant,
-} from "./ast-utils"
-import type { PatternRange } from "./ast-utils/pattern-source"
-import { PatternSource } from "./ast-utils/pattern-source"
+} from "./ast-utils/index.ts"
+import type { PatternRange } from "./ast-utils/pattern-source.ts"
+import { PatternSource } from "./ast-utils/pattern-source.ts"
 import {
     dereferenceOwnedVariable,
     isRegexpLiteral,
     isStringLiteral,
-} from "./ast-utils/utils"
-import type { CapturingGroupReference } from "./extract-capturing-group-references"
-import { extractCapturingGroupReferences } from "./extract-capturing-group-references"
-import { getUsageOfPattern } from "./get-usage-of-pattern"
-import type { UsageOfPattern } from "./get-usage-of-pattern"
-import { parseFlags } from "./regex-syntax"
+} from "./ast-utils/utils.ts"
+import type { CapturingGroupReference } from "./extract-capturing-group-references.ts"
+import { extractCapturingGroupReferences } from "./extract-capturing-group-references.ts"
+import { getUsageOfPattern } from "./get-usage-of-pattern.ts"
+import type { UsageOfPattern } from "./get-usage-of-pattern.ts"
+import { parseFlags } from "./regex-syntax.ts"
 import {
     extractCaptures,
     getQuantifierOffsets,
     quantToString,
-} from "./regexp-ast"
-import type { Quant } from "./regexp-ast"
-import { createTypeTracker } from "./type-tracker"
-import { lazy } from "./util"
+} from "./regexp-ast/index.ts"
+import type { Quant } from "./regexp-ast/index.ts"
+import { createTypeTracker } from "./type-tracker/index.ts"
+import { lazy } from "./util.ts"
 import {
     CALL,
     CONSTRUCT,
     ReferenceTracker,
 } from "@eslint-community/eslint-utils"
-export * from "./unicode"
+export * from "./unicode.ts"
 
 type RegExpContextBase = {
     /**

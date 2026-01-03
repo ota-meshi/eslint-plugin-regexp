@@ -1,5 +1,5 @@
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { toCodePoints } from "./util"
+import { toCodePoints } from "./util.ts"
 
 const RESERVED_DOUBLE_PUNCTUATORS = "&!#$%*+,.:;<=>?@^`~-"
 /**

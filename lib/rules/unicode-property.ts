@@ -1,13 +1,13 @@
 import type { UnicodePropertyCharacterSet } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 import {
     UNICODE_BINARY_PROPERTY_ALIAS,
     UNICODE_CATEGORY_ALIAS,
     UNICODE_GENERAL_CATEGORY_ALIAS,
     UNICODE_SCRIPT_ALIAS,
-} from "../utils/unicode-alias"
+} from "../utils/unicode-alias.ts"
 
 function isGeneralCategory(key: string): boolean {
     return UNICODE_CATEGORY_ALIAS.toShort(key) === "gc"

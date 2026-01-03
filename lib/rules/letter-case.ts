@@ -3,19 +3,19 @@ import type {
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
+import type { ObjectOption } from "../types.ts"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
     isLetter,
     isLowercaseLetter,
     isUppercaseLetter,
-} from "../utils"
+} from "../utils/index.ts"
 import {
     EscapeSequenceKind,
     getEscapeSequenceKind,
-} from "../utils/regex-syntax"
+} from "../utils/regex-syntax.ts"
 
 const CASE_SCHEMA = ["lowercase", "uppercase", "ignore"] as const
 type Case = (typeof CASE_SCHEMA)[number]

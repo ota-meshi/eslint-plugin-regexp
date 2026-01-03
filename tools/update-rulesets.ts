@@ -1,7 +1,7 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 // import eslint from "eslint"
-import { rules } from "./lib/load-rules"
+import { rules } from "./lib/load-rules.ts"
 
 const coreRules = [
     // Possible Errors

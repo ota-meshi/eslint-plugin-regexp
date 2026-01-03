@@ -1,5 +1,5 @@
-import assert from "assert"
-import { parseStringLiteral } from "../../../../lib/utils/string-literal-parser"
+import assert from "node:assert"
+import { parseStringLiteral } from "../../../../lib/utils/string-literal-parser/index.ts"
 
 const TESTCASES = [
     {

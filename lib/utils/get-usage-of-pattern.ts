@@ -6,7 +6,10 @@ import type {
     MemberExpression,
     ObjectPattern,
 } from "estree"
-import { getStringIfConstant, extractExpressionReferences } from "./ast-utils"
+import {
+    getStringIfConstant,
+    extractExpressionReferences,
+} from "./ast-utils/index.ts"
 
 export enum UsageOfPattern {
     /** The pattern was only used via `.source`. */

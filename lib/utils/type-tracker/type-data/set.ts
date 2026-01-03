@@ -1,24 +1,24 @@
-import { lazy } from "../../util"
-import { TypeArray } from "./array"
-import { createObject, getTypeName, isEquals } from "./common"
+import { lazy } from "../../util.ts"
+import { TypeArray } from "./array.ts"
+import { createObject, getTypeName, isEquals } from "./common.ts"
 import {
     RETURN_VOID,
     RETURN_BOOLEAN,
     TypeFunction,
     TypeGlobalFunction,
-} from "./function"
-import { TypeIterable } from "./iterable"
-import { NUMBER } from "./number"
-import { getObjectPrototypes } from "./object"
-import { STRING } from "./string"
-import { isTypeClass } from "."
+} from "./function.ts"
+import { isTypeClass } from "./index.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { TypeIterable } from "./iterable.ts"
+import { NUMBER } from "./number.ts"
+import { getObjectPrototypes } from "./object.ts"
+import { STRING } from "./string.ts"
 
 type SetKeys = keyof Set<unknown>
 
@@ -82,6 +82,7 @@ const getPrototypes: () => {
     )
     return createObject<{
         [key in SetKeys]: TypeInfo | null
+        // @ts-expect-error -- TODO: fix types
     }>({
         ...getObjectPrototypes(),
         // ES2015

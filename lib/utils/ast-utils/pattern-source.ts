@@ -13,7 +13,7 @@ import {
     isRegexpLiteral,
     isStringLiteral,
     getStaticValue,
-} from "./utils"
+} from "./utils.ts"
 
 /**
  * The range of a node/construct within a regexp pattern.

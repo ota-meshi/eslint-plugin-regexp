@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/unicode-escape"
+import rule from "../../../lib/rules/unicode-escape.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

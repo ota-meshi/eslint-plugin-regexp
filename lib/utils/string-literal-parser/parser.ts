@@ -1,5 +1,5 @@
-import { Tokenizer } from "./tokenizer"
-import type { Token } from "./tokens"
+import { Tokenizer } from "./tokenizer.ts"
+import type { Token } from "./tokens.ts"
 
 export type StringLiteral = {
     tokens: Token[]

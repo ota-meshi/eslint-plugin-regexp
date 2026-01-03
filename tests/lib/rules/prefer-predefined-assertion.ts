@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-predefined-assertion"
+import rule from "../../../lib/rules/prefer-predefined-assertion.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

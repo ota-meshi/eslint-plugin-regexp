@@ -1,8 +1,11 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { AST } from "eslint"
-import type { RegExpContextForLiteral, RegExpContextForSource } from "../utils"
-import { createRule, defineRegexpVisitor, isInvisible } from "../utils"
-import { toCharSetSource } from "../utils/refa"
+import type {
+    RegExpContextForLiteral,
+    RegExpContextForSource,
+} from "../utils/index.ts"
+import { createRule, defineRegexpVisitor, isInvisible } from "../utils/index.ts"
+import { toCharSetSource } from "../utils/refa.ts"
 
 export default createRule("no-invisible-character", {
     meta: {

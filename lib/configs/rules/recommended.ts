@@ -1,4 +1,4 @@
-import type { SeverityString } from "../../types"
+import type { SeverityString } from "../../types.ts"
 
 export const rules: Record<string, SeverityString> = {
     // ESLint core rules

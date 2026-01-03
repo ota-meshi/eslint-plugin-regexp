@@ -1,8 +1,8 @@
-import fs from "fs"
-import path from "path"
-import { rules } from "../lib/all-rules"
-import type { RuleModule } from "../lib/types"
-import { getNewVersion } from "./lib/changesets-util"
+import fs from "node:fs"
+import path from "node:path"
+import { rules } from "../lib/all-rules.ts"
+import type { RuleModule } from "../lib/types.ts"
+import { getNewVersion } from "./lib/changesets-util.ts"
 
 function yamlValue(val: unknown) {
     if (typeof val === "string") {

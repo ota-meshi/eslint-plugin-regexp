@@ -1,5 +1,5 @@
-import { lazy } from "../../util"
-import { createObject, isEquals, isTypeClass } from "./common"
+import { lazy } from "../../util.ts"
+import { createObject, isEquals, isTypeClass } from "./common.ts"
 import {
     RETURN_STRING,
     RETURN_BOOLEAN,
@@ -9,14 +9,14 @@ import {
     TypeFunction,
     UNKNOWN_FUNCTION,
     TypeGlobalFunction,
-} from "./function"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
 
 type ObjectKeys =
     | "constructor"
@@ -171,6 +171,7 @@ export function buildObjectConstructor(): TypeGlobalFunction {
     )
     const OBJECT_TYPES = createObject<{
         [key in keyof ObjectConstructor]: TypeInfo | null
+        // @ts-expect-error -- TODO: fix types
     }>({
         // ES5
         getPrototypeOf: null,

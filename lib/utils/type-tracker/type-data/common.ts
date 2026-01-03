@@ -1,4 +1,4 @@
-import type { NamedType, OtherTypeName, TypeClass, TypeInfo } from "."
+import type { NamedType, OtherTypeName, TypeClass, TypeInfo } from "./index.ts"
 
 /** Check whether given type is TypeClass */
 export function isTypeClass(

@@ -1,6 +1,10 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor, CP_BACK_SLASH } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import {
+    createRule,
+    defineRegexpVisitor,
+    CP_BACK_SLASH,
+} from "../utils/index.ts"
 
 export default createRule("no-standalone-backslash", {
     meta: {

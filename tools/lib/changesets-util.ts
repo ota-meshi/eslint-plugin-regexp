@@ -1,4 +1,4 @@
-import path from "path"
+import path from "node:path"
 import getReleasePlan from "@changesets/get-release-plan"
 
 /** Get new version string from changesets */

@@ -1,12 +1,12 @@
-import { isEquals, TypeCollection } from "./common"
+import { isEquals, TypeCollection } from "./common.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
-import { isTypeClass } from "."
+} from "./index.ts"
+import { isTypeClass } from "./index.ts"
 
 export class TypeUnionOrIntersection implements ITypeClass {
     public type = "TypeUnionOrIntersection" as const

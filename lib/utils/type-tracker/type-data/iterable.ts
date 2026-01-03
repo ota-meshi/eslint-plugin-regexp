@@ -1,13 +1,13 @@
-import { lazy } from "../../util"
-import { createObject, getTypeName, isEquals } from "./common"
-import { getObjectPrototypes } from "./object"
+import { lazy } from "../../util.ts"
+import { createObject, getTypeName, isEquals } from "./common.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { getObjectPrototypes } from "./object.ts"
 
 type IterableKeys = keyof Iterable<unknown>
 
