@@ -114,6 +114,7 @@
         "markdownlint-cli": "^0.44.0",
         "mocha": "^11.1.0",
         "mocha-chai-jest-snapshot": "^1.1.3",
+        "magic-string": "^0.30.21",
         "npm-run-all2": "^8.0.0",
         "nyc": "^17.0.0",
         "pako": "^2.1.0",

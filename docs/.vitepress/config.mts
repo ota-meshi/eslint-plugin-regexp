@@ -1,7 +1,8 @@
-import path from "path"
-import { fileURLToPath } from "url"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+import MagicString from "magic-string"
 import eslint4b from "vite-plugin-eslint4b"
-import type { DefaultTheme } from "vitepress"
+import type { DefaultTheme, Plugin } from "vitepress"
 import { defineConfig } from "vitepress"
 import { rules } from "../../lib/all-rules.js"
 import type { RuleModule } from "../../lib/types.js"
@@ -34,6 +35,60 @@ for (const rule of rules) {
     }
 }
 
+/**
+ * Load TypeScript on docs playground
+ * 
+ * This plugin replaces imports from `"node:module"` with a typescript load implementation.
+ * `ts-util.ts` uses `node:module` to load TypeScript dynamically, but VitePress's bundling
+ * process cannot handle it properly on the browser, so we need to replace it.
+ * 
+ * NOTE:
+ * When typescript native (a.k.a `tsgo`) release near future, we might need to find out another way.
+ * Maybe we need to use `tsgo` wasm build or something else.
+ */
+function loadTypeScriptPlugin(): Plugin {
+    return {
+        name: "vite-plugin-load-typescript",
+        transform(code, id) {
+            if (id.endsWith("ts-util.ts")) {
+                const ast = this.parse(code)
+                const s = new MagicString(code)
+                for (const node of ast.body) {
+                    if (
+                        node.type === "ImportDeclaration" &&
+                        node.source?.value === "node:module"
+                    ) {
+                        const importedName =
+                            node.specifiers?.[0]?.local?.name ?? "module"
+                        s.overwrite(
+                            (node as unknown as { start: number }).start,
+                            (node as unknown as { end: number }).end,
+                            `import { default as typescript } from 'typescript';
+const ${importedName} = {
+  createRequire: () => (id) => {
+    if (id === "typescript") {
+      return typescript;
+    } else {
+      const err = new Error("Module not found");
+      err.code = "MODULE_NOT_FOUND";
+      throw err;
+    }
+  }
+};`,
+                        )
+                    }
+                }
+
+                return {
+                    code: s.toString(),
+                    map: s.generateMap({ hires: true }),
+                }
+            }
+            return null
+        },
+    }
+}
+
 export default defineConfig({
     base: "/eslint-plugin-regexp/",
     title: "eslint-plugin-regexp",
@@ -42,7 +97,7 @@ export default defineConfig({
         "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
 
     vite: {
-        plugins: [eslint4b()],
+        plugins: [eslint4b(), loadTypeScriptPlugin()],
         define: {
             "process.env.NODE_DEBUG": "false",
             "process.platform": JSON.stringify(process.platform),
