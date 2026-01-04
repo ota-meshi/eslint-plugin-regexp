@@ -2,8 +2,7 @@ import type { MemberExpression } from "estree"
 import type { ObjectOption } from "../types.ts"
 import { createRule } from "../utils/index.ts"
 import { createTypeTracker } from "../utils/type-tracker/index.ts"
-// @ts-expect-error -- TODO: fix types
-import type { TYPES } from "@eslint-community/eslint-utils"
+import type { TraceMap } from "@eslint-community/eslint-utils"
 import { READ, ReferenceTracker } from "@eslint-community/eslint-utils"
 
 type StaticProperty =
@@ -99,7 +98,7 @@ export default createRule("no-legacy-features", {
                           const scope = context.sourceCode.getScope(program)
                           const tracker = new ReferenceTracker(scope)
 
-                          const regexpTraceMap: TYPES.TraceMap = {}
+                          const regexpTraceMap: TraceMap<true> = {}
                           for (const sp of staticProperties) {
                               regexpTraceMap[sp] = { [READ]: true }
                           }

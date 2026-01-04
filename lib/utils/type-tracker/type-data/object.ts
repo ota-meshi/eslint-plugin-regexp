@@ -171,7 +171,6 @@ export function buildObjectConstructor(): TypeGlobalFunction {
     )
     const OBJECT_TYPES = createObject<{
         [key in keyof ObjectConstructor]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         // ES5
         getPrototypeOf: null,
@@ -200,6 +199,8 @@ export function buildObjectConstructor(): TypeGlobalFunction {
         fromEntries: null,
         // ES2022
         hasOwn: RETURN_BOOLEAN,
+        // ES2024
+        groupBy: null,
 
         prototype: null,
     })

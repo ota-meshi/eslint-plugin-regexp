@@ -82,7 +82,6 @@ const getPrototypes: () => {
     )
     return createObject<{
         [key in SetKeys]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         ...getObjectPrototypes(),
         // ES2015
@@ -97,6 +96,14 @@ const getPrototypes: () => {
         values: RETURN_VALUES,
         [Symbol.iterator]: null,
         [Symbol.toStringTag]: STRING,
+        // ES2025
+        difference: RETURN_SELF,
+        intersection: RETURN_SELF,
+        isDisjointFrom: RETURN_BOOLEAN,
+        isSubsetOf: RETURN_BOOLEAN,
+        isSupersetOf: RETURN_BOOLEAN,
+        symmetricDifference: RETURN_SELF,
+        union: RETURN_SELF,
     })
 })
 

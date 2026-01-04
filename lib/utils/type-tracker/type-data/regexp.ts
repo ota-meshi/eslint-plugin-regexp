@@ -87,7 +87,6 @@ const getPrototypes: () => {
 } = lazy(() =>
     createObject<{
         [key in keyof RegExp]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         ...getObjectPrototypes(),
         // ES5
@@ -107,6 +106,8 @@ const getPrototypes: () => {
         dotAll: BOOLEAN, // prop
         // ES2022
         hasIndices: BOOLEAN, // prop
+        // ES2024
+        unicodeSets: BOOLEAN, // prop
 
         [Symbol.match]: null,
         [Symbol.replace]: null,

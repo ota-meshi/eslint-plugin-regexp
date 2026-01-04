@@ -30,7 +30,7 @@ export class JSDocParams {
     }
 
     public get(
-        paths: { name: string | null; index: number | null }[],
+        paths: { name: string | null | undefined; index: number | null | undefined }[],
     ): Spec | null {
         const { name, index } = paths.shift()!
         if (name) {

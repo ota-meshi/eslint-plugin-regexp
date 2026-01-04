@@ -817,7 +817,7 @@ function getParamPath(
         | ES.ObjectPattern
         | ES.RestElement,
     context: Rule.RuleContext,
-): { name: string | null; index: number | null }[] {
+): { name: string | null | undefined; index: number | null | undefined }[] {
     const parent = getParent<ES.Pattern | ES.AssignmentProperty | ES.Function>(
         node,
     )

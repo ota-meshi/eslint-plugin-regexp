@@ -190,7 +190,6 @@ const getPrototypes: () => {
     createObject<{
         // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
         [key in keyof Function]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         ...getObjectPrototypes(),
         toString: RETURN_STRING,
@@ -203,5 +202,6 @@ const getPrototypes: () => {
         caller: UNKNOWN_FUNCTION,
         prototype: null,
         [Symbol.hasInstance]: null,
+        [Symbol.metadata]: null,
     }),
 )

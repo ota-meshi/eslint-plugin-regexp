@@ -18,8 +18,7 @@ export function findVariable(
 export function getPropertyName(
     context: Rule.RuleContext,
     node: ES.Property | ES.MemberExpression | ES.MethodDefinition,
-): string | null {
-    // @ts-expect-error -- TODO: fix types
+): ReturnType<typeof eslintUtils.getPropertyName> {
     return eslintUtils.getPropertyName(node, astUtils.getScope(context, node))
 }
 /**

@@ -187,10 +187,11 @@ export const UNKNOWN_MAP = new TypeMap(
 export function buildMapConstructor(): TypeFunction {
     const MAP_TYPES = createObject<{
         [key in keyof MapConstructor]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         prototype: null,
         [Symbol.species]: null,
+        // ES2024
+        groupBy: null
     })
 
     return new TypeGlobalFunction(mapConstructor, MAP_TYPES)

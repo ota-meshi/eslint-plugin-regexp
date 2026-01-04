@@ -75,7 +75,6 @@ const getPrototypes: () => {
 } = lazy(() =>
     createObject<{
         [key in keyof string]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         ...getObjectPrototypes(),
         // ES5
@@ -134,6 +133,9 @@ const getPrototypes: () => {
         replaceAll: RETURN_STRING,
         // ES2022
         at: RETURN_STRING,
+        // ES2024
+        isWellFormed: RETURN_BOOLEAN,
+        toWellFormed: RETURN_STRING,
 
         length: NUMBER,
         0: STRING, // string

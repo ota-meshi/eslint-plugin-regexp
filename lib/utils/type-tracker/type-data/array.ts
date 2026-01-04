@@ -105,7 +105,6 @@ export const STRING_ARRAY = new TypeArray(() => [STRING][Symbol.iterator]())
 export function buildArrayConstructor(): TypeGlobalFunction {
     const ARRAY_TYPES = createObject<{
         [key in keyof ArrayConstructor]: TypeInfo | null
-        // @ts-expect-error -- TODO: fix types
     }>({
         // ES5
         isArray: RETURN_BOOLEAN,
@@ -114,6 +113,8 @@ export function buildArrayConstructor(): TypeGlobalFunction {
         of: RETURN_UNKNOWN_ARRAY,
         prototype: null,
         [Symbol.species]: null,
+        // ES2024
+        fromAsync: null
     })
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }
