@@ -1,22 +1,24 @@
-import assert from "assert"
-import fs from "fs"
-import path from "path"
+import assert from "node:assert"
+import fs from "node:fs"
+import module from "node:module"
+import path from "node:path"
 
-import { rules as allRules } from "../../lib/all-rules"
-import type { RuleModule } from "../../lib/types"
+import { rules as allRules } from "../../lib/all-rules.ts"
+import type { RuleModule } from "../../lib/types.ts"
+
+const require = module.createRequire(import.meta.url)
 
 /**
  * @returns {Array} Get the list of rules placed in the directory.
  */
 function getDirRules() {
-    const rulesRoot = path.resolve(__dirname, "../../lib/rules")
+    const rulesRoot = path.resolve(import.meta.dirname, "../../lib/rules")
     const result = fs.readdirSync(rulesRoot)
     const rules: { [key: string]: RuleModule } = {}
     for (const name of result) {
         const ruleName = name.replace(/\.ts$/u, "")
         const ruleId = `regexp/${ruleName}`
 
-        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports -- test
         const rule = require(path.join(rulesRoot, name)).default
         rules[ruleId] = rule
     }

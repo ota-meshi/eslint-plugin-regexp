@@ -5,7 +5,7 @@ import type {
     ToUnicodeSetElement,
 } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type { ShortCircuit } from "./common"
+import type { ShortCircuit } from "./common.ts"
 
 /**
  * Returns whether the two given character element as equal in the characters

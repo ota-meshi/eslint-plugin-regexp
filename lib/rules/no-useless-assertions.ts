@@ -26,10 +26,10 @@ import {
     FirstConsumedChars,
     invertMatchingDirection,
 } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { mention } from "../utils/mention"
-import { assertNever } from "../utils/util"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { assertNever } from "../utils/util.ts"
 
 function containsAssertion(n: Node): boolean {
     return hasSomeDescendant(n, (d) => d.type === "Assertion")

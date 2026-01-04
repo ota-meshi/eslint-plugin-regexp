@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-set-operation"
+import rule from "../../../lib/rules/prefer-set-operation.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

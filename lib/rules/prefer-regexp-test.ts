@@ -1,12 +1,12 @@
 import type { SourceCode, Rule } from "eslint"
 import type * as ES from "estree"
-import { createRule } from "../utils"
 import {
     getParent,
     isKnownMethodCall,
     getStaticValue,
-} from "../utils/ast-utils"
-import { createTypeTracker } from "../utils/type-tracker"
+} from "../utils/ast-utils/index.ts"
+import { createRule } from "../utils/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
 import {
     hasSideEffect,
     isOpeningParenToken,

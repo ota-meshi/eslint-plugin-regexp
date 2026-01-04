@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-optional-assertion"
+import rule from "../../../lib/rules/no-optional-assertion.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

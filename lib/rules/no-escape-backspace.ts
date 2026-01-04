@@ -1,6 +1,10 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { CP_BACKSPACE, createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import {
+    CP_BACKSPACE,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils/index.ts"
 
 export default createRule("no-escape-backspace", {
     meta: {

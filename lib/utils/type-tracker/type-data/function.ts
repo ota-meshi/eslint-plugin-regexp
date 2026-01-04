@@ -1,26 +1,26 @@
-import { lazy } from "../../util"
-import type { TypeArray } from "./array"
-import { STRING_ARRAY, UNKNOWN_ARRAY } from "./array"
-import type { TypeBigInt } from "./bigint"
-import { BIGINT } from "./bigint"
-import type { TypeBoolean } from "./boolean"
-import { BOOLEAN } from "./boolean"
-import { createObject } from "./common"
-import type { TypeNumber } from "./number"
-import { NUMBER } from "./number"
-import type { TypeObject } from "./object"
-import { getObjectPrototypes, UNKNOWN_OBJECT } from "./object"
-import type { TypeRegExp } from "./regexp"
-import { REGEXP } from "./regexp"
-import type { TypeString } from "./string"
-import { STRING } from "./string"
+import { lazy } from "../../util.ts"
+import type { TypeArray } from "./array.ts"
+import { STRING_ARRAY, UNKNOWN_ARRAY } from "./array.ts"
+import type { TypeBigInt } from "./bigint.ts"
+import { BIGINT } from "./bigint.ts"
+import type { TypeBoolean } from "./boolean.ts"
+import { BOOLEAN } from "./boolean.ts"
+import { createObject } from "./common.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import type { TypeNumber } from "./number.ts"
+import { NUMBER } from "./number.ts"
+import type { TypeObject } from "./object.ts"
+import { getObjectPrototypes, UNKNOWN_OBJECT } from "./object.ts"
+import type { TypeRegExp } from "./regexp.ts"
+import { REGEXP } from "./regexp.ts"
+import type { TypeString } from "./string.ts"
+import { STRING } from "./string.ts"
 
 type FunctionArg = (
     thisType: (() => TypeInfo | null) | null,
@@ -202,5 +202,6 @@ const getPrototypes: () => {
         caller: UNKNOWN_FUNCTION,
         prototype: null,
         [Symbol.hasInstance]: null,
+        [Symbol.metadata]: null,
     }),
 )

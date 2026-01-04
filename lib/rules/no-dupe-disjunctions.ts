@@ -28,23 +28,23 @@ import {
     getEffectiveMaximumRepetition,
     canReorder,
 } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
+import type { ObjectOption } from "../types.ts"
+import { getAllowedCharRanges, inRange } from "../utils/char-ranges.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
     fixRemoveCharacterClassElement,
     fixRemoveAlternative,
     fixRemoveStringAlternative,
-} from "../utils"
-import { getAllowedCharRanges, inRange } from "../utils/char-ranges"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { mention, mentionChar } from "../utils/mention"
-import type { NestedAlternative } from "../utils/partial-parser"
-import { PartialParser } from "../utils/partial-parser"
-import { getParser, assertValidFlags } from "../utils/refa"
-import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast"
-import { assertNever } from "../utils/util"
+} from "../utils/index.ts"
+import { mention, mentionChar } from "../utils/mention.ts"
+import type { NestedAlternative } from "../utils/partial-parser.ts"
+import { PartialParser } from "../utils/partial-parser.ts"
+import { getParser, assertValidFlags } from "../utils/refa.ts"
+import { isCoveredNode, isEqualNodes } from "../utils/regexp-ast/index.ts"
+import { assertNever } from "../utils/util.ts"
 
 type ParentNode = Group | CapturingGroup | Pattern | LookaroundAssertion
 

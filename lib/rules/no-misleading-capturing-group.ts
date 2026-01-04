@@ -19,14 +19,17 @@ import {
     followPaths,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
-import { joinEnglishList, mention } from "../utils/mention"
-import { getParser, toCharSetSource } from "../utils/refa"
-import { canSimplifyQuantifier, hasCapturingGroup } from "../utils/regexp-ast"
-import { assertNever, cachedFn, reversed } from "../utils/util"
+import type { ObjectOption } from "../types.ts"
+import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { joinEnglishList, mention } from "../utils/mention.ts"
+import { getParser, toCharSetSource } from "../utils/refa.ts"
+import {
+    canSimplifyQuantifier,
+    hasCapturingGroup,
+} from "../utils/regexp-ast/index.ts"
+import { assertNever, cachedFn, reversed } from "../utils/util.ts"
 
 /**
  * Returns all quantifiers that are always at the start of the given element.

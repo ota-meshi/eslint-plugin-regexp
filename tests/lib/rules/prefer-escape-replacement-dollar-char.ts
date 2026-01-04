@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-escape-replacement-dollar-char"
+import rule from "../../../lib/rules/prefer-escape-replacement-dollar-char.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

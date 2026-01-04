@@ -1,8 +1,8 @@
 import type { CharSet } from "refa"
 import { JS } from "refa"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { cachedFn } from "./util"
-import type { RegExpContext } from "."
+import type { RegExpContext } from "./index.ts"
+import { cachedFn } from "./util.ts"
 
 /**
  * Create a `JS.RegexppAst` object as required by refa's `JS.Parser.fromAst`

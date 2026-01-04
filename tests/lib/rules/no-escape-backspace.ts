@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-escape-backspace"
+import rule from "../../../lib/rules/no-escape-backspace.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

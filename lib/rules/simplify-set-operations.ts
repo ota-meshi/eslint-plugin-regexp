@@ -12,8 +12,8 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyFlags, ToUnicodeSetElement } from "regexp-ast-analysis"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { RegExpContext } from "../utils"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
 
 type NegatableCharacterClassElement =
     | CharacterClass

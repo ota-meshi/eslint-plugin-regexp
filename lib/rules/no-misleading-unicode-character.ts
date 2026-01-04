@@ -6,12 +6,12 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { PatternRange } from "../utils/ast-utils/pattern-source"
-import { mention, mentionChar } from "../utils/mention"
-import { isEscapeSequence } from "../utils/regex-syntax"
+import type { ObjectOption } from "../types.ts"
+import type { PatternRange } from "../utils/ast-utils/pattern-source.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention, mentionChar } from "../utils/mention.ts"
+import { isEscapeSequence } from "../utils/regex-syntax.ts"
 
 const segmenter = new Intl.Segmenter()
 

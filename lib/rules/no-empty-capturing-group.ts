@@ -1,7 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import { isZeroLength } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 export default createRule("no-empty-capturing-group", {
     meta: {

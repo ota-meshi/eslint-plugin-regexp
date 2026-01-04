@@ -1,7 +1,7 @@
 import { ESLint } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import semver from "semver"
-import rule from "../../../lib/rules/prefer-named-backreference"
+import rule from "../../../lib/rules/prefer-named-backreference.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

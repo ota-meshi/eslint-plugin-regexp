@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/require-unicode-sets-regexp"
+import rule from "../../../lib/rules/require-unicode-sets-regexp.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

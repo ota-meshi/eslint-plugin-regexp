@@ -1,9 +1,9 @@
 import type { Quantifier } from "@eslint-community/regexpp/ast"
 import type { Rule } from "eslint"
 import { getClosestAncestor } from "regexp-ast-analysis"
-import { quantToString } from "./regexp-ast"
-import type { CanSimplify } from "./regexp-ast"
-import type { RegExpContext } from "."
+import type { RegExpContext } from "./index.ts"
+import { quantToString } from "./regexp-ast/index.ts"
+import type { CanSimplify } from "./regexp-ast/index.ts"
 
 /**
  * Returns a fixer to simplify the given quantifier.

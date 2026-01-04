@@ -1,5 +1,5 @@
-import type { RegExpContext, UnparsableRegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext, UnparsableRegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 const STANDARD_FLAGS = "dgimsuvy"
 

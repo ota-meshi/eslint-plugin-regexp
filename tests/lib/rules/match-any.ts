@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/match-any"
+import rule from "../../../lib/rules/match-any.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

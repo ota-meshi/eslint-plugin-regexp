@@ -1,12 +1,12 @@
-import type { ObjectOption } from "../types"
-import type { RegExpContext, UnparsableRegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { ExpressionReference } from "../utils/ast-utils"
+import type { ObjectOption } from "../types.ts"
+import type { ExpressionReference } from "../utils/ast-utils/index.ts"
 import {
     extractExpressionReferences,
     isKnownMethodCall,
-} from "../utils/ast-utils"
-import { createTypeTracker } from "../utils/type-tracker"
+} from "../utils/ast-utils/index.ts"
+import type { RegExpContext, UnparsableRegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
 function parseOption(
     userOption:

@@ -1,7 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { isOctalEscape } from "../utils/regex-syntax"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { isOctalEscape } from "../utils/regex-syntax.ts"
 
 export default createRule("no-octal", {
     meta: {

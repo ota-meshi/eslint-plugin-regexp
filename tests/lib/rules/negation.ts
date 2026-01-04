@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/negation"
+import rule from "../../../lib/rules/negation.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

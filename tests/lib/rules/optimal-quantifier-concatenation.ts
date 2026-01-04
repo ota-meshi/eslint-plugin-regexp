@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/optimal-quantifier-concatenation"
+import rule from "../../../lib/rules/optimal-quantifier-concatenation.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-useless-escape"
+import rule from "../../../lib/rules/no-useless-escape.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

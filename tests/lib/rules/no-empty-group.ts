@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-empty-group"
+import rule from "../../../lib/rules/no-empty-group.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

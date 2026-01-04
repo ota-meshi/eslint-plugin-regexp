@@ -1,4 +1,4 @@
-import type { EscapeToken, Token } from "./tokens"
+import type { EscapeToken, Token } from "./tokens.ts"
 
 const CP_BACK_SLASH = "\\".codePointAt(0)!
 const CP_BACKTICK = "`".codePointAt(0)!

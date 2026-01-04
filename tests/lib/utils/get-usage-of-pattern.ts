@@ -1,12 +1,12 @@
-import assert from "assert"
+import assert from "node:assert"
 import type { Rule } from "eslint"
 import { Linter } from "eslint"
 import type * as ESTree from "estree"
-import { isRegexpLiteral } from "../../../lib/utils/ast-utils/utils"
+import { isRegexpLiteral } from "../../../lib/utils/ast-utils/utils.ts"
 import {
     getUsageOfPattern,
     UsageOfPattern,
-} from "../../../lib/utils/get-usage-of-pattern"
+} from "../../../lib/utils/get-usage-of-pattern.ts"
 import {
     CALL,
     CONSTRUCT,

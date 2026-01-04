@@ -1,11 +1,11 @@
 import type { Character } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { defineRegexpVisitor, createRule } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import { defineRegexpVisitor, createRule } from "../utils/index.ts"
 import {
     getEscapeSequenceKind,
     EscapeSequenceKind,
-} from "../utils/regex-syntax"
+} from "../utils/regex-syntax.ts"
 
 export default createRule("hexadecimal-escape", {
     meta: {

@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-useless-two-nums-quantifier"
+import rule from "../../../lib/rules/no-useless-two-nums-quantifier.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

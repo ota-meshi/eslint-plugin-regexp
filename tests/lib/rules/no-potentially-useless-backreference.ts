@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-potentially-useless-backreference"
+import rule from "../../../lib/rules/no-potentially-useless-backreference.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

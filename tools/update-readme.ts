@@ -1,7 +1,7 @@
-import fs from "fs"
-import path from "path"
-import { rules } from "./lib/load-rules"
-import { getRemovedTable } from "./meta/removed-rules"
+import fs from "node:fs"
+import path from "node:path"
+import { rules } from "./lib/load-rules.ts"
+import { getRemovedTable } from "./meta/removed-rules.ts"
 
 const readmeFilePath = path.resolve(__dirname, "../README.md")
 const readme = fs

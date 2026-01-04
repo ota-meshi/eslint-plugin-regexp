@@ -1,12 +1,12 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Position, SourceLocation } from "estree"
 import { analyse } from "scslre"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { mention } from "../utils/mention"
-import { getJSRegexppAst } from "../utils/refa"
+import type { ObjectOption } from "../types.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { getJSRegexppAst } from "../utils/refa.ts"
 
 /**
  * Returns the combined source location of the two given locations.
