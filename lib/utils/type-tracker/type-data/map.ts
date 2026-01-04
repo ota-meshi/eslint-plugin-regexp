@@ -191,7 +191,7 @@ export function buildMapConstructor(): TypeFunction {
         prototype: null,
         [Symbol.species]: null,
         // ES2024
-        groupBy: null
+        groupBy: null,
     })
 
     return new TypeGlobalFunction(mapConstructor, MAP_TYPES)

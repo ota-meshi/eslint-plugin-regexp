@@ -37,11 +37,11 @@ for (const rule of rules) {
 
 /**
  * Load TypeScript on docs playground
- * 
+ *
  * This plugin replaces imports from `"node:module"` with a typescript load implementation.
  * `ts-util.ts` uses `node:module` to load TypeScript dynamically, but VitePress's bundling
  * process cannot handle it properly on the browser, so we need to replace it.
- * 
+ *
  * NOTE:
  * When typescript native (a.k.a `tsgo`) release near future, we might need to find out another way.
  * Maybe we need to use `tsgo` wasm build or something else.

@@ -114,7 +114,7 @@ export function buildArrayConstructor(): TypeGlobalFunction {
         prototype: null,
         [Symbol.species]: null,
         // ES2024
-        fromAsync: null
+        fromAsync: null,
     })
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }
