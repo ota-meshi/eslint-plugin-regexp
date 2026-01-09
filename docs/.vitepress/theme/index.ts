@@ -19,12 +19,14 @@ const theme: Theme = {
     async enhanceApp(ctx) {
         DefaultTheme.enhanceApp(ctx)
 
-        const ESLintCodeBlock = await import(
-            "./components/eslint-code-block.vue"
-        ).then((m) => m.default ?? m)
-        const PlaygroundBlock = await import(
-            "./components/playground-block.vue"
-        ).then((m) => m.default ?? m)
+        const ESLintCodeBlock =
+            await import("./components/eslint-code-block.vue").then(
+                (m) => m.default ?? m,
+            )
+        const PlaygroundBlock =
+            await import("./components/playground-block.vue").then(
+                (m) => m.default ?? m,
+            )
         ctx.app.component("eslint-code-block", ESLintCodeBlock)
         ctx.app.component("playground-block", PlaygroundBlock)
     },
