@@ -181,7 +181,6 @@ const TESTCASES: TestCase[] = [
         fn
         `,
         type: "Function",
-        only: true,
     },
     {
         code: `
