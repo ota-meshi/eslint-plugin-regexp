@@ -1,6 +1,8 @@
 import assert from "assert"
 import path from "path"
 import * as eslintModule from "eslint"
+// We will do a dummy import to detect that this file is CJS.
+import "../../lib/index"
 
 // -----------------------------------------------------------------------------
 // Tests
