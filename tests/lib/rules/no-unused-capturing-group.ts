@@ -292,7 +292,7 @@ tester.run("no-unused-capturing-group", rule as any, {
                 const [,y,m] = re
             }
             `,
-        `'str'.replace(/(?<foo>\\w+)/, () => {});`,
+        String.raw`'str'.replace(/(?<foo>\w+)/, () => {});`,
         {
             code: String.raw`
             const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
