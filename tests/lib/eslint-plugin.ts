@@ -1,15 +1,11 @@
 import assert from "assert"
 import path from "path"
-import { fileURLToPath } from "url"
 import * as eslintModule from "eslint"
 
 // -----------------------------------------------------------------------------
 // Tests
 // -----------------------------------------------------------------------------
 
-// @ts-expect-error -- ?
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 const TEST_CWD_FOR_FLAT_CONFIG = path.join(
     __dirname,
     "../fixtures/integrations/eslint-plugin",
