@@ -6,20 +6,21 @@
 
 All settings for this plugin use the `regexp` namespace.
 
-Example **.eslintrc.js**:
+Example **eslint.config.js**:
 
 ```js
-module.exports = {
-  // ... rules, plugins, etc.
-
-  settings: {
-    // all settings for this plugin have to be in the `regexp` namespace
-    regexp: {
-      // define settings here, such as:
-      // allowedCharacterRanges: 'all'
+export default [
+  {
+    // ... rules, plugins, etc.
+    settings: {
+      // all settings for this plugin have to be in the `regexp` namespace
+      regexp: {
+        // define settings here, such as:
+        // allowedCharacterRanges: 'all'
+      }
     }
   }
-}
+]
 ```
 
 ## :gear: Available settings
@@ -55,15 +56,17 @@ If the setting isn't defined, its value defaults to `"alphanumeric"`.
 #### Example
 
 ```js
-module.exports = {
-  // ... rules, plugins, etc.
-  settings: {
-    regexp: {
-      // allow alphanumeric and cyrillic ranges
-      allowedCharacterRanges: ['alphanumeric', 'а-я', 'А-Я']
+export default [
+  {
+    // ... rules, plugins, etc.
+    settings: {
+      regexp: {
+        // allow alphanumeric and cyrillic ranges
+        allowedCharacterRanges: ['alphanumeric', 'а-я', 'А-Я']
+      }
     }
   }
-}
+]
 ```
 
 #### Affected rules

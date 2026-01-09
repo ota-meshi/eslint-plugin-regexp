@@ -23,7 +23,7 @@ jobs:
         strategy:
             matrix:
                 node: [20.x, 22.x, 24.x]
-                eslint: [8, 9]
+                eslint: [9]
         steps:
             - uses: actions/checkout@v5
             - name: Use Node.js ${{ matrix.node }}

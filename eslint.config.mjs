@@ -32,7 +32,6 @@ export default [
             "!.vscode/",
             "!.github/",
             "tests/fixtures/integrations/eslint-plugin/test.js",
-            "tests/fixtures/integrations/eslint-plugin-legacy-config/test.js",
             "docs/rules/**/*.md/*.js",
             ".github/ISSUE_TEMPLATE/new_rule_request.md",
         ],
