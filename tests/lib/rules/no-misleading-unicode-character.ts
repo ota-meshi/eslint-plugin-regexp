@@ -45,7 +45,7 @@ tester.run("no-misleading-unicode-character", rule as any, {
         `/[\u200D]/u`,
 
         // Ignore escaped symbols because it's obvious they aren't together
-        `/[\\uD83D\\uDC4D]/`,
+        String.raw`/[\uD83D\uDC4D]/`,
 
         // ES2024
         "var r = /[👍]/v",

@@ -238,11 +238,11 @@ const TESTCASES: TestCase[] = [
         sourceType: "module",
     },
     {
-        code: `foo(/[a-zA-Z]\\w*/)`,
+        code: String.raw`foo(/[a-zA-Z]\w*/)`,
         results: [UsageOfPattern.unknown],
     },
     {
-        code: `foo({ pattern: /[a-zA-Z]\\w*/ })`,
+        code: String.raw`foo({ pattern: /[a-zA-Z]\w*/ })`,
         results: [UsageOfPattern.unknown],
     },
     {

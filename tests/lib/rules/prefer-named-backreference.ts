@@ -12,13 +12,13 @@ const tester = new SnapshotRuleTester({
 
 tester.run("prefer-named-backreference", rule as any, {
     valid: [
-        `/(a)\\1/`,
-        `/(?<foo>a)\\k<foo>/`,
-        `/(a)\\1 (?<foo>a)\\k<foo>/`,
+        String.raw`/(a)\1/`,
+        String.raw`/(?<foo>a)\k<foo>/`,
+        String.raw`/(a)\1 (?<foo>a)\k<foo>/`,
         // ES2025
         ...(semver.gte(ESLint.version, "9.6.0")
-            ? [`/((?<foo>a)|(?<foo>b))\\1/`]
+            ? [String.raw`/((?<foo>a)|(?<foo>b))\1/`]
             : []),
     ],
-    invalid: [`/(?<foo>a)\\1/`, `/(?<foo>a)\\1/v`],
+    invalid: [String.raw`/(?<foo>a)\1/`, String.raw`/(?<foo>a)\1/v`],
 })
