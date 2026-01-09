@@ -8,6 +8,12 @@ const config = {
         ["flat/recommended", "🟢"],
     ],
     pathRuleList: ["README.md", "docs/rules/index.md"],
+    ruleDocNotices: [
+        "deprecated",
+        "configs",
+        "fixableAndHasSuggestions",
+        "requiresTypeChecking",
+    ],
     ruleDocSectionInclude: ["Rule Details", "Version", "Implementation"],
     ruleDocSectionOptions: false,
     ruleDocTitleFormat: "prefix-name",
