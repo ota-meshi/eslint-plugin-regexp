@@ -3,7 +3,7 @@
     "version": "2.10.0",
     "description": "ESLint plugin for finding RegExp mistakes and RegExp style guide violations.",
     "engines": {
-        "node": "^18 || >=20"
+        "node": "^20.19.0 || ^22.13.0 || >=24"
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
