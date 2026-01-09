@@ -190,6 +190,10 @@ export function parseTypeText(text: string): RootResult | null {
         const result = jsdocTypeParser.tryParse(text)
         return result
     } catch {
+        if (text.trim() === "function") {
+            // Special case: 'function' is valid type but jsdoc-type-pratt-parser fails to parse it.
+            return jsdocTypeParser.tryParse("Function")
+        }
         return null
     }
 }
