@@ -181,6 +181,7 @@ const TESTCASES: TestCase[] = [
         fn
         `,
         type: "Function",
+        only: true,
     },
     {
         code: `
@@ -307,10 +308,34 @@ const TESTCASES: TestCase[] = [
         `,
         type: ["RegExp"],
     },
+    {
+        code: `
+        const r = /** @type {readonly string[]} */(a)
+        r[123]
+        `,
+        type: ["String"],
+    },
+    {
+        code: `
+        /** 
+         * @typedef {string | number} StrOrNumber
+         */
+        const r = /** @type {StrOrNumber extends string ? string : number} */(a)
+        r
+        `,
+        type: ["Number", "String"],
+    },
+    {
+        code: `
+        const r = /** @type {\`\${number}\`} */(a)
+        r
+        `,
+        type: ["String"],
+    },
 ]
 describe("type track with jsdoc", () => {
     for (const testCase of TESTCASES) {
-        it(testCase.code, () => {
+        ;(testCase.only ? it.only : it)(testCase.code, () => {
             testTypeTrackerWithLinter(testCase)
         })
     }
