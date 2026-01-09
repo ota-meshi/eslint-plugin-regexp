@@ -1,14 +1,18 @@
 import { rules as ruleList } from "./all-rules"
-import * as all from "./configs/all"
 import * as flatAll from "./configs/flat/all"
 import * as flatRecommended from "./configs/flat/recommended"
-import * as recommended from "./configs/recommended"
+import * as metadata from "./meta"
 import type { RuleModule } from "./types"
-export * as meta from "./meta"
+
+export const meta = {
+    name: metadata.name,
+    version: metadata.version,
+}
 
 export const configs = {
-    recommended,
-    all,
+    recommended: flatRecommended,
+    all: flatAll,
+    // For backwards compatibility
     "flat/all": flatAll,
     "flat/recommended": flatRecommended,
 }
@@ -19,3 +23,4 @@ export const rules = ruleList.reduce(
     },
     {} as { [key: string]: RuleModule },
 )
+export default { configs, rules, meta }
