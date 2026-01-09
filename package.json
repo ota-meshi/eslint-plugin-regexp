@@ -90,7 +90,7 @@
         "eslint-import-resolver-typescript": "^4.0.0",
         "eslint-plugin-eslint-plugin": "^7.0.0",
         "eslint-plugin-import": "^2.32.0",
-        "eslint-plugin-jsdoc": "^61.0.0",
+        "eslint-plugin-jsdoc": "^62.0.0",
         "eslint-plugin-json-schema-validator": "^5.1.1",
         "eslint-plugin-jsonc": "^2.21.0",
         "eslint-plugin-markdown": "^5.0.0",
