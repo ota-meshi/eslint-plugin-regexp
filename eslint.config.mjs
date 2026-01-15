@@ -34,7 +34,6 @@ export default [
         ],
     },
     js.configs.recommended,
-    regexp.configs["flat/recommended"],
     ...myPlugin.config({
         node: true,
         ts: true,
