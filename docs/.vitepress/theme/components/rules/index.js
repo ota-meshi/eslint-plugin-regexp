@@ -1,6 +1,6 @@
 import { builtinRules } from "eslint/use-at-your-own-risk"
 import { rules } from "../../../../../lib/all-rules.ts"
-import { rules as recommendedRules } from "../../../../../lib/configs/recommended.ts"
+import { rules as recommendedRules } from "../../../../../lib/configs/rules/recommended.ts"
 
 const CATEGORY_TITLES = {
     "Possible Errors": "Possible Errors",

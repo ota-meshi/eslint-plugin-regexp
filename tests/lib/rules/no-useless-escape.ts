@@ -122,9 +122,9 @@ tester.run("no-useless-escape", rule as any, {
     ],
     invalid: [
         String.raw`/\a/`,
-        `/\\x7/`,
-        `/\\u41/`,
-        `/\\u{[41]}/`,
+        String.raw`/\x7/`,
+        String.raw`/\u41/`,
+        String.raw`/\u{[41]}/`,
         String.raw`/[ \^ \/ \. \$ \* \+ \? \[ \{ \} \| \( \) \k<title> \B \8 \9]/`,
         String.raw`/\p{ASCII}/; /[\p{ASCII}]/; /\P{ASCII}/; /[\P{ASCII}]/`, // Missing u flag
         String.raw`/[\q{abc}]/;`, // Missing v flag

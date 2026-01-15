@@ -10,8 +10,8 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v5
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
             - name: Install Packages
               run: npm ci
             - name: Build
@@ -25,9 +25,9 @@ jobs:
                 node: [20.x, 22.x, 24.x]
                 eslint: [9]
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v6
             - name: Use Node.js ${{ matrix.node }}
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node }}
             - name: Install Packages
@@ -39,8 +39,8 @@ jobs:
     test-and-coverage:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v5
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
             - name: Install Packages
               run: npm ci
             - name: Build
@@ -54,8 +54,8 @@ jobs:
     update:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v5
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
             - name: Install Packages
               run: npm ci
             - name: Build

@@ -17,6 +17,7 @@ export type TestCase = {
         parser?: typeof tsParser
         [key: string]: any
     }
+    only?: boolean
 }
 
 const __dirname = import.meta.dirname
@@ -65,7 +66,6 @@ export function testTypeTrackerWithLinter(testCase: TestCase): string[] {
         {
             files: ["**/*.*"],
             plugins: {
-                // @ts-expect-error -- ignore type error for eslint v9
                 test: {
                     rules: {
                         test: {

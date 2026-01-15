@@ -11,7 +11,7 @@ const tester = new SnapshotRuleTester({
 tester.run("prefer-quantifier", rule as any, {
     valid: [
         `/regexp/`,
-        `/\\d_\\d/`,
+        String.raw`/\d_\d/`,
         `/Google/`,
         `/2000/`,
         `/<!--/`,
@@ -24,27 +24,27 @@ tester.run("prefer-quantifier", rule as any, {
             options: [{ allows: ["www"] }],
         },
         {
-            code: `/\\d\\d/`,
-            options: [{ allows: [`\\d\\d`] }],
+            code: String.raw`/\d\d/`,
+            options: [{ allows: [String.raw`\d\d`] }],
         },
     ],
     invalid: [
-        `/\\d\\d/`,
+        String.raw`/\d\d/`,
         `/  /`,
         `/  /v`,
         String.raw`/\p{ASCII}\p{ASCII}/u`,
         String.raw`/\p{Basic_Emoji}\p{Basic_Emoji}/v`,
-        `/(\\d\\d\\d*)/`,
+        String.raw`/(\d\d\d*)/`,
         String.raw`/\d\d\d\d-\d\d-\d\d/`,
         String.raw`/aaa..\s\s\S\S\p{ASCII}\p{ASCII}/u`,
         `/aaaa(aaa)/u`,
         `/(b)?aaaa(b)?/u`,
-        `
-            const s = "\\\\d\\\\d"
+        String.raw`
+            const s = "\\d\\d"
             new RegExp(s)
             `,
-        `
-            const s = "\\\\d"+"\\\\d"
+        String.raw`
+            const s = "\\d"+"\\d"
             new RegExp(s)
             `,
         {
@@ -53,7 +53,7 @@ tester.run("prefer-quantifier", rule as any, {
         },
         {
             code: String.raw`/\d\d-\d\d\d\d/`,
-            options: [{ allows: [`\\d\\d`] }],
+            options: [{ allows: [String.raw`\d\d`] }],
         },
     ],
 })

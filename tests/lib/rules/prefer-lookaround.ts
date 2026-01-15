@@ -75,8 +75,8 @@ tester.run("prefer-lookaround", rule as any, {
             `,
             options: [{ strictTypes: false }],
         },
-        `
-        "aa-a".replace(/a(\\b|$)/g, 'b$1')
+        String.raw`
+        "aa-a".replace(/a(\b|$)/g, 'b$1')
         "aaa".replace(/(^)a/, '$1b')
         `,
         `
@@ -97,16 +97,16 @@ tester.run("prefer-lookaround", rule as any, {
         "aaaaaa".replace(/(?<=a)a/g, "b")
         // 'abbbbb'
         `,
-        `
-        "aaaaaa".replace(/(a)\\w/g, "$1b")
+        String.raw`
+        "aaaaaa".replace(/(a)\w/g, "$1b")
         // 'ababab'
-        "aaaaaa".replace(/(?<=a)\\w/g, "b")
+        "aaaaaa".replace(/(?<=a)\w/g, "b")
         // 'abbbbb'
         `,
-        `
-        "aaaaaa".replace(/(\\w)a/g, "$1b")
+        String.raw`
+        "aaaaaa".replace(/(\w)a/g, "$1b")
         // 'ababab'
-        "aaaaaa".replace(/(?<=\\w)a/g, "b")
+        "aaaaaa".replace(/(?<=\w)a/g, "b")
         // 'abbbbb'
         `,
         `

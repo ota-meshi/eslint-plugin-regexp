@@ -738,6 +738,23 @@ function jsDocTypeNodeToTypeInfo(
     if (node.type === "JsdocTypeTypeof") {
         return new TypeFunction(() => jsDocTypeNodeToTypeInfo(node.element))
     }
+    if (node.type === "JsdocTypeReadonlyArray") {
+        return jsDocTypeNodeToTypeInfo(node.element)
+    }
+    if (node.type === "JsdocTypeConditional") {
+        const trueType = jsDocTypeNodeToTypeInfo(node.trueType)
+        const falseType = jsDocTypeNodeToTypeInfo(node.falseType)
+        if (trueType && falseType) {
+            return TypeUnionOrIntersection.buildType(function* () {
+                yield trueType
+                yield falseType
+            })
+        }
+        return trueType ?? falseType
+    }
+    if (node.type === "JsdocTypeTemplateLiteral") {
+        return STRING
+    }
     if (
         node.type === "JsdocTypeAny" ||
         node.type === "JsdocTypeUnknown" ||
@@ -752,7 +769,9 @@ function jsDocTypeNodeToTypeInfo(
         node.type === "JsdocTypeNamePath" ||
         node.type === "JsdocTypePredicate" ||
         node.type === "JsdocTypeSpecialNamePath" ||
-        node.type === "JsdocTypeSymbol"
+        node.type === "JsdocTypeSymbol" ||
+        node.type === "JsdocTypeAssertsPlain" ||
+        node.type === "JsdocTypeInfer"
     ) {
         return null
     }

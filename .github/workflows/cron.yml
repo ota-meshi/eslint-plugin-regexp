@@ -14,16 +14,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v6
             - name: Install Node.js
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@v6
             - name: Install Packages
               run: npm install
             - name: Update
               run: npm run update:unicode-alias
             - name: Format
               run: npm run eslint-fix
-            - uses: peter-evans/create-pull-request@v7
+            - uses: peter-evans/create-pull-request@v8
               with:
                   commit-message: Updates unicode property alias resource with latest
                   branch: update-unicode-alias

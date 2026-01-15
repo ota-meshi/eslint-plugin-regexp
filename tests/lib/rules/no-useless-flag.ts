@@ -17,13 +17,13 @@ tester.run("no-useless-flag", rule as any, {
         // i
         `/foo/i`,
         `/BAR/i`,
-        `/\\w\\W/iu`,
-        `/\\p{Lu}/i`,
+        String.raw`/\w\W/iu`,
+        String.raw`/\p{Lu}/i`,
         `/\u212A/iu`,
-        `/\\b/iu`,
+        String.raw`/\b/iu`,
         String.raw`/\x41/i`,
         `/[a-zA-Z]/i`, // in that case you should use the i flag instead of removing it
-        `/\\p{Ll}/iu`,
+        String.raw`/\p{Ll}/iu`,
 
         // m
         `/^foo/m`,

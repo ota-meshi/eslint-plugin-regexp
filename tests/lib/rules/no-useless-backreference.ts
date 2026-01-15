@@ -19,7 +19,7 @@ tester.run("no-useless-backreference", rule as any, {
         String.raw`/(?!(a)\1)/`,
         // ES2025
         ...(semver.gte(ESLint.version, "9.6.0")
-            ? [`/((?<foo>bar)\\k<foo>|(?<foo>baz))/`]
+            ? [String.raw`/((?<foo>bar)\k<foo>|(?<foo>baz))/`]
             : []),
     ],
     invalid: [
@@ -45,15 +45,15 @@ tester.run("no-useless-backreference", rule as any, {
         // ES2025
         ...(semver.gte(ESLint.version, "9.6.0")
             ? [
-                  `/\\k<foo>((?<foo>bar)|(?<foo>baz))/`,
-                  `/((?<foo>bar)|\\k<foo>(?<foo>baz))/`,
-                  `/\\k<foo>((?<foo>bar)|(?<foo>baz)|(?<foo>qux))/`,
-                  `/((?<foo>bar)|\\k<foo>(?<foo>baz)|(?<foo>qux))/`,
-                  `/((?<foo>bar)|\\k<foo>|(?<foo>baz))/`,
-                  `/((?<foo>bar)|\\k<foo>|(?<foo>baz)|(?<foo>qux))/`,
-                  `/((?<foo>bar)|(?<foo>baz\\k<foo>)|(?<foo>qux\\k<foo>))/`,
-                  `/(?<=((?<foo>bar)|(?<foo>baz))\\k<foo>)/`,
-                  `/((?!(?<foo>bar))|(?!(?<foo>baz)))\\k<foo>/`,
+                  String.raw`/\k<foo>((?<foo>bar)|(?<foo>baz))/`,
+                  String.raw`/((?<foo>bar)|\k<foo>(?<foo>baz))/`,
+                  String.raw`/\k<foo>((?<foo>bar)|(?<foo>baz)|(?<foo>qux))/`,
+                  String.raw`/((?<foo>bar)|\k<foo>(?<foo>baz)|(?<foo>qux))/`,
+                  String.raw`/((?<foo>bar)|\k<foo>|(?<foo>baz))/`,
+                  String.raw`/((?<foo>bar)|\k<foo>|(?<foo>baz)|(?<foo>qux))/`,
+                  String.raw`/((?<foo>bar)|(?<foo>baz\k<foo>)|(?<foo>qux\k<foo>))/`,
+                  String.raw`/(?<=((?<foo>bar)|(?<foo>baz))\k<foo>)/`,
+                  String.raw`/((?!(?<foo>bar))|(?!(?<foo>baz)))\k<foo>/`,
               ]
             : []),
     ],

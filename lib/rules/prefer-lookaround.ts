@@ -620,8 +620,8 @@ export default createRule("prefer-lookaround", {
                             // Flags the capturing group referenced in `refName` if it is also referenced elsewhere.
                             state.isUseOther ||= Boolean(
                                 otherThanRefNames.has(refNum) ||
-                                    (cgNode.name &&
-                                        otherThanRefNames.has(cgNode.name)),
+                                (cgNode.name &&
+                                    otherThanRefNames.has(cgNode.name)),
                             )
                         }
                     }

@@ -17,7 +17,7 @@ tester.run("no-useless-lazy", rule as any, {
         `/a{2,2}/`,
         `/a{3}/`,
         `/a+?b*/`,
-        `/[\\s\\S]+?bar/`,
+        String.raw`/[\s\S]+?bar/`,
         `/a??a?/`,
     ],
     invalid: [
