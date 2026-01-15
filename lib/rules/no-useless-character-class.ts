@@ -5,10 +5,14 @@ import type {
     UnicodeSetsCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
+import type { ObjectOption } from "../types.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import {
+    canUnwrapped,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils/index.ts"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax.ts"
 
 const ESCAPES_OUTSIDE_CHARACTER_CLASS = new Set("$()*+./?[{|")
 const ESCAPES_OUTSIDE_CHARACTER_CLASS_WITH_U = new Set([

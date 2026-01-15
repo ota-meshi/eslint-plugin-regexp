@@ -3,9 +3,9 @@ import type {
     StringAlternative,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax.ts"
 
 export default createRule("no-useless-string-literal", {
     meta: {

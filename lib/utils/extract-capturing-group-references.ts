@@ -10,7 +10,8 @@ import type {
     RestElement,
 } from "estree"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import type { KnownMethodCall, PropertyReference } from "./ast-utils"
+import { extractPropertyReferencesForPattern } from "./ast-utils/extract-property-references.ts"
+import type { KnownMethodCall, PropertyReference } from "./ast-utils/index.ts"
 import {
     getParent,
     parseReplacements,
@@ -18,10 +19,9 @@ import {
     extractPropertyReferences,
     extractExpressionReferences,
     isKnownMethodCall,
-} from "./ast-utils"
-import { extractPropertyReferencesForPattern } from "./ast-utils/extract-property-references"
-import { parseReplacementsForString } from "./replacements-utils"
-import type { TypeTracker } from "./type-tracker"
+} from "./ast-utils/index.ts"
+import { parseReplacementsForString } from "./replacements-utils.ts"
+import type { TypeTracker } from "./type-tracker/index.ts"
 
 export type UnknownUsage = {
     type: "UnknownUsage"

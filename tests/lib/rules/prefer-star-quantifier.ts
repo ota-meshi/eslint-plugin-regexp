@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-star-quantifier"
+import rule from "../../../lib/rules/prefer-star-quantifier.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -1,5 +1,5 @@
-import assert from "assert"
-import path from "path"
+import assert from "node:assert"
+import path from "node:path"
 import type * as tsParser from "@typescript-eslint/parser"
 import { Linter } from "eslint"
 import type { AST, Rule } from "eslint"
@@ -7,7 +7,7 @@ import type { AST, Rule } from "eslint"
 import type * as ES from "estree"
 // eslint-disable-next-line import/no-duplicates -- we need both
 import type { Expression } from "estree"
-import { createTypeTracker } from "../../../../lib/utils/type-tracker"
+import { createTypeTracker } from "../../../../lib/utils/type-tracker/index.ts"
 import { isCommentToken } from "@eslint-community/eslint-utils"
 
 export type TestCase = {
@@ -20,6 +20,7 @@ export type TestCase = {
     only?: boolean
 }
 
+const __dirname = import.meta.dirname
 const tsconfigRootDir = path.resolve(__dirname, "../../../..")
 const project = "tsconfig.json"
 const filename = path.join(

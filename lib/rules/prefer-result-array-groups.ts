@@ -1,16 +1,16 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Expression, Super } from "estree"
 import type * as TS from "typescript"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { ObjectOption } from "../types.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 import {
     getTypeScriptTools,
     isAny,
     isClassOrInterface,
     isUnionOrIntersection,
     isNull,
-} from "../utils/ts-util"
+} from "../utils/ts-util.ts"
 import { isOpeningBracketToken } from "@eslint-community/eslint-utils"
 
 export default createRule("prefer-result-array-groups", {

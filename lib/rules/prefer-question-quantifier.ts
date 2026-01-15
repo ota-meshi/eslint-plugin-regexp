@@ -1,9 +1,9 @@
 import type { Group, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { mention } from "../utils/mention"
-import { getQuantifierOffsets } from "../utils/regexp-ast"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { getQuantifierOffsets } from "../utils/regexp-ast/index.ts"
 
 export default createRule("prefer-question-quantifier", {
     meta: {

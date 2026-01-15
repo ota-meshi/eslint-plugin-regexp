@@ -1,9 +1,13 @@
 import type { Group } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
+import type { ObjectOption } from "../types.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import {
+    canUnwrapped,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils/index.ts"
 
 /**
  * Returns whether the given group is the top-level group of its pattern.

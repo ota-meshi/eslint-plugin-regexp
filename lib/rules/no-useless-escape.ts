@@ -4,7 +4,7 @@ import type {
     ExpressionCharacterClass,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
@@ -25,8 +25,8 @@ import {
     CP_PIPE,
     CP_MINUS,
     canUnwrapped,
-} from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_CP } from "../utils/regex-syntax"
+} from "../utils/index.ts"
+import { RESERVED_DOUBLE_PUNCTUATOR_CP } from "../utils/regex-syntax.ts"
 
 const REGEX_CHAR_CLASS_ESCAPES = new Set([
     CP_BACK_SLASH, // \\

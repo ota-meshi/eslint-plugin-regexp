@@ -1,6 +1,9 @@
+import module from "node:module"
 import * as tsParser from "@typescript-eslint/parser"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-result-array-groups"
+import rule from "../../../lib/rules/prefer-result-array-groups.ts"
+
+const require = module.createRequire(import.meta.url)
 
 const filename = "tests/lib/rules/prefer-result-array-groups.ts"
 

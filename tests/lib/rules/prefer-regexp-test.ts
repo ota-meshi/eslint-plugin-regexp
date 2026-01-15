@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-regexp-test"
+import rule from "../../../lib/rules/prefer-regexp-test.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

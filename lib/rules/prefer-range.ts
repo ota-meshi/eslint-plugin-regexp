@@ -3,16 +3,16 @@ import type {
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source"
+import type { ObjectOption } from "../types.ts"
+import type { PatternReplaceRange } from "../utils/ast-utils/pattern-source.ts"
 import {
     getAllowedCharRanges,
     getAllowedCharValueSchema,
     inRange,
-} from "../utils/char-ranges"
-import { mention } from "../utils/mention"
+} from "../utils/char-ranges.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
 
 export default createRule("prefer-range", {
     meta: {

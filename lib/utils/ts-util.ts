@@ -1,7 +1,10 @@
+import module from "node:module"
 import type { Rule } from "eslint"
 import type * as TS from "typescript"
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- ignore
 type TypeScript = typeof import("typescript")
+
+const require = module.createRequire(import.meta.url)
 
 /**
  * Get TypeScript tools
@@ -39,7 +42,6 @@ let cacheTypeScript: TypeScript | undefined
  */
 export function getTypeScript(): TypeScript | undefined {
     try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- ignore
         return (cacheTypeScript ??= require("typescript"))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
     } catch (e: any) {

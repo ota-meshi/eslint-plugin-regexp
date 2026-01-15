@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-extra-lookaround-assertions"
+import rule from "../../../lib/rules/no-extra-lookaround-assertions.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -12,8 +12,8 @@ import {
     invertMatchingDirection,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 /**
  * If the lookaround only consists of a single character, character set, or

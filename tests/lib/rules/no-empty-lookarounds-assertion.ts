@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-empty-lookarounds-assertion"
+import rule from "../../../lib/rules/no-empty-lookarounds-assertion.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

@@ -1,7 +1,10 @@
 import type { CallExpression, Literal } from "estree"
-import { createRule } from "../utils"
-import { isKnownMethodCall, parseReplacements } from "../utils/ast-utils"
-import { createTypeTracker } from "../utils/type-tracker"
+import {
+    isKnownMethodCall,
+    parseReplacements,
+} from "../utils/ast-utils/index.ts"
+import { createRule } from "../utils/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
 export default createRule("prefer-escape-replacement-dollar-char", {
     meta: {

@@ -19,7 +19,7 @@ import {
     toUnicodeSet,
     getClosestAncestor,
 } from "regexp-ast-analysis"
-import { assertNever, cachedFn } from "../util"
+import { assertNever, cachedFn } from "../util.ts"
 
 /**
  * Returns flags equivalent to the given flags but with the `i` flag set.

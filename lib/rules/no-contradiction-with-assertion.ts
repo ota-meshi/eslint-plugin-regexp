@@ -19,10 +19,10 @@ import {
     isZeroLength,
     FirstConsumedChars,
 } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { mention } from "../utils/mention"
-import { quantToString } from "../utils/regexp-ast"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { quantToString } from "../utils/regexp-ast/index.ts"
 
 /**
  * Returns whether the given assertions is guaranteed to always trivially

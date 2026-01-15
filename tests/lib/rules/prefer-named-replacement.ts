@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/prefer-named-replacement"
+import rule from "../../../lib/rules/prefer-named-replacement.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

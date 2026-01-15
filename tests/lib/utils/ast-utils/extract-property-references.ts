@@ -1,10 +1,10 @@
-import assert from "assert"
+import assert from "node:assert"
 import { Linter } from "eslint"
 import type { Rule } from "eslint"
 import type * as ESTree from "estree"
-import type { PropertyReference } from "../../../../lib/utils/ast-utils"
-import { extractPropertyReferences } from "../../../../lib/utils/ast-utils"
-import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils"
+import type { PropertyReference } from "../../../../lib/utils/ast-utils/index.ts"
+import { extractPropertyReferences } from "../../../../lib/utils/ast-utils/index.ts"
+import { isRegexpLiteral } from "../../../../lib/utils/ast-utils/utils.ts"
 import {
     CALL,
     CONSTRUCT,

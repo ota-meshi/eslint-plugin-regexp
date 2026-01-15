@@ -5,10 +5,10 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { mention } from "../utils/mention"
-import { isEscapeSequence, isOctalEscape } from "../utils/regex-syntax"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { isEscapeSequence, isOctalEscape } from "../utils/regex-syntax.ts"
 
 const validator = new RegExpValidator({ strict: true, ecmaVersion: 2020 })
 

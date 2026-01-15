@@ -5,7 +5,7 @@ import type {
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import { Chars, toUnicodeSet } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
@@ -16,8 +16,8 @@ import {
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
     CP_LOW_LINE,
-} from "../utils"
-import { mention } from "../utils/mention"
+} from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
 
 function isSmallLetterRange(node: CharacterClassElement) {
     return (

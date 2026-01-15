@@ -1,9 +1,9 @@
 import { RegExpParser, visitRegExpAST } from "@eslint-community/regexpp"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import { toUnicodeSet } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/regex-syntax"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { RESERVED_DOUBLE_PUNCTUATOR_PATTERN } from "../utils/regex-syntax.ts"
 
 /**
  * Returns whether the regex would keep its behavior if the v flag were to be

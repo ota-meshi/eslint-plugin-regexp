@@ -16,7 +16,7 @@ import type {
     Pattern,
     UnaryExpression,
 } from "estree"
-import { findFunction, findVariable, getParent } from "./utils"
+import { findFunction, findVariable, getParent } from "./utils.ts"
 
 export type ExpressionReference =
     | {

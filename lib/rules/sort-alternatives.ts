@@ -35,10 +35,10 @@ import {
     CP_APOSTROPHE,
     createRule,
     defineRegexpVisitor,
-} from "../utils"
-import type { RegExpContext } from "../utils"
-import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest"
-import { getParser, assertValidFlags } from "../utils/refa"
+} from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { getLexicographicallySmallestInConcatenation } from "../utils/lexicographically-smallest.ts"
+import { getParser, assertValidFlags } from "../utils/refa.ts"
 
 interface AllowedChars {
     allowed: CharSet

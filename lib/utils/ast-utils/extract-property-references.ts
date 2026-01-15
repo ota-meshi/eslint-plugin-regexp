@@ -15,8 +15,8 @@ import type {
 import {
     extractExpressionReferences,
     extractExpressionReferencesForVariable,
-} from "./extract-expression-references"
-import { getParent, getStringIfConstant } from "./utils"
+} from "./extract-expression-references.ts"
+import { getParent, getStringIfConstant } from "./utils.ts"
 
 export type PropertyReference =
     | {

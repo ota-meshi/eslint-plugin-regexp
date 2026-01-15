@@ -1,10 +1,10 @@
 import type { Alternative, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
+import type { ObjectOption } from "../types.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 function* extractLazyEndQuantifiers(
     alternatives: Alternative[],

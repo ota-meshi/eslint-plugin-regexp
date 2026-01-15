@@ -8,16 +8,16 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import { CharSet, JS } from "refa"
 import { Chars, toUnicodeSet } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
 import type {
     PatternSource,
     PatternRange,
-} from "../utils/ast-utils/pattern-source"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { mention } from "../utils/mention"
-import { getIgnoreCaseFlags, isCaseVariant } from "../utils/regexp-ast"
-import { cachedFn } from "../utils/util"
+} from "../utils/ast-utils/pattern-source.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { getIgnoreCaseFlags, isCaseVariant } from "../utils/regexp-ast/index.ts"
+import { cachedFn } from "../utils/util.ts"
 
 type FlatClassElement = CharacterClassElement | StringAlternative
 

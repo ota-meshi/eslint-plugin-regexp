@@ -7,15 +7,15 @@ import type {
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import { Chars, toUnicodeSet } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
+import type { ObjectOption } from "../types.ts"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     createRule,
     defineRegexpVisitor,
     CP_DIGIT_ZERO,
     CP_DIGIT_NINE,
-} from "../utils"
-import { mention } from "../utils/mention"
+} from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
 
 /**
  * Returns whether the given character class element is equivalent to `\d`.

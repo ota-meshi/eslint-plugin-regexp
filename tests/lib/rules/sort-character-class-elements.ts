@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/sort-character-class-elements"
+import rule from "../../../lib/rules/sort-character-class-elements.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

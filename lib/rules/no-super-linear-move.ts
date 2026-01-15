@@ -19,11 +19,11 @@ import {
 } from "regexp-ast-analysis"
 import type { Descendant, ReadonlyFlags } from "regexp-ast-analysis"
 import { analyse } from "scslre"
-import type { ObjectOption } from "../types"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { RegExpContext } from "../utils"
-import { UsageOfPattern } from "../utils/get-usage-of-pattern"
-import { getJSRegexppAst } from "../utils/refa"
+import type { ObjectOption } from "../types.ts"
+import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { getJSRegexppAst } from "../utils/refa.ts"
 
 interface Report {
     quant: Quantifier

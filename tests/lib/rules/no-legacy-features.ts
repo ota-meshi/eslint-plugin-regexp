@@ -1,6 +1,6 @@
 import * as tsParser from "@typescript-eslint/parser"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-legacy-features"
+import rule from "../../../lib/rules/no-legacy-features.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

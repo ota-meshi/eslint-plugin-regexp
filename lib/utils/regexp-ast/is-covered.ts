@@ -14,8 +14,8 @@ import type {
     ToUnicodeSetElement,
 } from "regexp-ast-analysis"
 import { toCharSet, toUnicodeSet } from "regexp-ast-analysis"
-import { assertNever } from "../util"
-import { isEqualNodes } from "./is-equals"
+import { assertNever } from "../util.ts"
+import { isEqualNodes } from "./is-equals.ts"
 
 type Options = {
     flags: ReadonlyFlags

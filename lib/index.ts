@@ -1,8 +1,8 @@
-import { rules as ruleList } from "./all-rules"
-import * as flatAll from "./configs/flat/all"
-import * as flatRecommended from "./configs/flat/recommended"
-import * as metadata from "./meta"
-import type { RuleModule } from "./types"
+import { rules as ruleList } from "./all-rules.ts"
+import * as flatAll from "./configs/flat/all.ts"
+import * as flatRecommended from "./configs/flat/recommended.ts"
+import * as metadata from "./meta.ts"
+import type { RuleModule } from "./types.ts"
 
 export const meta = {
     name: metadata.name,

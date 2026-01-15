@@ -20,11 +20,11 @@ import {
     getMatchingDirection,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { RegExpContext } from "../utils"
-import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax"
-import { assertNever } from "../utils/util"
+import type { ObjectOption } from "../types.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { RESERVED_DOUBLE_PUNCTUATOR_CHARS } from "../utils/regex-syntax.ts"
+import { assertNever } from "../utils/util.ts"
 
 /**
  * Find the first index of an element that satisfies the given condition.
