@@ -90,7 +90,7 @@
         "eslint-plugin-eslint-plugin": "^7.0.0",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-jsdoc": "^62.0.0",
-        "eslint-plugin-json-schema-validator": "^5.1.1",
+        "eslint-plugin-json-schema-validator": "^6.0.0",
         "eslint-plugin-jsonc": "^2.21.0",
         "eslint-plugin-markdown": "^5.0.0",
         "eslint-plugin-n": "^17.9.0",
