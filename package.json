@@ -106,7 +106,7 @@
         "eslint-plugin-n": "^17.9.0",
         "eslint-plugin-pere": "^0.0.1",
         "eslint-plugin-prettier": "^5.1.3",
-        "eslint-plugin-regexp": "~2.10.0",
+        "eslint-plugin-regexp": "~3.0.0",
         "eslint-plugin-unicorn": "^62.0.0",
         "eslint-plugin-vue": "^10.0.0",
         "eslint-plugin-yml": "^3.0.0",
