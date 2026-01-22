@@ -1,5 +1,23 @@
 # eslint-plugin-regexp
 
+## 3.0.0
+
+### Major Changes
+
+- Drop support for ESLint v8. The minimum supported ESLint version is now v9.38.0 and above. ([#917](https://github.com/ota-meshi/eslint-plugin-regexp/pull/917))
+
+- Drop support for ESLint Legacy Config (`.eslintrc`). Only Flat Config (`eslint.config.js`) is now supported. The `recommended` and `all` config exports now provide Flat Config. The `flat/recommended` and `flat/all` exports are kept for backwards compatibility. ([#917](https://github.com/ota-meshi/eslint-plugin-regexp/pull/917))
+
+- Drop support for Node.js 18. The minimum supported Node.js version is now 20.19.0, 22.13.0, or 24.0.0 and above. ([#915](https://github.com/ota-meshi/eslint-plugin-regexp/pull/915))
+
+- Change to ESM package ([#913](https://github.com/ota-meshi/eslint-plugin-regexp/pull/913))
+
+### Minor Changes
+
+- feat: update jsdoc-type-pratt-parser ([#919](https://github.com/ota-meshi/eslint-plugin-regexp/pull/919))
+
+- feat: enhance jsdoc type parsing ([#919](https://github.com/ota-meshi/eslint-plugin-regexp/pull/919))
+
 ## 2.10.0
 
 ### Minor Changes
