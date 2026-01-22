@@ -1,7 +1,7 @@
 import type { Rule } from "eslint"
 import type { JSONSchema4 } from "json-schema"
 import type { CharRange } from "refa"
-import type { RegexpSettings } from "../types"
+import type { RegexpSettings } from "../types.ts"
 import {
     CP_CAPITAL_A,
     CP_CAPITAL_Z,
@@ -9,7 +9,7 @@ import {
     CP_DIGIT_ZERO,
     CP_SMALL_A,
     CP_SMALL_Z,
-} from "./unicode"
+} from "./unicode.ts"
 
 const ALL_RANGES: readonly CharRange[] = [{ min: 0, max: 0x10ffff }]
 const ALPHANUMERIC_RANGES: readonly CharRange[] = [

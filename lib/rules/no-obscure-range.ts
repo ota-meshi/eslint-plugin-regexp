@@ -1,19 +1,19 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type { ObjectOption } from "../types.ts"
 import {
     getAllowedCharRanges,
     inRange,
     getAllowedCharValueSchema,
-} from "../utils/char-ranges"
-import { mentionChar } from "../utils/mention"
+} from "../utils/char-ranges.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { mentionChar } from "../utils/mention.ts"
 import {
     isControlEscape,
     isEscapeSequence,
     isOctalEscape,
     isHexLikeEscape,
-} from "../utils/regex-syntax"
+} from "../utils/regex-syntax.ts"
 
 export default createRule("no-obscure-range", {
     meta: {

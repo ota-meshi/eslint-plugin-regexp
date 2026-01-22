@@ -7,7 +7,7 @@ import type {
     CharRange,
 } from "refa"
 import { JS } from "refa"
-import { assertNever } from "./util"
+import { assertNever } from "./util.ts"
 
 export type NestedAlternative =
     | AST.Alternative

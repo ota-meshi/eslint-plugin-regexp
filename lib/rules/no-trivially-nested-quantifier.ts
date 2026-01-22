@@ -1,9 +1,9 @@
 import type { Group, Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { Quant } from "../utils/regexp-ast"
-import { quantToString } from "../utils/regexp-ast"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import type { Quant } from "../utils/regexp-ast/index.ts"
+import { quantToString } from "../utils/regexp-ast/index.ts"
 
 /**
  * Returns a new quant which is the combination of both given quantifiers.

@@ -1,27 +1,27 @@
-import { lazy } from "../../util"
-import { buildArrayConstructor } from "./array"
-import { buildBigIntConstructor } from "./bigint"
-import { buildBooleanConstructor } from "./boolean"
-import { createObject } from "./common"
+import { lazy } from "../../util.ts"
+import { buildArrayConstructor } from "./array.ts"
+import { buildBigIntConstructor } from "./bigint.ts"
+import { buildBooleanConstructor } from "./boolean.ts"
+import { createObject } from "./common.ts"
 import {
     RETURN_BOOLEAN,
     RETURN_NUMBER,
     RETURN_STRING,
     buildFunctionConstructor,
-} from "./function"
-import { buildMapConstructor } from "./map"
-import { buildNumberConstructor, NUMBER } from "./number"
-import { buildObjectConstructor } from "./object"
-import { buildRegExpConstructor } from "./regexp"
-import { buildSetConstructor } from "./set"
-import { buildStringConstructor } from "./string"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { buildMapConstructor } from "./map.ts"
+import { buildNumberConstructor, NUMBER } from "./number.ts"
+import { buildObjectConstructor } from "./object.ts"
+import { buildRegExpConstructor } from "./regexp.ts"
+import { buildSetConstructor } from "./set.ts"
+import { buildStringConstructor } from "./string.ts"
 
 export class TypeGlobal implements ITypeClass {
     public type = "Global" as const

@@ -1,9 +1,9 @@
-import fs from "fs"
-import path from "path"
-import { rules } from "./lib/load-rules"
-import { getRemovedTable } from "./meta/removed-rules"
+import fs from "node:fs"
+import path from "node:path"
+import { rules } from "./lib/load-rules.ts"
+import { getRemovedTable } from "./meta/removed-rules.ts"
 
-const readmeFilePath = path.resolve(__dirname, "../README.md")
+const readmeFilePath = path.resolve(import.meta.dirname, "../README.md")
 const readme = fs
     .readFileSync(readmeFilePath, "utf8")
     .replace(
@@ -22,7 +22,10 @@ ${getRemovedTable({ headerLevel: 3 })}
 
 fs.writeFileSync(readmeFilePath, readme)
 
-const rulesIndexFilePath = path.resolve(__dirname, "../docs/rules/index.md")
+const rulesIndexFilePath = path.resolve(
+    import.meta.dirname,
+    "../docs/rules/index.md",
+)
 fs.writeFileSync(
     rulesIndexFilePath,
     fs.readFileSync(rulesIndexFilePath, "utf8").replace(
@@ -35,7 +38,7 @@ ${getRemovedTable({ headerLevel: 2 })}
     ),
 )
 
-const docsReadmeFilePath = path.resolve(__dirname, "../docs/index.md")
+const docsReadmeFilePath = path.resolve(import.meta.dirname, "../docs/index.md")
 
 fs.writeFileSync(
     docsReadmeFilePath,
@@ -81,7 +84,7 @@ fs.writeFileSync(
 )
 
 const userGuideReadmeFilePath = path.resolve(
-    __dirname,
+    import.meta.dirname,
     "../docs/user-guide/index.md",
 )
 const newUserGuideReadme = fs

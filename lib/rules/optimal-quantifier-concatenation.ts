@@ -19,19 +19,19 @@ import {
     getConsumedChars,
     toUnicodeSet,
 } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier"
-import { joinEnglishList, mention } from "../utils/mention"
-import { getParser } from "../utils/refa"
-import type { Quant } from "../utils/regexp-ast"
+import type { ObjectOption } from "../types.ts"
+import { fixSimplifyQuantifier } from "../utils/fix-simplify-quantifier.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import { joinEnglishList, mention } from "../utils/mention.ts"
+import { getParser } from "../utils/refa.ts"
+import type { Quant } from "../utils/regexp-ast/index.ts"
 import {
     canSimplifyQuantifier,
     hasCapturingGroup,
     quantToString,
-} from "../utils/regexp-ast"
-import { assertNever } from "../utils/util"
+} from "../utils/regexp-ast/index.ts"
+import { assertNever } from "../utils/util.ts"
 
 interface SingleConsumedChar {
     readonly char: CharSet

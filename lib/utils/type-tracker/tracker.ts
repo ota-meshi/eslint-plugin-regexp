@@ -5,7 +5,7 @@ import type {
     KeyValueResult,
 } from "jsdoc-type-pratt-parser"
 import type * as TS from "typescript"
-import { getParent } from "../ast-utils"
+import { getParent } from "../ast-utils/index.ts"
 import {
     getTypeScript,
     getTypeScriptTools,
@@ -21,10 +21,10 @@ import {
     isTypeParameter,
     isUnionOrIntersection,
     isUnknown,
-} from "../ts-util"
-import { assertNever } from "../util"
-import { getJSDoc, parseTypeText } from "./jsdoc"
-import type { TypeInfo } from "./type-data"
+} from "../ts-util.ts"
+import { assertNever } from "../util.ts"
+import { getJSDoc, parseTypeText } from "./jsdoc.ts"
+import type { TypeInfo } from "./type-data/index.ts"
 import {
     TypeFunction,
     UNKNOWN_ARRAY,
@@ -47,9 +47,9 @@ import {
     TypeSet,
     UNKNOWN_SET,
     hasType,
-} from "./type-data"
-import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable"
-import { findVariable, getPropertyName, isParenthesized } from "./utils"
+} from "./type-data/index.ts"
+import { TypeIterable, UNKNOWN_ITERABLE } from "./type-data/iterable.ts"
+import { findVariable, getPropertyName, isParenthesized } from "./utils.ts"
 
 const ts = getTypeScript()!
 
@@ -836,7 +836,7 @@ function getParamPath(
         | ES.ObjectPattern
         | ES.RestElement,
     context: Rule.RuleContext,
-): { name: string | null; index: number | null }[] {
+): { name: string | null | undefined; index: number | null | undefined }[] {
     const parent = getParent<ES.Pattern | ES.AssignmentProperty | ES.Function>(
         node,
     )

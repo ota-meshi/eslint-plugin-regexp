@@ -1,23 +1,23 @@
-import { lazy } from "../../util"
-import { TypeArray } from "./array"
-import { createObject, getTypeName, isEquals, isTypeClass } from "./common"
+import { lazy } from "../../util.ts"
+import { TypeArray } from "./array.ts"
+import { createObject, getTypeName, isEquals, isTypeClass } from "./common.ts"
 import {
     RETURN_VOID,
     RETURN_BOOLEAN,
     TypeFunction,
     TypeGlobalFunction,
-} from "./function"
-import { TypeIterable } from "./iterable"
-import { NUMBER } from "./number"
-import { getObjectPrototypes } from "./object"
-import { STRING } from "./string"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { TypeIterable } from "./iterable.ts"
+import { NUMBER } from "./number.ts"
+import { getObjectPrototypes } from "./object.ts"
+import { STRING } from "./string.ts"
 
 type MapKeys = keyof Map<unknown, unknown>
 
@@ -190,6 +190,8 @@ export function buildMapConstructor(): TypeFunction {
     }>({
         prototype: null,
         [Symbol.species]: null,
+        // ES2024
+        groupBy: null,
     })
 
     return new TypeGlobalFunction(mapConstructor, MAP_TYPES)

@@ -1,22 +1,22 @@
-import { lazy } from "../../util"
-import { BOOLEAN } from "./boolean"
-import { createObject } from "./common"
+import { lazy } from "../../util.ts"
+import { BOOLEAN } from "./boolean.ts"
+import { createObject } from "./common.ts"
 import {
     RETURN_REGEXP,
     RETURN_STRING_ARRAY,
     RETURN_BOOLEAN,
     TypeGlobalFunction,
-} from "./function"
-import { NUMBER } from "./number"
-import { getObjectPrototypes } from "./object"
-import { STRING } from "./string"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { NUMBER } from "./number.ts"
+import { getObjectPrototypes } from "./object.ts"
+import { STRING } from "./string.ts"
 
 export class TypeRegExp implements ITypeClass {
     public type = "RegExp" as const
@@ -106,6 +106,8 @@ const getPrototypes: () => {
         dotAll: BOOLEAN, // prop
         // ES2022
         hasIndices: BOOLEAN, // prop
+        // ES2024
+        unicodeSets: BOOLEAN, // prop
 
         [Symbol.match]: null,
         [Symbol.replace]: null,

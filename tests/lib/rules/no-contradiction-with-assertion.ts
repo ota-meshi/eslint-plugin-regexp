@@ -1,5 +1,5 @@
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import rule from "../../../lib/rules/no-contradiction-with-assertion"
+import rule from "../../../lib/rules/no-contradiction-with-assertion.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

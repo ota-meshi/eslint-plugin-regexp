@@ -1,15 +1,15 @@
-import { lazy } from "../../util"
-import { createObject } from "./common"
-import { RETURN_BIGINT, RETURN_STRING, TypeGlobalFunction } from "./function"
-import { getObjectPrototypes } from "./object"
-import { STRING } from "./string"
+import { lazy } from "../../util.ts"
+import { createObject } from "./common.ts"
+import { RETURN_BIGINT, RETURN_STRING, TypeGlobalFunction } from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { getObjectPrototypes } from "./object.ts"
+import { STRING } from "./string.ts"
 
 export class TypeBigInt implements ITypeClass {
     public type = "BigInt" as const

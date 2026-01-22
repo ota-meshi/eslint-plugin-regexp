@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 type Alias = {
     short: string
@@ -13,7 +13,10 @@ type UnicodePropertyAlias = {
     category: string
 } & Alias
 
-const filePath = path.resolve(__dirname, "../lib/utils/unicode-alias.ts")
+const filePath = path.resolve(
+    import.meta.dirname,
+    "../lib/utils/unicode-alias.ts",
+)
 const logger = console
 
 void main()

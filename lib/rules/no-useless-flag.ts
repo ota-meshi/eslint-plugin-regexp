@@ -7,18 +7,22 @@ import type {
     RegExpLiteral,
     Statement,
 } from "estree"
-import type { ObjectOption, RuleListener } from "../types"
-import type { RegExpContext, RegExpContextForSource } from "../utils"
-import { compositingVisitors, createRule, defineRegexpVisitor } from "../utils"
-import type { KnownMethodCall } from "../utils/ast-utils"
+import type { ObjectOption, RuleListener } from "../types.ts"
+import type { KnownMethodCall } from "../utils/ast-utils/index.ts"
 import {
     isKnownMethodCall,
     extractExpressionReferences,
     getFlagsRange,
     getFlagsLocation,
-} from "../utils/ast-utils"
-import { isCaseVariant } from "../utils/regexp-ast"
-import { createTypeTracker } from "../utils/type-tracker"
+} from "../utils/ast-utils/index.ts"
+import type { RegExpContext, RegExpContextForSource } from "../utils/index.ts"
+import {
+    compositingVisitors,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils/index.ts"
+import { isCaseVariant } from "../utils/regexp-ast/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
 type CodePathStack = {
     codePathId: string

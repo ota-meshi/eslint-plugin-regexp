@@ -1,10 +1,10 @@
-import assert from "assert"
+import assert from "node:assert"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import * as parser from "@typescript-eslint/parser"
 import { Linter } from "eslint"
-import { rules } from "../../lib/index"
-import type { RegExpContext } from "../../lib/utils"
-import { createRule, defineRegexpVisitor } from "../../lib/utils"
+import { rules } from "../../lib/index.ts"
+import type { RegExpContext } from "../../lib/utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../../lib/utils/index.ts"
 
 const TEST_RULE = createRule("test", {
     meta: {

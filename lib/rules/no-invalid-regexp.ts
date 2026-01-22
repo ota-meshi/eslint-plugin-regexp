@@ -1,5 +1,8 @@
-import type { RegExpContextForInvalid, RegExpContextForUnknown } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
+import type {
+    RegExpContextForInvalid,
+    RegExpContextForUnknown,
+} from "../utils/index.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 /** Returns the position of the error */
 function getErrorIndex(error: SyntaxError): number | null {

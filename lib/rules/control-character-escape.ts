@@ -1,5 +1,7 @@
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
-import type { RegExpContext } from "../utils"
+import type { PatternRange } from "../utils/ast-utils/pattern-source.ts"
+import { isRegexpLiteral } from "../utils/ast-utils/utils.ts"
+import type { RegExpContext } from "../utils/index.ts"
 import {
     CP_VT,
     CP_CR,
@@ -8,10 +10,8 @@ import {
     CP_TAB,
     createRule,
     defineRegexpVisitor,
-} from "../utils"
-import type { PatternRange } from "../utils/ast-utils/pattern-source"
-import { isRegexpLiteral } from "../utils/ast-utils/utils"
-import { mentionChar } from "../utils/mention"
+} from "../utils/index.ts"
+import { mentionChar } from "../utils/mention.ts"
 
 const CONTROL_CHARS = new Map<number, string>([
     [0, "\\0"],

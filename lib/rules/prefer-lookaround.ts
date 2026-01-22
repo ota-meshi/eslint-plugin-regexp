@@ -15,24 +15,27 @@ import {
     getConsumedChars,
 } from "regexp-ast-analysis"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import type { ObjectOption } from "../types"
-import type { RegExpContext } from "../utils"
-import { createRule, defineRegexpVisitor } from "../utils"
-import type { KnownMethodCall, ReferenceElement } from "../utils/ast-utils"
+import type { ObjectOption } from "../types.ts"
+import type {
+    KnownMethodCall,
+    ReferenceElement,
+} from "../utils/ast-utils/index.ts"
 import {
     getParent,
     parseReplacements,
     getStaticValue,
     extractExpressionReferences,
     isKnownMethodCall,
-} from "../utils/ast-utils"
+} from "../utils/ast-utils/index.ts"
 import type {
     PatternRange,
     PatternReplaceRange,
-} from "../utils/ast-utils/pattern-source"
-import { mention } from "../utils/mention"
-import { getFirstConsumedCharPlusAfter } from "../utils/regexp-ast"
-import { createTypeTracker } from "../utils/type-tracker"
+} from "../utils/ast-utils/pattern-source.ts"
+import { createRule, defineRegexpVisitor } from "../utils/index.ts"
+import type { RegExpContext } from "../utils/index.ts"
+import { mention } from "../utils/mention.ts"
+import { getFirstConsumedCharPlusAfter } from "../utils/regexp-ast/index.ts"
+import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
 type ReplaceReference = { ref: string | number; range?: [number, number] }
 type ReplaceReferences = {

@@ -1,7 +1,7 @@
 import { ESLint } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import semver from "semver"
-import rule from "../../../lib/rules/use-ignore-case"
+import rule from "../../../lib/rules/use-ignore-case.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

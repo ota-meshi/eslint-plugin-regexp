@@ -1,11 +1,11 @@
-import { lazy } from "../../util"
+import { lazy } from "../../util.ts"
 import {
     createObject,
     getTypeName,
     isEquals,
     isTypeClass,
     TypeCollection,
-} from "./common"
+} from "./common.ts"
 import {
     RETURN_NUMBER,
     RETURN_STRING,
@@ -14,19 +14,19 @@ import {
     TypeFunction,
     RETURN_BOOLEAN,
     TypeGlobalFunction,
-} from "./function"
-import { TypeIterable } from "./iterable"
-import { NUMBER } from "./number"
-import { getObjectPrototypes } from "./object"
-import { STRING } from "./string"
-import { TypeUnionOrIntersection } from "./union-or-intersection"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { TypeIterable } from "./iterable.ts"
+import { NUMBER } from "./number.ts"
+import { getObjectPrototypes } from "./object.ts"
+import { STRING } from "./string.ts"
+import { TypeUnionOrIntersection } from "./union-or-intersection.ts"
 
 export class TypeArray implements ITypeClass {
     public type = "Array" as const
@@ -113,6 +113,8 @@ export function buildArrayConstructor(): TypeGlobalFunction {
         of: RETURN_UNKNOWN_ARRAY,
         prototype: null,
         [Symbol.species]: null,
+        // ES2024
+        fromAsync: null,
     })
     return new TypeGlobalFunction(() => UNKNOWN_ARRAY, ARRAY_TYPES)
 }

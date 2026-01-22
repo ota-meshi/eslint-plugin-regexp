@@ -1,21 +1,21 @@
-import { lazy } from "../../util"
-import { createObject } from "./common"
+import { lazy } from "../../util.ts"
+import { createObject } from "./common.ts"
 import {
     RETURN_STRING,
     RETURN_STRING_ARRAY,
     RETURN_BOOLEAN,
     RETURN_NUMBER,
     TypeGlobalFunction,
-} from "./function"
-import { NUMBER } from "./number"
-import { getObjectPrototypes } from "./object"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { NUMBER } from "./number.ts"
+import { getObjectPrototypes } from "./object.ts"
 
 export class TypeString implements ITypeClass {
     public type = "String" as const
@@ -133,6 +133,9 @@ const getPrototypes: () => {
         replaceAll: RETURN_STRING,
         // ES2022
         at: RETURN_STRING,
+        // ES2024
+        isWellFormed: RETURN_BOOLEAN,
+        toWellFormed: RETURN_STRING,
 
         length: NUMBER,
         0: STRING, // string

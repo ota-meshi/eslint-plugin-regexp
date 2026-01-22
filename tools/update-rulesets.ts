@@ -1,7 +1,7 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 // import eslint from "eslint"
-import { rules } from "./lib/load-rules"
+import { rules } from "./lib/load-rules.ts"
 
 const coreRules = [
     // Possible Errors
@@ -14,7 +14,7 @@ const coreRules = [
     // "require-unicode-regexp", // modern
 ]
 
-const content = `import type { SeverityString } from "../../types"
+const content = `import type { SeverityString } from "../../types.ts"
 
 export const rules: Record<string, SeverityString> = {
     // ESLint core rules
@@ -35,7 +35,10 @@ export const rules: Record<string, SeverityString> = {
 }
 `
 
-const filePath = path.resolve(__dirname, "../lib/configs/rules/recommended.ts")
+const filePath = path.resolve(
+    import.meta.dirname,
+    "../lib/configs/rules/recommended.ts",
+)
 
 // Update file.
 fs.writeFileSync(filePath, content)

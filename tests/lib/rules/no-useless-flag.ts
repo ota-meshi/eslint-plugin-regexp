@@ -1,9 +1,9 @@
-import assert from "assert"
+import assert from "node:assert"
 import type { Rule } from "eslint"
 import { Linter } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
-import { rules } from "../../../lib/all-rules"
-import rule from "../../../lib/rules/no-useless-flag"
+import { rules } from "../../../lib/all-rules.ts"
+import rule from "../../../lib/rules/no-useless-flag.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {

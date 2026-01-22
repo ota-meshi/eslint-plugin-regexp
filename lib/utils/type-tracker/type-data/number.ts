@@ -1,19 +1,19 @@
-import { lazy } from "../../util"
-import { createObject } from "./common"
+import { lazy } from "../../util.ts"
+import { createObject } from "./common.ts"
 import {
     RETURN_NUMBER,
     RETURN_STRING,
     RETURN_BOOLEAN,
     TypeGlobalFunction,
-} from "./function"
-import { getObjectPrototypes } from "./object"
+} from "./function.ts"
 import type {
     ITypeClass,
     NamedType,
     OtherTypeName,
     TypeClass,
     TypeInfo,
-} from "."
+} from "./index.ts"
+import { getObjectPrototypes } from "./object.ts"
 
 export class TypeNumber implements ITypeClass {
     public type = "Number" as const

@@ -1,7 +1,7 @@
 import { ESLint } from "eslint"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import semver from "semver"
-import rule from "../../../lib/rules/no-useless-backreference"
+import rule from "../../../lib/rules/no-useless-backreference.ts"
 const tester = new SnapshotRuleTester({
     languageOptions: {
         ecmaVersion: "latest",

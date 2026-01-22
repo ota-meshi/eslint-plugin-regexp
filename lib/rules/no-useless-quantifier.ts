@@ -2,8 +2,12 @@ import type { Quantifier } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule } from "eslint"
 import { isEmpty, isPotentiallyEmpty, isZeroLength } from "regexp-ast-analysis"
-import type { RegExpContext } from "../utils"
-import { canUnwrapped, createRule, defineRegexpVisitor } from "../utils"
+import type { RegExpContext } from "../utils/index.ts"
+import {
+    canUnwrapped,
+    createRule,
+    defineRegexpVisitor,
+} from "../utils/index.ts"
 
 export default createRule("no-useless-quantifier", {
     meta: {

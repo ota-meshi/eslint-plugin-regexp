@@ -16,7 +16,7 @@ import {
     isPotentiallyZeroLength,
     getConsumedChars,
 } from "regexp-ast-analysis"
-import { assertNever, cachedFn, reversed } from "../util"
+import { assertNever, cachedFn, reversed } from "../util.ts"
 
 /** Returns whether the given node contains any assertions. */
 const containsAssertions = cachedFn((node: Node) => {
