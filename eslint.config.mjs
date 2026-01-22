@@ -1,18 +1,10 @@
-import { fixupConfigRules } from "@eslint/compat"
-import { FlatCompat } from "@eslint/eslintrc"
 import js from "@eslint/js"
 import myPlugin from "@ota-meshi/eslint-plugin"
+import importPlugin from "eslint-plugin-import"
 import pere from "eslint-plugin-pere"
 import unicorn from "eslint-plugin-unicorn"
 import tseslint from "typescript-eslint"
 import regexp from "eslint-plugin-regexp"
-
-const __dirname = import.meta.dirname
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-})
 
 export default [
     {
@@ -44,7 +36,7 @@ export default [
         vue3: true,
         md: true,
     }),
-    ...fixupConfigRules(compat.extends("plugin:import/recommended")),
+    importPlugin.flatConfigs.recommended,
     {
         languageOptions: {
             ecmaVersion: "latest",
