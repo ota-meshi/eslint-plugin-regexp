@@ -10,13 +10,13 @@ function camelCase(str: string) {
     return str.replace(/[-_](?<char>\w)/gu, (_, char) => char.toUpperCase())
 }
 
-const content = `import type { RuleModule } from "./types"
+const content = `import type { RuleModule } from "./types.ts"
 ${rules
     .map(
         (rule) =>
             `import ${camelCase(rule.meta.docs.ruleName)} from "./rules/${
                 rule.meta.docs.ruleName
-            }"`,
+            }.ts"`,
     )
     .join("\n")}
 
@@ -25,7 +25,7 @@ export const rules: RuleModule[] = [
 ]
 `
 
-const filePath = path.resolve(__dirname, "../lib/all-rules.ts")
+const filePath = path.resolve(import.meta.dirname, "../lib/all-rules.ts")
 
 // Update file.
 fs.writeFileSync(filePath, content)

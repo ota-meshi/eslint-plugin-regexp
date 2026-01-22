@@ -11,7 +11,7 @@ function yamlValue(val: unknown) {
     return val
 }
 
-const ROOT = path.resolve(__dirname, "../docs/rules")
+const ROOT = path.resolve(import.meta.dirname, "../docs/rules")
 
 function pickSince(content: string): string | null | Promise<string> {
     const fileIntro = /^---\n(?<content>.*\n)+---\n*/u.exec(content)
