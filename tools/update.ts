@@ -1,4 +1,4 @@
-import "./update-rules"
-import "./update-rulesets"
-import "./update-docs"
-import "./update-readme"
+import "./update-rules.ts"
+import "./update-rulesets.ts"
+import "./update-docs.ts"
+import "./update-readme.ts"

@@ -40,7 +40,7 @@ export default [
     {
         languageOptions: {
             ecmaVersion: "latest",
-            sourceType: "script",
+            sourceType: "module",
         },
         rules: {
             "jsdoc/require-jsdoc": "off",
@@ -140,6 +140,25 @@ export default [
         },
     },
     {
+        files: ["**/*.{js,ts,mjs,mts,cjs,cts}"],
+        rules: {
+            "n/prefer-node-protocol": "error",
+            "n/file-extension-in-import": ["error", "always"],
+        },
+        settings: {
+            n: {
+                typescriptExtensionMap: [],
+            },
+        },
+    },
+    {
+        files: ["**/*.{cjs,cts}"],
+        languageOptions: {
+            ecmaVersion: "latest",
+            sourceType: "script",
+        },
+    },
+    {
         files: ["**/*.mjs", "**/*.md/*.js"],
         languageOptions: {
             sourceType: "module",
@@ -179,7 +198,6 @@ export default [
         rules: {
             "jsdoc/require-jsdoc": "off",
             "no-console": "off",
-            "n/file-extension-in-import": "off",
             "n/no-unsupported-features/node-builtins": "off",
         },
     },
