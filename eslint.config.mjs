@@ -140,7 +140,7 @@ export default [
         },
     },
     {
-        files: ["**/*.{js,ts,mjc,mts,cjs,cts}"],
+        files: ["**/*.{js,ts,mjs,mts,cjs,cts}"],
         rules: {
             "n/prefer-node-protocol": "error",
             "n/file-extension-in-import": ["error", "always"],
