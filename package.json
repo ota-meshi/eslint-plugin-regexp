@@ -103,7 +103,7 @@
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-jsdoc": "^62.0.0",
         "eslint-plugin-json-schema-validator": "^6.0.0",
-        "eslint-plugin-jsonc": "^2.21.0",
+        "eslint-plugin-jsonc": "^3.0.0",
         "eslint-plugin-markdown": "^5.0.0",
         "eslint-plugin-n": "^17.23.2",
         "eslint-plugin-pere": "^0.0.1",
