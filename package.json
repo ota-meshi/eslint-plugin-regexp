@@ -114,7 +114,7 @@
         "eslint-plugin-yml": "^3.0.0",
         "eslint-snapshot-rule-tester": "^0.1.0",
         "magic-string": "^0.30.21",
-        "markdownlint-cli": "^0.47.0",
+        "markdownlint-cli": "^0.48.0",
         "mocha": "^11.0.0",
         "npm-run-all2": "^8.0.0",
         "pako": "^2.1.0",
