@@ -268,6 +268,9 @@ function* iterateReferencesForVariable(
         return
     }
     for (const reference of readReferences) {
+        if (reference.identifier.type === "JSXIdentifier") {
+            continue
+        }
         yield* iterateReferencesForExpression(
             reference.identifier,
             context,
