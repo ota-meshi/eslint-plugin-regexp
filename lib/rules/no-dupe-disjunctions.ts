@@ -1005,7 +1005,6 @@ export default createRule("no-dupe-disjunctions", {
                     stared = MaybeBool.false
                 }
 
-                // eslint-disable-next-line one-var -- false positive
                 let nothingAfter: MaybeBool
                 if (!hasNothingAfterNode(parentNode)) {
                     nothingAfter = MaybeBool.false
@@ -1018,7 +1017,6 @@ export default createRule("no-dupe-disjunctions", {
                     nothingAfter = MaybeBool.true
                 }
 
-                // eslint-disable-next-line one-var -- false positive
                 let reportExp: boolean
                 switch (reportExponentialBacktracking) {
                     case ReportExponentialBacktracking.none:
@@ -1037,7 +1035,6 @@ export default createRule("no-dupe-disjunctions", {
                         assertNever(reportExponentialBacktracking)
                 }
 
-                // eslint-disable-next-line one-var -- false positive
                 let reportPrefix: boolean
                 switch (reportUnreachable) {
                     case ReportUnreachable.certain:

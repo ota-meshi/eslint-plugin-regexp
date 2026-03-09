@@ -241,8 +241,8 @@ export function defineRegexpVisitor(
         visitor = {}
     }
 
-    let createLiteralVisitor = undefined
-    let createSourceVisitor = undefined
+    let createLiteralVisitor
+    let createSourceVisitor
     if ("createVisitor" in rule) {
         createLiteralVisitor = rule.createVisitor
         createSourceVisitor = rule.createVisitor
@@ -840,7 +840,6 @@ function fixReplaceFlags(
             )
         }
 
-        // eslint-disable-next-line one-var -- x
         let flagsFix
         if (isRegexpLiteral(regexpNode)) {
             flagsFix = fixer.replaceTextRange(
