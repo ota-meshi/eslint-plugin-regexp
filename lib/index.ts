@@ -23,4 +23,5 @@ export const rules = ruleList.reduce(
     },
     {} as { [key: string]: RuleModule },
 )
-export default { configs, rules, meta }
+const regexp = { configs, rules, meta }
+export default regexp
