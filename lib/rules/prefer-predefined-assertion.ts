@@ -130,8 +130,8 @@ export default createRule("prefer-predefined-assertion", {
                     return
                 }
 
-                let kind = undefined
-                let replacement = undefined
+                let kind
+                let replacement
                 if (lookaroundNegated === otherNegated) {
                     // \B
                     kind = "a negated word boundary assertion"

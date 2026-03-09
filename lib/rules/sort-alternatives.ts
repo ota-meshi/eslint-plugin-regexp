@@ -589,7 +589,6 @@ function getRuns<T>(iter: Iterable<T>, condFn: (item: T) => boolean): Run<T>[] {
 
     if (elements.length > 0) {
         runs.push({ startIndex: index - elements.length, elements })
-        elements = []
     }
 
     return runs

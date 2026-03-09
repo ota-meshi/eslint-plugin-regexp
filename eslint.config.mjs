@@ -49,6 +49,7 @@ export default [
             complexity: "off",
             "@typescript-eslint/no-non-null-assertion": "off",
             "no-shadow": "off",
+            "one-var": "off",
 
             "no-restricted-imports": [
                 "error",

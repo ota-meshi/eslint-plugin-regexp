@@ -397,7 +397,6 @@ function* iterateForStringMatchAll(
     let useRet = false
     for (const iterationRef of extractPropertyReferences(node, ctx.context)) {
         if (!iterationRef.extractPropertyReferences) {
-            useRet = true
             yield {
                 type: "UnknownUsage",
                 node: argument,
