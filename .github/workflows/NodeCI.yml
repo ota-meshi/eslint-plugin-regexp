@@ -20,6 +20,8 @@ jobs:
               run: npm run build
             - name: Lint
               run: npm run lint
+            - name: Type Check
+              run: npm run typecheck
     test:
         runs-on: ubuntu-latest
         strategy:
