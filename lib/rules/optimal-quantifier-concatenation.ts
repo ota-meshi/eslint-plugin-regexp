@@ -244,7 +244,6 @@ function getQuantifiersReplacement(
 
     const raw = quantize(left.element, lQuant) + quantize(right.element, rQuant)
 
-    // eslint-disable-next-line one-var -- rule error
     let messageId
     if (
         lQuant.max === 0 &&
