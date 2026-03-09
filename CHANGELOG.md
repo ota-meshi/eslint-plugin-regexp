@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.1.0
+
+### Minor Changes
+
+- refactor: Name the default export 'regexp' ([#952](https://github.com/ota-meshi/eslint-plugin-regexp/pull/952))
+
 ## 3.0.0
 
 ### Major Changes
