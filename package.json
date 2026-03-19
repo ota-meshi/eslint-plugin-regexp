@@ -126,7 +126,7 @@
         "tsdown": "^0.21.0",
         "typescript": "~5.9.0",
         "typescript-eslint": "~8.57.0",
-        "vite-plugin-eslint4b": "^0.7.0",
+        "vite-plugin-eslint4b": "^0.8.0",
         "vitepress": "^1.0.0",
         "vue-eslint-parser": "^10.4.0"
     },
