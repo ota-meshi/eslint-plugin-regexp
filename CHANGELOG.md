@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.1.1
+
+### Patch Changes
+
+- Handle matchAll().toArray() capture usage ([#992](https://github.com/ota-meshi/eslint-plugin-regexp/pull/992))
+
 ## 3.1.0
 
 ### Minor Changes
