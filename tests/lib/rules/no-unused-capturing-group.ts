@@ -133,6 +133,12 @@ tester.run("no-unused-capturing-group", rule as any, {
         const matches = [...('2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g))]
         `,
         String.raw`
+        console.log('asd'.matchAll(/as(d)/gu).toArray())
+        `,
+        String.raw`
+        const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[1])
+        `,
+        String.raw`
         const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[1])
         `,
         String.raw`
@@ -297,6 +303,10 @@ tester.run("no-unused-capturing-group", rule as any, {
             code: String.raw`
             const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
             `,
+            options: [{ fixable: true }],
+        },
+        {
+            code: String.raw`const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])`,
             options: [{ fixable: true }],
         },
         {
