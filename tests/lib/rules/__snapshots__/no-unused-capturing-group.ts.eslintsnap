@@ -734,6 +734,25 @@ Options:
   - fixable: true
 
 Code:
+  1 | const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])
+    |                                 ^~~ [1]
+
+Output:
+  1 | const bs = 'abc_abc'.matchAll(/a(?:b)/g).toArray().map(m => m[0])
+
+[1] Capturing group number 1 is defined but never used.
+    Suggestions:
+      - Making this a non-capturing group.
+        Output:
+          1 | const bs = 'abc_abc'.matchAll(/a(?:b)/g).toArray().map(m => m[0])
+---
+
+
+Test: no-unused-capturing-group >> invalid
+Options:
+  - fixable: true
+
+Code:
   1 |
   2 |             ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1]))
     |                                          ^~~ [1]

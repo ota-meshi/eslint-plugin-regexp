@@ -136,6 +136,9 @@ tester.run("no-unused-capturing-group", rule as any, {
         console.log('asd'.matchAll(/as(d)/gu).toArray())
         `,
         String.raw`
+        const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[1])
+        `,
+        String.raw`
         const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[1])
         `,
         String.raw`
@@ -300,6 +303,10 @@ tester.run("no-unused-capturing-group", rule as any, {
             code: String.raw`
             const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
             `,
+            options: [{ fixable: true }],
+        },
+        {
+            code: String.raw`const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])`,
             options: [{ fixable: true }],
         },
         {
