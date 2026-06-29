@@ -39,8 +39,8 @@ export function getLexicographicallySmallest(
         return set.chars.isEmpty ? undefined : [set.chars.ranges[0].min]
     }
 
-    const words = set.accept.wordSets.map(
-        (w): Word => w.map((c) => c.ranges[0].min),
+    const words = set.accept.wordSets.map((w): Word =>
+        w.map((c) => c.ranges[0].min),
     )
     return findMin(words, compareWords)
 }

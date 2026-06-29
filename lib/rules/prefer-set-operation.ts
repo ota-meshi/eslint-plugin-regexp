@@ -13,10 +13,7 @@ import type { RegExpContext } from "../utils/index.ts"
 import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 
 type CharElement =
-    | Character
-    | CharacterSet
-    | CharacterClass
-    | ExpressionCharacterClass
+    Character | CharacterSet | CharacterClass | ExpressionCharacterClass
 
 function isCharElement(node: Node): node is CharElement {
     return (

@@ -10,9 +10,7 @@ import { JS } from "refa"
 import { assertNever } from "./util.ts"
 
 export type NestedAlternative =
-    | AST.Alternative
-    | AST.CharacterClassElement
-    | AST.StringAlternative
+    AST.Alternative | AST.CharacterClassElement | AST.StringAlternative
 
 class Context {
     /**
@@ -147,9 +145,7 @@ export class PartialParser {
 
     private parseElement(
         element:
-            | AST.Element
-            | AST.CharacterClassRange
-            | AST.ClassStringDisjunction,
+            AST.Element | AST.CharacterClassRange | AST.ClassStringDisjunction,
         context: Context,
     ): NoParent<Element> {
         if (!context.ancestors.has(element)) {

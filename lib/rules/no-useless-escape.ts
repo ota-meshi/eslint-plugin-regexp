@@ -109,8 +109,7 @@ export default createRule("no-useless-escape", {
             }
 
             const characterClassStack: (
-                | CharacterClass
-                | ExpressionCharacterClass
+                CharacterClass | ExpressionCharacterClass
             )[] = []
             return {
                 onCharacterClassEnter: (characterClassNode) =>

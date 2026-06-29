@@ -52,10 +52,7 @@ function findLastIndex<T>(
 }
 
 type NodeWithAlternatives =
-    | Group
-    | CapturingGroup
-    | Pattern
-    | LookaroundAssertion
+    Group | CapturingGroup | Pattern | LookaroundAssertion
 
 type RawAlternative = RawCharAlternative | RawNonCharAlternative
 interface RawCharAlternative {
@@ -63,10 +60,7 @@ interface RawCharAlternative {
     readonly alternative: Alternative
     readonly char: CharSet
     readonly element:
-        | Character
-        | CharacterSet
-        | CharacterClass
-        | ExpressionCharacterClass
+        Character | CharacterSet | CharacterClass | ExpressionCharacterClass
 }
 interface RawNonCharAlternative {
     readonly isCharacter: false

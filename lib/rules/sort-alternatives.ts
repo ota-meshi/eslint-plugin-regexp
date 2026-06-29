@@ -242,10 +242,7 @@ function getLexicographicallySmallestFromAlternative(
 function isOnlyCharacterElements(
     nodes: Element[],
 ): nodes is (
-    | Character
-    | CharacterClass
-    | CharacterSet
-    | ExpressionCharacterClass
+    Character | CharacterClass | CharacterSet | ExpressionCharacterClass
 )[] {
     return nodes.every(
         (e) =>
@@ -265,10 +262,7 @@ function hasOnlyCharacters(
     flags: ReadonlyFlags,
 ): alternative is Alternative & {
     elements: readonly (
-        | Character
-        | CharacterClass
-        | CharacterSet
-        | ExpressionCharacterClass
+        Character | CharacterClass | CharacterSet | ExpressionCharacterClass
     )[]
 } {
     return (
@@ -675,8 +669,7 @@ export default createRule("sort-alternatives", {
             function enforceSorted(
                 run: Run<Alternative | StringAlternative>,
                 alternatives:
-                    | "alternatives of this group"
-                    | "string alternatives",
+                    "alternatives of this group" | "string alternatives",
             ): void {
                 const sorted = run.elements
                 const parent = sorted[0].parent

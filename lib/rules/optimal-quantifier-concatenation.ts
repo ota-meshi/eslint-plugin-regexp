@@ -130,11 +130,7 @@ function quantize(element: QuantifiableElement, quant: Quant): string {
 }
 
 type GroupOrCharacter =
-    | Group
-    | CapturingGroup
-    | Character
-    | CharacterClass
-    | CharacterSet
+    Group | CapturingGroup | Character | CharacterClass | CharacterSet
 
 /**
  * Returns whether the given element is a group or character.

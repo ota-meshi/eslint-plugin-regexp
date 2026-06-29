@@ -16,13 +16,7 @@ import { getLexicographicallySmallest } from "../utils/lexicographically-smalles
 import { mention } from "../utils/mention.ts"
 
 type CharacterClassElementKind =
-    | "\\w"
-    | "\\d"
-    | "\\s"
-    | "\\p"
-    | "*"
-    | "\\q"
-    | "[]"
+    "\\w" | "\\d" | "\\s" | "\\p" | "*" | "\\q" | "[]"
 const DEFAULT_ORDER: CharacterClassElementKind[] = [
     "\\s",
     "\\w",
@@ -286,8 +280,7 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
     if (raw[0] === "-") {
         const parent = target.parent as CharacterClass
         const elements: (
-            | UnicodeSetsCharacterClassElement
-            | ClassRangesCharacterClassElement
+            UnicodeSetsCharacterClassElement | ClassRangesCharacterClassElement
         )[] = parent.elements
         const prev = elements[elements.indexOf(target) - 1]
         if (
@@ -299,8 +292,7 @@ function escapeRaw(node: CharacterClassElement, target: CharacterClassElement) {
     } else if (raw[0] === "^") {
         const parent = target.parent as CharacterClass
         const elements: (
-            | UnicodeSetsCharacterClassElement
-            | ClassRangesCharacterClassElement
+            UnicodeSetsCharacterClassElement | ClassRangesCharacterClassElement
         )[] = parent.elements
         if (elements[0] === target) {
             raw = `\\${raw}`
