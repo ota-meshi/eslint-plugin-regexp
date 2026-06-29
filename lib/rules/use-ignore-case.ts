@@ -117,9 +117,10 @@ function removeAll(
             return { min, max }
         }),
     )
-    const sorted = charSet.ranges.map(
-        ({ min, max }): PatternRange => ({ start: min, end: max + 1 }),
-    )
+    const sorted = charSet.ranges.map(({ min, max }): PatternRange => ({
+        start: min,
+        end: max + 1,
+    }))
 
     let pattern = patternSource.value
     let removed = 0

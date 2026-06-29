@@ -64,8 +64,7 @@ export default createRule("no-useless-character-class", {
             getRegexpLocation,
         }: RegExpContext): RegExpVisitor.Handlers {
             const characterClassStack: (
-                | CharacterClass
-                | ExpressionCharacterClass
+                CharacterClass | ExpressionCharacterClass
             )[] = []
             return {
                 onExpressionCharacterClassEnter(eccNode) {

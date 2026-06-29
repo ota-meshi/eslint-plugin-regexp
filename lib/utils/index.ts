@@ -170,8 +170,7 @@ export type RegExpContextForUnknown = {
     patternSource: null
 } & UnparsableRegExpContextBase
 export type UnparsableRegExpContext =
-    | RegExpContextForInvalid
-    | RegExpContextForUnknown
+    RegExpContextForInvalid | RegExpContextForUnknown
 
 type ParsableRegexpRule = {
     createLiteralVisitor?: (
@@ -395,9 +394,7 @@ function buildRegexpVisitor(
             })) {
                 const newOrCall = node as ESTree.CallExpression
                 const args = newOrCall.arguments as (
-                    | ESTree.Expression
-                    | ESTree.SpreadElement
-                    | undefined
+                    ESTree.Expression | ESTree.SpreadElement | undefined
                 )[]
                 const [patternArg, flagsArg] = args
                 if (!patternArg || patternArg.type === "SpreadElement") {

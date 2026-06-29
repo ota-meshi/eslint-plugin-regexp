@@ -204,9 +204,8 @@ export default createRule("simplify-set-operations", {
             /** Verify for intersections and subtractions */
             function verifyExpressions(eccNode: ExpressionCharacterClass) {
                 let operand:
-                    | ClassIntersection
-                    | ClassSubtraction
-                    | ClassSetOperand = eccNode.expression
+                    ClassIntersection | ClassSubtraction | ClassSetOperand =
+                    eccNode.expression
                 let right:
                     | ClassIntersection
                     | ClassSubtraction

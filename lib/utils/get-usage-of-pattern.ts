@@ -22,9 +22,7 @@ export enum UsageOfPattern {
     unknown,
 }
 type InternalUsageOfPattern =
-    | UsageOfPattern.partial
-    | UsageOfPattern.whole
-    | UsageOfPattern.unknown
+    UsageOfPattern.partial | UsageOfPattern.whole | UsageOfPattern.unknown
 /**
  * Returns the usage of pattern.
  */

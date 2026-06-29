@@ -95,8 +95,7 @@ export function getStringIfConstant(
 }
 
 type GetStaticValueResult =
-    | { value: unknown }
-    | { value: undefined; optional?: true }
+    { value: unknown } | { value: undefined; optional?: true }
 
 /**
  * Get the value of a given node if it's a static value.
@@ -262,9 +261,7 @@ interface BaseElement {
     range: [number, number]
 }
 export type ReplacementElement =
-    | CharacterElement
-    | DollarElement
-    | ReferenceElement
+    CharacterElement | DollarElement | ReferenceElement
 export interface CharacterElement extends BaseElement {
     type: "CharacterElement"
     value: string

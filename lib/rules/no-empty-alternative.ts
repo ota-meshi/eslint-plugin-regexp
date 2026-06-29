@@ -76,10 +76,7 @@ export default createRule("no-empty-alternative", {
         }: RegExpContext): RegExpVisitor.Handlers {
             function verifyAlternatives<
                 N extends
-                    | CapturingGroup
-                    | Group
-                    | Pattern
-                    | ClassStringDisjunction,
+                    CapturingGroup | Group | Pattern | ClassStringDisjunction,
             >(
                 regexpNode: N,
                 suggestFixer: (alt: N["alternatives"][number]) => string | null,

@@ -9,9 +9,7 @@ export interface RuleModule {
 }
 
 export type RuleCategory =
-    | "Possible Errors"
-    | "Best Practices"
-    | "Stylistic Issues"
+    "Possible Errors" | "Best Practices" | "Stylistic Issues"
 
 export type SeverityString = "error" | "warn" | "off"
 

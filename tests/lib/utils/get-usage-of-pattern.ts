@@ -259,9 +259,7 @@ describe("getUsageOfPattern", () => {
             let results: UsageOfPattern[] = []
             const regexps: (ESTree.NewExpression | ESTree.CallExpression)[] = []
             const testNodes: (
-                | ESTree.Literal
-                | ESTree.NewExpression
-                | ESTree.CallExpression
+                ESTree.Literal | ESTree.NewExpression | ESTree.CallExpression
             )[] = []
 
             function create(context: Rule.RuleContext) {
@@ -277,8 +275,7 @@ describe("getUsageOfPattern", () => {
                             },
                         })) {
                             const newOrCall = node as
-                                | ESTree.NewExpression
-                                | ESTree.CallExpression
+                                ESTree.NewExpression | ESTree.CallExpression
                             regexps.push(newOrCall)
                         }
                     },

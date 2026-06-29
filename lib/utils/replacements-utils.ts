@@ -1,7 +1,5 @@
 type BaseReplacementElement<T> =
-    | BaseCharacterElement<T>
-    | BaseDollarElement<T>
-    | BaseReferenceElement<T>
+    BaseCharacterElement<T> | BaseDollarElement<T> | BaseReferenceElement<T>
 
 type BaseCharacterElement<T> = {
     type: "CharacterElement"

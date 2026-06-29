@@ -187,10 +187,12 @@ const getPrototypes: () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
     [key in keyof Function]: TypeInfo | null
 } = lazy(() =>
-    createObject<{
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
-        [key in keyof Function]: TypeInfo | null
-    }>({
+    createObject<
+        {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- ignore
+            [key in keyof Function]: TypeInfo | null
+        }
+    >({
         ...getObjectPrototypes(),
         toString: RETURN_STRING,
         bind: RETURN_SELF,
