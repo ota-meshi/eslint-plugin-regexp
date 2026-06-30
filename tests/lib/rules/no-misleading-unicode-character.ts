@@ -138,7 +138,7 @@ tester.run("no-misleading-unicode-character", rule as any, {
         // RegExp constructors.
 
         {
-            code: String.raw`new RegExp("[👍]", "")`,
+            code: 'new RegExp("[👍]", "")',
             options: [{ fixable: true }],
         },
         {
@@ -146,65 +146,65 @@ tester.run("no-misleading-unicode-character", rule as any, {
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[Á]", "")`,
+            code: 'new RegExp("[Á]", "")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[Á]", "u")`,
+            code: 'new RegExp("[Á]", "u")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[❇️]", "")`,
+            code: 'new RegExp("[❇️]", "")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[❇️]", "u")`,
+            code: 'new RegExp("[❇️]", "u")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[🇯🇵]", "")`,
+            code: 'new RegExp("[🇯🇵]", "")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[🇯🇵]", "u")`,
+            code: 'new RegExp("[🇯🇵]", "u")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[👨‍👩‍👦]", "")`,
+            code: 'new RegExp("[👨‍👩‍👦]", "")',
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[👨‍👩‍👦]", "u")`,
+            code: 'new RegExp("[👨‍👩‍👦]", "u")',
             options: [{ fixable: true }],
         },
 
         // ES2024
         {
-            code: String.raw`/[[👶🏻]]/v`,
+            code: "/[[👶🏻]]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`/[👶🏻[👨‍👩‍👦]]/v`,
+            code: "/[👶🏻[👨‍👩‍👦]]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`/[👶🏻👨‍👩‍👦]/v`,
+            code: "/[👶🏻👨‍👩‍👦]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`/[👶🏻&👨‍👩‍👦]/v`,
+            code: "/[👶🏻&👨‍👩‍👦]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`/[^👶🏻&👨‍👩‍👦]/v`,
+            code: "/[^👶🏻&👨‍👩‍👦]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`/[^👨‍👩‍👦]/v`,
+            code: "/[^👨‍👩‍👦]/v",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`new RegExp("[👨‍👩‍👦]", "v")`,
+            code: 'new RegExp("[👨‍👩‍👦]", "v")',
             options: [{ fixable: true }],
         },
         {

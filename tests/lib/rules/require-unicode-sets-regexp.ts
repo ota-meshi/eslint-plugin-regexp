@@ -39,8 +39,8 @@ tester.run("require-unicode-sets-regexp", rule as any, {
             "``",
             "~~",
         ].map((punctuator) => ({
-            code: String.raw`/[a${punctuator}b]/u`,
+            code: `/[a${punctuator}b]/u`,
         })),
-        String.raw`/[+--b]/u`,
+        "/[+--b]/u",
     ],
 })

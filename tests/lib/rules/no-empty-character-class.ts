@@ -21,8 +21,8 @@ tester.run("no-empty-character-class", rule as any, {
         `/[ ]/`,
         String.raw`/[\s\S]/`,
         String.raw`/[\da-zA-Z_\W]/`,
-        String.raw`/a[[[ab]&&b]]/v`,
-        String.raw`/a[[ab]&&b]/v`,
+        "/a[[[ab]&&b]]/v",
+        "/a[[ab]&&b]/v",
     ],
     invalid: [
         `/[]/`,
@@ -31,7 +31,7 @@ tester.run("no-empty-character-class", rule as any, {
         `new RegExp("[]");`,
         String.raw`/[^\s\S]/`,
         String.raw`/[^\da-zA-Z_\W]/`,
-        String.raw`/a[[a&&b]]/v`,
-        String.raw`/a[a&&b]/v`,
+        "/a[[a&&b]]/v",
+        "/a[a&&b]/v",
     ],
 })

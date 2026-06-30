@@ -461,12 +461,12 @@ const TESTCASES_FOR_COVERED_NODE: TestCase[] = [
         result: true,
     },
     {
-        a: String.raw`/./us`,
+        a: "/./us",
         b: String.raw`/[^\P{ASCII}]/us`,
         result: true,
     },
     {
-        a: String.raw`/./u`,
+        a: "/./u",
         b: String.raw`/[^\P{ASCII}]/u`,
         result: false,
     },

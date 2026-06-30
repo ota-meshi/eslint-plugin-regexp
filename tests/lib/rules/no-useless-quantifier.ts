@@ -10,9 +10,9 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-useless-quantifier", rule as any, {
     valid: [
-        String.raw`/a*/`,
-        String.raw`/(?:a)?/`,
-        String.raw`/(?:a|b?)??/`,
+        "/a*/",
+        "/(?:a)?/",
+        "/(?:a|b?)??/",
         String.raw`/(?:\b|a)?/`,
         String.raw`/(?:\b)*/`,
         String.raw`/(?:\b|(?!a))*/`,
@@ -21,18 +21,18 @@ tester.run("no-useless-quantifier", rule as any, {
     ],
     invalid: [
         // trivial
-        String.raw`/a{1}/`,
-        String.raw`/a{1,1}?/`,
+        "/a{1}/",
+        "/a{1,1}?/",
 
         // empty quantified element
-        String.raw`/(?:)+/`,
+        "/(?:)+/",
         String.raw`/(?:[\q{}])+/v`,
-        String.raw`/(?:|(?:)){5,9}/`,
-        String.raw`/(?:|()()())*/`,
+        "/(?:|(?:)){5,9}/",
+        "/(?:|()()())*/",
 
         // unnecessary optional quantifier (?) because the quantified element is potentially empty
-        String.raw`/(?:a+b*|c*)?/`,
-        String.raw`/(?:a|b?c?d?e?f?)?/`,
+        "/(?:a+b*|c*)?/",
+        "/(?:a|b?c?d?e?f?)?/",
 
         // quantified elements which do not consume characters
         String.raw`/(?:\b)+/`,

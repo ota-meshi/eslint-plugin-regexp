@@ -10,15 +10,15 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-super-linear-backtracking", rule as any, {
     valid: [
-        String.raw`/regexp/`,
-        String.raw`/a+b+a+b+/`,
+        "/regexp/",
+        "/a+b+a+b+/",
         String.raw`/\w+\b[\w-]+/`,
         String.raw`/[\q{ab}]*[\q{ab}]*$/v`, // Limitation of scslre
     ],
     invalid: [
         // self
-        String.raw`/b(?:a+)+b/`,
-        String.raw`/(?:ba+|a+b){2}/`,
+        "/b(?:a+)+b/",
+        "/(?:ba+|a+b){2}/",
 
         // trade
         String.raw`/\ba+a+$/`,

@@ -10,41 +10,41 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-super-linear-move", rule as any, {
     valid: [
-        String.raw`/regexp/`,
+        "/regexp/",
         String.raw`/\ba*:/`,
 
         // no rejecting suffix
-        String.raw`/a*/`,
+        "/a*/",
 
         {
-            code: String.raw`/a*/.test(input)`,
+            code: "/a*/.test(input)",
             options: [{ report: "potential" }],
         },
         {
-            code: String.raw`export default /a*/`,
+            code: "export default /a*/",
             options: [{ report: "certain" }],
         },
-        { code: String.raw`/a*b/.source`, options: [{ ignorePartial: true }] },
-        { code: String.raw`/a*b/y`, options: [{ ignoreSticky: true }] },
+        { code: "/a*b/.source", options: [{ ignorePartial: true }] },
+        { code: "/a*b/y", options: [{ ignoreSticky: true }] },
         String.raw`/[\q{abc}]+/v`,
     ],
     invalid: [
-        String.raw`/a*:/`,
+        "/a*:/",
         String.raw`/^\s*(\w+)\s*[:=]/m`,
         String.raw`/((?:\\{2})*)(\\?)\|/g`,
         String.raw`/[a-z_][A-Z_0-9]*(?=\s*\()/i`,
         String.raw`/(?!\d)\w+(?=\s*\()/i`,
 
         {
-            code: String.raw`export default /a*/`,
+            code: "export default /a*/",
             options: [{ report: "potential" }],
         },
         {
-            code: String.raw`/a*b/.source`,
+            code: "/a*b/.source",
             options: [{ ignorePartial: false }],
         },
         {
-            code: String.raw`/a*b/y`,
+            code: "/a*b/y",
             options: [{ ignoreSticky: false }],
         },
         String.raw`/[\q{abc}]+a/v`,

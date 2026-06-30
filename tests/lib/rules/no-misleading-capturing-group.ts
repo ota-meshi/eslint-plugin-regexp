@@ -10,16 +10,16 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-misleading-capturing-group", rule as any, {
     valid: [
-        String.raw`/a+a+/`,
-        String.raw`/(a+a+)/`,
-        String.raw`/(a+a+)b+/`,
+        "/a+a+/",
+        "/(a+a+)/",
+        "/(a+a+)b+/",
 
-        String.raw`/^(a*(?!a)).+/u`,
+        "/^(a*(?!a)).+/u",
         String.raw`/(^~~?)(?!~)[\s\S]+(?=\1$)/m`,
         String.raw`/(^~~?(?!~))[\s\S]+(?=\1$)/m`,
         String.raw`/(^~(?:~|(?!~)))[\s\S]+(?=\1$)/m`,
         {
-            code: String.raw`/^(a*).+/u`,
+            code: "/^(a*).+/u",
             options: [{ reportBacktrackingEnds: false }],
         },
     ],
@@ -28,7 +28,7 @@ tester.run("no-misleading-capturing-group", rule as any, {
         String.raw`/(?:!\d+|%\w+)(\d*)/`,
 
         // backtracking ends
-        String.raw`/^(a*).+/u`,
+        "/^(a*).+/u",
         String.raw`/^([\t ]*).+/gmu`,
         String.raw`/('{2,5}).+?\1/`,
         String.raw`/^(---.*(?:\n|\r\n?))[\s\S]+?(?=(?:\n|\r\n?)^---$)/m`,

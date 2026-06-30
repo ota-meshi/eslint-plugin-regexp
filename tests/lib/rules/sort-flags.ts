@@ -37,8 +37,8 @@ tester.run("sort-flags", rule as any, {
         // sort flags even on invalid patterns
         String.raw`new RegExp("\\w)", "ui")`,
         // sort flags even on unknown
-        String.raw`RegExp('a' + b, 'us');`,
+        "RegExp('a' + b, 'us');",
         // sort flags even on non-owned pattern
-        String.raw`var a = "foo"; RegExp(foo, 'us'); RegExp(foo, 'u');`,
+        "var a = \"foo\"; RegExp(foo, 'us'); RegExp(foo, 'u');",
     ],
 })

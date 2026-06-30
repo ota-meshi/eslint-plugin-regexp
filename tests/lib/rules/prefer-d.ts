@@ -11,10 +11,10 @@ const tester = new SnapshotRuleTester({
 tester.run("prefer-d", rule as any, {
     valid: [
         String.raw`/\d/`,
-        String.raw`/[1-9]/`,
+        "/[1-9]/",
         String.raw`/[^0-9\w]/`,
         {
-            code: String.raw`/[0-9a-z]/`,
+            code: "/[0-9a-z]/",
             options: [{ insideCharacterClass: "ignore" }],
         },
         {
@@ -22,7 +22,7 @@ tester.run("prefer-d", rule as any, {
             options: [{ insideCharacterClass: "ignore" }],
         },
         {
-            code: String.raw`/[0-9a-z]/`,
+            code: "/[0-9a-z]/",
             options: [{ insideCharacterClass: "range" }],
         },
         {
@@ -54,7 +54,7 @@ tester.run("prefer-d", rule as any, {
             new RegExp(s)
             `,
         {
-            code: String.raw`/[0-9a-z]/`,
+            code: "/[0-9a-z]/",
             options: [{ insideCharacterClass: "d" }],
         },
         {
@@ -69,7 +69,7 @@ tester.run("prefer-d", rule as any, {
             options: [{ insideCharacterClass: "range" }],
         },
         {
-            code: String.raw`/[[0-9a-z]--0]/v`,
+            code: "/[[0-9a-z]--0]/v",
             options: [{ insideCharacterClass: "d" }],
         },
         String.raw`/[\q{0|1|2|3|4|5|6|7|8|9}]/v`,

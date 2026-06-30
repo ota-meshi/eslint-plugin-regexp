@@ -16,9 +16,5 @@ tester.run("prefer-set-operation", rule as any, {
         String.raw`/(?!a)\w/`,
         String.raw`/(?!a)\w/u`,
     ],
-    invalid: [
-        String.raw`/(?!a)\w/v`,
-        String.raw`/\w(?<=\d)/v`,
-        String.raw`/(?!-)&/v`,
-    ],
+    invalid: [String.raw`/(?!a)\w/v`, String.raw`/\w(?<=\d)/v`, "/(?!-)&/v"],
 })
