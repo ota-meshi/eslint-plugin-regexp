@@ -1,4 +1,4 @@
-import pako from "pako"
+import * as pako from "pako"
 
 /**
  * Deserialize a given serialized string then update this object.

@@ -1,4 +1,4 @@
-import pako from "pako"
+import * as pako from "pako"
 
 /**
  * Get only enabled rules to make the serialized data smaller.
