@@ -11,7 +11,7 @@ const tester = new SnapshotRuleTester({
 tester.run("sort-character-class-elements", rule as any, {
     valid: [
         `/[abcd]/`,
-        String.raw`/[aa]/u`,
+        "/[aa]/u",
         String.raw`/[\d\d]/u`,
         String.raw`/[\s\S]/u`,
         String.raw`/[\S\s]/u`,
@@ -72,10 +72,10 @@ tester.run("sort-character-class-elements", rule as any, {
             options: [{ order: [] }],
         },
         String.raw`/[\da-b-]/u`,
-        String.raw`/[a-b-]/u`,
-        String.raw`/[-$a]/u`,
+        "/[a-b-]/u",
+        "/[-$a]/u",
         String.raw`/[-_\s]+/gu`,
-        String.raw`/[-_-]/u`,
+        "/[-_-]/u",
         {
             code: String.raw`const s = "[\\d\\w]"
             new RegExp(s, 'u')`,
@@ -87,7 +87,7 @@ tester.run("sort-character-class-elements", rule as any, {
             `,
         String.raw`/[[a--b][a]\q{a}a]/v`,
         String.raw`/[\q{a}[a--b][a]a]/v`,
-        String.raw`/[[b--c][a]]/v`,
+        "/[[b--c][a]]/v",
         {
             code: String.raw`/[[a]\q{a}]/v; /[\q{a}a]/v; /[[b-c]\q{a}]/v; /[[b-c][a]]/v;`,
             options: [{ order: [] }],
@@ -96,7 +96,7 @@ tester.run("sort-character-class-elements", rule as any, {
         String.raw`/[\q{b}\q{c}\q{a}]/v`,
         String.raw`/[\q{ac}\q{ab}\q{aa}]/v`,
         String.raw`/[\q{ab}\q{ac}\q{aa}]/v`,
-        String.raw`/[~^*]/`,
-        String.raw`/[~^]/`,
+        "/[~^*]/",
+        "/[~^]/",
     ],
 })

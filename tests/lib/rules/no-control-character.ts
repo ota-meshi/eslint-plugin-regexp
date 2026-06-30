@@ -10,12 +10,12 @@ const tester = new SnapshotRuleTester({
 
 tester.run("no-control-character", rule as any, {
     valid: [
-        String.raw`/x1f/`,
+        "/x1f/",
         String.raw`/\\x1f/`,
-        String.raw`new RegExp('x1f')`,
-        String.raw`RegExp('x1f')`,
-        String.raw`new RegExp('[')`,
-        String.raw`RegExp('[')`,
+        "new RegExp('x1f')",
+        "RegExp('x1f')",
+        "new RegExp('[')",
+        "RegExp('[')",
         String.raw`new (function foo(){})('\x1f')`,
         String.raw`new RegExp('\n')`,
         String.raw`new RegExp('\\n')`,

@@ -20,7 +20,7 @@ tester.run("no-optional-assertion", rule as any, {
     invalid: [
         String.raw`/(?:\b|(?=a))?/`,
         String.raw`/(?:\b|a)?/`,
-        String.raw`/(?:^|a)*/`,
+        "/(?:^|a)*/",
         String.raw`/(?:((?:(\b|a)))|b)?/`,
         String.raw`/(?:((?:(\b|a)))|b)*/`,
         String.raw`/((\b)+){0,}/`,

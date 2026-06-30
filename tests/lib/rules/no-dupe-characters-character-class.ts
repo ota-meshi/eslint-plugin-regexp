@@ -71,7 +71,7 @@ tester.run("no-dupe-characters-character-class", rule as any, {
 
         // sometimes, we might have to do some escaping
         String.raw`/[a^\w]/`,
-        String.raw`/[0a-a-9a-z]/`,
+        "/[0a-a-9a-z]/",
         String.raw`/[a:^\w]/`,
         String.raw`/[\sa-\w]/`,
         String.raw`/[\x01\d-\x03\w]/`,

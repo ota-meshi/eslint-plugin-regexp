@@ -16,7 +16,7 @@ tester.run("negation", rule as any, {
         String.raw`/[^\P{Ll}]/iu`,
         String.raw`/[\p{Basic_Emoji}]/v`,
         String.raw`/[^\P{Lowercase_Letter}]/iu`,
-        String.raw`/[^[^a][^b]]/v`,
+        "/[^[^a][^b]]/v",
     ],
     invalid: [
         String.raw`/[^\d]/`,
@@ -43,9 +43,9 @@ tester.run("negation", rule as any, {
             Number(s)
             new RegExp(s)`,
         String.raw`/[^\P{Lowercase_Letter}]/iv`,
-        String.raw`/[^[^abc]]/v`,
+        "/[^[^abc]]/v",
         String.raw`/[^[^\q{a|1|A}&&\w]]/v`,
-        String.raw`/[^[^a]]/iv`,
+        "/[^[^a]]/iv",
         String.raw`/[^[^\P{Lowercase_Letter}]]/iv`,
         String.raw`/[^[^[\p{Lowercase_Letter}&&[ABC]]]]/iv`,
         String.raw`/[^[^[\p{Lowercase_Letter}&&A]--B]]/iv`,

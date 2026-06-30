@@ -14,9 +14,9 @@ tester.run("prefer-unicode-codepoint-escapes", rule as any, {
         String.raw`/\ud83d\ude00/`,
         String.raw`/[\ud83d\ude00]/`,
         String.raw`/\u{1f600}/u`,
-        String.raw`/😀/u`,
+        "/😀/u",
         String.raw`/\u{1f600}/v`,
-        String.raw`/😀/v`,
+        "/😀/v",
     ],
     invalid: [
         String.raw`/\ud83d\ude00/u`,

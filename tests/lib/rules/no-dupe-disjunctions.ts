@@ -106,8 +106,8 @@ tester.run("no-dupe-disjunctions", rule as any, {
         String(/a|(?:(a)|b)a/),
         String(/a|[ab]a/),
         `/(?:js|jso?n?)$/`,
-        String.raw`/A+_|A*_/`,
-        String.raw`/(?:A+|A*)_/`,
+        "/A+_|A*_/",
+        "/(?:A+|A*)_/",
         String.raw`/[\q{a|bb}]|bb/v`,
         {
             // reportExponentialBacktracking: 'potential'

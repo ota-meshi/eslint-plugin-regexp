@@ -12,10 +12,10 @@ tester.run("no-contradiction-with-assertion", rule as any, {
     valid: [
         // Ignore trivially accepting/rejecting assertions
         String.raw`/a\ba/`,
-        String.raw`/(?!)a/`,
-        String.raw`/(?=)a/`,
-        String.raw`/$a/`,
-        String.raw`/$a/v`,
+        "/(?!)a/",
+        "/(?=)a/",
+        "/$a/",
+        "/$a/v",
 
         // Other valid regexes
         String.raw`/(^|[\s\S])\bfoo/`,

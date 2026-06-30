@@ -22,13 +22,13 @@ tester.run("strict", rule as any, {
         String.raw`/[\( \) \[ \] \{ \} \| \* \+ \? \^ \$ \\ \/ \. \-]/`,
         String.raw`/\u000f/`,
         String.raw`/\x000f/`,
-        String.raw`/[A--B]/v`,
+        "/[A--B]/v",
     ],
     invalid: [
         // source characters
-        String.raw`/]/`,
-        String.raw`/{/`,
-        String.raw`/}/`,
+        "/]/",
+        "/{/",
+        "/}/",
 
         // invalid or incomplete escape sequences
         String.raw`/\u{42}/`,
@@ -53,6 +53,6 @@ tester.run("strict", rule as any, {
         String.raw`/[a-\w]/`,
 
         // quantified assertions
-        String.raw`/(?!a)+/`,
+        "/(?!a)+/",
     ],
 })

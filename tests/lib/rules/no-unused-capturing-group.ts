@@ -90,11 +90,11 @@ tester.run("no-unused-capturing-group", rule as any, {
         '2000-12-31 2000-12-31'.replace(reg, '$<y>/$<m>');
         '2000-12-31 2000-12-31'.replace(reg, '$<m>/$<d>');
         `,
-        String.raw`
+        `
         const reg = /,/;
         'a,b,c'.split(reg)
         `,
-        String.raw`
+        `
         const reg = /(,)/;
         'a,b,c'.split(reg)
         `,
@@ -132,23 +132,23 @@ tester.run("no-unused-capturing-group", rule as any, {
         String.raw`
         const matches = [...('2000-12-31 2000-12-31'.matchAll(/(\d{4})-(\d{2})-(\d{2})/g))]
         `,
-        String.raw`
+        `
         console.log('asd'.matchAll(/as(d)/gu).toArray())
         `,
-        String.raw`
+        `
         const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[1])
         `,
-        String.raw`
+        `
         const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[1])
         `,
-        String.raw`
+        `
         ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1], m[2]))
         `,
-        String.raw`
+        `
         const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.b === m.groups.c);
         console.log(filtered[0].groups.a);
         `,
-        String.raw`
+        `
         const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.b === m.groups.c);
         console.log(element.groups.a);
         `,
@@ -157,13 +157,13 @@ tester.run("no-unused-capturing-group", rule as any, {
         const replaced = text.replace(/([\q{Lorem|ipsum}])/vg, '**$1**')
         `,
         // hasIndices
-        String.raw`const re = /(foo)/d
+        `const re = /(foo)/d
         console.log(re.exec('foo').indices[1])
         `,
-        String.raw`const re = /(?<f>foo)/d
+        `const re = /(?<f>foo)/d
         console.log(re.exec('foo').indices.groups.f)
         `,
-        String.raw`const re = /(foo)/d
+        `const re = /(foo)/d
         console.log(re.exec('foo').indices[unknown])
         `,
 
@@ -300,37 +300,37 @@ tester.run("no-unused-capturing-group", rule as any, {
             `,
         String.raw`'str'.replace(/(?<foo>\w+)/, () => {});`,
         {
-            code: String.raw`
+            code: `
             const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[0])
             `,
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])`,
+            code: "const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])",
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`
+            code: `
             ;[...'abc_abc'.matchAll(/a(b)(c)/g)].forEach(m => console.log(m[1]))
             `,
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`
+            code: `
             const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.b === m.groups.c);
             console.log(filtered[0].groups.b);
             `,
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`
+            code: `
             const filtered = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].filter(m => m.groups.a === m.groups.c);
             console.log(filtered[0].groups.a);
             `,
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`
+            code: `
             const element = [...'abc_abc_abb_acc'.matchAll(/(?<a>.)(?<b>.)(?<c>.)/g)].find(m => m.groups.a === m.groups.c);
             console.log(element.groups.a);
             `,
@@ -345,13 +345,13 @@ tester.run("no-unused-capturing-group", rule as any, {
         },
         // hasIndices
         {
-            code: String.raw`const re = /(foo)/d
+            code: `const re = /(foo)/d
             console.log(re.exec('foo').indices[2])
             `,
             options: [{ fixable: true }],
         },
         {
-            code: String.raw`const re = /(?<f>foo)/d
+            code: `const re = /(?<f>foo)/d
             console.log(re.exec('foo').indices.groups.x)
             `,
             options: [{ fixable: true }],

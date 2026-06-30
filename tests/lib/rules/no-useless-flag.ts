@@ -219,8 +219,8 @@ tester.run("no-useless-flag", rule as any, {
         const orig = /\w/i; // eslint-disable-line
         const clone = new RegExp(orig);
         `,
-        String.raw`/a/u`,
-        String.raw`/a/v`,
+        "/a/u",
+        "/a/v",
     ],
     invalid: [
         // i

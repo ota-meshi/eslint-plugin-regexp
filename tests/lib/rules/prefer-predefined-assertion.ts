@@ -24,7 +24,7 @@ tester.run("prefer-predefined-assertion", rule as any, {
 
         String.raw`/a+(?!\w)(?:\s|bc+)+/`,
 
-        String.raw`/(?!.)(?![^])/`,
-        String.raw`/(?<!.)(?<![^])/m`,
+        "/(?!.)(?![^])/",
+        "/(?<!.)(?<![^])/m",
     ],
 })

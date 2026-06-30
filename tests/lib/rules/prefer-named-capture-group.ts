@@ -9,11 +9,6 @@ const tester = new SnapshotRuleTester({
 })
 
 tester.run("prefer-named-capture-group", rule as any, {
-    valid: [
-        String.raw`/foo/`,
-        String.raw`/b(?:a(?:r))/`,
-        String.raw`/(?<foo>bar)/`,
-        String.raw`/(?=a)(?<=b)/`,
-    ],
-    invalid: [String.raw`/(foo)/`, String.raw`/(foo)/v`],
+    valid: ["/foo/", "/b(?:a(?:r))/", "/(?<foo>bar)/", "/(?=a)(?<=b)/"],
+    invalid: ["/(foo)/", "/(foo)/v"],
 })
