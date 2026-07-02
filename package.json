@@ -100,7 +100,7 @@
         "eslint-import-resolver-typescript": "^4.0.0",
         "eslint-plugin-eslint-plugin": "^7.0.0",
         "eslint-plugin-import": "^2.32.0",
-        "eslint-plugin-jsdoc": "^62.0.0",
+        "eslint-plugin-jsdoc": "^63.0.0",
         "eslint-plugin-json-schema-validator": "^6.0.0",
         "eslint-plugin-jsonc": "^3.0.0",
         "eslint-plugin-markdown": "^5.0.0",
