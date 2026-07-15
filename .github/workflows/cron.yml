@@ -21,6 +21,8 @@ jobs:
                   node-version: lts/*
             - name: Install Packages
               run: npm install
+            - name: Build
+              run: npm run build
             - name: Update
               run: npm run update:unicode-alias
             - name: Format
