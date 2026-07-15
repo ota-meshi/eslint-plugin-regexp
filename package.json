@@ -126,6 +126,7 @@
         "tsdown": "^0.22.0",
         "typescript": "~5.9.0",
         "typescript-eslint": "~8.58.0",
+        "unrun": "^0.3.1",
         "vite-plugin-eslint4b": "^0.8.0",
         "vitepress": "^1.0.0",
         "vue-eslint-parser": "^10.4.0"
