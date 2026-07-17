@@ -112,7 +112,7 @@
         "eslint-plugin-vue": "^10.8.0",
         "eslint-plugin-yml": "^3.0.0",
         "eslint-snapshot-rule-tester": "^0.1.0",
-        "magic-string": "^0.30.21",
+        "magic-string": "^1.0.0",
         "markdownlint-cli": "^0.49.0",
         "mocha": "^11.0.0",
         "npm-run-all2": "^9.0.0",
