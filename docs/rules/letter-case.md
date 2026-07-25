@@ -60,6 +60,23 @@ var foo = /\ca/
   - `hexadecimalEscape` ... Specifies the letter case when the hexadecimal escapes. Default is `"lowercase"`.
   - `controlEscape` ... Specifies the letter case when the control escapes (e.g. `\cX`). Default is `"uppercase"`.
 
+### Compatibility with `unicorn/escape-case`
+
+The default `"lowercase"` values for `unicodeEscape` and `hexadecimalEscape`
+conflict with the default `"uppercase"` style of
+[`unicorn/escape-case`](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/escape-case.md).
+To use both rules with Unicorn's default, configure both properties as `"uppercase"`:
+
+```json5
+{
+  "unicorn/escape-case": "error",
+  "regexp/letter-case": ["error", {
+    "unicodeEscape": "uppercase",
+    "hexadecimalEscape": "uppercase",
+  }],
+}
+```
+
 ## :rocket: Version
 
 This rule was introduced in eslint-plugin-regexp v0.3.0
