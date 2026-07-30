@@ -35,6 +35,11 @@ export default createRule("prefer-regexp-exec", {
                 ) {
                     return
                 }
+                if (!evaluated && typeTracer.isRegExp(arg)) {
+                    // The global flag is unknown, so `String#match` may not
+                    // be equivalent to `RegExp#exec`.
+                    return
+                }
                 if (!typeTracer.isString(node.callee.object)) {
                     return
                 }
