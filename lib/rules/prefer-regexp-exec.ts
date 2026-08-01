@@ -1,5 +1,9 @@
-import type { CallExpression } from "estree"
-import { isKnownMethodCall, getStaticValue } from "../utils/ast-utils/index.ts"
+import type { CallExpression, Expression, Node } from "estree"
+import {
+    getParent,
+    getStaticValue,
+    isKnownMethodCall,
+} from "../utils/ast-utils/index.ts"
 import { createRule } from "../utils/index.ts"
 import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
@@ -27,7 +31,7 @@ export default createRule("prefer-regexp-exec", {
                     return
                 }
                 const arg = node.arguments[0]
-                const evaluated = getStaticValue(context, arg)
+                const evaluated = getStaticRegExpValue(context, arg)
                 if (
                     evaluated &&
                     evaluated.value instanceof RegExp &&
@@ -51,3 +55,62 @@ export default createRule("prefer-regexp-exec", {
         }
     },
 })
+
+/**
+ * Gets a RegExp value whose flags can be determined without executing code.
+ *
+ * In addition to regular static values, this supports direct reads of an
+ * instance field initialized with a static RegExp. Type information can tell
+ * us that a field is a RegExp, but not whether it has the global flag.
+ */
+function getStaticRegExpValue(
+    context: Parameters<typeof getStaticValue>[0],
+    node: Expression,
+) {
+    const evaluated = getStaticValue(context, node)
+    if (evaluated || node.type !== "MemberExpression") {
+        return evaluated
+    }
+    if (
+        node.computed ||
+        node.object.type !== "ThisExpression" ||
+        node.property.type !== "Identifier"
+    ) {
+        return null
+    }
+    const propertyName = node.property.name
+
+    const classBody = getEnclosingClassBody(node)
+    if (!classBody) {
+        return null
+    }
+    for (const element of classBody.body) {
+        if (
+            element.type === "PropertyDefinition" &&
+            !element.static &&
+            !element.computed &&
+            element.key.type === "Identifier" &&
+            element.key.name === propertyName
+        ) {
+            return element.value ? getStaticValue(context, element.value) : null
+        }
+    }
+    return null
+}
+
+function getEnclosingClassBody(node: Node) {
+    let current: Node | null = node
+    while ((current = getParent(current))) {
+        if (current.type === "ClassBody") {
+            return current
+        }
+        if (
+            (current.type === "FunctionExpression" ||
+                current.type === "FunctionDeclaration") &&
+            getParent(current)?.type !== "MethodDefinition"
+        ) {
+            return null
+        }
+    }
+    return null
+}

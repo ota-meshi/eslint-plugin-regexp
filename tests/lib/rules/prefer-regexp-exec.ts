@@ -50,6 +50,26 @@ tester.run("prefer-regexp-exec", rule as any, {
         },
     ],
     invalid: [
+        {
+            filename,
+            code: String.raw`
+            class Path {
+                protected readonly PATH_REGEXP: RegExp = /^.*\//;
+
+                protected getLogPath(filepath: string): string | undefined {
+                    const match = filepath.match(this.PATH_REGEXP);
+                    return match?.[0];
+                }
+            }`,
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
+                },
+            },
+        },
         `
             'something'.match(/thing/);
 
