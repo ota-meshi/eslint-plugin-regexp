@@ -68,7 +68,13 @@ function getStaticRegExpValue(
     node: Expression,
 ) {
     const evaluated = getStaticValue(context, node)
-    if (evaluated || node.type !== "MemberExpression") {
+    // eslint-utils returns `{ value: undefined }` for unresolved member reads
+    // such as `this.REGEXP` in a class. Treat that as unknown so the
+    // class-field fallback below can inspect the initializer.
+    if (evaluated && evaluated.value !== undefined) {
+        return evaluated
+    }
+    if (node.type !== "MemberExpression") {
         return evaluated
     }
     if (
