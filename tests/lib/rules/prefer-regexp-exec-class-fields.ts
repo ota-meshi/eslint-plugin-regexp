@@ -33,7 +33,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
         },
         {
@@ -51,7 +50,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
         },
         {
@@ -65,7 +63,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
         },
         {
@@ -83,7 +80,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
         },
     ],
@@ -99,7 +95,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
             errors: [{ messageId: "disallow" }],
         },
@@ -118,7 +113,6 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            files: ["**/*.*"],
             languageOptions,
             errors: [{ messageId: "disallow" }],
         },
