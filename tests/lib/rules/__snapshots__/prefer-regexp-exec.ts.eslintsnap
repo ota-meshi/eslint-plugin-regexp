@@ -2,6 +2,28 @@
 
 
 Test: prefer-regexp-exec >> invalid
+Filename: tests/lib/rules/prefer-regexp-exec.ts
+Files:
+  - "**/*.*"
+LanguageOptions: unable to serialize
+
+Code:
+  1 |
+  2 |             class Path {
+  3 |                 protected readonly PATH_REGEXP: RegExp = /^.*\//;
+  4 |
+  5 |                 protected getLogPath(filepath: string): string | undefined {
+  6 |                     const match = filepath.match(this.PATH_REGEXP);
+    |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [1]
+  7 |                     return match?.[0];
+  8 |                 }
+  9 |             }
+
+[1] Use the `RegExp#exec()` method instead.
+---
+
+
+Test: prefer-regexp-exec >> invalid
 Code:
   1 |
   2 |             'something'.match(/thing/);

@@ -1,5 +1,10 @@
+import module from "node:module"
+import * as tsParser from "@typescript-eslint/parser"
 import { SnapshotRuleTester } from "eslint-snapshot-rule-tester"
 import rule from "../../../lib/rules/prefer-regexp-exec.ts"
+
+const require = module.createRequire(import.meta.url)
+const filename = "tests/lib/rules/prefer-regexp-exec.ts"
 
 const tester = new SnapshotRuleTester({
     languageOptions: {
@@ -22,8 +27,49 @@ tester.run("prefer-regexp-exec", rule as any, {
         `
         /thin[[g]]/v.exec('something');
         `,
+        {
+            filename,
+            code: String.raw`
+            class Path {
+                protected readonly PATH_REGEXP: RegExp = /^.*\//g;
+
+                protected getLogPath(filepath: string): string | undefined {
+                    const match = filepath.match(this.PATH_REGEXP);
+                    return match?.[0];
+                }
+            }
+            `,
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
+                },
+            },
+        },
     ],
     invalid: [
+        {
+            filename,
+            code: String.raw`
+            class Path {
+                protected readonly PATH_REGEXP: RegExp = /^.*\//;
+
+                protected getLogPath(filepath: string): string | undefined {
+                    const match = filepath.match(this.PATH_REGEXP);
+                    return match?.[0];
+                }
+            }`,
+            files: ["**/*.*"],
+            languageOptions: {
+                parser: tsParser,
+                parserOptions: {
+                    project: require.resolve("../../../tsconfig.json"),
+                    disallowAutomaticSingleRunInference: true,
+                },
+            },
+        },
         `
             'something'.match(/thing/);
 
