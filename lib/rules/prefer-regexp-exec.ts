@@ -106,6 +106,9 @@ function getStaticRegExpValue(
     if (!classBody) {
         return null
     }
+    if (isInStaticClassElement(node, classBody)) {
+        return null
+    }
     const property = findReadonlyProperty(classBody, fieldName)
     if (!property) {
         return null
@@ -131,6 +134,22 @@ function getStaticRegExpValue(
         return null
     }
     return getStaticValue(context, write.right)
+}
+
+function isInStaticClassElement(node: Node, classBody: ClassBody): boolean {
+    let current = node
+    while (getParent(current) !== classBody) {
+        const parent = getParent(current)
+        if (!parent) {
+            return false
+        }
+        current = parent
+    }
+
+    return (
+        ("static" in current && current.static === true) ||
+        current.type === "StaticBlock"
+    )
 }
 
 function getThisFieldName(node: MemberExpression): ClassFieldName | null {
@@ -228,9 +247,7 @@ function getFieldWrites(
 
         const keys = context.sourceCode.visitorKeys[current.type] ?? []
         for (const key of keys) {
-            const value = (
-                current as unknown as Record<string, unknown>
-            )[key]
+            const value = (current as unknown as Record<string, unknown>)[key]
             if (Array.isArray(value)) {
                 for (const child of value) {
                     if (isNode(child)) {

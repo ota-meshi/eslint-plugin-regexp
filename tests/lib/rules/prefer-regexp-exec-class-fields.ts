@@ -82,6 +82,20 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
             `,
             languageOptions,
         },
+        {
+            filename,
+            code: String.raw`
+            class StaticGlobalPath {
+                private readonly PATH_REGEXP: RegExp = /^.*\//;
+                private static readonly PATH_REGEXP: RegExp = /^.*\//g;
+
+                static getLogPath(filepath: string): string | undefined {
+                    return filepath.match(this.PATH_REGEXP)?.[0];
+                }
+            }
+            `,
+            languageOptions,
+        },
     ],
     invalid: [
         {
@@ -95,8 +109,8 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            languageOptions,
             errors: [{ messageId: "disallow" }],
+            languageOptions,
         },
         {
             filename,
@@ -113,8 +127,8 @@ tester.run("prefer-regexp-exec class fields", rule as any, {
                 }
             }
             `,
-            languageOptions,
             errors: [{ messageId: "disallow" }],
+            languageOptions,
         },
     ],
 })
