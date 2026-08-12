@@ -74,7 +74,7 @@
     },
     "devDependencies": {
         "@changesets/cli": "^2.26.2",
-        "@changesets/get-release-plan": "^4.0.2",
+        "@changesets/get-release-plan": "^5.0.0",
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^10.0.0",
