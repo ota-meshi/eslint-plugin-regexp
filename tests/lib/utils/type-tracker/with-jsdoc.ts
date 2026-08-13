@@ -134,6 +134,22 @@ const TESTCASES: TestCase[] = [
     },
     {
         code: `
+        /** @type {123n} */
+        let bigint
+        bigint
+        `,
+        type: "BigInt",
+    },
+    {
+        code: `
+        /** @type {unique symbol} */
+        let symbol
+        symbol
+        `,
+        type: [],
+    },
+    {
+        code: `
         /** @type {Map<string, number>}} */
         let a
         a.get('a')

@@ -625,6 +625,9 @@ function jsDocTypeNodeToTypeInfo(
     if (node.type === "JsdocTypeNumber") {
         return NUMBER
     }
+    if (node.type === "JsdocTypeBigInt") {
+        return BIGINT
+    }
     if (node.type === "JsdocTypeAsserts") {
         return BOOLEAN
     }
@@ -770,6 +773,7 @@ function jsDocTypeNodeToTypeInfo(
         node.type === "JsdocTypePredicate" ||
         node.type === "JsdocTypeSpecialNamePath" ||
         node.type === "JsdocTypeSymbol" ||
+        node.type === "JsdocTypeUniqueSymbol" ||
         node.type === "JsdocTypeAssertsPlain" ||
         node.type === "JsdocTypeInfer"
     ) {
