@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("sort-character-class-elements", rule as any, {
+tester.run("sort-character-class-elements", rule, {
     valid: [
         `/[abcd]/`,
         "/[aa]/u",

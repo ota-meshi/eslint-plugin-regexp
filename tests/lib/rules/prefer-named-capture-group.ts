@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-named-capture-group", rule as any, {
+tester.run("prefer-named-capture-group", rule, {
     valid: ["/foo/", "/b(?:a(?:r))/", "/(?<foo>bar)/", "/(?=a)(?<=b)/"],
     invalid: ["/(foo)/", "/(foo)/v"],
 })

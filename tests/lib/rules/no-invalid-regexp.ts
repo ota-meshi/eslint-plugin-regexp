@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-invalid-regexp", rule as any, {
+tester.run("no-invalid-regexp", rule, {
     valid: [`/regexp/`, `RegExp("(" + ")")`],
     invalid: [
         `RegExp("(")`,

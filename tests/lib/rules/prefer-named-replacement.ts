@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-named-replacement", rule as any, {
+tester.run("prefer-named-replacement", rule, {
     valid: [
         `"str".replace(/regexp/, "foo")`,
         `"str".replace(/a(b)c/, "_$1_")`,

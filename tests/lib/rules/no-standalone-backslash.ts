@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-standalone-backslash", rule as any, {
+tester.run("no-standalone-backslash", rule, {
     valid: [String.raw`/\cX/`, String.raw`/[[\cA-\cZ]--\cX]/v`],
     invalid: [
         String.raw`/\c/`,

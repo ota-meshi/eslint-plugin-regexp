@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-invisible-character", rule as any, {
+tester.run("no-invisible-character", rule, {
     valid: [
         "/a/",
         "/ /",

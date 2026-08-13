@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-dupe-disjunctions", rule as any, {
+tester.run("no-dupe-disjunctions", rule, {
     valid: [
         String.raw`/^\s*(eslint-(?:en|dis)able)(?:\s+(\S|\S[\s\S]*\S))?\s*$/u`,
         `/a|b/`,

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("unicode-escape", rule as any, {
+tester.run("unicode-escape", rule, {
     valid: [
         String.raw`/a \x0a \cM \0 \u{ff} \u{100} \ud83d\ude00 \u{1f600}/u`,
         {

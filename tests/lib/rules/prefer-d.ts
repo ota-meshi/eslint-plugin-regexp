@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-d", rule as any, {
+tester.run("prefer-d", rule, {
     valid: [
         String.raw`/\d/`,
         "/[1-9]/",

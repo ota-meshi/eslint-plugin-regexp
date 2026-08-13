@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("strict", rule as any, {
+tester.run("strict", rule, {
     valid: [
         `/regexp/`,
         String.raw`/\{\}\]/`,

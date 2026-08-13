@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-escape-replacement-dollar-char", rule as any, {
+tester.run("prefer-escape-replacement-dollar-char", rule, {
     valid: [
         `'€1,234'.replace(/€/, '$$'); // "$1,234"`,
         `'abc'.foo(/./, '$');`,

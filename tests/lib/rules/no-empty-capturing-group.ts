@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-capturing-group", rule as any, {
+tester.run("no-empty-capturing-group", rule, {
     valid: [
         "/(a)/",
         String.raw`/a(\bb)/`,

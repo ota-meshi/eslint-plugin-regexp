@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-dupe-characters-character-class", rule as any, {
+tester.run("no-dupe-characters-character-class", rule, {
     valid: [
         String.raw`var re = /[a-zA-Z0-9\s]/`,
         "/[abc]/",

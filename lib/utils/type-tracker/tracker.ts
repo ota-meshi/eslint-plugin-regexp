@@ -456,7 +456,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                         }
                     } else {
                         // computed
-                        const propertyType = getType(mem.property as never)
+                        const propertyType = getType(mem.property)
                         if (hasType(propertyType, "Number")) {
                             propertyName = "0"
                         }
@@ -495,7 +495,7 @@ export function createTypeTracker(context: Rule.RuleContext): TypeTracker {
                     }
                 } else {
                     // computed
-                    const propertyType = getType(node.property as never)
+                    const propertyType = getType(node.property)
                     if (hasType(propertyType, "Number")) {
                         propertyName = "0"
                     }

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-trivially-nested-assertion", rule as any, {
+tester.run("no-trivially-nested-assertion", rule, {
     valid: [
         `/(?=(?=a)b)/`,
 

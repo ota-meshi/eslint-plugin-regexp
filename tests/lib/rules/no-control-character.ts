@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-control-character", rule as any, {
+tester.run("no-control-character", rule, {
     valid: [
         "/x1f/",
         String.raw`/\\x1f/`,

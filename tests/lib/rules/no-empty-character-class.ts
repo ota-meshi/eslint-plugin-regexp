@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-character-class", rule as any, {
+tester.run("no-empty-character-class", rule, {
     valid: [
         `/[a]/`,
         `/[a-z]/`,

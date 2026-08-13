@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-character-class", rule as any, {
+tester.run("no-useless-character-class", rule, {
     valid: [
         `/regexp/`,
         `/[^a]/`,

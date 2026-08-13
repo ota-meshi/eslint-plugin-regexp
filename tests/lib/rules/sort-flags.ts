@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("sort-flags", rule as any, {
+tester.run("sort-flags", rule, {
     valid: [
         String.raw`/\w/i`,
         String.raw`/\w/im`,

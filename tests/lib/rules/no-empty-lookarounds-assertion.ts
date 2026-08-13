@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-lookarounds-assertion", rule as any, {
+tester.run("no-empty-lookarounds-assertion", rule, {
     valid: [
         "/x(?=y)/",
         "/x(?!y)/",

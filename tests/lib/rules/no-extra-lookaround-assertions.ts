@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-extra-lookaround-assertions", rule as any, {
+tester.run("no-extra-lookaround-assertions", rule, {
     valid: [
         `console.log('JavaScript'.replace(/Java(?=Script)/u, 'Type'))`,
         `console.log('JavaScript'.replace(/(?<=Java)Script/u, ''))`,

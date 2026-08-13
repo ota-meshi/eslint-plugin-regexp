@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-range", rule as any, {
+tester.run("no-useless-range", rule, {
     valid: [`/[a]/`, `/[ab]/`, `/[a-c]/`],
     invalid: [
         `/[a-a]/`,

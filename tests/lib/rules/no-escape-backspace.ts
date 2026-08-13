@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-escape-backspace", rule as any, {
+tester.run("no-escape-backspace", rule, {
     valid: [
         String.raw`/\b/`,
         String.raw`/\u0008/`,

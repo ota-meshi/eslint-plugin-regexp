@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("optimal-lookaround-quantifier", rule as any, {
+tester.run("optimal-lookaround-quantifier", rule, {
     valid: [String.raw`/(?=(a*))\w+\1/`, `/(?<=a{4})/`, `/(?=a(?:(a)|b)*)/`],
     invalid: [
         `/(?=ba*)/`,

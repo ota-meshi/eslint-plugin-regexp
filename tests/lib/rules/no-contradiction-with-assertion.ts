@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-contradiction-with-assertion", rule as any, {
+tester.run("no-contradiction-with-assertion", rule, {
     valid: [
         // Ignore trivially accepting/rejecting assertions
         String.raw`/a\ba/`,

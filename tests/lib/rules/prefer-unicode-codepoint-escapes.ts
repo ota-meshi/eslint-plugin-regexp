@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-unicode-codepoint-escapes", rule as any, {
+tester.run("prefer-unicode-codepoint-escapes", rule, {
     valid: [
         `/regexp/u`,
         String.raw`/\ud83d\ude00/`,

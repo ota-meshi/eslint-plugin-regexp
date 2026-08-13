@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("grapheme-string-literal", rule as any, {
+tester.run("grapheme-string-literal", rule, {
     valid: [
         // Basic_Emoji
         String.raw`/[\q{©️|®️|‼️|⁉️|™️|ℹ️|↔️|↕️|↖️|↗️|↘️|↙️|↩️|↪️|⌨️|⏏️|⏭️|⏮️|⏯️|⏱️}]/v`,

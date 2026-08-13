@@ -11,7 +11,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("require-unicode-regexp", rule as any, {
+tester.run("require-unicode-regexp", rule, {
     valid: [
         "/foo/u",
         "/foo/gimuy",

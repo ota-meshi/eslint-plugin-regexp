@@ -12,7 +12,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-flag", rule as any, {
+tester.run("no-useless-flag", rule, {
     valid: [
         // i
         `/foo/i`,

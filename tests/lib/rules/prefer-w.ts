@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-w", rule as any, {
+tester.run("prefer-w", rule, {
     valid: [
         String.raw`/\w/`,
         String.raw`/[\Da-zA-Z_#]/`,

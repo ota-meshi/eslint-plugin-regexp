@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-predefined-assertion", rule as any, {
+tester.run("prefer-predefined-assertion", rule, {
     valid: [String.raw`/a(?=\W)/`, String.raw`/a(?=\W)/v`],
     invalid: [
         String.raw`/a(?=\w)/`,

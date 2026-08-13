@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-string-literal", rule as any, {
+tester.run("no-empty-string-literal", rule, {
     valid: [
         String.raw`/[\q{a}]/v`,
         String.raw`/[\q{abc}]/v`,

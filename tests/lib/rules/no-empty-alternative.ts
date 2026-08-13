@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-alternative", rule as any, {
+tester.run("no-empty-alternative", rule, {
     valid: [`/()|(?:)|(?=)/`, `/(?:)/`, `/a*|b+/`, String.raw`/[\q{a|b}]/v`],
     invalid: [
         `/|||||/`,

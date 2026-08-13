@@ -10,7 +10,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("use-ignore-case", rule as any, {
+tester.run("use-ignore-case", rule, {
     valid: [
         "/regexp/",
         "/[aA]/i",

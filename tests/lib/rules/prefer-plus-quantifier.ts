@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-plus-quantifier", rule as any, {
+tester.run("prefer-plus-quantifier", rule, {
     valid: ["/a+/", "/a+?/", "/(a+)/", "/(a+?)/", "/[a{1,}]/", "/a{1,2}/"],
     invalid: [
         "/a{1,}/",

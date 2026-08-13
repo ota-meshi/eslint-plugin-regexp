@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-quantifier", rule as any, {
+tester.run("prefer-quantifier", rule, {
     valid: [
         `/regexp/`,
         String.raw`/\d_\d/`,

@@ -10,7 +10,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-named-backreference", rule as any, {
+tester.run("prefer-named-backreference", rule, {
     valid: [
         String.raw`/(a)\1/`,
         String.raw`/(?<foo>a)\k<foo>/`,

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("hexadecimal-escape", rule as any, {
+tester.run("hexadecimal-escape", rule, {
     valid: [
         String.raw`/a \x0a \cM \0 \u0100 \u{100}/u`,
         String.raw`/\7/`,

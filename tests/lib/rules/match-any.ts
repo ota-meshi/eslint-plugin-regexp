@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("match-any", rule as any, {
+tester.run("match-any", rule, {
     valid: [
         String.raw`/[\s\S]/`,
         "/./s",

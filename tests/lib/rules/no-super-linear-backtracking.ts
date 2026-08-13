@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-super-linear-backtracking", rule as any, {
+tester.run("no-super-linear-backtracking", rule, {
     valid: [
         "/regexp/",
         "/a+b+a+b+/",

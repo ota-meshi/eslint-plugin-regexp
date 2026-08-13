@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-question-quantifier", rule as any, {
+tester.run("prefer-question-quantifier", rule, {
     valid: [
         "/a?/",
         "/a??/",

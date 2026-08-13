@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-misleading-capturing-group", rule as any, {
+tester.run("no-misleading-capturing-group", rule, {
     valid: [
         "/a+a+/",
         "/(a+a+)/",
