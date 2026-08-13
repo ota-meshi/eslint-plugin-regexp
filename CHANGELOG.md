@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.2.0
+
+### Minor Changes
+
+- fix(deps): update dependency jsdoc-type-pratt-parser to v9 ([#1014](https://github.com/ota-meshi/eslint-plugin-regexp/pull/1014))
+
 ## 3.1.1
 
 ### Patch Changes
