@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-character-class", rule as any, {
+tester.run("prefer-character-class", rule, {
     valid: [
         `/regexp/`,
         `/[regexp]/`,

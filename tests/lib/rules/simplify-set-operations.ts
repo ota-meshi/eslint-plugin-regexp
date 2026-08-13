@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("simplify-set-operations", rule as any, {
+tester.run("simplify-set-operations", rule, {
     valid: [
         "/[[abc]]/v",
         String.raw`/[\d]/u`,

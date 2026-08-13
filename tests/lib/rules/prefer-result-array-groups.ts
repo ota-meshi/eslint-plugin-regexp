@@ -14,7 +14,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-result-array-groups", rule as any, {
+tester.run("prefer-result-array-groups", rule, {
     valid: [
         `
         const regex = /regexp/

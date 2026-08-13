@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-lazy-ends", rule as any, {
+tester.run("no-lazy-ends", rule, {
     valid: [
         `/a+?b*/.test(str)`,
         `/a??(?:ba+?|c)*/.test(str)`,

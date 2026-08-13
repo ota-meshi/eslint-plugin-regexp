@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-octal", rule as any, {
+tester.run("no-octal", rule, {
     valid: [
         String.raw`/\0/`,
         String.raw`/[\7]/`,

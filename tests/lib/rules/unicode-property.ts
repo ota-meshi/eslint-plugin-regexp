@@ -54,7 +54,7 @@ ${keyValue}
 ${interesting}
 `.trim()
 
-tester.run("unicode-property", rule as any, {
+tester.run("unicode-property", rule, {
     valid: [
         {
             code: allForms,

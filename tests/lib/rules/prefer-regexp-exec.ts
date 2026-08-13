@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-regexp-exec", rule as any, {
+tester.run("prefer-regexp-exec", rule, {
     valid: [
         `
         /thing/.exec('something');

@@ -142,7 +142,7 @@ function findJSDocComment(node: ES.Node, sourceCode: SourceCode) {
     while (target) {
         tokenBefore = sourceCode.getTokenBefore(target, {
             includeComments: true,
-        }) as AST.Token | ES.Comment
+        })
         if (!tokenBefore) {
             return null
         }

@@ -140,7 +140,7 @@ export default createRule("match-any", {
                 if (
                     matchesAllCharacters(ccNode, flags) &&
                     !hasStrings(ccNode, flags) &&
-                    !allows.has(ccNode.raw as never)
+                    !allows.has(ccNode.raw)
                 ) {
                     context.report({
                         node,

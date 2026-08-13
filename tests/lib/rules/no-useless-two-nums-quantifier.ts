@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-two-nums-quantifier", rule as any, {
+tester.run("no-useless-two-nums-quantifier", rule, {
     valid: ["/a{1,2}/", "/a{1,}/", "/a{1}/", "/a?/"],
     invalid: [
         "/a{1,1}/",

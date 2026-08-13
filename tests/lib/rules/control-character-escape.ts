@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("control-character-escape", rule as any, {
+tester.run("control-character-escape", rule, {
     valid: [
         String.raw`/\0\t\n\v\f\r/`,
         String.raw`RegExp(/\0\t\n\v\f\r/, "i")`,

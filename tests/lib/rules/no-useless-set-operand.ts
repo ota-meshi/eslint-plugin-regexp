@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-set-operand", rule as any, {
+tester.run("no-useless-set-operand", rule, {
     valid: [String.raw`/[\w--\d]/v`],
     invalid: [
         String.raw`/[\w&&\d]/v`,

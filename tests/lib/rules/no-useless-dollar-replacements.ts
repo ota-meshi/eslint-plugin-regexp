@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-dollar-replacements", rule as any, {
+tester.run("no-useless-dollar-replacements", rule, {
     valid: [
         String.raw`
         const str = 'John Smith';

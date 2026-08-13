@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-non-capturing-group", rule as any, {
+tester.run("no-useless-non-capturing-group", rule, {
     valid: [
         `/(?:abcd)?/.test(str)`,
         `/(?:)/.test(str)`,

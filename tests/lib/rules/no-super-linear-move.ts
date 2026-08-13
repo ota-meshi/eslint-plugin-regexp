@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-super-linear-move", rule as any, {
+tester.run("no-super-linear-move", rule, {
     valid: [
         "/regexp/",
         String.raw`/\ba*:/`,

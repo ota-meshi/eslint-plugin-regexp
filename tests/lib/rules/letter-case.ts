@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("letter-case", rule as any, {
+tester.run("letter-case", rule, {
     valid: [
         `/regexp/i`,
         {

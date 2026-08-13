@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-optional-assertion", rule as any, {
+tester.run("no-optional-assertion", rule, {
     valid: [
         String.raw`/fo(?:o\b)?/`,
         String.raw`/(?:a|(\b|-){2})?/`,

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("negation", rule as any, {
+tester.run("negation", rule, {
     valid: [
         String.raw`/[\d]/`,
         String.raw`/[^\d\s]/`,

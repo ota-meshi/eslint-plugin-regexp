@@ -9,7 +9,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-backreference", rule as any, {
+tester.run("no-useless-backreference", rule, {
     valid: [
         String.raw`/.(?=(b))\1/`,
         String.raw`/(?:(a)|b)\1/`,

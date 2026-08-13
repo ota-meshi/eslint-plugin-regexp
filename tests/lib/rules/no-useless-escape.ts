@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-escape", rule as any, {
+tester.run("no-useless-escape", rule, {
     valid: [
         String.raw`/\\/; /[\\]/`, // Escape backslash \
         String.raw`/\^/; /[\^]/`, // Escape ^

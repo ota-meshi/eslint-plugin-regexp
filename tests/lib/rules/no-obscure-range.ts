@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-obscure-range", rule as any, {
+tester.run("no-obscure-range", rule, {
     valid: [
         String.raw`/[\d\0-\x1f\cA-\cZ\2-\5\012-\123\x10-\uffff a-z a-f]/`,
         {

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("require-unicode-sets-regexp", rule as any, {
+tester.run("require-unicode-sets-regexp", rule, {
     valid: [`/a/v`],
     invalid: [
         `/a/`,

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-empty-group", rule as any, {
+tester.run("no-empty-group", rule, {
     valid: ["/(a)/", "/(a|)/", "/(?:a|)/", String.raw`/(?:a|[\q{}])/v`],
     invalid: ["/()/", "/(?:)/", "/(|)/", "/(?:|)/"],
 })

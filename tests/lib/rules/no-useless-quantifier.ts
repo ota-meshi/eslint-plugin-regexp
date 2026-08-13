@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-quantifier", rule as any, {
+tester.run("no-useless-quantifier", rule, {
     valid: [
         "/a*/",
         "/(?:a)?/",

@@ -32,7 +32,7 @@ const STATIC_PROPERTIES: string[] = [
 ]
 const PROTOTYPE_METHODS: string[] = ["compile"]
 
-tester.run("no-legacy-features", rule as any, {
+tester.run("no-legacy-features", rule, {
     valid: [
         `RegExp`,
         `new RegExp()`,

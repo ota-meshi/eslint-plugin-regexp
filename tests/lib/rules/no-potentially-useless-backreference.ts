@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-potentially-useless-backreference", rule as any, {
+tester.run("no-potentially-useless-backreference", rule, {
     valid: [
         String.raw`/()\1/`,
         String.raw`/(a*)(?:a|\1)/`,

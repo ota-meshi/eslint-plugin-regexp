@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-range", rule as any, {
+tester.run("prefer-range", rule, {
     valid: [
         `/[a]/`,
         `/[ab]/`,

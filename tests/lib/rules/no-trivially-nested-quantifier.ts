@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-trivially-nested-quantifier", rule as any, {
+tester.run("no-trivially-nested-quantifier", rule, {
     valid: [
         `/(a?)+/`,
         `/(?:a{2})+/`,

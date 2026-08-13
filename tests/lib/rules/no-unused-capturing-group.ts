@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-unused-capturing-group", rule as any, {
+tester.run("no-unused-capturing-group", rule, {
     valid: [
         `
         const computed = \`---\\n\${Object.keys(fileIntro)

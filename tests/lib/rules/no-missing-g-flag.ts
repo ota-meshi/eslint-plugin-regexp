@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-missing-g-flag", rule as any, {
+tester.run("no-missing-g-flag", rule, {
     valid: [
         `
         const s = 'foo'

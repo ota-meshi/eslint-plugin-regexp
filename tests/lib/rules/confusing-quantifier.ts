@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("confusing-quantifier", rule as any, {
+tester.run("confusing-quantifier", rule, {
     valid: [
         "/a+/",
         "/a?/",

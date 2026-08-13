@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("optimal-quantifier-concatenation", rule as any, {
+tester.run("optimal-quantifier-concatenation", rule, {
     valid: [
         String.raw`/\w+\d{4}/`,
         String.raw`/\w+a/`,

@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("sort-alternatives", rule as any, {
+tester.run("sort-alternatives", rule, {
     valid: [
         String.raw`/\b(?:a|\d+|c|b)\b/`,
         String.raw`/\b(?:\^|c|b)\b/`,

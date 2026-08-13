@@ -10,7 +10,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-non-standard-flag", rule as any, {
+tester.run("no-non-standard-flag", rule, {
     valid: [`/foo/gimsuy`, `/foo/v`],
     invalid: [
         `/fo*o*/l`,

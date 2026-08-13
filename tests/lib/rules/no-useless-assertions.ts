@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-useless-assertions", rule as any, {
+tester.run("no-useless-assertions", rule, {
     valid: [
         String.raw`/\b(?:aaa|\w|\d)\b/`,
         String.raw`/\b(?:,|:)\b/`,

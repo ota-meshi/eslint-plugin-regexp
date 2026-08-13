@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-set-operation", rule as any, {
+tester.run("prefer-set-operation", rule, {
     valid: [
         String.raw`/a\b/`,
         String.raw`/a\b/u`,

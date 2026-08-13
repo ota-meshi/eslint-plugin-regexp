@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-misleading-unicode-character", rule as any, {
+tester.run("no-misleading-unicode-character", rule, {
     valid: [
         `/[👍]/u`,
         `/👍+/u`,

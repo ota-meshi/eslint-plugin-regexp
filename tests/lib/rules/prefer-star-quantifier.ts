@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("prefer-star-quantifier", rule as any, {
+tester.run("prefer-star-quantifier", rule, {
     valid: ["/a*/", "/a*?/", "/(a*)/", "/(a*?)/", "/[a{0,}]/", "/a{0,10}/"],
     invalid: [
         "/a{0,}/",

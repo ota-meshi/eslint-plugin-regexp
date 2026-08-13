@@ -8,7 +8,7 @@ const tester = new SnapshotRuleTester({
     },
 })
 
-tester.run("no-zero-quantifier", rule as any, {
+tester.run("no-zero-quantifier", rule, {
     valid: [`/a{0,1}/`, `/a{0,}/`],
     invalid: [`/a{0}/`, `/a{0}/v`, `/a{0,0}/`, `/a{0,0}?b/`, `/(a){0}/`],
 })
