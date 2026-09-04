@@ -1,5 +1,5 @@
 ---
-"eslint-plugin-regexp": patch
+"eslint-plugin-regexp": minor
 ---
 
 Handle matchAll().take()/.drop() capture usage
