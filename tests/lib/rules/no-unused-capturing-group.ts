@@ -139,6 +139,12 @@ tester.run("no-unused-capturing-group", rule, {
         const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[1])
         `,
         `
+        for (const m of 'abc_abc'.matchAll(/a(b)(c)/g).take(2)) console.log(m[1], m[2])
+        `,
+        `
+        'abc_abc'.matchAll(/a(b)(c)/g).drop(1).toArray().forEach(m => console.log(m[1], m[2]))
+        `,
+        `
         const bs = [...'abc_abc'.matchAll(/a(b)/g)].map(m => m[1])
         `,
         `
@@ -307,6 +313,10 @@ tester.run("no-unused-capturing-group", rule, {
         },
         {
             code: "const bs = 'abc_abc'.matchAll(/a(b)/g).toArray().map(m => m[0])",
+            options: [{ fixable: true }],
+        },
+        {
+            code: "const bs = 'abc_abc'.matchAll(/a(b)/g).take(2).map(m => m[0])",
             options: [{ fixable: true }],
         },
         {

@@ -137,7 +137,10 @@ type ExtractCapturingGroupReferencesContext = {
 }
 
 type ArrayMethodName =
-    Exclude<keyof unknown[], "length" | symbol | number> | "toArray"
+    | Exclude<keyof unknown[], "length" | symbol | number>
+    | "toArray"
+    | "take"
+    | "drop"
 const WELL_KNOWN_ARRAY_METHODS: {
     [key in ArrayMethodName]: {
         // If specified, the method receives a function that iterates the element.
@@ -194,6 +197,8 @@ const WELL_KNOWN_ARRAY_METHODS: {
     with: { result: "array" },
     // Iterator helpers
     toArray: { result: "array" },
+    take: { result: "iterator" },
+    drop: { result: "iterator" },
 }
 
 /**
