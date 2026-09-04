@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.3.0
+
+### Minor Changes
+
+- Handle matchAll().take()/.drop() capture usage ([#1042](https://github.com/ota-meshi/eslint-plugin-regexp/pull/1042))
+
 ## 3.2.0
 
 ### Minor Changes
