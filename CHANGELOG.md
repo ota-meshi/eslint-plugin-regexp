@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.3.1
+
+### Patch Changes
+
+- Updates unicode property alias resource with latest ([#1052](https://github.com/ota-meshi/eslint-plugin-regexp/pull/1052))
+
 ## 3.3.0
 
 ### Minor Changes
