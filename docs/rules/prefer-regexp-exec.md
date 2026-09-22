@@ -17,7 +17,7 @@ since: "v0.3.0"
 
 This rule is aimed at enforcing the more performant way of applying regular expressions on strings.
 
-This rule inspired by [@typescript-eslint/prefer-regexp-exec rule](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md).
+This rule inspired by [@typescript-eslint/prefer-regexp-exec rule](https://typescript-eslint.io/rules/prefer-regexp-exec/).
 
 <eslint-code-block>
 
@@ -49,7 +49,7 @@ Nothing.
 
 ## :books: Further reading
 
-- [@typescript-eslint/prefer-regexp-exec](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md)
+- [@typescript-eslint/prefer-regexp-exec](https://typescript-eslint.io/rules/prefer-regexp-exec/)
 
 ## :rocket: Version
 
