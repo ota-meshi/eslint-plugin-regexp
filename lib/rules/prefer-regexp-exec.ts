@@ -3,7 +3,7 @@ import { isKnownMethodCall, getStaticValue } from "../utils/ast-utils/index.ts"
 import { createRule } from "../utils/index.ts"
 import { createTypeTracker } from "../utils/type-tracker/index.ts"
 
-// Inspired by https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md
+// Inspired by https://typescript-eslint.io/rules/prefer-regexp-exec/
 export default createRule("prefer-regexp-exec", {
     meta: {
         docs: {
