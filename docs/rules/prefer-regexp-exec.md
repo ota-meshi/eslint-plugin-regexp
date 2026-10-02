@@ -17,6 +17,8 @@ since: "v0.3.0"
 
 This rule is aimed at enforcing the more performant way of applying regular expressions on strings.
 
+Since the two methods behave differently when the `g` flag is used, this rule only reports a `String#match` call if it can statically determine that the regular expression does not have the `g` flag.
+
 This rule inspired by [@typescript-eslint/prefer-regexp-exec rule](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-regexp-exec.md).
 
 <eslint-code-block>
@@ -33,12 +35,26 @@ const text = 'something';
 const search = /thing/;
 search.exec(text);
 
+function good(regexp, pattern, flags) {
+    // The flags of the regular expression are unknown.
+    text.match(regexp);
+    text.match(new RegExp(pattern, flags));
+    text.match(new RegExp(pattern, 'g'));
+    // `new RegExp(re)` copies the flags of `re` if it is a `RegExp` object.
+    text.match(new RegExp(pattern));
+}
+
 /* ✗ BAD */
 'something'.match(/thing/);
 
 'some things are just things'.match(/thing/);
 
 text.match(search);
+
+function bad(pattern) {
+    text.match(new RegExp(`^${pattern}$`));
+    text.match(new RegExp(pattern, 'i'));
+}
 ```
 
 </eslint-code-block>
