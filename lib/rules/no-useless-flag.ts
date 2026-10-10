@@ -14,6 +14,7 @@ import {
     extractExpressionReferences,
     getFlagsRange,
     getFlagsLocation,
+    getParent,
 } from "../utils/ast-utils/index.ts"
 import type { RegExpContext, RegExpContextForSource } from "../utils/index.ts"
 import {
@@ -502,6 +503,30 @@ function createUselessStickyFlagVisitor(
     })
 }
 
+const LOOP_TYPES = new Set([
+    "WhileStatement",
+    "DoWhileStatement",
+    "ForStatement",
+    "ForInStatement",
+    "ForOfStatement",
+])
+
+/**
+ * Checks whether the node is a loop, e.g. `for ( target )`, or a statement
+ * directly inside one, e.g. `for (;;) { target }`.
+ */
+function isLoopScope(node: Node): boolean {
+    if (LOOP_TYPES.has(node.type)) {
+        return true
+    }
+    const parent = getParent(node)
+    return (
+        parent != null &&
+        LOOP_TYPES.has(parent.type) &&
+        (node.type.endsWith("Statement") || node.type.endsWith("Declaration"))
+    )
+}
+
 /**
  * Create a visitor that extracts RegExpReference.
  */
@@ -630,19 +655,16 @@ function createRegExpReferenceExtractVisitor(
                 stack = stack?.upper ?? null
             },
 
-            // Stacks the scope of the loop statement. e.g. `for ( target )`
-            ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-                // Stacks the scope of statement inside the loop statement. e.g. `for (;;) { target }`
-                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement"](
-                node: Statement,
-            ) {
-                stack?.loopStack.unshift(node)
+            // A `:statement` selector can't be indexed by node type, so ESLint would match it against every node
+            "*"(node: Node) {
+                if (isLoopScope(node)) {
+                    stack?.loopStack.unshift(node as Statement)
+                }
             },
-
-            ["WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement, " +
-                ":matches(WhileStatement, DoWhileStatement, ForStatement, ForInStatement, ForOfStatement) > :statement" +
-                ":exit"]() {
-                stack?.loopStack.shift()
+            "*:exit"(node: Node) {
+                if (isLoopScope(node)) {
+                    stack?.loopStack.shift()
+                }
             },
             "Literal, NewExpression, CallExpression:exit"(node: Node) {
                 if (!stack) {
