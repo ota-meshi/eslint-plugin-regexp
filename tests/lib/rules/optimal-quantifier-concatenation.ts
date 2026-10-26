@@ -26,6 +26,14 @@ tester.run("optimal-quantifier-concatenation", rule, {
         String.raw`/^(?:\[\[\[?.+?\]?\]\]|<<.+?>>)$/`,
         String.raw`/a\s*?(?=\r?\n|\r)/`,
         "/(?:a|b)?c/v",
+        // https://github.com/ota-meshi/eslint-plugin-regexp/issues/736
+        "/^(?!.*(?=.*-)(?=.*,)).*$/",
+        "/.*(?=.*-)(?=.*,)/",
+        String.raw`/\w*(?=\w*a)b/`,
+        "/a*(?!a*b)/",
+        "/(?:a*(?!a*b))/",
+        "/a*(?!a*b)c/",
+        "/(?<=a*)a*(?=a*b)(?=a*,)/",
     ],
     invalid: [
         "/[a-fA-F][a-fA-F]?/",
