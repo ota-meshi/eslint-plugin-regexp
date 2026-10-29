@@ -428,7 +428,12 @@ function hasContinuation(element: Element, flags: ReadonlyFlags): boolean {
         }
 
         const grandParent = parent.parent
-        if (grandParent.type === "Pattern") {
+        if (
+            grandParent.type === "Pattern" ||
+            (grandParent.type === "Assertion" &&
+                grandParent.kind === "lookahead")
+        ) {
+            // only the existence of a match matters from here on
             return false
         }
         node = grandParent
