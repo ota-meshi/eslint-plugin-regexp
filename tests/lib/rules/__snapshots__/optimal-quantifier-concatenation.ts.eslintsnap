@@ -512,3 +512,15 @@ Output:
 
 [1] '[\q{a|bb}]+' can be replaced with '[\q{a|bb}]' because of '[ab]*'.
 ---
+
+
+Test: optimal-quantifier-concatenation >> invalid
+Code:
+  1 | /(?=a*(?=a*b)),/
+    |          ^~ [1]
+
+Output:
+  1 | /(?=a*(?=b)),/
+
+[1] 'a*' can be removed because it is already included by 'a*'.
+---
