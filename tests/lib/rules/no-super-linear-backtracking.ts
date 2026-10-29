@@ -25,5 +25,6 @@ tester.run("no-super-linear-backtracking", rule, {
         String.raw`/\b\w+a\w+$/`,
         String.raw`/\b\w+a?b{4}\w+$/`,
         String.raw`/[\q{a}]*b?[\q{a}]+$/v`,
+        String.raw`/\{@link[^\}\r\n]*\|[^\}\r\n]*(?:\}|$)/v`,
     ],
 })
