@@ -398,6 +398,49 @@ function getTailQuantifiers(
 }
 
 /**
+ * Returns whether the matcher can still have to match something after the given
+ * element (in its matching direction) before the whole pattern ends.
+ */
+function hasContinuation(element: Element, flags: ReadonlyFlags): boolean {
+    let node: Element = element
+    for (;;) {
+        const parent: Node = node.parent
+        if (parent.type === "Quantifier") {
+            if (parent.max > 1) {
+                // the quantified element can be matched again
+                return true
+            }
+            node = parent
+            continue
+        }
+        if (parent.type !== "Alternative") {
+            return true
+        }
+
+        const { elements } = parent
+        const index = elements.indexOf(node)
+        const following =
+            getMatchingDirection(node) === "ltr"
+                ? elements.slice(index + 1)
+                : elements.slice(0, index)
+        if (following.some((e) => !isEmpty(e, flags))) {
+            return true
+        }
+
+        const grandParent = parent.parent
+        if (
+            grandParent.type === "Pattern" ||
+            (grandParent.type === "Assertion" &&
+                grandParent.kind === "lookahead")
+        ) {
+            // only the existence of a match matters from here on
+            return false
+        }
+        node = grandParent
+    }
+}
+
+/**
  * Returns the quantifier always directly preceding the given element, if any.
  */
 function getPrecedingQuantifiers(
@@ -444,6 +487,25 @@ function getPrecedingQuantifiers(
 
     if (parent.parent.type === "Pattern") {
         return undefined
+    }
+    if (parent.parent.type === "Assertion") {
+        // Lookarounds are zero-width: whatever follows the assertion resumes at
+        // the assertion's start, so a quantifier before the assertion cannot
+        // absorb a quantifier inside of it.
+        // E.g. `.*(?=.*a)(?=.*b)` is not equivalent to `.*(?=a)(?=.*b)`.
+        //
+        // The only safe case is a positive lookahead that nothing follows,
+        // because then only the existence of a match position matters.
+        // Negative lookarounds are never safe: `a*(?!a*b)` and `a*(?!b)`
+        // can match at different indexes.
+        const assertion = parent.parent
+        if (
+            assertion.kind !== "lookahead" ||
+            assertion.negate ||
+            hasContinuation(assertion, flags)
+        ) {
+            return undefined
+        }
     }
     return getPrecedingQuantifiers(parent.parent, direction, flags)
 }
