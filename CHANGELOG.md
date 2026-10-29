@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.3.3
+
+### Patch Changes
+
+- Fix `regexp/optimal-quantifier-concatenation` autofix changing the meaning of a regex when a quantifier before a lookaround absorbs a quantifier inside the lookaround and more elements follow ([#1078](https://github.com/ota-meshi/eslint-plugin-regexp/pull/1078))
+
 ## 3.3.2
 
 ### Patch Changes
