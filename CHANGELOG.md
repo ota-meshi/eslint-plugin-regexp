@@ -1,5 +1,11 @@
 # eslint-plugin-regexp
 
+## 3.3.2
+
+### Patch Changes
+
+- Add names to flat configurations for ESLint's config inspector. ([#1073](https://github.com/ota-meshi/eslint-plugin-regexp/pull/1073))
+
 ## 3.3.1
 
 ### Patch Changes
