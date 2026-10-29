@@ -34,6 +34,8 @@ tester.run("optimal-quantifier-concatenation", rule, {
         "/(?:a*(?!a*b))/",
         "/a*(?!a*b)c/",
         "/(?<=a*)a*(?=a*b)(?=a*,)/",
+        "/a(?<=,a*)a*/",
+        "/(?<!,a*)a*b/",
     ],
     invalid: [
         "/[a-fA-F][a-fA-F]?/",
@@ -84,5 +86,7 @@ tester.run("optimal-quantifier-concatenation", rule, {
         String.raw`/\d+(\d*)/v`,
         String.raw`/a+[a\q{}]+/v`,
         String.raw`/[ab]*[\q{a|bb}]+/v`,
+
+        "/(?=a*(?=a*b)),/",
     ],
 })
