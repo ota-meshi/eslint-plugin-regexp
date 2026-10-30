@@ -1,5 +1,6 @@
 export {
     getParent,
+    dereferenceVariable,
     findVariable,
     getStringIfConstant,
     getStaticValue,

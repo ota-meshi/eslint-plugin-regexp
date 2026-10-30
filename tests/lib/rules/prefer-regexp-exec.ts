@@ -28,6 +28,7 @@ tester.run("prefer-regexp-exec", rule, {
             return 'something'.match(search);
         }
         `,
+        // A class field may be overridden or reassigned, so its flags are unknown.
         String.raw`
         class A {
             PATH_REGEXP = /^.*\//g;
@@ -46,6 +47,20 @@ tester.run("prefer-regexp-exec", rule, {
             // \`new RegExp(re)\` copies the flags of \`re\`.
             text.match(new RegExp(pattern));
             text.match(RegExp(pattern));
+        }
+        `,
+        // https://github.com/zulip/zulipbot/commit/be555bfe2e815b3d784215d472e0635da57dea2e
+        `
+        function parse(body, username) {
+            const prefix = new RegExp("@" + escapeRegExp(username), "gv");
+            return String(body).match(prefix);
+        }
+        `,
+        `
+        function fn(pattern) {
+            let re = new RegExp(pattern, 'i');
+            re = new RegExp(pattern, 'g');
+            return 'something'.match(re);
         }
         `,
         // Not the global \`RegExp\`.
@@ -104,6 +119,16 @@ tester.run("prefer-regexp-exec", rule, {
                 text.match(new RegExp(pattern + ''));
                 // The flags argument takes precedence over the flags of the pattern.
                 text.match(new RegExp(pattern, 'i'));
+            }
+            `,
+        `
+            function fn(pattern) {
+                const re = new RegExp(pattern, 'i');
+                const alias = re;
+                let unchanged = new RegExp(\`^\${pattern}$\`);
+                'something'.match(re);
+                'something'.match(alias);
+                'something'.match(unchanged);
             }
             `,
     ],

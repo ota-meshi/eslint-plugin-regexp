@@ -1,5 +1,6 @@
 import type { CallExpression, Expression } from "estree"
 import {
+    dereferenceVariable,
     findVariable,
     getStaticValue,
     getStringIfConstant,
@@ -42,7 +43,8 @@ export default createRule("prefer-regexp-exec", {
          * `String#match()` is converted into, or `null` if they cannot be
          * determined statically.
          */
-        function getKnownFlags(node: Expression): string | null {
+        function getKnownFlags(expression: Expression): string | null {
+            const node = dereferenceVariable(context, expression)
             const evaluated = getStaticValue(context, node)
             if (evaluated) {
                 if (evaluated.value instanceof RegExp) {

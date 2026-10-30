@@ -109,3 +109,25 @@ Code:
 [2] Use the `RegExp#exec()` method instead.
 [3] Use the `RegExp#exec()` method instead.
 ---
+
+
+Test: prefer-regexp-exec >> invalid
+Code:
+  1 |
+  2 |             function fn(pattern) {
+  3 |                 const re = new RegExp(pattern, 'i');
+  4 |                 const alias = re;
+  5 |                 let unchanged = new RegExp(`^${pattern}$`);
+  6 |                 'something'.match(re);
+    |                 ^~~~~~~~~~~~~~~~~~~~~ [1]
+  7 |                 'something'.match(alias);
+    |                 ^~~~~~~~~~~~~~~~~~~~~~~~ [2]
+  8 |                 'something'.match(unchanged);
+    |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~ [3]
+  9 |             }
+ 10 |             
+
+[1] Use the `RegExp#exec()` method instead.
+[2] Use the `RegExp#exec()` method instead.
+[3] Use the `RegExp#exec()` method instead.
+---
