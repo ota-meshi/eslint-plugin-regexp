@@ -45,7 +45,7 @@
         "preversion": "npm test && git add .",
         "version": "env-cmd -e version -- npm run update && git add .",
         "preversion:ci": "npm test",
-        "version:ci": "env-cmd -e version-ci -- npm run update && changeset version",
+        "version:ci": "env-cmd -e version-ci -- npm run update && changeset version && npm install --package-lock-only --ignore-scripts",
         "prerelease": "npm run clean && npm run build",
         "release": "changeset publish"
     },
