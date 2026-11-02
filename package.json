@@ -78,7 +78,7 @@
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^10.0.0",
-        "@ota-meshi/eslint-plugin": "^0.20.0",
+        "@ota-meshi/eslint-plugin": "^0.21.0",
         "@ota-meshi/site-kit-eslint-editor-vue": "^0.2.4",
         "@oxc-node/core": "^1.0.0",
         "@svitejs/changesets-changelog-github-compact": "^1.1.0",
