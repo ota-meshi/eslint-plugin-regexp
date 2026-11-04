@@ -105,9 +105,11 @@ export default createRule("no-useless-non-capturing-group", {
                         if (
                             parent.type === "Quantifier" &&
                             (alt.elements.length > 1 ||
-                                alt.elements[0].type === "Quantifier")
+                                alt.elements[0].type === "Quantifier" ||
+                                alt.elements[0].type === "Assertion")
                         ) {
                             // e.g. /(?:ab)?/
+                            // An assertion can't be quantified, e.g. /(?:^)?/ or /(?:(?<=a))?/
                             return
                         }
                         if (!canUnwrapped(gNode, alt.raw)) {
