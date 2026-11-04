@@ -122,7 +122,7 @@
         "prettier": "~3.9.6",
         "rimraf": "^6.0.1",
         "semver": "^7.5.4",
-        "stylelint": "^17.0.0",
+        "stylelint": "^18.0.0",
         "stylelint-config-recommended": "^18.0.0",
         "stylelint-config-recommended-vue": "^2.0.0",
         "tsdown": "^0.22.0",
