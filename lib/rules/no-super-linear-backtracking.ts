@@ -1,5 +1,7 @@
+import { RegExpParser } from "@eslint-community/regexpp"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Position, SourceLocation } from "estree"
+import type { ReadonlyFlags } from "regexp-ast-analysis"
 import { analyse } from "scslre"
 import type { ObjectOption } from "../types.ts"
 import { UsageOfPattern } from "../utils/get-usage-of-pattern.ts"
@@ -7,6 +9,21 @@ import type { RegExpContext } from "../utils/index.ts"
 import { createRule, defineRegexpVisitor } from "../utils/index.ts"
 import { mention } from "../utils/mention.ts"
 import { getJSRegexppAst } from "../utils/refa.ts"
+
+/**
+ * Returns whether the given pattern is valid with the given flags.
+ */
+function isValidPattern(pattern: string, flags: ReadonlyFlags): boolean {
+    try {
+        new RegExpParser().parsePattern(pattern, undefined, undefined, {
+            unicode: flags.unicode,
+            unicodeSets: flags.unicodeSets,
+        })
+        return true
+    } catch {
+        return false
+    }
+}
 
 /**
  * Returns the combined source location of the two given locations.
@@ -94,10 +111,14 @@ export default createRule("no-super-linear-backtracking", {
                     flags.ignoreCase ? "i" : ""
                 }`
 
-                const fix = fixReplaceNode(
-                    patternAst,
-                    () => report.fix()?.source ?? null,
-                )
+                const fix = fixReplaceNode(patternAst, () => {
+                    const source = report.fix()?.source
+                    // scslre doesn't escape characters like `|` in character
+                    // classes, which the `v` flag requires
+                    return source != null && isValidPattern(source, flags)
+                        ? source
+                        : null
+                })
 
                 if (report.type === "Self") {
                     context.report({
