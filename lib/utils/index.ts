@@ -13,7 +13,7 @@ import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
 import type { Rule, AST } from "eslint"
 import type * as ESTree from "estree"
 import type { ReadonlyFlags } from "regexp-ast-analysis"
-import { toCache } from "regexp-ast-analysis"
+import { hasSomeDescendant, toCache } from "regexp-ast-analysis"
 import type { RuleListener, RuleModule, PartialRuleModule } from "../types.ts"
 import {
     getFlagLocation,
@@ -330,6 +330,16 @@ function buildRegexpVisitor(
                     }),
                 })
             }
+            return
+        }
+
+        // Pattern analysis does not yet account for locally modified flags.
+        if (
+            hasSomeDescendant(
+                parsedPattern,
+                (node) => node.type === "Group" && Boolean(node.modifiers),
+            )
+        ) {
             return
         }
 
