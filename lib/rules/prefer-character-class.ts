@@ -18,6 +18,7 @@ import type { FirstConsumedChar, ReadonlyFlags } from "regexp-ast-analysis"
 import {
     getFirstConsumedChar,
     getMatchingDirection,
+    hasSomeDescendant,
     toUnicodeSet,
 } from "regexp-ast-analysis"
 import type { ObjectOption } from "../types.ts"
@@ -470,6 +471,16 @@ export default createRule("prefer-character-class", {
         ): RegExpVisitor.Handlers {
             const { node, flags, getRegexpLocation, fixReplaceNode } =
                 regexpContext
+
+            // Character analysis does not account for locally modified flags.
+            if (
+                hasSomeDescendant(
+                    regexpContext.patternAst,
+                    (n) => n.type === "Group" && Boolean(n.modifiers),
+                )
+            ) {
+                return {}
+            }
 
             /**
              * Replaces the alternatives of the given node with the given

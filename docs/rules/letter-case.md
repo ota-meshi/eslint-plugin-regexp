@@ -17,6 +17,8 @@ since: "v0.3.0"
 
 This rule is aimed to unify the case of letters.
 
+Case-insensitive letter normalization currently skips characters and ranges inside modifier groups such as `(?i:...)` or `(?-i:...)`. Escape formatting still applies inside these groups.
+
 <eslint-code-block fix>
 
 ```js
