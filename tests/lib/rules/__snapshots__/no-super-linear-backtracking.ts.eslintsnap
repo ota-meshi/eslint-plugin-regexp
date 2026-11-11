@@ -69,3 +69,14 @@ Output:
 
 [1] The quantifier '[\q{a}]*' can exchange characters with '[\q{a}]+'. Using any string accepted by /a+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
 ---
+
+
+Test: no-super-linear-backtracking >> invalid
+Code:
+  1 | /\{@link[^\}\r\n]*\|[^\}\r\n]*(?:\}|$)/v
+    |         ^~~~~~~~~~~~~~~~~~~~~~ [1]
+
+Output: unchanged
+
+[1] The quantifier '[^\}\r\n]*' can exchange characters with '[^\}\r\n]*'. Using any string accepted by /\|+/, this can be exploited to cause at least polynomial backtracking. This might cause exponential backtracking.
+---
