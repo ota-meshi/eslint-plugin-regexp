@@ -51,6 +51,9 @@ export default createRule("prefer-question-quantifier", {
                     }
                 },
                 onGroupEnter(gNode) {
+                    if (gNode.modifiers) {
+                        return
+                    }
                     const lastAlt =
                         gNode.alternatives[gNode.alternatives.length - 1]
                     if (!lastAlt.elements.length) {

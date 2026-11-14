@@ -17,6 +17,8 @@ since: "v0.11.0"
 
 ## :book: Rule Details
 
+This rule currently skips patterns containing modifier groups such as `(?i:...)` or `(?-i:...)` because its analysis does not account for local flags.
+
 If two quantified characters, character classes, or characters are concatenated, the quantifiers can be optimized if either of the characters elements is a subset of the other.
 
 Let's take `\d+\w+` as an example. <br>
