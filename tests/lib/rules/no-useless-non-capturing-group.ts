@@ -11,6 +11,11 @@ const tester = new SnapshotRuleTester({
 tester.run("no-useless-non-capturing-group", rule, {
     valid: [
         `/(?:abcd)?/.test(str)`,
+        `/(?:^)?a/.test(str)`,
+        String.raw`/(?:\b)+a/.test(str)`,
+        `/(?:(?=a))?a/u.test(str)`,
+        `/(?:(?<=a))?b/.test(str)`,
+        `/(?:(?<!a)){2}b/v.test(str)`,
         `/(?:)/.test(str)`,
         `/(?:a|b)/`, // UsageOfPattern.unknown
         {
