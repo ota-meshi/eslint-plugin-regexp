@@ -90,7 +90,7 @@ export default createRule("no-useless-non-capturing-group", {
 
             return {
                 onGroupEnter(gNode) {
-                    if (isIgnored(gNode)) {
+                    if (gNode.modifiers || isIgnored(gNode)) {
                         return
                     }
 

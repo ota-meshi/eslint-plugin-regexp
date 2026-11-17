@@ -594,6 +594,16 @@ export default createRule("optimal-quantifier-concatenation", {
             const { node, flags, getRegexpLocation, fixReplaceNode } =
                 regexpContext
 
+            // Cross-group analysis does not account for locally modified flags.
+            if (
+                hasSomeDescendant(
+                    regexpContext.patternAst,
+                    (n) => n.type === "Group" && Boolean(n.modifiers),
+                )
+            ) {
+                return {}
+            }
+
             const parser = getParser(regexpContext)
             const simplifiedAlready: Quantifier[] = []
 

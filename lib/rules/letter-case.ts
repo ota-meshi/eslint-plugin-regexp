@@ -3,6 +3,7 @@ import type {
     CharacterClassRange,
 } from "@eslint-community/regexpp/ast"
 import type { RegExpVisitor } from "@eslint-community/regexpp/visitor"
+import { hasSomeAncestor } from "regexp-ast-analysis"
 import type { ObjectOption } from "../types.ts"
 import type { RegExpContext } from "../utils/index.ts"
 import {
@@ -239,7 +240,13 @@ export default createRule("letter-case", {
             const { flags } = regexpContext
             return {
                 onCharacterEnter(cNode) {
-                    if (flags.ignoreCase) {
+                    if (
+                        flags.ignoreCase &&
+                        !hasSomeAncestor(
+                            cNode,
+                            (n) => n.type === "Group" && Boolean(n.modifiers),
+                        )
+                    ) {
                         verifyCharacterInCaseInsensitive(regexpContext, cNode)
                     }
                     const escapeKind = getEscapeSequenceKind(cNode.raw)
@@ -259,6 +266,16 @@ export default createRule("letter-case", {
                 ...(flags.ignoreCase
                     ? {
                           onCharacterClassRangeEnter(ccrNode) {
+                              if (
+                                  hasSomeAncestor(
+                                      ccrNode,
+                                      (n) =>
+                                          n.type === "Group" &&
+                                          Boolean(n.modifiers),
+                                  )
+                              ) {
+                                  return
+                              }
                               verifyCharacterClassRangeInCaseInsensitive(
                                   regexpContext,
                                   ccrNode,

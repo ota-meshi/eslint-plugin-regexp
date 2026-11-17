@@ -25,6 +25,8 @@ Character classes are also safer than alternatives because they don't require ba
 
 ### Limitations
 
+This rule currently skips patterns containing modifier groups such as `(?i:...)` or `(?-i:...)` because its analysis does not account for local flags.
+
 This rule might not be able to merge all single-character alternatives.
 
 <eslint-code-block fix>
